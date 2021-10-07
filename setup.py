@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 with open('requirements.txt') as fp:
@@ -13,12 +13,7 @@ setup(
     version='0.0.1',
     author='Splight',
     author_email='factory@splight-ae.com',
-    packages=[
-        'splight_lib',
-        'splight_lib.connector',
-        'splight_lib.connector.databases',
-        'fake_splight_lib',
-    ],
+    packages=find_packages(),
     scripts=[],
     url=None,
     license='LICENSE.txt',
