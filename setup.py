@@ -5,7 +5,7 @@ except ImportError: # for pip <= 9.0.3
     from pip.req import parse_requirements
 
 setup(
-    name='SplightLib',
+    name='splight-lib',
     version='0.1.0',
     author='Splight',
     author_email='matias.silva@splight-ae.com',
