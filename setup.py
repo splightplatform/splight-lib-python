@@ -1,8 +1,9 @@
 from setuptools import setup
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
+
+
+with open('requirements.txt') as fp:
+    install_requires = fp.readlines()
+
 
 setup(
     name='splight-lib',
@@ -15,5 +16,5 @@ setup(
     license='LICENSE.txt',
     description='Librar for Splight internal use',
     long_description=open('README.md').read(),
-    install_requires=parse_requirements('requirements.txt', session='hack')
+    install_requires=install_requires
 )

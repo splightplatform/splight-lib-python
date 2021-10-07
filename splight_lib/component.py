@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from enum import Enum, Boolean
+from enum import Enum
 from typing import List
 
 from splight_lib.asset import  Network, Asset, AssetType
@@ -15,9 +15,9 @@ class ComponentType(Enum):
 
 class DOComponentInterface(metaclass=ABCMeta):
     type = ComponentType.UNKNOWN
-    _asset_applicable = AssetType.__all__
+    _asset_applicable = AssetType
 
-    def is_applicable(self, asset: Asset) -> Boolean:
+    def is_applicable(self, asset: Asset) -> bool:
         return asset.type in self._asset_applicable
 
     @abstractmethod
@@ -26,7 +26,7 @@ class DOComponentInterface(metaclass=ABCMeta):
 
 
 class DigitalOffer:
-    def __init__(self, components: List[DOComponentInterface], network: Network) -> None:
+    def __init__(self, components: List[DOComponentInterface]) -> None:
         self.components = components
 
     def execute(self, network: Network):

@@ -1,23 +1,22 @@
 from enum import Enum
 from abc import ABCMeta
+from typing import FrozenSet
 
 from splight_lib.connector import ConnectorInterface
+from splight_lib.status import STATUS_UNKNOWN
 
 class AssetType(Enum):
     UNKNOWN = 1
     DEVICE = 2
 
-    @classmethod
-    def __all__(cls):
-        return [c.value for c in cls]
 
-
-class Asset(metclass=ABCMeta):
+class Asset(metaclass=ABCMeta):
     type = AssetType.UNKNOWN
 
     def __init__(self, name, connector: ConnectorInterface) -> None:
         self.name = name
         self.connector = connector
+        self.status = STATUS_UNKNOWN
 
 
 class RelayAsset(Asset):
@@ -37,3 +36,6 @@ class Network:
 
     def clear(self) -> None:
         self._assets = set()
+
+    def get_assets(self) -> FrozenSet[Asset]:
+        return self._assets
