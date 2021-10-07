@@ -10,7 +10,12 @@ setup(
     version='0.0.1',
     author='Splight',
     author_email='matias.silva@splight-ae.com',
-    packages=['splight_lib', 'splight_lib.connector'],
+    packages=[
+        'splight_lib',
+        'splight_lib.connector',
+        'splight_lib.connector.databases',
+        'fake_splight_lib',
+    ],
     scripts=[],
     url=None,
     license='LICENSE.txt',

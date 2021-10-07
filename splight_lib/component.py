@@ -15,10 +15,10 @@ class ComponentType(Enum):
 
 class DOComponentInterface(metaclass=ABCMeta):
     type = ComponentType.UNKNOWN
-    _asset_applicable = AssetType
+    asset_applicable = AssetType
 
     def is_applicable(self, asset: Asset) -> bool:
-        return asset.type in self._asset_applicable
+        return asset.type in self.asset_applicable
 
     @abstractmethod
     def execute(self, network: Network):

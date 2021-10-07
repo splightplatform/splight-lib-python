@@ -16,4 +16,3 @@ class ConnectorInterface(metaclass=ABCMeta):
     @abstractmethod
     def read(self):
         pass
-

@@ -10,6 +10,4 @@ class TestComponent(unittest.TestCase):
         component = FakeComponent()
         asset = RelayAsset(name='JustADummyRelay', connector=FakeConnector())
         self.assertIsInstance(component, DOComponentInterface)
-        print(asset.type)
-        print(component._asset_applicable)
         self.assertTrue(component.is_applicable(asset))
