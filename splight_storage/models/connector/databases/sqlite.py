@@ -9,8 +9,13 @@ class SQLiteDatabaseConnector(ConnectorInterface):
         self.db_connection = connect(connection_string)
         self.fetch_query = fetch_query
 
+    def _get_connection(self):
+        return self.db_connection
+
     def write(self, table_name, df: pd.DataFrame):
-        df.to_sql(table_name, self.db_connection)
+        connection = self._get_connection()
+        df.to_sql(table_name, connection)
 
     def read(self, **kwargs) -> pd.DataFrame:
-        return pd.read_sql(self.fetch_query, self.db_connection, **kwargs)
+        connection = self._get_connection()
+        return pd.read_sql(self.fetch_query, connection, **kwargs)
