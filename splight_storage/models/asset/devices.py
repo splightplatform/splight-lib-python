@@ -7,11 +7,27 @@ from . import Asset
 
 
 class Bus(Asset):
-    base_voltage = models.IntegerField()
+    base_voltage = models.FloatField(default=0)
     # region = models.CharField(max_length=100)
     # subregion = models.CharField(max_length=100)
     # substation = models.CharField(max_length=100)
 
+
+class Line(Asset):
+    base_voltage = models.FloatField(default=0)
+    current_limit = models.FloatField(default=0)
+    b0ch = models.FloatField(default=0)
+    bch = models.FloatField(default=0)
+    g0ch = models.FloatField(default=0)
+    gch = models.FloatField(default=0)
+    length = models.FloatField(default=0)
+    r = models.FloatField(default=0)
+    x = models.FloatField(default=0)
+    x0 = models.FloatField(default=0)
+    #     # "buses": [
+#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
+#     #     "_EBDCA7E0-7FBC-4476-9CF4-EFA7996A6EC0"
+#     # ]
 
 # class LineAsset(Asset):
 #     type = AssetType.DEVICE
@@ -33,6 +49,39 @@ class Bus(Asset):
 #     #     "_EBDCA7E0-7FBC-4476-9CF4-EFA7996A6EC0"
 #     # ]
 
+
+class GeneratingUnit(Asset):
+    governor_SCD = models.FloatField(default=0)
+    max_length = models.FloatField(default=0)
+    maximum_allowable_spinning_reserve = models.FloatField(default=0)
+    min_operating_P = models.FloatField(default=0)
+    nominal_P = models.FloatField(default=0)
+    normal_PF = models.FloatField(default=0)
+    startup_cost = models.FloatField(default=0)
+    variable_cost = models.FloatField(default=0)
+#   "machines": {
+#     #     "_7FAAE74C-7C1F-46D8-8481-8F82AC4BD729": {
+#     #         "name": "Generador 1",
+#     #         "type": "synchronous",
+#     #         "maxQ": "400",
+#     #         "minQ": "-400",
+#     #         "qPercent": "100",
+#     #         "r": "0",
+#     #         "r0": "0",
+#     #         "r2": "0",
+#     #         "ratedS": "400",
+#     #         "x": "0.845",
+#     #         "x0": "0.04225",
+#     #         "x2": "0.0845",
+#     #         "bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6",
+#     #         "powerflow": {
+#     #             "p": "9.79233",
+#     #             "q": "2.09433"
+#     #         },
+#     #         "base_voltage": "13",
+#     #         "control_v": "1.03",
+#     #         "regulated_bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6"
+#     #     }
 
 # class GeneratingUnitAsset(Asset):
 #     type = AssetType.DEVICE
@@ -97,14 +146,42 @@ class PowerTransformerWinding(models.Model):
     current_limit = models.FloatField()
     code_connect = models.CharField(max_length=10)
     type = models.CharField(max_length=10, default='primary')
-    bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus", related_name='windings', on_delete=models.CASCADE)
-    tap_changer = models.ForeignKey(PowerTransformerTapChanger, null=True, blank=True, on_delete=models.CASCADE)
+    bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus",
+                            related_name='windings', on_delete=models.CASCADE)
+    tap_changer = models.ForeignKey(
+        PowerTransformerTapChanger, null=True, blank=True, on_delete=models.CASCADE)
 
 
 class PowerTransformer(Asset):
     windings = models.ManyToManyField(PowerTransformerWinding)
 
 
+class LoadResponse(models.Model):
+    exponent_model = models.BooleanField(default=True)
+    p_constant_power = models.FloatField(null=True)
+    p_constant_current = models.FloatField(null=True)
+    p_constant_impedance = models.FloatField(null=True)
+    q_constant_power = models.FloatField(null=True)
+    q_constant_current = models.FloatField(null=True)
+    q_constant_impedance = models.FloatField(null=True)
+
+
+class PowerFlow(models.Model):
+    p = models.IntegerField()
+    q = models.IntegerField()
+
+
+class Load(Asset):
+    # bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus",
+    #                        related_name='load', on_delete=models.CASCADE)
+    load_response = models.OneToOneField(
+        LoadResponse, related_name="load", on_delete=models.CASCADE)
+    base_voltage = models.IntegerField(default=0)
+    powerflow = models.OneToOneField(
+        PowerFlow, related_name="load", on_delete=models.CASCADE)
+
+    # subregion = models.
+    # substation = models.
 # class Load(Asset):
 #     type = AssetType.DEVICE
 #     # "name": "General Load(1)",
@@ -128,6 +205,16 @@ class PowerTransformer(Asset):
 #     # }
 
 
+class Shunt(Asset):
+    base_voltage = models.FloatField(default=0)
+    b0_per_sections = models.FloatField(default=0)
+    b_per_sections = models.FloatField(default=0)
+    g0_per_sections = models.FloatField(default=0)
+    g_per_sections = models.FloatField(default=0)
+    max_sections = models.IntegerField(default=0)
+    # "bus": "_2ADFBFB3-82BA-4689-AD12-FA86CBB3ABA8"
+    current_section = models.IntegerField(default=0)
+
 # class Shunt(Asset):
 #     type = AssetType.DEVICE
 #     # "name": "SH1(1)",
@@ -141,6 +228,12 @@ class PowerTransformer(Asset):
 #     # "current_section": "1"
 
 
+class Shunt(Asset):
+    base_voltage = models.IntegerField(default=0)
+    #     # "buses": [
+    #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
+    #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
+    # ]
 # class Switch(Asset):
 #     type = AssetType.DEVICE
 #     # "name": "IS1.2",
@@ -149,4 +242,3 @@ class PowerTransformer(Asset):
 #     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
 #     #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
 #     # ]
-
