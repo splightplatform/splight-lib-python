@@ -5,6 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 INSTALLED_APPS = [
+    'django.contrib.contenttypes',
     'splight_storage'
 ]
 

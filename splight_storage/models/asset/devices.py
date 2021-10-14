@@ -6,13 +6,11 @@ from . import Asset
 #     type = AssetType.SENSOR
 
 
-# class BusAsset(Asset):
-#     type = AssetType.DEVICE
-#     # "name": "Te",
-#     # "base_voltage": "13",
-#     # "region": "Grid",
-#     # "subregion": "DUMMY",
-#     # "substation": "TERMINAL(2)"
+class Bus(Asset):
+    base_voltage = models.IntegerField()
+    # region = models.CharField(max_length=100)
+    # subregion = models.CharField(max_length=100)
+    # substation = models.CharField(max_length=100)
 
 
 # class LineAsset(Asset):
@@ -73,35 +71,34 @@ from . import Asset
 #     #     }
 
 
-class PowerTransformerWinding(Asset):
-    base_voltage = models.FloatField(null=True)
-    b = models.FloatField(null=True)
-    b0 = models.FloatField(null=True)
-    g = models.FloatField(null=True)
-    g0 = models.FloatField(null=True)
-    r = models.FloatField(null=True)
-    r0 = models.FloatField(null=True)
-    x = models.FloatField(null=True)
-    x0 = models.FloatField(null=True)
-    ratedS = models.FloatField(null=True)
-    ratedU = models.FloatField(null=True)
-    rground = models.FloatField(null=True)
-    xground = models.FloatField(null=True)
-    bus = models.TextField(max_length=10, null=True)
-    current_limit = models.FloatField(null=True)
-    code_connect = models.FloatField(null=True)
-    tap_changer = models.TextField(max_length=100, null=True)
+class PowerTransformerTapChanger(models.Model):
+    high_step = models.FloatField(default=0)
+    low_step = models.FloatField(default=0)
+    neutral_step = models.FloatField(default=0)
+    neturalU = models.FloatField(default=0)
+    step_voltage_increment = models.FloatField(default=0)
+    tap_position = models.FloatField(default=0)
 
 
-class PowerTransformerTapChanger(Asset):
-    
-    def __init__(self, **kwargs) -> None:
-        self.high_step = kwargs.get('high_step')
-        self.low_step = kwargs.get('low_step')
-        self.neutral_step = kwargs.get('neutral_step')
-        self.neturalU = kwargs.get('neturalU')
-        self.step_voltage_increment = kwargs.get('step_voltage_increment')
-        self.tap_position = kwargs.get('tap_position')
+class PowerTransformerWinding(models.Model):
+    base_voltage = models.FloatField()
+    b = models.FloatField()
+    b0 = models.FloatField()
+    g = models.FloatField()
+    g0 = models.FloatField()
+    r = models.FloatField()
+    r0 = models.FloatField()
+    x = models.FloatField()
+    x0 = models.FloatField()
+    ratedS = models.FloatField()
+    ratedU = models.FloatField()
+    rground = models.FloatField()
+    xground = models.FloatField()
+    current_limit = models.FloatField()
+    code_connect = models.CharField(max_length=10)
+    type = models.CharField(max_length=10, default='primary')
+    bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus", related_name='windings', on_delete=models.CASCADE)
+    tap_changer = models.ForeignKey(PowerTransformerTapChanger, null=True, blank=True, on_delete=models.CASCADE)
 
 
 class PowerTransformer(Asset):
