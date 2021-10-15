@@ -15,7 +15,7 @@ class Asset(models.Model):
         on_delete=models.SET_NULL,
     )
     connector = GenericForeignKey('connector_type', 'object_id')
-    
+
     class Meta:
         app_label = 'splight_storage'
 
@@ -31,3 +31,7 @@ class Asset(models.Model):
 
     def storage(self) -> DataFrame:
         raise NotImplementedError
+
+    @classmethod
+    def serializer_name(cls):
+        return cls.__name__.replace('Asset', 'Serializer')

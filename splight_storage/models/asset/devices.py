@@ -5,15 +5,20 @@ from . import Asset
 # class RelayAsset(Asset):
 #     type = AssetType.SENSOR
 
+class SwitchAsset(Asset):
+    base_voltage = models.IntegerField(default=0)
 
-class Bus(Asset):
-    base_voltage = models.FloatField(default=0)
-    # region = models.CharField(max_length=100)
-    # subregion = models.CharField(max_length=100)
-    # substation = models.CharField(max_length=100)
+# class Switch(Asset):
+#     type = AssetType.DEVICE
+#     # "name": "IS1.2",
+#     # "base_voltage": "220",
+#     # "buses": [
+#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
+#     #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
+#     # ]
 
 
-class Line(Asset):
+class LineAsset(Asset):
     base_voltage = models.FloatField(default=0)
     current_limit = models.FloatField(default=0)
     b0ch = models.FloatField(default=0)
@@ -24,10 +29,6 @@ class Line(Asset):
     r = models.FloatField(default=0)
     x = models.FloatField(default=0)
     x0 = models.FloatField(default=0)
-    #     # "buses": [
-#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
-#     #     "_EBDCA7E0-7FBC-4476-9CF4-EFA7996A6EC0"
-#     # ]
 
 # class LineAsset(Asset):
 #     type = AssetType.DEVICE
@@ -50,7 +51,18 @@ class Line(Asset):
 #     # ]
 
 
-class GeneratingUnit(Asset):
+class BusAsset(Asset):
+    base_voltage = models.FloatField(default=0)
+    line = models.ForeignKey(
+        LineAsset, related_name="buses", on_delete=models.CASCADE)
+    switch = models.ForeignKey(
+        SwitchAsset, related_name="buses", on_delete=models.CASCADE)
+    # region = models.CharField(max_length=100)
+    # subregion = models.CharField(max_length=100)
+    # substation = models.CharField(max_length=100)
+
+
+class GeneratingUnitAsset(Asset):
     governor_SCD = models.FloatField(default=0)
     max_length = models.FloatField(default=0)
     maximum_allowable_spinning_reserve = models.FloatField(default=0)
@@ -146,13 +158,13 @@ class PowerTransformerWinding(models.Model):
     current_limit = models.FloatField()
     code_connect = models.CharField(max_length=10)
     type = models.CharField(max_length=10, default='primary')
-    bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus",
-                            related_name='windings', on_delete=models.CASCADE)
+    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
+                            related_name='windings', on_delete=models.DO_NOTHING)
     tap_changer = models.ForeignKey(
         PowerTransformerTapChanger, null=True, blank=True, on_delete=models.CASCADE)
 
 
-class PowerTransformer(Asset):
+class PowerTransformerAsset(Asset):
     windings = models.ManyToManyField(PowerTransformerWinding)
 
 
@@ -171,13 +183,13 @@ class PowerFlow(models.Model):
     q = models.IntegerField()
 
 
-class Load(Asset):
-    # bus = models.ForeignKey(Bus, to_field="asset_ptr", db_column="bus",
-    #                        related_name='load', on_delete=models.CASCADE)
+class LoadAsset(Asset):
+    base_voltage = models.IntegerField(default=0)
+    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
+                            related_name='loads', on_delete=models.DO_NOTHING)
     load_response = models.OneToOneField(
         LoadResponse, related_name="load", on_delete=models.CASCADE)
-    base_voltage = models.IntegerField(default=0)
-    powerflow = models.OneToOneField(
+    power_flow = models.OneToOneField(
         PowerFlow, related_name="load", on_delete=models.CASCADE)
 
     # subregion = models.
@@ -205,14 +217,16 @@ class Load(Asset):
 #     # }
 
 
-class Shunt(Asset):
+class ShuntAsset(Asset):
     base_voltage = models.FloatField(default=0)
     b0_per_sections = models.FloatField(default=0)
     b_per_sections = models.FloatField(default=0)
     g0_per_sections = models.FloatField(default=0)
     g_per_sections = models.FloatField(default=0)
     max_sections = models.IntegerField(default=0)
-    # "bus": "_2ADFBFB3-82BA-4689-AD12-FA86CBB3ABA8"
+    bus = models.ForeignKey(BusAsset, to_field="asset_ptr",
+                            db_column="bus", related_name="shunts",
+                            on_delete=models.DO_NOTHING)
     current_section = models.IntegerField(default=0)
 
 # class Shunt(Asset):
@@ -226,19 +240,3 @@ class Shunt(Asset):
 #     # "max_sections": "1",
 #     # "bus": "_2ADFBFB3-82BA-4689-AD12-FA86CBB3ABA8",
 #     # "current_section": "1"
-
-
-class Shunt(Asset):
-    base_voltage = models.IntegerField(default=0)
-    #     # "buses": [
-    #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
-    #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
-    # ]
-# class Switch(Asset):
-#     type = AssetType.DEVICE
-#     # "name": "IS1.2",
-#     # "base_voltage": "220",
-#     # "buses": [
-#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
-#     #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
-#     # ]

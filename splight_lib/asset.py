@@ -1,1 +1,1 @@
-from splight_storage.models import PowerTransformer, PowerTransformerWinding, PowerTransformerTapChanger
+from splight_storage.models import PowerTransformerAsset, PowerTransformerWinding, PowerTransformerTapChanger
