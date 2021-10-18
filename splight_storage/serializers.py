@@ -1,3 +1,4 @@
+from django.db.models import fields
 from rest_framework import serializers
 from models.asset import Asset
 from models.asset.devices import *
@@ -54,15 +55,33 @@ class PowerTransformerSerializer(AssetSerializer):
         fields = super.Meta.fields + ['__all__']
 
 
-class LoadResponseSerializer(serializers.Serializer):
-    class Meta:
-        model = LoadResponse
-        fields = ['__all__']
-
-
 class PowerFlowSerializer(serializers.Serializer):
     class Meta:
         model = PowerFlow
+        fields = ['__all__']
+
+
+class MachineSerializer(Asset):
+    bus = BusSerializer()
+    regulated_bus = BusSerializer()
+    power_flow = PowerFlowSerializer()
+
+    class Meta:
+        models = MachineAsset
+        fields = super.Meta.fields + ['__all__']
+
+
+class GeneratingUnitSerializer(Asset):
+    machines = MachineSerializer(many=True)
+
+    class Meta:
+        models = GeneratingUnitAsset
+        fields = super.Meta.fields + ['__all__']
+
+
+class LoadResponseSerializer(serializers.Serializer):
+    class Meta:
+        model = LoadResponse
         fields = ['__all__']
 
 

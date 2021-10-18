@@ -62,76 +62,6 @@ class BusAsset(Asset):
     # substation = models.CharField(max_length=100)
 
 
-class GeneratingUnitAsset(Asset):
-    governor_SCD = models.FloatField(default=0)
-    max_length = models.FloatField(default=0)
-    maximum_allowable_spinning_reserve = models.FloatField(default=0)
-    min_operating_P = models.FloatField(default=0)
-    nominal_P = models.FloatField(default=0)
-    normal_PF = models.FloatField(default=0)
-    startup_cost = models.FloatField(default=0)
-    variable_cost = models.FloatField(default=0)
-#   "machines": {
-#     #     "_7FAAE74C-7C1F-46D8-8481-8F82AC4BD729": {
-#     #         "name": "Generador 1",
-#     #         "type": "synchronous",
-#     #         "maxQ": "400",
-#     #         "minQ": "-400",
-#     #         "qPercent": "100",
-#     #         "r": "0",
-#     #         "r0": "0",
-#     #         "r2": "0",
-#     #         "ratedS": "400",
-#     #         "x": "0.845",
-#     #         "x0": "0.04225",
-#     #         "x2": "0.0845",
-#     #         "bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6",
-#     #         "powerflow": {
-#     #             "p": "9.79233",
-#     #             "q": "2.09433"
-#     #         },
-#     #         "base_voltage": "13",
-#     #         "control_v": "1.03",
-#     #         "regulated_bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6"
-#     #     }
-
-# class GeneratingUnitAsset(Asset):
-#     type = AssetType.DEVICE
-#     # "type": "GeneratingUnit",
-#     # "name": "Generador 1",
-#     # "governor_SCD": "0",
-#     # "max_operating_P": "9999",
-#     # "maximum_allowable_spinning_reserve": "0",
-#     # "min_operating_P": "0",
-#     # "nominal_P": "320",
-#     # "normal_PF": "1",
-#     # "startup_cost": "0",
-#     # "variable_cost": "0",
-#     # "machines": {
-#     #     "_7FAAE74C-7C1F-46D8-8481-8F82AC4BD729": {
-#     #         "name": "Generador 1",
-#     #         "type": "synchronous",
-#     #         "maxQ": "400",
-#     #         "minQ": "-400",
-#     #         "qPercent": "100",
-#     #         "r": "0",
-#     #         "r0": "0",
-#     #         "r2": "0",
-#     #         "ratedS": "400",
-#     #         "x": "0.845",
-#     #         "x0": "0.04225",
-#     #         "x2": "0.0845",
-#     #         "bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6",
-#     #         "powerflow": {
-#     #             "p": "9.79233",
-#     #             "q": "2.09433"
-#     #         },
-#     #         "base_voltage": "13",
-#     #         "control_v": "1.03",
-#     #         "regulated_bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6"
-#     #     }
-
-
 class PowerTransformerTapChanger(models.Model):
     high_step = models.FloatField(default=0)
     low_step = models.FloatField(default=0)
@@ -168,6 +98,86 @@ class PowerTransformerAsset(Asset):
     windings = models.ManyToManyField(PowerTransformerWinding)
 
 
+class PowerFlow(models.Model):
+    p = models.IntegerField()
+    q = models.IntegerField()
+#     # "powerflow": {
+#     #     "p": "80",
+#     #     "q": "30"
+#     # }
+
+
+class GeneratingUnitAsset(Asset):
+    governor_SCD = models.FloatField(default=0)
+    max_length = models.FloatField(default=0)
+    maximum_allowable_spinning_reserve = models.FloatField(default=0)
+    min_operating_P = models.FloatField(default=0)
+    nominal_P = models.FloatField(default=0)
+    normal_PF = models.FloatField(default=0)
+    startup_cost = models.FloatField(default=0)
+    variable_cost = models.FloatField(default=0)
+
+# class GeneratingUnitAsset(Asset):
+#     type = AssetType.DEVICE
+#     # "type": "GeneratingUnit",
+#     # "name": "Generador 1",
+#     # "governor_SCD": "0",
+#     # "max_operating_P": "9999",
+#     # "maximum_allowable_spinning_reserve": "0",
+#     # "min_operating_P": "0",
+#     # "nominal_P": "320",
+#     # "normal_PF": "1",
+#     # "startup_cost": "0",
+#     # "variable_cost": "0",
+#     # "machines": {
+#     #     "_7FAAE74C-7C1F-46D8-8481-8F82AC4BD729": {}
+#     # }
+
+
+class MachineAsset(Asset):
+    type = models.CharField(max_length=100)
+    maxQ = models.IntegerField(default=0)
+    minQ = models.IntegerField(default=0)
+    qPercent = models.IntegerField(default=0)
+    r = models.IntegerField(default=0)
+    r0 = models.IntegerField(default=0)
+    r2 = models.IntegerField(default=0)
+    rared = models.IntegerField(default=0)
+    x = models.IntegerField(default=0)
+    x0 = models.IntegerField(default=0)
+    x2 = models.IntegerField(default=0)
+    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
+                            related_name='machines', on_delete=models.DO_NOTHING)
+    regulated_bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="regulated_bus",
+                                      related_name='regulated_machines', on_delete=models.DO_NOTHING)
+    power_flow = models.OneToOneField(
+        PowerFlow, related_name="machine", on_delete=models.CASCADE, null=True)
+    base_voltage = models.FloatField(default=0)
+    control_v = models.CharField(max_length=100)
+    generating_unit = models.ForeignKey(
+        GeneratingUnitAsset, to_field="asset_ptr",
+        db_column="generating_unit", related_name="machines", on_delete=models.CASCADE)
+
+# class Machine(Asset):
+#     "name": "Generador 1",
+#     "type": "synchronous",
+#     "maxQ": "400",
+#     "minQ": "-400",
+#     "qPercent": "100",
+#     "r": "0",
+#     "r0": "0",
+#     "r2": "0",
+#     "ratedS": "400",
+#     "x": "0.845",
+#     "x0": "0.04225",
+#     "x2": "0.0845",
+#     "bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6",
+#     "powerflow": {},
+#     "base_voltage": "13",
+#     "control_v": "1.03",
+#     "regulated_bus": "_A18D288E-4927-4F7E-8848-8F2FC0BF95B6"
+
+
 class LoadResponse(models.Model):
     exponent_model = models.BooleanField(default=True)
     p_constant_power = models.FloatField(null=True)
@@ -176,11 +186,15 @@ class LoadResponse(models.Model):
     q_constant_power = models.FloatField(null=True)
     q_constant_current = models.FloatField(null=True)
     q_constant_impedance = models.FloatField(null=True)
-
-
-class PowerFlow(models.Model):
-    p = models.IntegerField()
-    q = models.IntegerField()
+#  "load_response": {
+#    exponent_model = models.BooleanField(default=True)
+#    p_constant_power = models.FloatField(null=True)
+#    p_constant_current = models.FloatField(null=True)
+#    p_constant_impedance = models.FloatField(null=True)
+#    q_constant_power = models.FloatField(null=True)
+#    q_constant_current = models.FloatField(null=True)
+#    q_constant_impedance = models.FloatField(null=True)
+# }
 
 
 class LoadAsset(Asset):
@@ -190,31 +204,20 @@ class LoadAsset(Asset):
     load_response = models.OneToOneField(
         LoadResponse, related_name="load", on_delete=models.CASCADE)
     power_flow = models.OneToOneField(
-        PowerFlow, related_name="load", on_delete=models.CASCADE)
-
+        PowerFlow, related_name="load", on_delete=models.CASCADE, null=True)
     # subregion = models.
     # substation = models.
+
 # class Load(Asset):
 #     type = AssetType.DEVICE
 #     # "name": "General Load(1)",
 #     # "bus": "_B753D49E-C08A-47C7-90FF-ABA9DF9704C6",
-#     # "load_response": {
-#     #     "exponent_model": "false",
-#     #     "p_constant_power": "1.0",
-#     #     "p_constant_current": "-",
-#     #     "p_constant_impedance": "-",
-#     #     "q_constant_power": "1.0",
-#     #     "q_constant_current": "-",
-#     #     "q_constant_impedance": "-"
-#     # },
+#     # "load_response": {},
 #     # "base_voltage": "13",
 #     # "region": "Grid",
 #     # "subregion": "GRID",
 #     # "substation": "SINGLE BUSBAR",
-#     # "powerflow": {
-#     #     "p": "80",
-#     #     "q": "30"
-#     # }
+#     # "powerflow": {}
 
 
 class ShuntAsset(Asset):

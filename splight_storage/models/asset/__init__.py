@@ -33,5 +33,5 @@ class Asset(models.Model):
         raise NotImplementedError
 
     @classmethod
-    def serializer_name(cls):
+    def serializer_name(cls) -> str:
         return cls.__name__.replace('Asset', 'Serializer')
