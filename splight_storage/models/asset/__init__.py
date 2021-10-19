@@ -15,7 +15,7 @@ class Asset(models.Model):
     subclass = models.CharField(max_length=100, default='')
     type = models.IntegerField(
         choices=AssetType.choices, null=True)
-    name = models.CharField(max_length=100, default="")
+    name = models.CharField(max_length=100)
     connector_id = models.PositiveIntegerField(blank=True, null=True)
     connector_type = models.ForeignKey(
         ContentType,
@@ -53,4 +53,4 @@ class Asset(models.Model):
 
     @classmethod
     def get_by_id(cls, asset_id):
-        return cls.objects.get_by_id(id=asset_id)
+        return cls.objects.get(id=asset_id)

@@ -25,12 +25,6 @@ class LineSerializer(AssetSerializer):
             ['base_voltage', 'current_limit', 'b0ch', 'bch',
                 'g0ch', 'gch', 'r', 'x', 'x0', 'buses']
 
-    def create(self, validated_data):
-        buses_data = validated_data.pop('buses')
-        line = LineAsset.create(**validated_data)
-        line.buses = BusAsset.objects.filter(id__in=buses_data)
-        return line
-
 
 class SwitchSerializer(AssetSerializer):
     buses = BusSerializer(many=True)
@@ -112,5 +106,6 @@ class ShuntSerializer(AssetSerializer):
 
     class Meta:
         model = ShuntAsset
-        fields = AssetSerializer.Meta.fields + ['base_voltage', 'b0_per_sections', 'b_per_sections',
-                                                'g0_per_sections', 'g_per_sections', 'max_sections', 'bus', 'current_section']
+        fields = AssetSerializer.Meta.fields + \
+            ['base_voltage', 'b0_per_sections', 'b_per_sections',
+             'g0_per_sections', 'g_per_sections', 'max_sections', 'bus', 'current_section']
