@@ -1,19 +1,19 @@
 from django.db.models import fields
 from rest_framework import serializers
-from models.asset import Asset
-from models.asset.devices import *
+from .models.asset import Asset
+from .models.asset.devices import *
 
 
-class AssetSerializer(serializers.Serializer):
+class AssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type']
 
 
 class BusSerializer(AssetSerializer):
     class Meta:
         model = BusAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + ['base_voltage']
 
 
 class LineSerializer(AssetSerializer):
@@ -21,7 +21,15 @@ class LineSerializer(AssetSerializer):
 
     class Meta:
         model = LineAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + \
+            ['base_voltage', 'current_limit', 'b0ch', 'bch',
+                'g0ch', 'gch', 'r', 'x', 'x0', 'buses']
+
+    def create(self, validated_data):
+        buses_data = validated_data.pop('buses')
+        line = LineAsset.create(**validated_data)
+        line.buses = BusAsset.objects.filter(id__in=buses_data)
+        return line
 
 
 class SwitchSerializer(AssetSerializer):
@@ -29,22 +37,22 @@ class SwitchSerializer(AssetSerializer):
 
     class Meta:
         model = SwitchAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + ['base_voltage', 'buses']
 
 
-class PowerTransformerTapChangerSerializer(serializers.Serializer):
+class PowerTransformerTapChangerSerializer(serializers.ModelSerializer):
     class Meta:
         model = PowerTransformerTapChanger
-        fields = ['__all__']
+        fields = '__all__'
 
 
-class PowerTransformerWindingSerializer(serializers.Serializer):
+class PowerTransformerWindingSerializer(serializers.ModelSerializer):
     tap_changer = PowerTransformerTapChangerSerializer()
     bus = BusSerializer()
 
     class Meta:
         model = PowerTransformerWinding
-        fields = ['__all__']
+        fields = '__all__'
 
 
 class PowerTransformerSerializer(AssetSerializer):
@@ -52,37 +60,40 @@ class PowerTransformerSerializer(AssetSerializer):
 
     class Meta:
         model = PowerTransformerAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + ['windings']
 
 
-class PowerFlowSerializer(serializers.Serializer):
+class PowerFlowSerializer(serializers.ModelSerializer):
     class Meta:
         model = PowerFlow
-        fields = ['__all__']
+        fields = '__all__'
 
 
-class MachineSerializer(Asset):
+class MachineSerializer(AssetSerializer):
     bus = BusSerializer()
     regulated_bus = BusSerializer()
     power_flow = PowerFlowSerializer()
 
     class Meta:
         models = MachineAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + \
+            ['bus', 'regulated_bus', 'power_flow']
 
 
-class GeneratingUnitSerializer(Asset):
+class GeneratingUnitSerializer(AssetSerializer):
     machines = MachineSerializer(many=True)
 
     class Meta:
         models = GeneratingUnitAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + \
+            ['governor_SCD', 'max_length', 'maximum_allowable_spinning_reserve',
+                'min_operating_P', 'nominal_P', 'normal_PF', 'startup_cost', 'variable_cost']
 
 
-class LoadResponseSerializer(serializers.Serializer):
+class LoadResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoadResponse
-        fields = ['__all__']
+        fields = '__all__'
 
 
 class LoadSerializer(AssetSerializer):
@@ -92,7 +103,8 @@ class LoadSerializer(AssetSerializer):
 
     class Meta:
         model = LoadAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + \
+            ['base_voltage', 'bus', 'load_response', 'power_flow']
 
 
 class ShuntSerializer(AssetSerializer):
@@ -100,4 +112,5 @@ class ShuntSerializer(AssetSerializer):
 
     class Meta:
         model = ShuntAsset
-        fields = super.Meta.fields + ['__all__']
+        fields = AssetSerializer.Meta.fields + ['base_voltage', 'b0_per_sections', 'b_per_sections',
+                                                'g0_per_sections', 'g_per_sections', 'max_sections', 'bus', 'current_section']

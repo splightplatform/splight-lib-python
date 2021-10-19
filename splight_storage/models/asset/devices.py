@@ -1,11 +1,48 @@
 from django.db import models
-from . import Asset
+from . import Asset, AssetType
 
+
+class DeviceAsset(Asset):
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        d = cls.objects.create(*args, **kwargs)
+        d.type = AssetType.DEVICE
+        d.subclass = cls.__name__
+        d.save()
+        return d
+
+
+class SensorAsset(Asset):
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        s = cls.objects.create(*args, **kwargs)
+        s.type = AssetType.SENSOR
+        s.save()
+        return s
+
+
+class PartOfDeviceAsset(Asset):
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        d = cls.objects.create(*args, **kwargs)
+        d.type = AssetType.PART_OF_DEVICE
+        d.save()
+        return d
 
 # class RelayAsset(Asset):
 #     type = AssetType.SENSOR
 
-class SwitchAsset(Asset):
+
+class SwitchAsset(DeviceAsset):
     base_voltage = models.IntegerField(default=0)
 
 # class Switch(Asset):
@@ -18,7 +55,7 @@ class SwitchAsset(Asset):
 #     # ]
 
 
-class LineAsset(Asset):
+class LineAsset(DeviceAsset):
     base_voltage = models.FloatField(default=0)
     current_limit = models.FloatField(default=0)
     b0ch = models.FloatField(default=0)
@@ -51,12 +88,14 @@ class LineAsset(Asset):
 #     # ]
 
 
-class BusAsset(Asset):
+class BusAsset(DeviceAsset):
     base_voltage = models.FloatField(default=0)
     line = models.ForeignKey(
-        LineAsset, related_name="buses", on_delete=models.CASCADE)
+        LineAsset, related_name="buses", on_delete=models.SET_NULL,
+        null=True)
     switch = models.ForeignKey(
-        SwitchAsset, related_name="buses", on_delete=models.CASCADE)
+        SwitchAsset, related_name="buses",
+        on_delete=models.SET_NULL, null=True)
     # region = models.CharField(max_length=100)
     # subregion = models.CharField(max_length=100)
     # substation = models.CharField(max_length=100)
@@ -72,30 +111,37 @@ class PowerTransformerTapChanger(models.Model):
 
 
 class PowerTransformerWinding(models.Model):
-    base_voltage = models.FloatField()
-    b = models.FloatField()
-    b0 = models.FloatField()
-    g = models.FloatField()
-    g0 = models.FloatField()
-    r = models.FloatField()
-    r0 = models.FloatField()
-    x = models.FloatField()
-    x0 = models.FloatField()
-    ratedS = models.FloatField()
-    ratedU = models.FloatField()
-    rground = models.FloatField()
-    xground = models.FloatField()
-    current_limit = models.FloatField()
-    code_connect = models.CharField(max_length=10)
+    base_voltage = models.FloatField(default=0)
+    b = models.FloatField(default=0)
+    b0 = models.FloatField(default=0)
+    g = models.FloatField(default=0)
+    g0 = models.FloatField(default=0)
+    r = models.FloatField(default=0)
+    r0 = models.FloatField(default=0)
+    x = models.FloatField(default=0)
+    x0 = models.FloatField(default=0)
+    ratedS = models.FloatField(default=0)
+    ratedU = models.FloatField(default=0)
+    rground = models.FloatField(default=0)
+    xground = models.FloatField(default=0)
+    current_limit = models.FloatField(default=0)
+    code_connect = models.CharField(max_length=10, default="NA")
     type = models.CharField(max_length=10, default='primary')
-    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
-                            related_name='windings', on_delete=models.DO_NOTHING)
+    bus = models.ForeignKey(BusAsset, to_field="asset_ptr",
+                            db_column="bus", related_name='windings',
+                            on_delete=models.SET_NULL, null=True)
     tap_changer = models.ForeignKey(
-        PowerTransformerTapChanger, null=True, blank=True, on_delete=models.CASCADE)
+        PowerTransformerTapChanger, null=True,
+        blank=True, on_delete=models.SET_NULL)
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        return cls.objects.create(*args, **kwargs)
 
 
-class PowerTransformerAsset(Asset):
-    windings = models.ManyToManyField(PowerTransformerWinding)
+class PowerTransformerAsset(DeviceAsset):
+    windings = models.ManyToManyField(
+        PowerTransformerWinding, related_name='transformers')
 
 
 class PowerFlow(models.Model):
@@ -106,8 +152,12 @@ class PowerFlow(models.Model):
 #     #     "q": "30"
 #     # }
 
+    @classmethod
+    def create(cls, *args, **kwargs):
+        return cls.create(*args, **kwargs)
 
-class GeneratingUnitAsset(Asset):
+
+class GeneratingUnitAsset(DeviceAsset):
     governor_SCD = models.FloatField(default=0)
     max_length = models.FloatField(default=0)
     maximum_allowable_spinning_reserve = models.FloatField(default=0)
@@ -135,7 +185,7 @@ class GeneratingUnitAsset(Asset):
 
 
 class MachineAsset(Asset):
-    type = models.CharField(max_length=100)
+    machine_type = models.CharField(max_length=100)
     maxQ = models.IntegerField(default=0)
     minQ = models.IntegerField(default=0)
     qPercent = models.IntegerField(default=0)
@@ -146,17 +196,23 @@ class MachineAsset(Asset):
     x = models.IntegerField(default=0)
     x0 = models.IntegerField(default=0)
     x2 = models.IntegerField(default=0)
-    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
-                            related_name='machines', on_delete=models.DO_NOTHING)
-    regulated_bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="regulated_bus",
-                                      related_name='regulated_machines', on_delete=models.DO_NOTHING)
+    bus = models.ForeignKey(
+        BusAsset, to_field="asset_ptr",
+        db_column="bus", related_name='machines',
+        on_delete=models.SET_NULL, null=True)
+    regulated_bus = models.ForeignKey(
+        BusAsset, to_field="asset_ptr",
+        db_column="regulated_bus", related_name='regulated_machines',
+        on_delete=models.SET_NULL, null=True)
     power_flow = models.OneToOneField(
-        PowerFlow, related_name="machine", on_delete=models.CASCADE, null=True)
+        PowerFlow, related_name="machine",
+        on_delete=models.CASCADE, null=True)
     base_voltage = models.FloatField(default=0)
     control_v = models.CharField(max_length=100)
     generating_unit = models.ForeignKey(
         GeneratingUnitAsset, to_field="asset_ptr",
-        db_column="generating_unit", related_name="machines", on_delete=models.CASCADE)
+        db_column="generating_unit", related_name="machines",
+        on_delete=models.CASCADE)
 
 # class Machine(Asset):
 #     "name": "Generador 1",
@@ -166,7 +222,7 @@ class MachineAsset(Asset):
 #     "qPercent": "100",
 #     "r": "0",
 #     "r0": "0",
-#     "r2": "0",
+#    "r2": "0",
 #     "ratedS": "400",
 #     "x": "0.845",
 #     "x0": "0.04225",
@@ -197,14 +253,17 @@ class LoadResponse(models.Model):
 # }
 
 
-class LoadAsset(Asset):
+class LoadAsset(DeviceAsset):
     base_voltage = models.IntegerField(default=0)
-    bus = models.ForeignKey(BusAsset, to_field="asset_ptr", db_column="bus",
-                            related_name='loads', on_delete=models.DO_NOTHING)
+    bus = models.ForeignKey(
+        BusAsset, to_field="asset_ptr", db_column="bus",
+        related_name='loads', on_delete=models.DO_NOTHING)
     load_response = models.OneToOneField(
-        LoadResponse, related_name="load", on_delete=models.CASCADE)
+        LoadResponse, related_name="load",
+        on_delete=models.CASCADE)
     power_flow = models.OneToOneField(
-        PowerFlow, related_name="load", on_delete=models.CASCADE, null=True)
+        PowerFlow, related_name="load",
+        on_delete=models.CASCADE, null=True)
     # subregion = models.
     # substation = models.
 
@@ -220,7 +279,7 @@ class LoadAsset(Asset):
 #     # "powerflow": {}
 
 
-class ShuntAsset(Asset):
+class ShuntAsset(DeviceAsset):
     base_voltage = models.FloatField(default=0)
     b0_per_sections = models.FloatField(default=0)
     b_per_sections = models.FloatField(default=0)
@@ -229,7 +288,8 @@ class ShuntAsset(Asset):
     max_sections = models.IntegerField(default=0)
     bus = models.ForeignKey(BusAsset, to_field="asset_ptr",
                             db_column="bus", related_name="shunts",
-                            on_delete=models.DO_NOTHING)
+                            on_delete=models.DO_NOTHING,
+                            null=True)
     current_section = models.IntegerField(default=0)
 
 # class Shunt(Asset):
