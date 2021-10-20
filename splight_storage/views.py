@@ -6,14 +6,12 @@ import splight_storage.models.asset.devices as devices
 
 
 class AssetViewSet(viewsets.ModelViewSet):
-    def delete(self, request, object_id):
-        print("hello")
-        try:
-            object = self.model.get_by_id(object_id)
-        except KeyError:
-            return Response({'detail': 'Invalid Id'}, status=status.HTTP_400_BAD_REQUEST)
-        object.delete()
-        return Response({'detail': 'Succefuly deleted'}, status=status.HTTP_200_OK)
+    def create(self, request):
+        data = request.data
+        object = self.model.create(**data)
+        object.save()
+        content = self.serializer_class(object).data
+        return Response(content, status=status.HTTP_201_CREATED)
 
 
 class BusViewSet(AssetViewSet):
@@ -42,21 +40,39 @@ class ConnectedViewSet(AssetViewSet):
 
 
 class NestedViewSet(AssetViewSet):
+
+    # children = List(child)
+    # child = {
+    #   name:str,
+    #   model: Model,
+    #   related_name: str
+    # }
+    # children_data = Dict(str,List(child_data))
+    # child_data depends on subclass
+
     children = []
 
+    def retrieve_child_object(self, child, child_data):
+        return None
+
     def retrieve_children_data(self, data):
-        children_ids = {}
+        children_dataset = {}
         for child in self.children:
             try:
                 child_data = data.pop(child['name'])
             except KeyError:
                 return Response({'detail': 'Key not found : ' + child['name']},
                                 status=status.HTTP_400_BAD_REQUEST)
-            children_ids[child['name']] = child_data
-        return children_ids
+            children_dataset[child['name']] = child_data
+        return children_dataset
 
-    def process_children(self, c_data, obj):
-        pass
+    def process_children(self, children_data, object):
+        for child in self.children:
+            child_set = getattr(object, child['name'])
+            for c_data in children_data[child['name']]:
+                child_object = self.retrieve_child_object(child, c_data)
+                child_set.add(child_object)
+                child_object.save()
 
     def create(self, request):
         data = request.data
@@ -69,24 +85,15 @@ class NestedViewSet(AssetViewSet):
 
 
 class IdNestedViewSet(NestedViewSet):
-
-    def process_children(self, children_data, object):
-        for child in self.children:
-            child_set = getattr(object, child['name'])
-            for c_id in children_data[child['name']]:
-                child_object = child['model'].get_by_id(c_id)
-                child_set.add(child_object)
-                child_object.save()
+    # child_data = List(Ids)
+    def retrieve_child_object(self, child, c_id):
+        return child['model'].get_by_id(c_id)
 
 
 class DataNestedViewSet(NestedViewSet):
-    def process_children(self, children_data, object):
-        for child in self.children:
-            for c in children_data[child['name']]:
-                child_object = child['model'].create(**c)
-                related_set = getattr(child_object, child['related_name'])
-                related_set.add(object)
-                child_object.save()
+    # child_data = List(Dict)
+    def retrieve_child_object(self, child, c_data):
+        return child['model'].create(**c_data)
 
 
 class LineViewSet(IdNestedViewSet):
@@ -113,7 +120,7 @@ class PowerTransformerViewSet(DataNestedViewSet):
     model = devices.PowerTransformerAsset
     children = [
         {'name': 'windings', 'model': devices.PowerTransformerWinding,
-            'related_name': 'transformers'}
+            'related_name': 'transformer'}
     ]
     queryset = devices.PowerTransformerAsset.objects.all()
     serializer_class = PowerTransformerSerializer

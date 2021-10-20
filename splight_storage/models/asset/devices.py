@@ -101,6 +101,11 @@ class BusAsset(DeviceAsset):
     # substation = models.CharField(max_length=100)
 
 
+class PowerTransformerAsset(DeviceAsset):
+    def thing():
+        pass
+
+
 class PowerTransformerTapChanger(models.Model):
     high_step = models.FloatField(default=0)
     low_step = models.FloatField(default=0)
@@ -127,21 +132,21 @@ class PowerTransformerWinding(models.Model):
     current_limit = models.FloatField(default=0)
     code_connect = models.CharField(max_length=10, default="NA")
     type = models.CharField(max_length=10, default='primary')
+    transformer = models.ForeignKey(
+        PowerTransformerAsset, to_field="asset_ptr",
+        db_column="transformer", related_name="windings",
+        on_delete=models.CASCADE, null=True)
+
     bus = models.ForeignKey(BusAsset, to_field="asset_ptr",
                             db_column="bus", related_name='windings',
                             on_delete=models.SET_NULL, null=True)
     tap_changer = models.ForeignKey(
         PowerTransformerTapChanger, null=True,
-        blank=True, on_delete=models.SET_NULL)
+        blank=True, on_delete=models.CASCADE)
 
     @classmethod
     def create(cls, *args, **kwargs):
         return cls.objects.create(*args, **kwargs)
-
-
-class PowerTransformerAsset(DeviceAsset):
-    windings = models.ManyToManyField(
-        PowerTransformerWinding, related_name='transformers')
 
 
 class PowerFlow(models.Model):
@@ -257,7 +262,7 @@ class LoadAsset(DeviceAsset):
     base_voltage = models.IntegerField(default=0)
     bus = models.ForeignKey(
         BusAsset, to_field="asset_ptr", db_column="bus",
-        related_name='loads', on_delete=models.DO_NOTHING)
+        related_name='loads', on_delete=models.CASCADE)
     load_response = models.OneToOneField(
         LoadResponse, related_name="load",
         on_delete=models.CASCADE)

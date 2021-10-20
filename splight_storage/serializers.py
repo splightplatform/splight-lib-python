@@ -46,7 +46,7 @@ class PowerTransformerWindingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerTransformerWinding
-        fields = '__all__'
+        exclude = ['transformer']
 
 
 class PowerTransformerSerializer(AssetSerializer):
