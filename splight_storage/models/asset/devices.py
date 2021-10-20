@@ -42,17 +42,11 @@ class PartOfDeviceAsset(Asset):
 #     type = AssetType.SENSOR
 
 
-class SwitchAsset(DeviceAsset):
-    base_voltage = models.IntegerField(default=0)
-
-# class Switch(Asset):
-#     type = AssetType.DEVICE
-#     # "name": "IS1.2",
-#     # "base_voltage": "220",
-#     # "buses": [
-#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
-#     #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
-#     # ]
+class BusAsset(DeviceAsset):
+    base_voltage = models.FloatField(default=0)
+    # region = models.CharField(max_length=100)
+    # subregion = models.CharField(max_length=100)
+    # substation = models.CharField(max_length=100)
 
 
 class LineAsset(DeviceAsset):
@@ -66,6 +60,22 @@ class LineAsset(DeviceAsset):
     r = models.FloatField(default=0)
     x = models.FloatField(default=0)
     x0 = models.FloatField(default=0)
+    buses = models.ManyToManyField(BusAsset, related_name='lines')
+
+
+class SwitchAsset(DeviceAsset):
+    base_voltage = models.IntegerField(default=0)
+    buses = models.ManyToManyField(BusAsset, related_name='switches')
+
+
+# class Switch(Asset):
+#     type = AssetType.DEVICE
+#     # "name": "IS1.2",
+#     # "base_voltage": "220",
+#     # "buses": [
+#     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
+#     #     "_3CDE0655-461F-4CDB-B462-6E09822FC5C0"
+#     # ]
 
 # class LineAsset(Asset):
 #     type = AssetType.DEVICE
@@ -86,19 +96,6 @@ class LineAsset(DeviceAsset):
 #     #     "_D517B484-1A4A-4B6E-9CA0-9E8281A57584",
 #     #     "_EBDCA7E0-7FBC-4476-9CF4-EFA7996A6EC0"
 #     # ]
-
-
-class BusAsset(DeviceAsset):
-    base_voltage = models.FloatField(default=0)
-    line = models.ForeignKey(
-        LineAsset, related_name="buses", on_delete=models.SET_NULL,
-        null=True)
-    switch = models.ForeignKey(
-        SwitchAsset, related_name="buses",
-        on_delete=models.SET_NULL, null=True)
-    # region = models.CharField(max_length=100)
-    # subregion = models.CharField(max_length=100)
-    # substation = models.CharField(max_length=100)
 
 
 class PowerTransformerAsset(DeviceAsset):
