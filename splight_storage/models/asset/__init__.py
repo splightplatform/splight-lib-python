@@ -14,7 +14,9 @@ class Asset(models.Model):
     id = models.BigAutoField(primary_key=True)
     subclass = models.CharField(max_length=100, default='')
     type = models.IntegerField(
-        choices=AssetType.choices, null=True)
+        choices=AssetType.choices,
+        null=True
+    )
     name = models.CharField(max_length=100)
     connector_id = models.PositiveIntegerField(blank=True, null=True)
     connector_type = models.ForeignKey(
@@ -22,7 +24,7 @@ class Asset(models.Model):
         blank=True,
         null=True,
         default=None,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     connector = GenericForeignKey('connector_type', 'connector_id')
 
@@ -41,16 +43,3 @@ class Asset(models.Model):
 
     def storage(self) -> DataFrame:
         raise NotImplementedError
-
-    @classmethod
-    def serializer_name(cls) -> str:
-        return cls.__name__.replace('Asset', 'Serializer')
-
-    # this methods return type depends on the child class
-    @classmethod
-    def create(cls, *args, **kwargs):
-        return cls.objects.create(*args, **kwargs)
-
-    @classmethod
-    def get_by_id(cls, asset_id):
-        return cls.objects.get(id=asset_id)
