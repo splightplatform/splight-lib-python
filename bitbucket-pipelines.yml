@@ -6,7 +6,7 @@ pipelines:
       - step:
           name: upload library to jfrog
           script:
-            - bash -e deployconfig.bash
+            - printf "[distutils]\nindex-servers=splightlib\n[splightlib]\nrepository:https://splight.jfrog.io/artifactory/api/pypi/testjfrog-pypi\nusername=thomas.vadora@splight-ae.com\npassword=4bhy35L@Tha!!fRpV2N3_oL1" >> ~/.pypirc
             - python setup.py bdist_wheel upload -r splightlib
             - rm ~/.pypirc;
     main: *shared
