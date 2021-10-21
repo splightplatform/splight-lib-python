@@ -10,3 +10,4 @@ pipelines:
             - python setup.py bdist_wheel upload -r splightlib
             - rm ~/.pypirc;
     main: *shared
+    jfrogintegration: *shared
