@@ -1,15 +1,11 @@
-#  Template python-build
-
-#  This template allows you to validate your python code.
-#  The workflow allows running tests and code linting on the default branch.
-
 image: python:3.8
-
 pipelines:
   branches:
-    jfrogintegration: &shared
+    master: &shared
       - step:
           name: upload library to jfrog
           script:
-            - bash -e deploy.bash
+            - printf "[distutils]\nindex-servers=splightlib\n[splightlib]\nrepository:https://splight.jfrog.io/artifactory/api/pypi/testjfrog-pypi\nusername=bot@splight-ae.com\npassword=SPLG_db3306!!" >> ~/.pypirc
+            - python setup.py bdist_wheel upload -r splightlib
+            - rm ~/.pypirc;
     main: *shared
