@@ -1,0 +1,15 @@
+#  Template python-build
+
+#  This template allows you to validate your python code.
+#  The workflow allows running tests and code linting on the default branch.
+
+image: python:3.8
+
+pipelines:
+  branches:
+    jfrogintegration: &shared
+      - step:
+          name: upload library to jfrog
+          script:
+            - bash -e deploy.bash
+    main: *shared
