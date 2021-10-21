@@ -4,19 +4,8 @@ from django.db import models
 from pandas.core.frame import DataFrame
 
 
-class AssetType(models.IntegerChoices):
-    SENSOR = 0
-    DEVICE = 1
-    PART_OF_DEVICE = 2
-
-
 class Asset(models.Model):
     id = models.BigAutoField(primary_key=True)
-    subclass = models.CharField(max_length=100, default='')
-    type = models.IntegerField(
-        choices=AssetType.choices,
-        null=True
-    )
     name = models.CharField(max_length=100)
     connector_id = models.PositiveIntegerField(blank=True, null=True)
     connector_type = models.ForeignKey(

@@ -1,16 +1,6 @@
 # Models to be considered in database
 
-from .connector.filesystem import LocalFSConnector, FTPConnector
-from .asset.devices import PowerTransformerAsset, PowerTransformerWinding, PowerTransformerTapChanger
+from .asset.devices import *
+from .asset.network import *
 from .component import DigitalOfferComponent, DigitalOffer, RunningDigitalOffer
-
-__all__ = [
-    'LocalFSConnector',
-    'FTPConnector',
-    'PowerTransformerAsset',
-    'PowerTransformerWinding',
-    'PowerTransformerTapChanger',
-    'DigitalOfferComponent',
-    'DigitalOffer',
-    'RunningDigitalOffer',
-]
+from .connector.filesystem import LocalFSConnector, FTPConnector

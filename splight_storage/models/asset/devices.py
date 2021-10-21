@@ -83,7 +83,7 @@ class GeneratingUnitAsset(Asset):
     variable_cost = models.FloatField(default=0)
 
 
-class MachineAsset(Asset):
+class MachineAsset(models.Model):
     machine_type = models.CharField(max_length=100)
     maxQ = models.IntegerField(default=0)
     minQ = models.IntegerField(default=0)
@@ -135,8 +135,6 @@ class LoadAsset(Asset):
     power_flow = models.OneToOneField(
         PowerFlow, related_name="load",
         on_delete=models.CASCADE, null=True)
-    # subregion = models.
-    # substation = models.
 
 
 class ShuntAsset(Asset):

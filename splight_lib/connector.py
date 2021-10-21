@@ -1,1 +1,1 @@
-from splight_storage.models import LocalFSConnector
+from splight_storage.models.connector import LocalFSConnector

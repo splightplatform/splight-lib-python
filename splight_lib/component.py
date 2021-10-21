@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from splight_storage.models import (
+from splight_storage.models.component import (
     DigitalOffer,
     RunningDigitalOffer,
     DigitalOfferComponent,
