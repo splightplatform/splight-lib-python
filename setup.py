@@ -17,7 +17,7 @@ setup(
     scripts=[],
     url=None,
     license='LICENSE.txt',
-    description='Library for internal use only. Splight®',
+    description='Library for internal use only. Splight',
     long_description=open('README.md').read(),
     install_requires=install_requires,
     dependency_links=dependency_links
