@@ -2,7 +2,7 @@ image: python:3.8
 
 pipelines:
   branches:
-    jfrogintegration: &shared
+    master: &shared
       - step:
           name: upload library to jfrog
           script:
