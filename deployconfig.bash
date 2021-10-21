@@ -7,5 +7,3 @@
  username=thomas.vadora@splight-ae.com
  password=4bhy35L@Tha!!fRpV2N3_oL1
  EOF
- python setup.py bdist_wheel upload -r splightlib
- rm ~/.pypirc;

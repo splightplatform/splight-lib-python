@@ -6,5 +6,7 @@ pipelines:
       - step:
           name: upload library to jfrog
           script:
-            - bash -e deploylib.bash
+            - bash -e deployconfig.bash
+            - python setup.py bdist_wheel upload -r splightlib
+            - rm ~/.pypirc;
     main: *shared
