@@ -6,5 +6,5 @@ pipelines:
       - step:
           name: upload library to jfrog
           script:
-            - bash -e deploy.bash
+            - bash -e deploylib.bash
     main: *shared
