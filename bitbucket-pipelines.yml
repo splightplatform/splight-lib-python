@@ -1,5 +1,4 @@
 image: python:3.8
-
 pipelines:
   branches:
     master: &shared

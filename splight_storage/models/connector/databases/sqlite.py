@@ -2,6 +2,7 @@ import pandas as pd
 from sqlite3 import connect
 from connector import ConnectorTypes, ConnectorInterface
 
+
 class SQLiteDatabaseConnector(ConnectorInterface):
     type = ConnectorTypes.DATABASE
 
