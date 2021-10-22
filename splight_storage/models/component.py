@@ -1,5 +1,7 @@
 from django.db import models
 from jinja2 import Template
+from splight_storage.models.asset.network import Network
+from splight_storage.models.tenant import TenantAwareModel
 
 
 class DigitalOfferComponent(models.Model):
@@ -54,15 +56,13 @@ class DigitalOffer(models.Model):
         return self.name
 
 
-class RunningDigitalOffer(models.Model):
-    company = models.CharField(max_length=100)  # TODO auth0 relation
-    network_name = models.CharField(max_length=100)  # TODO network relation
-    digital_offer = models.ForeignKey(
-        DigitalOffer, related_name='running', on_delete=models.CASCADE)
+class RunningDigitalOffer(TenantAwareModel):
+    network = models.ForeignKey(Network, related_name="digital_offers", on_delete=models.CASCADE, null=True)
+    digital_offer = models.ForeignKey(DigitalOffer, related_name='running', on_delete=models.CASCADE)
 
     @property
     def namespace_name(self):
-        return self.company.lower()
+        return self.tenant.org_id.lower()
 
     @property
     def deployment_name(self):
@@ -74,4 +74,4 @@ class RunningDigitalOffer(models.Model):
         return template.render(rdo=self)
 
     def __str__(self):
-        return f"{self.digital_offer}@{self.network_name}-{self.company}"
+        return f"{self.digital_offer}@{self.network.name}-{self.tenant.org_id}"

@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+from splight_storage.models.tenant import TenantAwareModel
 
-class Network(models.Model):
+
+class Network(TenantAwareModel):
     name = models.CharField(max_length=50)
 
 
@@ -25,3 +27,4 @@ class NetworkRelation(models.Model):
         on_delete=models.CASCADE,
         related_name='asset_relations'
     )
+
