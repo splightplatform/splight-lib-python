@@ -5,9 +5,10 @@ from model_utils.managers import InheritanceManager
 from pandas.core.frame import DataFrame
 from splight_storage.models.tag import Tag
 from splight_storage.models.asset.network import NetworkRelation
+from splight_storage.models.tenant import TenantAwareModel
 
 
-class Asset(models.Model):
+class Asset(TenantAwareModel):
     objects = InheritanceManager()
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
