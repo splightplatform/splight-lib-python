@@ -23,5 +23,5 @@ class NetworkRelation(models.Model):
         null=True,
         default=None,
         on_delete=models.CASCADE,
-        related_name='assets'
+        related_name='asset_relations'
     )
