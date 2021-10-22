@@ -107,7 +107,7 @@ class MachineAsset(models.Model):
         PowerFlow, related_name="machine",
         on_delete=models.CASCADE, null=True)
     base_voltage = models.FloatField(default=0)
-    control_v = models.CharField(max_length=100)
+    control_v = models.FloatField(default=0)
     generating_unit = models.ForeignKey(
         GeneratingUnitAsset, to_field="asset_ptr",
         db_column="generating_unit", related_name="machines",
