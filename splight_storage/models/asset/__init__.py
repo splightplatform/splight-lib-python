@@ -5,6 +5,7 @@ from model_utils.managers import InheritanceManager
 from pandas.core.frame import DataFrame
 from splight_storage.models.tag import Tag
 from splight_storage.models.asset.network import NetworkRelation
+from splight_storage.models.tag import Tag
 from splight_storage.models.tenant import TenantAwareModel
 
 
@@ -27,6 +28,8 @@ class Asset(TenantAwareModel):
         content_type_field='asset_type',
         object_id_field='asset_id'
     )
+    tags = models.ManyToManyField(Tag)
+
 
     class Meta:
         app_label = 'splight_storage'
