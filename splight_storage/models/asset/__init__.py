@@ -4,8 +4,6 @@ from django.db import models
 from model_utils.managers import InheritanceManager
 from pandas.core.frame import DataFrame
 from splight_storage.models.tag import Tag
-from splight_storage.models.asset.network import NetworkRelation
-from splight_storage.models.tag import Tag
 from splight_storage.models.tenant import TenantAwareModel
 
 
@@ -23,11 +21,6 @@ class Asset(TenantAwareModel):
         on_delete=models.CASCADE,
     )
     connector = GenericForeignKey('connector_type', 'connector_id')
-    network_relations = GenericRelation(
-        NetworkRelation,
-        content_type_field='asset_type',
-        object_id_field='asset_id'
-    )
     tags = models.ManyToManyField(Tag)
 
 
