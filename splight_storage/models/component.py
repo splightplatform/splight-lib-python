@@ -15,7 +15,8 @@ class DigitalOfferComponent(models.Model):
 
 class DigitalOffer(models.Model):
     name = models.CharField(max_length=100)
-    components = models.ManyToManyField(DigitalOfferComponent, related_name='digital_offers')
+    components = models.ManyToManyField(
+        DigitalOfferComponent, related_name='digital_offers')
 
     @property
     def template_yaml(self):
@@ -42,7 +43,7 @@ class DigitalOffer(models.Model):
                         {{% for component in rdo.digital_offer.components.all() %}}
                         - name: {{{{component.container_name}}}}
                           image: splight-components
-                          command: ["python", 'runner.py']  
+                          command: ["python", 'runner.py']
                           args: ['-c', '{{{{ component.name }}}}', '-n', '{{{{ rdo.network_name }}}}']
                           imagePullPolicy: "IfNotPresent"
                           tty: true
@@ -54,9 +55,10 @@ class DigitalOffer(models.Model):
 
 
 class RunningDigitalOffer(models.Model):
-    company = models.CharField(max_length=100) # TODO auth0 relation
-    network_name = models.CharField(max_length=100) # TODO network relation
-    digital_offer = models.ForeignKey(DigitalOffer, related_name='running', on_delete=models.CASCADE)
+    company = models.CharField(max_length=100)  # TODO auth0 relation
+    network_name = models.CharField(max_length=100)  # TODO network relation
+    digital_offer = models.ForeignKey(
+        DigitalOffer, related_name='running', on_delete=models.CASCADE)
 
     @property
     def namespace_name(self):
@@ -65,7 +67,7 @@ class RunningDigitalOffer(models.Model):
     @property
     def deployment_name(self):
         return f"{self.namespace_name}-{self.id}"
-    
+
     @property
     def deployment_yaml(self):
         template = Template(self.digital_offer.template_yaml)

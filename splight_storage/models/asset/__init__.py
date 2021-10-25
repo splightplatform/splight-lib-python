@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from model_utils.managers import InheritanceManager
 from pandas.core.frame import DataFrame
+from splight_storage.models.tag import Tag
 from splight_storage.models.asset.network import NetworkRelation
 
 
@@ -10,6 +11,7 @@ class Asset(models.Model):
     objects = InheritanceManager()
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    tags = models.ManyToManyField(Tag, blank=True)
     connector_id = models.PositiveIntegerField(blank=True, null=True)
     connector_type = models.ForeignKey(
         ContentType,
