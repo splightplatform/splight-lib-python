@@ -2,7 +2,9 @@ from django.db import models
 
 
 class CrossTenantTryException(Exception):
-    pass
+    def __init__(self, conflicts, *args, **kwargs) -> None:
+        self.conflicts = conflicts
+        super().__init__(*args, **kwargs)
 
 
 class Tenant(models.Model):
@@ -18,15 +20,18 @@ class TenantAwareModel(models.Model):
 
     def save(self, *args, **kwargs):
         # Check consistency between TenantAwareModels
-        nested_model_names = [field for field in self._meta.local_fields]
-        nested_tenant_aware_models = [
-            field for field in nested_model_names
+        nested_foreign_key = [
+            field for field in self._meta.local_fields
+            if type(field) == models.ForeignKey
+        ]
+        tenant_foreign_keys = [
+            field for field in nested_foreign_key
             if isinstance(getattr(self, field.name), TenantAwareModel)
         ]
         conflicts = [
-            field for field in nested_tenant_aware_models
+            field for field in tenant_foreign_keys
             if getattr(self, field.name).tenant != self.tenant
         ]
         if any(conflicts):
-            raise CrossTenantTryException
+            raise CrossTenantTryException(conflicts=conflicts)
         super(TenantAwareModel, self).save(*args, **kwargs)

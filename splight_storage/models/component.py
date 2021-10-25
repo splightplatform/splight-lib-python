@@ -1,6 +1,5 @@
 from django.db import models
 from jinja2 import Template
-from splight_storage.models.asset.network import Network
 from splight_storage.models.tag import Tag
 from splight_storage.models.tenant import TenantAwareModel
 
