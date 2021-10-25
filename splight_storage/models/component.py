@@ -1,6 +1,7 @@
 from django.db import models
 from jinja2 import Template
 from splight_storage.models.asset.network import Network
+from splight_storage.models.tag import Tag
 from splight_storage.models.tenant import TenantAwareModel
 
 
@@ -57,7 +58,7 @@ class DigitalOffer(models.Model):
 
 
 class RunningDigitalOffer(TenantAwareModel):
-    network = models.ForeignKey(Network, related_name="digital_offers", on_delete=models.CASCADE, null=True)
+    tag = models.ForeignKey(Tag, related_name="digital_offers", on_delete=models.CASCADE, null=True)
     digital_offer = models.ForeignKey(DigitalOffer, related_name='running', on_delete=models.CASCADE)
 
     @property
@@ -74,4 +75,4 @@ class RunningDigitalOffer(TenantAwareModel):
         return template.render(rdo=self)
 
     def __str__(self):
-        return f"{self.digital_offer}@{self.network.name}-{self.tenant.org_id}"
+        return f"{self.digital_offer}@{self.tag}-{self.tenant.org_id}"
