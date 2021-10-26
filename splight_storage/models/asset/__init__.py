@@ -21,8 +21,6 @@ class Asset(TenantAwareModel):
         on_delete=models.CASCADE,
     )
     connector = GenericForeignKey('connector_type', 'connector_id')
-    tags = models.ManyToManyField(Tag)
-
 
     class Meta:
         app_label = 'splight_storage'
