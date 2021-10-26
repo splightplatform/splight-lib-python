@@ -4,10 +4,10 @@ from django.db import models
 from model_utils.managers import InheritanceManager
 from pandas.core.frame import DataFrame
 from splight_storage.models.tag import Tag
-from splight_storage.models.asset.network import NetworkRelation
+from splight_storage.models.tenant import TenantAwareModel
 
 
-class Asset(models.Model):
+class Asset(TenantAwareModel):
     objects = InheritanceManager()
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
@@ -21,11 +21,8 @@ class Asset(models.Model):
         on_delete=models.CASCADE,
     )
     connector = GenericForeignKey('connector_type', 'connector_id')
-    network_relations = GenericRelation(
-        NetworkRelation,
-        content_type_field='asset_type',
-        object_id_field='asset_id'
-    )
+    tags = models.ManyToManyField(Tag)
+
 
     class Meta:
         app_label = 'splight_storage'

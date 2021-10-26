@@ -1,7 +1,9 @@
 from django.db import models
 from model_utils.managers import InheritanceManager
+from splight_storage.models.tenant import TenantAwareModel
 
-class ConnectorInterface(models.Model):
+
+class ConnectorInterface(TenantAwareModel):
     objects = InheritanceManager()
 
     class Meta:
