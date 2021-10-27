@@ -9,6 +9,7 @@ from splight_storage.models.tenant import TenantAwareModel
 
 class Asset(TenantAwareModel):
     objects = InheritanceManager()
+    external_id = models.CharField(max_length=100, blank=True)
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
     tags = models.ManyToManyField(Tag, blank=True)
