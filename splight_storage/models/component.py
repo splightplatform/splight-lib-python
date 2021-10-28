@@ -49,6 +49,9 @@ class DigitalOffer(models.Model):
                           args: ['-c', '{{{{ component.name }}}}', '-t', '{{{{ rdo.tag.id }}}}']
                           imagePullPolicy: "IfNotPresent"
                           tty: true
+                          env:
+                            - name: FAKE_DATABASE
+                              value: False
                         {{% endfor %}}
             """
 
