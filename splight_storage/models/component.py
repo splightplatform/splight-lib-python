@@ -46,7 +46,7 @@ class DigitalOffer(models.Model):
                         - name: {{{{component.container_name}}}}
                           image: splight-components
                           command: ["python", 'runner.py']
-                          args: ['-c', '{{{{ component.name }}}}', '-n', '{{{{ rdo.network_name }}}}']
+                          args: ['-c', '{{{{ component.name }}}}', '-t', '{{{{ rdo.tag.id }}}}']
                           imagePullPolicy: "IfNotPresent"
                           tty: true
                         {{% endfor %}}
