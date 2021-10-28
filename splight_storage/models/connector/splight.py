@@ -1,4 +1,4 @@
-from django import models
+from django.db import models
 from splight_lib.connector import ConnectorInterface
 
 
