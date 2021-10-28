@@ -26,7 +26,7 @@ class LocalFSConnector(ConnectorInterface):
             for f in os.listdir(cwd)
             if os.path.isfile(os.path.join(cwd, f))
         ]
-    
+
     def _apply_filter(self, df) -> DataFrame:
         if self.query is None:
             return df
@@ -38,9 +38,10 @@ class LocalFSConnector(ConnectorInterface):
         return df.sort_values(self.sort_by)
 
     def _read_files_from_dir(self, **kwargs):
-        dfs = [self._read_file(f, **kwargs) for f in self._list_files(self.path)]
+        dfs = [self._read_file(f, **kwargs)
+               for f in self._list_files(self.path)]
         df = reduce(
-            lambda  left,right: 
+            lambda left, right:
             pd.merge(left, right, how='outer'), dfs
         )
         return df
@@ -51,7 +52,7 @@ class LocalFSConnector(ConnectorInterface):
         df = pd.read_csv(self.path, **kwargs)
         df = self._apply_filter(df)
         return df
-    
+
     def hist(self, **kwargs) -> DataFrame:
         if os.path.isfile(self.path):
             func = self._read_file
