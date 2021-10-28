@@ -1,4 +1,6 @@
 import os
+import ast
+
 
 db_location = "db.sqlite3" if os.name == "nt" else "/tmp/db.sqlite3"
 
@@ -7,17 +9,7 @@ INSTALLED_APPS = [
     'splight_storage'
 ]
 
-# TODO set this from parameters
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": db_location
-    }
-}
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -28,3 +20,11 @@ DATABASES = {
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
+
+if ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "db.sqlite3" if os.name == "nt" else "/tmp/db.sqlite3",
+        }
+    }

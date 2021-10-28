@@ -52,6 +52,8 @@ class DigitalOffer(models.Model):
                           env:
                             - name: FAKE_DATABASE
                               value: False
+                            - name: POSTGRES_HOST
+                              value: host.minikube.internal
                         {{% endfor %}}
             """
 
