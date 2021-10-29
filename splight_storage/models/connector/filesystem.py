@@ -15,7 +15,7 @@ class FTPConnector(ConnectorInterface):
 
 
 class LocalFSConnector(ConnectorInterface):
-    path = models.FilePathField(max_length=10, null=True)
+    path = models.FilePathField(max_length=10, null=True, blank=True)
     query = models.CharField(max_length=100, default=None, null=True)
     sort_by = models.CharField(max_length=100, default=None, null=True)
 
