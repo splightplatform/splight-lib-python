@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('splight_storage', '0010_alter_asset_tags'),
+        ('splight_storage', '0011_alter_localfsconnector_path'),
     ]
 
     operations = [

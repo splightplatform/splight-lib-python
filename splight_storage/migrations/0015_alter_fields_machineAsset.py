@@ -7,14 +7,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('splight_storage', '0013_change_power_flow_fields_to_float'),
+        ('splight_storage', '0014_change_power_flow_fields_to_float'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='machineasset',
             name='bus',
-            field=models.ForeignKey(blank=True, db_column='bus', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='machines', to='splight_storage.busasset'),
+            field=models.ForeignKey(blank=True, db_column='bus', null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                    related_name='machines', to='splight_storage.busasset'),
         ),
         migrations.AlterField(
             model_name='machineasset',
@@ -29,6 +30,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='machineasset',
             name='regulated_bus',
-            field=models.ForeignKey(blank=True, db_column='regulated_bus', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='regulated_machines', to='splight_storage.busasset'),
+            field=models.ForeignKey(blank=True, db_column='regulated_bus', null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                    related_name='regulated_machines', to='splight_storage.busasset'),
         ),
     ]

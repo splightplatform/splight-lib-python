@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('splight_storage', '0014_alter_fields_machineAsset'),
+        ('splight_storage', '0015_alter_fields_machineAsset'),
     ]
 
     operations = [
