@@ -43,7 +43,8 @@ class DigitalOffer(models.Model):
                 spec:
                     volumes:
                         - name: data-storage
-                          hostPath: '/data'
+                          hostPath:
+                            path: "/data"
                     containers:
                         {{% for component in rdo.digital_offer.components.all() %}}
                         - name: {{{{component.container_name}}}}
@@ -52,13 +53,8 @@ class DigitalOffer(models.Model):
                           args: ['-c', '{{{{ component.name }}}}', '-t', '{{{{ rdo.tag.id }}}}']
                           imagePullPolicy: "IfNotPresent"
                           tty: true
-                          env:
-                            - name: FAKE_DATABASE
-                              value: False
-                            - name: POSTGRES_HOST
-                              value: postgres
                           volumeMounts:
-                            - mountPath: '/data'
+                            - mountPath: "/data"
                               name: data-storage
                         {{% endfor %}}
             """
@@ -73,7 +69,7 @@ class RunningDigitalOffer(TenantAwareModel):
 
     @property
     def namespace_name(self):
-        return self.tenant.org_id.lower()
+        return "default"
 
     @property
     def deployment_name(self):
