@@ -42,9 +42,8 @@ class DigitalOffer(models.Model):
                         app: {{{{rdo.deployment_name}}}}
                 spec:
                     volumes:
-                        - name: example-volume
-                          hostPath:
-                          path: '/data'
+                        - name: data-storage
+                          hostPath: /data
                     containers:
                         {{% for component in rdo.digital_offer.components.all() %}}
                         - name: {{{{component.container_name}}}}
@@ -57,9 +56,9 @@ class DigitalOffer(models.Model):
                             - name: FAKE_DATABASE
                               value: False
                             - name: POSTGRES_HOST
-                              value: host.minikube.internal
+                              value: postgres
                           volumeMounts:
-                            - mountPath: '/data'
+                            - mountPath: /data
                               name: data-storage
                         {{% endfor %}}
             """
