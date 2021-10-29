@@ -25,6 +25,6 @@ if ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.getenv("POSTGRES_PORT", "/data/db.sqlite3"),
+            "NAME": os.getenv("SQLITE_PATH", "/data/db.sqlite3"),
         }
     }
