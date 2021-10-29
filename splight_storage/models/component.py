@@ -43,7 +43,7 @@ class DigitalOffer(models.Model):
                 spec:
                     volumes:
                         - name: data-storage
-                          hostPath: /data
+                          hostPath: '/data'
                     containers:
                         {{% for component in rdo.digital_offer.components.all() %}}
                         - name: {{{{component.container_name}}}}
@@ -58,7 +58,7 @@ class DigitalOffer(models.Model):
                             - name: POSTGRES_HOST
                               value: postgres
                           volumeMounts:
-                            - mountPath: /data
+                            - mountPath: '/data'
                               name: data-storage
                         {{% endfor %}}
             """
