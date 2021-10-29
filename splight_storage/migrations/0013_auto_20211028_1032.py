@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('splight_storage', '0011_asset_external_id'),
+        ('splight_storage', '0012_asset_external_id'),
     ]
 
     operations = [
