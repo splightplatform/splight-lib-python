@@ -69,8 +69,8 @@ class PowerTransformerWinding(models.Model):
 
 
 class PowerFlow(models.Model):
-    p = models.IntegerField(default=0)
-    q = models.IntegerField(default=0)
+    p = models.FloatField(default=0)
+    q = models.FloatField(default=0)
 
 
 class GeneratingUnitAsset(Asset):
@@ -84,26 +84,27 @@ class GeneratingUnitAsset(Asset):
     variable_cost = models.FloatField(default=0)
 
 
-class MachineAsset(models.Model):
+class Machine(models.Model):
+    name = models.CharField(max_length=100, default="")
     machine_type = models.CharField(max_length=100)
-    maxQ = models.IntegerField(default=0)
-    minQ = models.IntegerField(default=0)
+    maxQ = models.FloatField(default=0)
+    minQ = models.FloatField(default=0)
     qPercent = models.IntegerField(default=0)
-    r = models.IntegerField(default=0)
-    r0 = models.IntegerField(default=0)
-    r2 = models.IntegerField(default=0)
-    rared = models.IntegerField(default=0)
-    x = models.IntegerField(default=0)
-    x0 = models.IntegerField(default=0)
-    x2 = models.IntegerField(default=0)
+    r = models.FloatField(default=0)
+    r0 = models.FloatField(default=0)
+    r2 = models.FloatField(default=0)
+    rared = models.FloatField(default=0)
+    x = models.FloatField(default=0)
+    x0 = models.FloatField(default=0)
+    x2 = models.FloatField(default=0)
     bus = models.ForeignKey(
         BusAsset, to_field="asset_ptr",
         db_column="bus", related_name='machines',
-        on_delete=models.SET_NULL, null=True)
+        on_delete=models.SET_NULL, null=True, blank=True)
     regulated_bus = models.ForeignKey(
         BusAsset, to_field="asset_ptr",
         db_column="regulated_bus", related_name='regulated_machines',
-        on_delete=models.SET_NULL, null=True)
+        on_delete=models.SET_NULL, null=True, blank=True)
     power_flow = models.OneToOneField(
         PowerFlow, related_name="machine",
         on_delete=models.CASCADE, null=True)
