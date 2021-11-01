@@ -11,6 +11,3 @@ class DigitalOfferComponentInterface(metaclass=ABCMeta):
     @abstractmethod
     def execute(self):
         pass
-
-    def deploy(self):
-        DigitalOfferComponent.objects.get_or_create(**self.__dict__)
