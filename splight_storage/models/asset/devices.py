@@ -150,3 +150,13 @@ class ShuntAsset(Asset):
                             on_delete=models.DO_NOTHING,
                             null=True)
     current_section = models.IntegerField(default=0)
+
+
+class RelayAsset(Asset):
+    mnemotechnic = models.CharField(max_length=100, unique=True)
+    infotechnic = models.CharField(max_length=100, unique=True)
+    technical_key = models.CharField(max_length=100, unique=True)
+    brand = models.CharField(max_length=100, default="", blank=True)
+    model = models.CharField(max_length=100, default="", blank=True)
+    ip = models.GenericIPAddressField(
+        protocol="both", default=None, null=True, blank=True)
