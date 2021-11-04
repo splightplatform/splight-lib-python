@@ -158,5 +158,3 @@ class RelayAsset(Asset):
     technical_key = models.CharField(max_length=100, unique=True)
     brand = models.CharField(max_length=100, default="", blank=True)
     model = models.CharField(max_length=100, default="", blank=True)
-    ip = models.GenericIPAddressField(
-        protocol="both", default=None, null=True, blank=True)
