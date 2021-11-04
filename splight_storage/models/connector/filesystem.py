@@ -1,3 +1,4 @@
+# TODO deprecate this file
 import os
 import pandas as pd
 from django.db import models
@@ -53,7 +54,7 @@ class LocalFSConnector(ConnectorInterface):
         df = self._apply_filter(df)
         return df
 
-    def hist(self, **kwargs) -> DataFrame:
+    def read(self, **kwargs) -> DataFrame:
         if os.path.isfile(self.path):
             func = self._read_file
         else:
@@ -61,7 +62,3 @@ class LocalFSConnector(ConnectorInterface):
         df = func(**kwargs)
         df = self._apply_sort(df)
         return df
-
-    def read(self, **kwargs) -> DataFrame:
-        df = self.hist()
-        return df.tail(1)

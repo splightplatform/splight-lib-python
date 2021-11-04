@@ -9,7 +9,7 @@ from splight_storage.models.tenant import TenantAwareModel
 
 class Asset(TenantAwareModel):
     objects = InheritanceManager()
-    external_id = models.CharField(max_length=100, blank=True, unique=True)
+    external_id = models.CharField(max_length=100, blank=True, unique=True) # TODO this must not be empty
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
     tags = models.ManyToManyField(Tag, blank=True)
@@ -25,16 +25,3 @@ class Asset(TenantAwareModel):
 
     class Meta:
         app_label = 'splight_storage'
-
-    def read(self) -> DataFrame:
-        if not self.connector:
-            raise NotImplementedError
-        return self.connector.read()
-
-    def hist(self) -> DataFrame:
-        if not self.connector:
-            raise NotImplementedError
-        return self.connector.hist()
-
-    def storage(self) -> DataFrame:
-        raise NotImplementedError
