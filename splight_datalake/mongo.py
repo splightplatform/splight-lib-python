@@ -4,14 +4,13 @@ from pandas import DataFrame
 from pandas.io.json import json_normalize
 from splight_lib.asset import Asset
 from typing import Dict, List
-from splight_datalake import settings
+from splight_datalake.settings import setup
 
 
 class DatalakeClient:
     logger = logging.getLogger()
 
     def __init__(self, database: str = 'default') -> None:
-        setup = settings.DATABASES[database]
         connnection = f'mongodb://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}:{setup["PORT"]}'
         client = MongoClient(connnection)
         self.db = getattr(client, database)
@@ -39,11 +38,17 @@ class DatalakeClient:
         getattr(self.db, collection).insert_many(data.to_dict("records"))
 
     def insert_or_update_many(self, asset: Asset, data: DataFrame, collection: str, indexes: List[str] = []) -> None:
-        if 'asset_id' in indexes or "asset_external_id" in indexes:
+        if 'asset_id' in data.columns or "asset_external_id" in data.columns:
             self.logger.warning("asset_id and asset_external_id going to be overwritten")
         indexes += ["asset_id", "asset_external_id"]
+        data["asset_id"] = asset.id
+        data["asset_external_id"] = asset.external_id
         for _, row in data.iterrows():
-            getattr(self.db, collection).find_one_and_update(
+            # Update try
+            result = getattr(self.db, collection).find_one_and_update(
                 {key: row[key] for key in indexes}, 
-                {"$set": row}
+                {"$set": row.to_dict()}
             )
+            # Insert if not updated
+            if result is None:
+                getattr(self.db, collection).insert(row.to_dict())
