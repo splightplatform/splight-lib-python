@@ -5,7 +5,7 @@ pipelines:
       - step:
           name: upload library to jfrog
           script:
-            - printf "[distutils]\nindex-servers=splightlib\n[splightlib]\nrepository:https://splight.jfrog.io/artifactory/api/pypi/testjfrog-pypi\nusername=bot@splight-ae.com\npassword=N0us4rExcl4maci0n!!" >> ~/.pypirc
+            - printf "[distutils]\nindex-servers=splightlib\n[splightlib]\nrepository:https://splight.jfrog.io/artifactory/api/pypi/testjfrog-pypi\nusername=bot@splight-ae.com\npassword=N0us4rExcl4maci0n" >> ~/.pypirc
             - python setup.py bdist_wheel upload -r splightlib
             - rm ~/.pypirc;
     main: *shared
