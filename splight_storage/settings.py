@@ -2,8 +2,6 @@ import os
 import ast
 
 
-db_location = "db.sqlite3" if os.name == "nt" else "/tmp/db.sqlite3"
-
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'splight_storage'

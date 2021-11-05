@@ -8,3 +8,5 @@ DATABASES = {
         "PORT": os.getenv("MONGO_PORT", "27017"),
     }
 }
+
+setup = DATABASES['default']
