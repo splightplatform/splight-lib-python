@@ -30,12 +30,12 @@ class DatalakeClient:
         filters_["asset_external_id"] = asset.external_id
         getattr(self.db, collection).delete_many(filters_)
 
-    def insert_many(self, asset: Asset, data: DataFrame, collection: str) -> None:
+    def insert_many(self, asset: Asset, data: DataFrame, collection: str, **kwargs) -> None:
         if 'asset_id' in data.columns or "asset_external_id" in data.columns:
             self.logger.warning("asset_id and asset_external_id going to be overwritten")
         data["asset_id"] = asset.id
         data["asset_external_id"] = asset.external_id
-        getattr(self.db, collection).insert_many(data.to_dict("records"))
+        getattr(self.db, collection).insert_many(data.to_dict("records"), **kwargs)
 
     def insert_or_update_many(self, asset: Asset, data: DataFrame, collection: str, indexes: List[str] = []) -> None:
         if 'asset_id' in data.columns or "asset_external_id" in data.columns:
