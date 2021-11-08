@@ -12,6 +12,10 @@ class Asset(TenantAwareModel):
     external_id = models.CharField(max_length=100, blank=True, unique=True)
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    longitude = models.DecimalField(
+        max_digits=6, decimal_places=3, null=True, blank=True)
+    latitude = models.DecimalField(
+        max_digits=6, decimal_places=3, null=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
     connector_id = models.PositiveIntegerField(blank=True, null=True)
     connector_type = models.ForeignKey(
