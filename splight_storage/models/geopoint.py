@@ -8,9 +8,5 @@ class Geopoint(TenantAwareModel):
     longitude = models.DecimalField(
         max_digits=6, decimal_places=3, null=True, blank=True)
 
-    @property
-    def status(self):
-        return 1
-
     def __str__(self):
         return '(' + str(self.latitude) + ',' + str(self.longitude) + ')'
