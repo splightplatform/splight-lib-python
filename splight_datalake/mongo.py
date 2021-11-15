@@ -11,7 +11,7 @@ class DatalakeClient:
     logger = logging.getLogger()
 
     def __init__(self, database: str = 'default') -> None:
-        connnection = f'mongodb://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}:{setup["PORT"]}'
+        connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}{setup["PORT"]}'
         client = MongoClient(connnection)
         self.db = getattr(client, database)
 
