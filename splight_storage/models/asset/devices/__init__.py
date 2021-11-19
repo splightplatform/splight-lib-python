@@ -1,23 +1,10 @@
 from django.db import models
-from . import Asset
+from .lines import LineAsset
+from .. import Asset
 
 
 class BusAsset(Asset):
     base_voltage = models.FloatField(default=0)
-
-
-class LineAsset(Asset):
-    base_voltage = models.FloatField(default=0)
-    current_limit = models.FloatField(default=0)
-    b0ch = models.FloatField(default=0)
-    bch = models.FloatField(default=0)
-    g0ch = models.FloatField(default=0)
-    gch = models.FloatField(default=0)
-    length = models.FloatField(default=0)
-    r = models.FloatField(default=0)
-    x = models.FloatField(default=0)
-    x0 = models.FloatField(default=0)
-    buses = models.ManyToManyField(BusAsset, related_name='lines')
 
 
 class SwitchAsset(Asset):
