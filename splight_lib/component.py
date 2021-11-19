@@ -8,6 +8,10 @@ from splight_storage.models.component import (
 
 class DigitalOfferComponentInterface(metaclass=ABCMeta):
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
     @abstractmethod
     def execute(self):
         pass
