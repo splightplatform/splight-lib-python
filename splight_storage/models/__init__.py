@@ -2,5 +2,6 @@
 
 from .asset.devices import *
 from .asset.sensors import *
+from .network.vpns import *
 from .component import *
 from .tenant import *
