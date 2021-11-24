@@ -4,8 +4,8 @@ class GenericFileManager:
     def __init__(self, file_repo):
         self.file_repo = file_repo
 
-    def upload_file(self, file):
+    def retrieve_file(self, file_name, path):
         pass
 
-    def retrieve_file(self, file_key):
+    def upload_file(self,):
         pass

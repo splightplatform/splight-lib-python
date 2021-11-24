@@ -17,7 +17,7 @@ class S3Manager(GenericFileManager):
         s3.download_file(Bucket=self.file_repo, Key=file_name, Filename=path)
         return path
 
-    def upload_file(self, file):
+    def upload_file(self, filepath):
         s3 = boto3.client('s3')
-        target_file_name = file.split('/')[-1]
-        s3.upload_file(f"{file}", self.file_repo, target_file_name)
+        target_file_name = filepath.split('/')[-1]
+        s3.upload_file(f"{filepath}", self.file_repo, target_file_name)
