@@ -1,5 +1,5 @@
 import os
-from splight_datalake.files.managers import managers
+from .managers import managers
 
 
 class FileManager:
