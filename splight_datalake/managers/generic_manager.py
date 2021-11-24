@@ -7,5 +7,5 @@ class GenericFileManager:
     def retrieve_file(self, file_name, path):
         pass
 
-    def upload_file(self,):
+    def upload_file(self, filepath):
         pass
