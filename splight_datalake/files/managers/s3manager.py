@@ -1,8 +1,8 @@
 import boto3
-from .generic_manager import GenericFileManager
+from .abstract import AbstractFileManager
 
 
-class S3Manager(GenericFileManager):
+class S3Manager(AbstractFileManager):
 
     def __init__(self, *args, **kwargs):
         super(S3Manager, self).__init__(*args, **kwargs)
