@@ -7,9 +7,7 @@ class S3Manager(AbstractFileManager):
     def __init__(self, *args, **kwargs):
         super(S3Manager, self).__init__(*args, **kwargs)
 
-    def retrieve_file(self, file_name=None, path=None):
-        if file_name is None:
-            return
+    def retrieve_file(self, file_name, path=None):
         if path is None:
             path = f"/tmp/{file_name}"
 
