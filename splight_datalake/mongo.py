@@ -1,8 +1,10 @@
 import logging
+from os import pipe
+from warnings import filters
 from pymongo import MongoClient
 from pandas import DataFrame
 from pandas import json_normalize
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from splight_lib.asset import Asset
 from splight_lib.tag import Tag
@@ -30,14 +32,15 @@ class DatalakeClient:
 
     @staticmethod
     def get_filters_from_asset(asset: Asset) -> Dict:
-        filters_ = {}
-        filters_["asset_id"] = asset.id
-        filters_["asset_external_id"] = asset.external_id
-        return filters_
+        filters = {}
+        filters["asset_id"] = asset.id
+        filters["asset_external_id"] = asset.external_id
+        return filters
 
-    def find(self, collection: str, filters_: Dict = None, **kwargs) -> List[Dict]:
+    def find(self, collection: str, filters: Dict = None, **kwargs) -> List[Dict]:
         documents = self.db[collection].find(
-            filter=filters_,
+            filter=filters,
+            return_key=False,
             **kwargs
         )
         return documents
@@ -45,8 +48,8 @@ class DatalakeClient:
     def find_dataframe(self, **kwargs) -> DataFrame:
         return json_normalize(list(self.find(**kwargs)))
    
-    def delete_many(self, collection: str, filters_: Dict = {}) -> None:
-        self.db[collection].delete_many(filters_)
+    def delete_many(self, collection: str, filters: Dict = {}) -> None:
+        self.db[collection].delete_many(filters)
 
     def insert_many(self, collection: str, data: List[Dict], **kwargs) -> None:
         self.db[collection].insert_many(data, **kwargs)
@@ -55,3 +58,7 @@ class DatalakeClient:
         kwargs.update(collection=collection)
         kwargs.update(data=data.to_dict("records"))
         self.insert_many(**kwargs)
+
+    def aggregate(self, collection: str, pipeline: List[Dict]):
+        documents = self.db[collection].aggregate(pipeline)
+        return documents
