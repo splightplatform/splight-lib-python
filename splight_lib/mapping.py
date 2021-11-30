@@ -1,1 +1,1 @@
-from splight_storage.models.mapping import ClientMapping, ServerMapping
+from splight_storage.models.mapping import Mapping, ClientMapping, ServerMapping
