@@ -19,7 +19,7 @@ class Mapping(TenantAwareModel):
 
     def save(self, *args, **kwargs):
         try:
-            # checkin if field is valid
+            # checking if field is valid
             obj = Asset.objects.get_subclass(id=self.asset.id)
             if self.field not in [f.name for f in obj.__class__._meta.fields]:
                 raise InvalidFieldException(self.field)
