@@ -1,6 +1,8 @@
 import os
+import datetime
 
 TOPIC = os.getenv('CONFLUENT_TOPIC')
+COMM_TYPE = os.getenv('COMM_TYPE')
 
 CONSUMER_CONFIG = {
     'bootstrap.servers': os.getenv('CONFLUENT_BOOTSTRAP_SERVER'),
@@ -8,8 +10,8 @@ CONSUMER_CONFIG = {
     'sasl.mechanisms': os.getenv('CONFLUENT_SASL_MECHANISM'),
     'sasl.username': os.getenv('CONFLUENT_API_KEY'),
     'sasl.password': os.getenv('CONFLUENT_SECRET_KEY'),
-    'group.id': os.getenv('CONFLUENT_GROUP_ID'),
-    'auto.offset.reset': 'earliest',
+    'auto.offset.reset': 'latest',
+    'group.id': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
 }
 
 PRODUCER_CONFIG = {
