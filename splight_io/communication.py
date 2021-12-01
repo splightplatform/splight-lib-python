@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from confluent_kafka import Consumer, Producer
-from .settings import TOPIC, CONSUMER_CONFIG, PRODUCER_CONFIG
+from .settings import TOPIC, CONSUMER_CONFIG, PRODUCER_CONFIG, COMM_TYPE
 
 import json
 
@@ -58,3 +58,17 @@ class KafkaQueueCommunication(AbstractComunication):
     def send(self, data: dict) -> None:
         self.producer.produce(TOPIC, key=b'0', value=data)
         self.producer.flush()
+
+
+communications = {'KAFKA': KafkaQueueCommunication}
+
+
+class QueueCommunication(AbstractComunication):
+    def __init__(self):
+        self.queue = communications[COMM_TYPE]()
+
+    def receive(self):
+        return self.queue.receive()
+
+    def send(self, data):
+        self.queue.send(data)
