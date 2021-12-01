@@ -1,1 +1,1 @@
-from splight_storage.models.connector import Connector
+from splight_storage.models.connector import Connector, ServerConnector, ClientConnector

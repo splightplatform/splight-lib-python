@@ -28,7 +28,7 @@ class Mapping(TenantAwareModel):
         super(Mapping, self).save(*args, **kwargs)
 
 
-# field and asset are in ClientMapping beacuse 'unique_together' forces them to be local fields
+# field and asset are in ClientMapping because 'unique_together' forces them to be local fields
 class ClientMapping(Mapping):
     field = models.CharField(max_length=20)
     asset = models.ForeignKey(Asset, related_name="client_mappings", on_delete=models.CASCADE)
