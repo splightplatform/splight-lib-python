@@ -9,7 +9,7 @@ CONSUMER_CONFIG = {
     'sasl.username': os.getenv('CONFLUENT_API_KEY'),
     'sasl.password': os.getenv('CONFLUENT_SECRET_KEY'),
     'group.id': os.getenv('CONFLUENT_GROUP_ID'),
-    'auto.offset.reset': 'latest',
+    'auto.offset.reset': 'earliest',
 }
 
 PRODUCER_CONFIG = {

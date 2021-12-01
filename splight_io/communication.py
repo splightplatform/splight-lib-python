@@ -16,7 +16,7 @@ class AbstractComunication(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def recieve(self):
+    def receive(self):
         pass
 
 
@@ -27,7 +27,7 @@ class ZeroQueueCommunication(AbstractComunication):
     def send(self, data: Data):
         self.client.send(data)
 
-    def recieve(self) -> Data:
+    def receive(self) -> Data:
         return self.client.receive()
 
 
@@ -37,7 +37,7 @@ class KafkaQueueCommunication(AbstractComunication):
         self.consumer.subscribe([TOPIC])
         self.producer = Producer(PRODUCER_CONFIG)
 
-    def recieve(self):
+    def receive(self):
         data = None
         while True:
             msg = self.consumer.poll(1.0)
