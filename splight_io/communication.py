@@ -5,10 +5,6 @@ from .settings import TOPIC, CONSUMER_CONFIG, PRODUCER_CONFIG, COMM_TYPE
 import json
 
 
-class Data:
-    pass
-
-
 class AbstractComunication(metaclass=ABCMeta):
 
     @abstractmethod
@@ -20,22 +16,11 @@ class AbstractComunication(metaclass=ABCMeta):
         pass
 
 
-class ZeroQueueCommunication(AbstractComunication):
-    def __init__(self, *args, **kwargs):
-        self.client = None
-
-    def send(self, data: Data):
-        self.client.send(data)
-
-    def receive(self) -> Data:
-        return self.client.receive()
-
-
 class FakeQueueCommunications(AbstractComunication):
-    def send(self, data: Data):
+    def send(self, data: dict):
         pass
 
-    def receive(self) -> Data:
+    def receive(self) -> dict:
         return {'data': 'test'}
 
 
