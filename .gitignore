@@ -50,6 +50,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-
+#vscode
+.vscode
 #sqlite databases
 *.sqlite3
