@@ -31,6 +31,14 @@ class ZeroQueueCommunication(AbstractComunication):
         return self.client.receive()
 
 
+class FakeQueueCommunications(AbstractComunication):
+    def send(self, data: Data):
+        pass
+
+    def receive(self) -> Data:
+        return {'data': 'test'}
+
+
 class KafkaQueueCommunication(AbstractComunication):
     def __init__(self):
         self.consumer = Consumer(CONSUMER_CONFIG)
@@ -60,7 +68,10 @@ class KafkaQueueCommunication(AbstractComunication):
         self.producer.flush()
 
 
-communications = {'KAFKA': KafkaQueueCommunication}
+communications = {
+    'KAFKA': KafkaQueueCommunication,
+    'FAKE': FakeQueueCommunications
+}
 
 
 class QueueCommunication(AbstractComunication):
