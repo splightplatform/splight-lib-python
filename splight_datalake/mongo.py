@@ -47,7 +47,7 @@ class DatalakeClient:
 
     def find_dataframe(self, **kwargs) -> DataFrame:
         return json_normalize(list(self.find(**kwargs)))
-   
+
     def delete_many(self, collection: str, filters: Dict = {}) -> None:
         self.db[collection].delete_many(filters)
 
