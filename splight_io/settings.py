@@ -1,6 +1,7 @@
 import os
 import datetime
 
+# Kafka queue
 TOPIC = os.getenv('CONFLUENT_TOPIC')
 COMM_TYPE = os.getenv('COMM_TYPE')
 
@@ -21,3 +22,8 @@ PRODUCER_CONFIG = {
     'sasl.username': os.getenv('CONFLUENT_API_KEY'),
     'sasl.password': os.getenv('CONFLUENT_SECRET_KEY'),
 }
+
+# Zero MQ queue
+
+DEFAULT_RECEIVER_PORT = int(os.getenv('DEFAULT_RECEIVER_PORT', "5555"))
+DEFAULT_SENDER_PORT = int(os.getenv('DEFAULT_SENDER_PORT', "5556"))
