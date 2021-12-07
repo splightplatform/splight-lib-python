@@ -1,10 +1,8 @@
 import logging
-from os import pipe
-from warnings import filters
 from pymongo import MongoClient
 from pandas import DataFrame
 from pandas import json_normalize
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from splight_lib.asset import Asset
 from splight_lib.tag import Tag
@@ -13,7 +11,7 @@ from splight_lib.tenant import Tenant
 from splight_datalake.settings import setup
 
 
-class DatalakeClient:
+class MongoClient:
     logger = logging.getLogger()
     REPORTS_COLLECTION = "reports"
 

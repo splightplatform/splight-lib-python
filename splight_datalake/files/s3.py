@@ -1,5 +1,5 @@
 import boto3
-from .abstract_manager import AbstractFileManager
+from .abstract import AbstractFileManager
 
 
 class S3Manager(AbstractFileManager):
