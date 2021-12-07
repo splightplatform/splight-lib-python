@@ -40,7 +40,5 @@ class AbstractIOComponent(AbstractComponent):
         # Update self.mappings whith the latest data from the static database
         while True:
             time_interval: int = 60
-            self.mapping = list(self.mapping_model.objects.prefech_related(
-                "asset").get(connector_id=self.connector_id))
+            self.mappings = list(self.mapping_model.objects.prefetch_related("asset").filter(connector_id=self.connector_id))
             time.sleep(time_interval)
-

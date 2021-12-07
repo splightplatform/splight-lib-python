@@ -13,14 +13,14 @@ class AbstractComponent(metaclass=ABCMeta):
         self.environment = environment
         self.object = self.managed_class.objects.get(id=instance_id)
 
-    def pre_execution(self)-> None:
+    def pre_execution(self) -> None:
         pass
 
     @abstractmethod
-    def main_task(self)-> None:
+    def main_task(self) -> None:
         pass
 
-    def refresh_task(self) -> None: 
+    def refresh_task(self) -> None:
         pass
 
     def server_task(self) -> None:

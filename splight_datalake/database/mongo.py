@@ -1,5 +1,5 @@
 import logging
-from pymongo import MongoClient
+from pymongo import MongoClient as PyMongoClient
 from pandas import DataFrame
 from pandas import json_normalize
 from typing import Dict, List
@@ -17,7 +17,7 @@ class MongoClient:
 
     def __init__(self, database: str = 'default') -> None:
         connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}{setup["PORT"]}'
-        client = MongoClient(connnection)
+        client = PyMongoClient(connnection)
         self.db = client[database]
 
     @staticmethod
