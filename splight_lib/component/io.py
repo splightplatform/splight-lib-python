@@ -22,7 +22,7 @@ class AbstractIOComponent(AbstractComponent):
     datalake = None
     mappings = []
     mapping_model = None
-    connector = None
+    connector_id = None
 
     def map_variable(self, path: str) -> Optional[Tuple[int, str]]:
         for mapping in self.mappings:
@@ -36,7 +36,7 @@ class AbstractIOComponent(AbstractComponent):
                 return mapping.path
         return None
 
-    def refresh_mapping(self) -> None:
+    def refresh_task(self) -> None:
         # Update self.mappings whith the latest data from the static database
         while True:
             time_interval: int = 60
