@@ -1,37 +1,43 @@
+import logging
+from typing import Optional
 from abc import ABCMeta, abstractmethod
 from threading import Thread
 
 
 class AbstractComponent(metaclass=ABCMeta):
-    @abstractmethod
-    def init(self) -> None:
+    managed_class = None
+    logger = logging.getLogger()
+
+    def __init__(self, instance_id: str, environment: Optional[str] = None):
+        self.instance_id = instance_id
+        self.environment = environment
+        self.object = self.managed_class.objects.get(id=instance_id)
+
+    def pre_execution(self)-> None:
         pass
 
     @abstractmethod
-    def run(self)-> None:
+    def main_task(self)-> None:
         pass
 
-    @abstractmethod
-    def refresh_mapping(self) -> None: 
+    def refresh_task(self) -> None: 
         pass
 
-    @abstractmethod
-    def read_from_master(self) -> None:
+    def server_task(self) -> None:
         pass
 
-    @abstractmethod
-    def watchdog(self) -> None:
+    def healthcheck_task(self) -> None:
         pass
 
-    def execute(self) -> None:
-        # TODO: define a way to identify the object that use this component
-        self.init()
+    def execute(self, ) -> None:
+        self.pre_execution()
+
         threads = [
-            Thread(target=self.run),
-            Thread(target=self.refresh_mapping),
-            Thread(target=self.read_from_master),
-            Thread(target=self.watchdog),
+            Thread(target=self.refresh_task),
+            Thread(target=self.server_task),
+            Thread(target=self.healthcheck_task),
         ]
         for thread in threads:
             thread.start()
 
+        self.main_task()
