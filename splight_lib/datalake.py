@@ -1,1 +1,1 @@
-from splight_datalake.mongo import DatalakeClient
+from splight_datalake import DatalakeClient, FileManager

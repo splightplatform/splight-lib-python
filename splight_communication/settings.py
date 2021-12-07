@@ -2,10 +2,9 @@ import os
 import datetime
 
 # Kafka queue
-TOPIC = os.getenv('CONFLUENT_TOPIC')
-COMM_TYPE = os.getenv('COMM_TYPE')
+CONFLUENT_TOPIC = os.getenv('CONFLUENT_TOPIC')
 
-CONSUMER_CONFIG = {
+CONFLUENT_CONSUMER_CONFIG = {
     'bootstrap.servers': os.getenv('CONFLUENT_BOOTSTRAP_SERVER'),
     'security.protocol': os.getenv('CONFLUENT_SECURITY_PROTOCOL'),
     'sasl.mechanisms': os.getenv('CONFLUENT_SASL_MECHANISM'),
@@ -15,7 +14,7 @@ CONSUMER_CONFIG = {
     'group.id': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
 }
 
-PRODUCER_CONFIG = {
+CONFLUENT_PRODUCER_CONFIG = {
     'bootstrap.servers': os.getenv('CONFLUENT_BOOTSTRAP_SERVER'),
     'security.protocol': os.getenv('CONFLUENT_SECURITY_PROTOCOL'),
     'sasl.mechanisms': os.getenv('CONFLUENT_SASL_MECHANISM'),
@@ -24,6 +23,5 @@ PRODUCER_CONFIG = {
 }
 
 # Zero MQ queue
-
-DEFAULT_RECEIVER_PORT = int(os.getenv('DEFAULT_RECEIVER_PORT', "5555"))
-DEFAULT_SENDER_PORT = int(os.getenv('DEFAULT_SENDER_PORT', "5556"))
+ZMQ_RECEIVER_PORT = int(os.getenv('ZMQ_RECEIVER_PORT', "5555"))
+ZMQ_SENDER_PORT = int(os.getenv('ZMQ_SENDER_PORT', "5556"))

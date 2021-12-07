@@ -1,12 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from splight_storage.models.component import (
-    DigitalOffer,
-    RunningDigitalOffer,
-    DigitalOfferComponent,
-)
 from threading import Thread
 
-class ComponentInterface(metaclass=ABCMeta):
+
+class AbstractComponent(metaclass=ABCMeta):
     @abstractmethod
     def init(self) -> None:
         pass
@@ -39,13 +35,3 @@ class ComponentInterface(metaclass=ABCMeta):
         for thread in threads:
             thread.start()
 
-
-class DigitalOfferComponentInterface(ComponentInterface):
-
-    @property
-    def name(self):
-        return self.__class__.__name__
-
-    @abstractmethod
-    def execute(self):
-        pass

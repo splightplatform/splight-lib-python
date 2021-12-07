@@ -1,10 +1,11 @@
+import time
 from typing import Optional, Tuple
 from abc import ABCMeta, abstractmethod
-from splight_lib.component import ComponentInterface
-import time
+
+from .abstract import AbstractComponent
 
 
-class MasterSlaveInterface(metaclass=ABCMeta):
+class AbstractMasterSlave(metaclass=ABCMeta):
     @abstractmethod
     def send(self, data: dict) -> None:
         pass
@@ -14,10 +15,10 @@ class MasterSlaveInterface(metaclass=ABCMeta):
         pass
 
 
-class IOComponent(ComponentInterface):
+class AbstractIOComponent(AbstractComponent):
 
-    master: Optional[MasterSlaveInterface] = None
-    slave: Optional[MasterSlaveInterface] = None
+    master: Optional[AbstractMasterSlave] = None
+    slave: Optional[AbstractMasterSlave] = None
     datalake = None
     mappings = []
     mapping_model = None
