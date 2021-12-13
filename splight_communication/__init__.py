@@ -1,4 +1,3 @@
-from abc import ABCMeta, abstractmethod
 from .kafka import KafkaQueueCommunication 
 from .zmq import ZMQueueCommunication
 
