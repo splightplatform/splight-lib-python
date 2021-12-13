@@ -1,11 +1,17 @@
 import os
 import ast
 
-
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
+    'storages',
     'splight_storage'
 ]
+
+MEDIA_ROOT = "/data/media/"
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "splight-api")
 
 
 DATABASES = {
@@ -26,3 +32,6 @@ if ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
             "NAME": os.getenv("SQLITE_PATH", "/data/db.sqlite3"),
         }
     }
+
+if ast.literal_eval(os.getenv("FAKE_STORAGE", "True")):
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"

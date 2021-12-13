@@ -4,6 +4,7 @@ botocore==1.23.20
 confluent-kafka==1.7.0
 Django==3.2.8
 django-model-utils==4.2.0
+django-storages==1.12.3
 dnspython==2.1.0
 Jinja2==3.0.2
 jmespath==0.10.0
