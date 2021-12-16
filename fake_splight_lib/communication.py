@@ -1,9 +1,15 @@
-from splight_lib.communication import AbstractCommunication
+import time
+import logging
+from splight_communication.abstract import AbstractCommunication
 
 
-class FakeQueueCommunications(AbstractCommunication):
+class FakeQueueCommunication(AbstractCommunication):
+    logger = logging.getLogger()
+
     def send(self, data: dict):
-        pass
+        self.logger.info(f"Data sent: {data}")
 
     def receive(self) -> dict:
-        return {'data': 'test'}
+        time.sleep(2)
+        self.logger.info(f"Data read")
+        return {"action": 'write', "variables": []}
