@@ -14,7 +14,7 @@ class InvalidFieldException(Exception):
 
 class Mapping(TenantAwareModel):
     path = models.CharField(max_length=300)
-    connector = models.ForeignKey(Connector, on_delete=models.CASCADE)
+    connector = models.ForeignKey(Connector, on_delete=models.CASCADE, related_name='mappings')
     objects = InheritanceManager()
 
     def save(self, *args, **kwargs):
