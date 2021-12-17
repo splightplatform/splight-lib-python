@@ -1,19 +1,22 @@
 import logging
-from pymongo import MongoClient as PyMongoClient
+from pymongo import MongoClient as PyMongoClient, DESCENDING
 from pandas import DataFrame
 from pandas import json_normalize
 from typing import Dict, List
+from datetime import datetime
 
 from splight_lib.asset import Asset
 from splight_lib.tag import Tag
 from splight_lib.component import DigitalOfferComponent
 from splight_lib.tenant import Tenant
+from splight_lib.communication import Variable
 from splight_datalake.settings import setup
 
 
 class MongoClient:
     logger = logging.getLogger()
     REPORTS_COLLECTION = "reports"
+    UPDATES_COLLECTION = "updates"
 
     def __init__(self, database: str = 'default') -> None:
         connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}{setup["PORT"]}'
@@ -57,6 +60,70 @@ class MongoClient:
         kwargs.update(data=data.to_dict("records"))
         self.insert_many(**kwargs)
 
-    def aggregate(self, collection: str, pipeline: List[Dict]):
+    def aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         documents = self.db[collection].aggregate(pipeline)
         return documents
+
+    def update_pipe(asset_ids: List[int], merge_fields: Dict) -> List[Dict]:
+        pipe = [
+            {
+                '$match': {
+                    'asset_id': {'$in': asset_ids}
+                }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        'asset_id': '$asset_id',
+                        'timestamp': '$timestamp'
+                    },
+                    'fields': {
+                        '$mergeObjects': merge_fields
+                    }
+                }
+            },
+            {
+                '$sort': {'$id.timestamp': -1}
+            },
+            {
+                '$limit': max(len(asset_ids), 1)
+            }
+        ]
+
+        return pipe
+
+    def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
+
+        asset_ids = list(set([v.asset_id for v in variables]))
+
+        merge_fields = {
+            v.field: '$' + v.field for v in variables
+        }
+
+        pipe = self.update_pipe(asset_ids, merge_fields)
+        updates = self.aggregate(self.UPDATES_COLLECTION, pipe)
+        variables = []
+
+        for update in updates:
+            asset_id = update['_id']['asset_id']
+            for field, args in update['fields'].items():
+                var: Variable = Variable(asset_id=asset_id, field=field, args=args)
+                variables.append(var)
+        return variables
+
+    def fetch_asset(self, asset: Asset) -> None:
+        data = self.find(self.UPDATES_COLLECTION, filters={'asset_id': asset.id}, sort=[('timestamp', DESCENDING)], limit=1)[0]
+        for key, value in data['args'].items():
+            setattr(asset, key, value)
+
+    def push_updates(self, variables: List[Variable]) -> None:
+        data_list = []
+        for var in variables:
+            data = dict()
+            field = var.field
+            args = var.args
+            data['asset_id'] = var.asset_id
+            data[field] = args
+            data['timestamp'] = datetime.now()
+            data_list.append(data)
+        self.insert_many(self.UPDATES_COLLECTION, data=data_list)
