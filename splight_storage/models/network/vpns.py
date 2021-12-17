@@ -12,3 +12,6 @@ class OpenVPNNetwork(Network):
     password = models.CharField(max_length=100, null=True, blank=True)
 
     file = models.FileField(blank=True, null=True, upload_to=upload_to)
+
+    class Meta:
+        ordering = ['-id']
