@@ -69,6 +69,5 @@ class TaskManager:
         self.tasks.append(t)
         t.start()
 
-    @property
     def healthcheck(self):
         return all([p.is_alive() or p.exit_ok() for p in self.tasks])
