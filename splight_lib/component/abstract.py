@@ -13,8 +13,8 @@ class HealthCheckException(Exception):
 
 class AbstractComponent(metaclass=ABCMeta):
     managed_class = None
-    healthcheck_interval = 5
     logger = logging.getLogger()
+    healthcheck_interval = 5
 
     def __init__(self, instance_id: str, environment: Optional[str] = None):
         self.task_manager = TaskManager()
@@ -35,11 +35,10 @@ class AbstractComponent(metaclass=ABCMeta):
     def server_task(self) -> None:
         pass
 
-    def healthcheck_task(self) -> None:
+    def healthcheck(self) -> None:
         while True:
-            if not self.tasks_manager.all_tasks_ok():
-                raise HealthCheckException(f"Some process is not running")
-
+            if not self.task_manager.healthcheck():
+                os.kill(os.getpid(), signal.SIGTERM)
             time.sleep(self.healthcheck_interval)
 
     def execute(self) -> None:
@@ -49,8 +48,4 @@ class AbstractComponent(metaclass=ABCMeta):
         self.task_manager.start_thread(target=self.server_task)
         self.task_manager.start_thread(target=self.main_task)
 
-        try:
-            self.healthcheck_task()
-        except Exception as e:
-            self.logger.exception(e)
-            os.kill(os.getpid(), signal.SIGTERM)
+        self.healthcheck()
