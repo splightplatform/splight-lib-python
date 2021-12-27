@@ -2,14 +2,22 @@ from django.db import models
 
 
 class CrossTenantTryException(Exception):
-    def __init__(self, conflicts, *args, **kwargs) -> None:
+    def __init__(self, tenant, conflicts, *args, **kwargs) -> None:
         self.conflicts = conflicts
-        super().__init__(*args, **kwargs)
+        self.tenant = tenant
+        message = f"Found conflicts in fields: {conflicts}. Current tenant: {self.tenant}"
+        super().__init__(message, *args, **kwargs)
 
 
 class Tenant(models.Model):
     org_id = models.CharField(max_length=100)
     # subdomain_prefix = models.CharField(max_length=100, unique=True)
+
+    def __repr__(self):
+        return f"<Tenant {self.org_id}>"
+
+    def __str__(self):
+        return self.org_id
 
 
 class TenantAwareModel(models.Model):
@@ -29,9 +37,9 @@ class TenantAwareModel(models.Model):
             if isinstance(getattr(self, field.name), TenantAwareModel)
         ]
         conflicts = [
-            field for field in tenant_foreign_keys
+            field.name for field in tenant_foreign_keys
             if getattr(self, field.name).tenant != self.tenant
         ]
         if any(conflicts):
-            raise CrossTenantTryException(conflicts=conflicts)
+            raise CrossTenantTryException(tenant=self.tenant, conflicts=conflicts)
         super(TenantAwareModel, self).save(*args, **kwargs)
