@@ -1,4 +1,6 @@
+from typing import Protocol
 from django.db import models
+from django.db.models.fields import files
 from model_utils.managers import InheritanceManager
 from splight_storage.models.tenant import TenantAwareModel
 
