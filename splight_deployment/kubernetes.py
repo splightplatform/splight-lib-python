@@ -4,14 +4,14 @@ import logging
 import json
 import subprocess as sp
 from jinja2 import Template
+from pprint import pprint as print
+from .status import Status
+from .abstract import AbstractDeploymentClient
 
 
-class KubernetesClient:
+class KubernetesClient(AbstractDeploymentClient):
     logger = logging.getLogger(__name__)
     namespace = "default"
-
-    def __init__(self):
-        pass
 
     def get_deployment_name(self, instance):
         classname = instance.__class__.__name__.lower()
@@ -53,6 +53,17 @@ class KubernetesClient:
         deployment_name = self.get_deployment_name(instance)
         result = sp.getoutput(f"kubectl get {kind} -n {self.namespace} --selector app={deployment_name} -o json")
         return json.loads(result)
+
+    def get_status(self, instance) -> Status:
+        result = self.get_info(instance, "pods")
+        status_data = result["items"][0]["status"]["containerStatuses"][0]["state"]
+
+        id = instance.pk
+        deployment_name = self.get_deployment_name(instance)
+        status_type = list(status_data.keys())[0]
+        detail = status_data[status_type].get("reason", "")
+        status: Status = Status(id=id, deployment_name=deployment_name, status=status_type, detail=detail)
+        return status
 
     def get_logs(self, instance):
         deployment_name = self.get_deployment_name(instance)
