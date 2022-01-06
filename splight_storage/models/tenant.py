@@ -25,6 +25,7 @@ class TenantAwareModel(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-id']
 
     def save(self, *args, **kwargs):
         # Check consistency between TenantAwareModels

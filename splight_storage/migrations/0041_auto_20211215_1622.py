@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import splight_storage.models.network.vpns
+import splight_storage.models.network
 
 
 class Migration(migrations.Migration):
@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='openvpnnetwork',
             name='file',
-            field=models.FileField(blank=True, null=True, upload_to=splight_storage.models.network.vpns.upload_to),
+            field=models.FileField(blank=True, null=True, upload_to=splight_storage.models.network.upload_to),
         ),
     ]
