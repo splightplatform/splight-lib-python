@@ -1,25 +1,32 @@
 from django.db import models
+from typing import Dict
 from model_utils.managers import InheritanceManager
 from splight_storage.models.tenant import TenantAwareModel
 from splight_storage.models.network import Network
 
 
+class Protocols(models.TextChoices):
+    DNP3 = 'dnp3', "DNP3"
+    IEC61850 = 'iec6', "IEC61850"
+
+
 class Connector(TenantAwareModel):
-
-    class Protocols(models.TextChoices):
-        DNP3 = 'dnp3', "DNP3"
-        IEC61850 = 'iec6', "IEC61850"
-
     objects = InheritanceManager()
-    ip = models.CharField(max_length=60)
+    host = models.CharField(max_length=60)
     port = models.IntegerField()
     protocol = models.CharField(max_length=4, choices=Protocols.choices)
+    extra_properties = models.TextField(null=True, blank=True)
 
     def __repr__ (self):
         return '<Connector %s>' % self.__str__
 
     def __str__ (self):
-        return '%s:%s[%s]' % (self.ip, self.port, self.protocol)
+        return '%s:%s[%s]' % (self.host, self.port, self.protocol)
+
+    def extra_env(self) -> Dict:
+        variables = [var.split("=") for var in self.extra_properties.splitlines()]
+        valid_variables = [var for var in variables if len(var) == 2]
+        return {str(key): value for key, value in valid_variables}
 
 
 class ServerConnector(Connector):
