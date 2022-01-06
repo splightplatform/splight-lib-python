@@ -7,12 +7,17 @@ def upload_to(instance, filename):
     return 'Network/{0}/{1}'.format(instance.tenant.org_id, filename)
 
 
+class Protocol(models.TextChoices):
+    OPENVPN = 'openvpn', "openvpn"
+
+
 class Network(TenantAwareModel):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=10, null=True, blank=True)
     username = models.CharField(max_length=100, null=True, blank=True)
     password = models.CharField(max_length=100, null=True, blank=True)
     file = models.FileField(blank=True, null=True, upload_to=upload_to)
+    protocol = models.CharField(max_length=10, choices=Protocol.choices, default=Protocol.OPENVPN)
 
     class Meta:
         app_label = 'splight_storage'
