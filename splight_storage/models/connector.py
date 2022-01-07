@@ -32,6 +32,10 @@ class Connector(TenantAwareModel):
 
 class ServerConnector(Connector):
     network = models.ForeignKey(Network, related_name="server_connectors", on_delete=models.CASCADE, null=True, blank=True)
+    external_port = models.IntegerField()
+
+    class Meta:
+        unique_together = ("network", "external_port",)
 
 
 class ClientConnector(Connector):
