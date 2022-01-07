@@ -7,9 +7,10 @@ class FakeQueueCommunication(AbstractCommunication):
     logger = logging.getLogger()
 
     def send(self, data: dict):
-        self.logger.info(f"Data sent: {data}")
+        self.logger.info(f"FakeQueueCommunication Sent data: {data}")
 
     def receive(self) -> dict:
         time.sleep(2)
-        self.logger.info(f"Data read")
-        return {"action": 'write', "variables": []}
+        data = {"action": 'write', "variables": []}
+        self.logger.info(f"FakeQueueCommunication Read data: {data}")
+        return data

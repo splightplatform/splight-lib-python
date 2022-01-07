@@ -117,6 +117,8 @@ class MongoClient:
             setattr(asset, key, value)
 
     def push_updates(self, variables: List[Variable]) -> None:
+        if len(variables) < 1:
+            return
         data_list = []
         for var in variables:
             data = dict()
