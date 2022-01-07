@@ -64,7 +64,7 @@ class MongoClient:
         documents = self.db[collection].aggregate(pipeline)
         return documents
 
-    def update_pipe(asset_ids: List[int], merge_fields: Dict) -> List[Dict]:
+    def update_pipe(self, asset_ids: List[int], merge_fields: Dict) -> List[Dict]:
         pipe = [
             {
                 '$match': {
