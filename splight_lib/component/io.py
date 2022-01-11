@@ -27,12 +27,12 @@ class AbstractIOComponent(AbstractComponent):
     def map_variable(self, path: str) -> Optional[Tuple[int, str]]:
         for mapping in self.mappings:
             if mapping.path == path:
-                return mapping.asset.pk, mapping.field
+                return mapping.asset.pk, mapping.attribute.name
         return None
 
     def unmap_variable(self, asset_pk: int, field: str) -> Optional[str]:
         for mapping in self.mappings:
-            if mapping.asset.pk == asset_pk and mapping.field == field:
+            if mapping.asset.pk == asset_pk and mapping.attribute.name == field:
                 return mapping.path
         return None
 
