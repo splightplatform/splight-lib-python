@@ -3,10 +3,12 @@
 # Splight Library
 Elements to build components. Language defined to sync BE and Worker tasks.
 
-- **Connectors**: Data connectors. There is 1:1 relation between assets instances and connections
-- **Assets**: Virtual unit that represents a physical device inside the electrical network.
-- **Networks**: Set of Assets
-- **DO Components (interface only)**: Single-purpose computacional unit. Its output should be useful to generate dashboards, raise alerts and bring predictions. 
+- **Asset**: Node to define a graph
+- **Attribute**: Available property for node
+- **ValueMapping**: Map an asset property to a static value
+- **ReferenceMapping**: Map an asset property to another asset property
+- **ClientMapping**: Map an asset property to a dynamic value read from a ClientConnector
+- **ServerMapping**: Map an asset property to a dynamic value to be written in a ServerConnector
 
 ## How to install
 

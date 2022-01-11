@@ -19,7 +19,7 @@ class MongoClient:
     UPDATES_COLLECTION = "updates"
 
     def __init__(self, database: str = 'default') -> None:
-        connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}{setup["PORT"]}'
+        connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}:{setup["PORT"]}'
         client = PyMongoClient(connnection)
         self.db = client[database]
 
@@ -122,10 +122,8 @@ class MongoClient:
         data_list = []
         for var in variables:
             data = dict()
-            field = var.field
-            args = var.args
             data['asset_id'] = var.asset_id
-            data[field] = args
+            data[var.field] = var.args
             data['timestamp'] = datetime.now()
             data_list.append(data)
         self.insert_many(self.UPDATES_COLLECTION, data=data_list)
