@@ -1,6 +1,5 @@
 import zmq
-import json
-from typing import Dict, Any
+from typing import Dict
 
 from .settings import ZMQ_RECEIVER_PORT, ZMQ_SENDER_PORT
 from .abstract import AbstractCommunication
@@ -20,10 +19,8 @@ class ZMQueueCommunication(AbstractCommunication):
         self.sender.connect("tcp://localhost:{}".format(sender_port))
 
     def send(self, data: dict) -> None:
-        data: str = json.dumps(data)
-        self.sender.send(data.encode("utf-8"))
+        self.sender.send(self._encode(data))
 
-    def receive(self) -> dict:
-        msg = self.receiver.recv().decode('utf-8')
-        data: Dict[str, Any] = json.loads(msg)
-        return data
+    def receive(self) -> Dict:
+        data = self.receiver.recv()
+        return self._decode(data)
