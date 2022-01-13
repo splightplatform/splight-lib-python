@@ -1,10 +1,12 @@
 
+import json
+import logging
 from typing import ByteString, Dict
 from confluent_kafka import Consumer, Producer
-import json
-
 from .settings import CONFLUENT_CONSUMER_CONFIG, CONFLUENT_PRODUCER_CONFIG
 from .abstract import AbstractCommunication
+
+logger = logging.getLogger()
 
 
 class KafkaQueueCommunication(AbstractCommunication):
@@ -26,7 +28,8 @@ class KafkaQueueCommunication(AbstractCommunication):
         msg = self.consumer.consume(num_messages=1, timeout=-1)[0]
         if msg.error():
             # TODO do something more specific
-            raise Exception(msg.error())
+            logger.error(f"Msg with error {msg.value()}")
+            return self.receive()
         data = msg.value()
         return self._decode(data)
 
