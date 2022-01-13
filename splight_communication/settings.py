@@ -2,8 +2,6 @@ import os
 import datetime
 
 # Kafka queue
-CONFLUENT_TOPIC = os.getenv('CONFLUENT_TOPIC')
-
 CONFLUENT_CONSUMER_CONFIG = {
     'bootstrap.servers': os.getenv('CONFLUENT_BOOTSTRAP_SERVER'),
     'group.id': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
@@ -13,7 +11,7 @@ CONFLUENT_CONSUMER_CONFIG = {
     'sasl.password': os.getenv('CONFLUENT_SECRET_KEY'),
     'auto.offset.reset': 'latest',
 }
-CONFLUENT_CONSUMER_CONFIG = {key: value for key, value in CONFLUENT_CONSUMER_CONFIG.items() if value is not None}
+CONFLUENT_CONSUMER_CONFIG = {key: value for key, value in CONFLUENT_CONSUMER_CONFIG.items() if value}
 
 CONFLUENT_PRODUCER_CONFIG = {
     'bootstrap.servers': os.getenv('CONFLUENT_BOOTSTRAP_SERVER'),

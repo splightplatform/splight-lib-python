@@ -6,6 +6,9 @@ from splight_communication.abstract import AbstractCommunication
 class FakeQueueCommunication(AbstractCommunication):
     logger = logging.getLogger()
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     def send(self, data: dict):
         self.logger.info(f"FakeQueueCommunication Sent data: {data}")
 

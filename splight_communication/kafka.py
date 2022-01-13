@@ -3,7 +3,7 @@ from typing import ByteString, Dict
 from confluent_kafka import Consumer, Producer
 import json
 
-from .settings import CONFLUENT_TOPIC, CONFLUENT_CONSUMER_CONFIG, CONFLUENT_PRODUCER_CONFIG
+from .settings import CONFLUENT_CONSUMER_CONFIG, CONFLUENT_PRODUCER_CONFIG
 from .abstract import AbstractCommunication
 
 
