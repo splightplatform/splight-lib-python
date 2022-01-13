@@ -1,4 +1,5 @@
 
+from typing import ByteString, Dict
 from confluent_kafka import Consumer, Producer
 import json
 
@@ -7,28 +8,28 @@ from .abstract import AbstractCommunication
 
 
 class KafkaQueueCommunication(AbstractCommunication):
-    def __init__(self):
+    def __init__(self, topic: str = 'default'):
+        self.topic = topic
         self.consumer = Consumer(CONFLUENT_CONSUMER_CONFIG)
-        self.consumer.subscribe([CONFLUENT_TOPIC])
+        self.consumer.subscribe([self.topic])
         self.producer = Producer(CONFLUENT_PRODUCER_CONFIG)
 
+    @staticmethod
+    def _encode(data: Dict):
+        return json.dumps(data).encode('utf-8')
+
+    @staticmethod
+    def _decode(data: ByteString):
+        return json.loads(data.decode('utf-8'))
+
     def receive(self):
-        data = None
-        while True:
-            msg = self.consumer.poll(1.0)
+        msg = self.consumer.consume(num_messages=1, timeout=-1)[0]
+        if msg.error():
+            # TODO do something more specific
+            raise Exception(msg.error())
+        data = msg.value()
+        return self._decode(data)
 
-            if msg is None:
-                pass
-            elif msg.error():
-                # TODO do something
-                pass
-            else:
-                # Check for Kafka message
-                record_value = msg.value()
-                data = json.loads(record_value)
-                break
-        return data
-
-    def send(self, data: dict) -> None:
-        self.producer.produce(CONFLUENT_TOPIC, key=b'0', value=data)
+    def send(self, data: Dict) -> None:
+        self.producer.produce(self.topic, value=self._encode(data))
         self.producer.flush()
