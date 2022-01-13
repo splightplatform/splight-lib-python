@@ -93,8 +93,7 @@ class MongoClient:
         return pipe
 
     def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
-
-        asset_ids = list(set([v.asset_id for v in variables]))
+        asset_ids = list(set([int(v.asset_id) for v in variables]))
 
         merge_fields = {
             v.field: '$' + v.field for v in variables

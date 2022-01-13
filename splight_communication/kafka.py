@@ -1,7 +1,5 @@
-
-import json
 import logging
-from typing import ByteString, Dict
+from typing import Dict
 from confluent_kafka import Consumer, Producer
 from .settings import CONFLUENT_CONSUMER_CONFIG, CONFLUENT_PRODUCER_CONFIG
 from .abstract import AbstractCommunication
@@ -15,14 +13,6 @@ class KafkaQueueCommunication(AbstractCommunication):
         self.consumer = Consumer(CONFLUENT_CONSUMER_CONFIG)
         self.consumer.subscribe([self.topic])
         self.producer = Producer(CONFLUENT_PRODUCER_CONFIG)
-
-    @staticmethod
-    def _encode(data: Dict):
-        return json.dumps(data).encode('utf-8')
-
-    @staticmethod
-    def _decode(data: ByteString):
-        return json.loads(data.decode('utf-8'))
 
     def receive(self):
         msg = self.consumer.consume(num_messages=1, timeout=-1)[0]
