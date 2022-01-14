@@ -1,6 +1,11 @@
-import time
 import logging
 from splight_communication.abstract import AbstractCommunication
+
+
+from queue import Queue
+import json
+
+QUEUE = Queue()
 
 
 class FakeQueueCommunication(AbstractCommunication):
@@ -9,11 +14,11 @@ class FakeQueueCommunication(AbstractCommunication):
     def __init__(self, *args, **kwargs):
         pass
 
-    def send(self, data: dict):
+    def send(self, data: dict) -> None:
         self.logger.info(f"FakeQueueCommunication Sent data: {data}")
+        QUEUE.put(json.dumps(data))
 
     def receive(self) -> dict:
-        time.sleep(2)
-        data = {"action": 'write', "variables": []}
+        data = json.loads(QUEUE.get())
         self.logger.info(f"FakeQueueCommunication Read data: {data}")
         return data
