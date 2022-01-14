@@ -1,6 +1,7 @@
 import json
 from typing import Dict, ByteString
 from abc import ABCMeta, abstractmethod
+from typing import Dict
 
 
 class AbstractCommunication(metaclass=ABCMeta):
@@ -13,9 +14,9 @@ class AbstractCommunication(metaclass=ABCMeta):
         return json.loads(data.decode('utf-8'))
 
     @abstractmethod
-    def send(self):
+    def send(self, data: Dict) -> None:
         pass
 
     @abstractmethod
-    def receive(self):
+    def receive(self) -> Dict:
         pass
