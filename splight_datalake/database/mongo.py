@@ -19,8 +19,10 @@ class MongoClient:
     UPDATES_COLLECTION = "updates"
 
     def __init__(self, database: str = 'default') -> None:
-        connnection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}:{setup["PORT"]}'
-        client = PyMongoClient(connnection)
+        connection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}'
+        if setup["PORT"]:
+            connection = f'{connection}:{setup["PORT"]}'
+        client = PyMongoClient(connection)
         self.db = client[database]
 
     @staticmethod
