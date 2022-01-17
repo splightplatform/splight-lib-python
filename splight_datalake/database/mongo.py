@@ -4,8 +4,7 @@ from pandas import DataFrame
 from pandas import json_normalize
 from typing import Dict, List
 from datetime import datetime
-
-from splight_lib.asset import Asset
+from splight_storage.models.asset.base_asset import BaseAsset
 from splight_lib.tag import Tag
 from splight_lib.component import DigitalOfferComponent
 from splight_lib.tenant import Tenant
@@ -34,7 +33,7 @@ class MongoClient:
         return "_".join([doc.name, str(tag.id)])
 
     @staticmethod
-    def get_filters_from_asset(asset: Asset) -> Dict:
+    def get_filters_from_asset(asset: BaseAsset) -> Dict:
         filters = {}
         filters["asset_id"] = asset.id
         filters["asset_external_id"] = asset.external_id
@@ -85,7 +84,7 @@ class MongoClient:
                 }
             },
             {
-                '$sort': {'$id.timestamp': -1}
+                '$sort': {'_id.timestamp': -1}
             },
             {
                 '$limit': max(len(asset_ids), 1)
@@ -112,7 +111,7 @@ class MongoClient:
                 variables.append(var)
         return variables
 
-    def fetch_asset(self, asset: Asset) -> None:
+    def fetch_asset(self, asset: BaseAsset) -> None:
         data = self.find(self.UPDATES_COLLECTION, filters={'asset_id': asset.id}, sort=[('timestamp', DESCENDING)], limit=1)[0]
         for key, value in data['args'].items():
             setattr(asset, key, value)
