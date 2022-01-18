@@ -12,7 +12,6 @@ from splight_storage.models.mapping import ValueMapping, ReferenceMapping, Serve
 class Asset(BaseAsset):
     logger = logging.getLogger()
 
-
     def read(self, asset: BaseAsset, name: str) -> Any:
         # Find atributes
         try:
