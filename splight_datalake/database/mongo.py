@@ -1,4 +1,5 @@
 import logging
+from re import search
 from pymongo import MongoClient as PyMongoClient, DESCENDING
 from pandas import DataFrame
 from pandas import json_normalize
@@ -65,50 +66,39 @@ class MongoClient:
         documents = self.db[collection].aggregate(pipeline)
         return documents
 
-    def update_pipe(self, asset_ids: List[int], merge_fields: Dict) -> List[Dict]:
-        pipe = [
-            {
-                '$match': {
-                    'asset_id': {'$in': asset_ids}
-                }
-            },
-            {
-                '$group': {
-                    '_id': {
-                        'asset_id': '$asset_id',
-                        'timestamp': '$timestamp'
-                    },
-                    'fields': {
-                        '$mergeObjects': merge_fields
-                    }
-                }
-            },
-            {
-                '$sort': {'_id.timestamp': -1}
-            },
-            {
-                '$limit': max(len(asset_ids), 1)
-            }
-        ]
+    def update_pipe(self, asset_ids: List[int], merge_fields: List[str]) -> List[Dict]:
+        search_fields = [{field: {'$exists': 1}} for field in merge_fields]
 
+        pipe = [
+            {'$match': {
+                'asset_id': {'$in': asset_ids},
+                "$or": search_fields
+            }},
+            {"$sort": {"timestamp": 1}},
+            {'$group':
+                {
+                    '_id': {'asset_id': '$asset_id'},
+                    'item': {'$mergeObjects': '$$ROOT'},
+                }
+             },
+            {'$replaceRoot': {'newRoot': '$item'}},
+            {"$project": {"_id": 0, "timestamp": 0}}
+        ]
         return pipe
 
     def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
         asset_ids = list(set([int(v.asset_id) for v in variables]))
-
-        merge_fields = {
-            v.field: '$' + v.field for v in variables
-        }
+        merge_fields = [v.field for v in variables]
 
         pipe = self.update_pipe(asset_ids, merge_fields)
-        updates = self.aggregate(self.UPDATES_COLLECTION, pipe)
+        updates = list(self.aggregate(self.UPDATES_COLLECTION, pipe))
         variables = []
-
         for update in updates:
-            asset_id = update['_id']['asset_id']
-            for field, args in update['fields'].items():
-                var: Variable = Variable(asset_id=asset_id, field=field, args=args)
-                variables.append(var)
+            asset_id = update['asset_id']
+            for field, args in update.items():
+                if field != 'asset_id':
+                    var: Variable = Variable(asset_id=asset_id, field=field, args=args)
+                    variables.append(var)
         return variables
 
     def fetch_asset(self, asset: BaseAsset) -> None:
