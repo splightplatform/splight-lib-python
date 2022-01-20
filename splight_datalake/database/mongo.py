@@ -13,6 +13,42 @@ from splight_lib.communication import Variable
 from splight_datalake.settings import setup
 
 
+class MongoPipelines:
+
+    @staticmethod
+    def fetch_assets(asset_ids: List[int]) -> List[Dict]:
+        pipe = [
+            {'$match': 
+                {
+                    'asset_id': {'$in': asset_ids}
+                }
+            },
+            {"$sort": 
+                {
+                    "timestamp": 1
+                }
+            },
+            {'$group':
+                {
+                    '_id': {'asset_id': '$asset_id'},
+                    'item': {'$mergeObjects': '$$ROOT'},
+                }
+             },
+            {'$replaceRoot': 
+                {
+                    'newRoot': '$item'
+                }
+            },
+            {"$project": 
+                {
+                    "_id": 0,
+                    "timestamp": 0
+                }
+            }
+        ]
+        return pipe
+
+
 class MongoClient:
     logger = logging.getLogger()
     REPORTS_COLLECTION = "reports"
@@ -66,45 +102,20 @@ class MongoClient:
         documents = self.db[collection].aggregate(pipeline)
         return documents
 
-    def update_pipe(self, asset_ids: List[int], merge_fields: List[str]) -> List[Dict]:
-        search_fields = [{field: {'$exists': 1}} for field in merge_fields]
-
-        pipe = [
-            {'$match': {
-                'asset_id': {'$in': asset_ids},
-                "$or": search_fields
-            }},
-            {"$sort": {"timestamp": 1}},
-            {'$group':
-                {
-                    '_id': {'asset_id': '$asset_id'},
-                    'item': {'$mergeObjects': '$$ROOT'},
-                }
-             },
-            {'$replaceRoot': {'newRoot': '$item'}},
-            {"$project": {"_id": 0, "timestamp": 0}}
-        ]
-        return pipe
-
     def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
-        asset_ids = list(set([int(v.asset_id) for v in variables]))
-        merge_fields = [v.field for v in variables]
+        if len(variables) < 1:
+            return []
 
-        pipe = self.update_pipe(asset_ids, merge_fields)
-        updates = list(self.aggregate(self.UPDATES_COLLECTION, pipe))
+        asset_ids = list(set([int(v.asset_id) for v in variables]))
+
         variables = []
-        for update in updates:
+        for update in self.aggregate(self.UPDATES_COLLECTION, MongoPipelines.fetch_assets(asset_ids)):
             asset_id = update['asset_id']
             for field, args in update.items():
                 if field != 'asset_id':
                     var: Variable = Variable(asset_id=asset_id, field=field, args=args)
                     variables.append(var)
         return variables
-
-    def fetch_asset(self, asset: BaseAsset) -> None:
-        data = self.find(self.UPDATES_COLLECTION, filters={'asset_id': asset.id}, sort=[('timestamp', DESCENDING)], limit=1)[0]
-        for key, value in data['args'].items():
-            setattr(asset, key, value)
 
     def push_updates(self, variables: List[Variable]) -> None:
         if len(variables) < 1:
@@ -117,3 +128,9 @@ class MongoClient:
             data['timestamp'] = datetime.now()
             data_list.append(data)
         self.insert_many(self.UPDATES_COLLECTION, data=data_list)
+
+    def fetch_asset(self, asset: BaseAsset) -> None:
+        raise NotImplementedError
+
+    def push_asset(self, asset: BaseAsset) -> None:
+        raise NotImplementedError
