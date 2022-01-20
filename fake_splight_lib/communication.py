@@ -15,10 +15,10 @@ class FakeQueueCommunication(AbstractCommunication):
         pass
 
     def send(self, data: dict) -> None:
-        self.logger.info(f"FakeQueueCommunication Sent data: {data}")
+        self.logger.debug(f"FakeQueueCommunication Sent data: {data}")
         QUEUE.put(json.dumps(data))
 
     def receive(self) -> dict:
         data = json.loads(QUEUE.get())
-        self.logger.info(f"FakeQueueCommunication Read data: {data}")
+        self.logger.debug(f"FakeQueueCommunication Read data: {data}")
         return data

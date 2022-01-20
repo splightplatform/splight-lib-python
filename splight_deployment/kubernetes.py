@@ -4,9 +4,12 @@ import logging
 import json
 import subprocess as sp
 from jinja2 import Template
-from pprint import pprint as print
 from .status import Status
 from .abstract import AbstractDeploymentClient
+
+
+class MissingTemplate(Exception):
+    pass
 
 
 class KubernetesClient(AbstractDeploymentClient):
@@ -25,6 +28,9 @@ class KubernetesClient(AbstractDeploymentClient):
 
     def get_deployment_yaml(self, instance):
         template_path = f"deployment/templates/{instance.__class__.__name__}.yaml"
+        if not os.path.exists(template_path):
+            raise MissingTemplate(f"Unable to find template {template_path}")
+
         with open(template_path, "r+") as f:
             source = f.read()
         template = Template(source)

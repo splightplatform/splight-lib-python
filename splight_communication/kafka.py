@@ -4,6 +4,7 @@ from confluent_kafka import Consumer, Producer
 from .settings import CONFLUENT_CONSUMER_CONFIG, CONFLUENT_PRODUCER_CONFIG
 from .abstract import AbstractCommunication
 
+
 logger = logging.getLogger()
 
 
@@ -17,7 +18,6 @@ class KafkaQueueCommunication(AbstractCommunication):
     def receive(self):
         msg = self.consumer.consume(num_messages=1, timeout=-1)[0]
         if msg.error():
-            # TODO do something more specific
             logger.error(f"Msg with error {msg.value()}")
             return self.receive()
         data = msg.value()

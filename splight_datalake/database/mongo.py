@@ -1,6 +1,5 @@
 import logging
-from re import search
-from pymongo import MongoClient as PyMongoClient, DESCENDING
+from pymongo import MongoClient as PyMongoClient
 from pandas import DataFrame
 from pandas import json_normalize
 from typing import Dict, List
@@ -84,23 +83,15 @@ class MongoClient:
         )
         return documents
 
-    def find_dataframe(self, **kwargs) -> DataFrame:
-        return json_normalize(list(self.find(**kwargs)))
+    def aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
+        documents = self.db[collection].aggregate(pipeline)
+        return documents
 
     def delete_many(self, collection: str, filters: Dict = {}) -> None:
         self.db[collection].delete_many(filters)
 
     def insert_many(self, collection: str, data: List[Dict], **kwargs) -> None:
         self.db[collection].insert_many(data, **kwargs)
-
-    def insert_many_dataframe(self, collection: str, data: DataFrame, **kwargs) -> None:
-        kwargs.update(collection=collection)
-        kwargs.update(data=data.to_dict("records"))
-        self.insert_many(**kwargs)
-
-    def aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-        documents = self.db[collection].aggregate(pipeline)
-        return documents
 
     def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
         if len(variables) < 1:
@@ -134,3 +125,11 @@ class MongoClient:
 
     def push_asset(self, asset: BaseAsset) -> None:
         raise NotImplementedError
+
+    def find_dataframe(self, **kwargs) -> DataFrame:
+        return json_normalize(list(self.find(**kwargs)))
+
+    def insert_many_dataframe(self, collection: str, data: DataFrame, **kwargs) -> None:
+        kwargs.update(collection=collection)
+        kwargs.update(data=data.to_dict("records"))
+        self.insert_many(**kwargs)

@@ -1,5 +1,6 @@
-from splight_deployment import DeploymentClient
+from splight_deployment import DeploymentClient, Status
 
 __all__ = [
-    DeploymentClient
+    DeploymentClient,
+    Status,
 ]
