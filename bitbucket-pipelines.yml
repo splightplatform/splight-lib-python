@@ -1,13 +1,14 @@
 image: python:3.8
 pipelines:
-  default:
-    - step:
-        name: unit testing
-        size: 1x
-        script:
-          - python setup.py install
-          - python manage.py test
-        trigger: automatic
+  pull-requests:
+    '**':
+      - step:
+          name: unit testing
+          size: 1x
+          script:
+            - python setup.py install
+            - python manage.py test
+          trigger: automatic
   branches:
     master: &shared
       - step:
