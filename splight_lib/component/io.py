@@ -47,5 +47,5 @@ class AbstractIOComponent(AbstractComponent):
         while True:
             logger.debug("Updating mapping in connector")
             self.mappings = list(self.mapping_model.objects.prefetch_related("asset").filter(connector_id=self.connector_id))
-            time.sleep(time_interval)
             logger.debug(f"Maps found {len(self.mappings)}")
+            time.sleep(time_interval)
