@@ -1,10 +1,11 @@
-import logging
 import os
-import signal
+import sys
 import time
 from typing import Optional
 from abc import ABCMeta, abstractmethod
 from splight_lib.task import TaskManager
+from splight_lib import logging
+from tempfile import NamedTemporaryFile
 
 
 class HealthCheckException(Exception):
@@ -17,10 +18,15 @@ class AbstractComponent(metaclass=ABCMeta):
     healthcheck_interval = 5
 
     def __init__(self, instance_id: str, environment: Optional[str] = None):
+        self.health_file = NamedTemporaryFile(prefix="healthy_")
         self.task_manager = TaskManager()
         self.instance_id = instance_id
         self.environment = environment
         self.object = self.managed_class.objects.get(id=instance_id)
+
+    def mark_unhealthy(self):
+        self.logger.debug(f"Healthcheck file removed: {self.health_file}")
+        self.health_file.close()
 
     def pre_execution(self) -> None:
         pass
@@ -38,7 +44,9 @@ class AbstractComponent(metaclass=ABCMeta):
     def healthcheck(self) -> None:
         while True:
             if not self.task_manager.healthcheck():
-                os.kill(os.getpid(), signal.SIGTERM)
+                self.logger.debug("A task has failed")
+                self.mark_unhealthy()
+                sys.exit()
             time.sleep(self.healthcheck_interval)
 
     def execute(self) -> None:
