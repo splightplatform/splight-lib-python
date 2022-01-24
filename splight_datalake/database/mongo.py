@@ -3,7 +3,7 @@ from pymongo import MongoClient as PyMongoClient
 from pandas import DataFrame
 from pandas import json_normalize
 from typing import Dict, List
-from datetime import datetime
+from django.utils import timezone
 from splight_storage.models.asset.base_asset import BaseAsset
 from splight_lib.tag import Tag
 from splight_lib.component import DigitalOfferComponent
@@ -16,34 +16,38 @@ class MongoPipelines:
 
     @staticmethod
     def fetch_assets(asset_ids: List[int]) -> List[Dict]:
+
+        min_date = timezone.datetime.now() - timezone.timedelta(minutes=10)
+
         pipe = [
-            {'$match': 
+            {'$match':
                 {
-                    'asset_id': {'$in': asset_ids}
+                    'asset_id': {'$in': asset_ids},
+                    'timestamp': {'$gte': {'$date': str(min_date)}}
                 }
-            },
-            {"$sort": 
+             },
+            {"$sort":
                 {
                     "timestamp": 1
                 }
-            },
+             },
             {'$group':
                 {
                     '_id': {'asset_id': '$asset_id'},
                     'item': {'$mergeObjects': '$$ROOT'},
                 }
              },
-            {'$replaceRoot': 
+            {'$replaceRoot':
                 {
                     'newRoot': '$item'
                 }
-            },
-            {"$project": 
+             },
+            {"$project":
                 {
                     "_id": 0,
                     "timestamp": 0
                 }
-            }
+             }
         ]
         return pipe
 
@@ -116,7 +120,7 @@ class MongoClient:
             data = dict()
             data['asset_id'] = var.asset_id
             data[var.field] = var.args
-            data['timestamp'] = datetime.now()
+            data['timestamp'] = timezone.datetime.now()
             data_list.append(data)
         self.insert_many(self.UPDATES_COLLECTION, data=data_list)
 
