@@ -1,15 +1,14 @@
-import datetime
 from unittest import TestCase
 from unittest.mock import patch
 from pymongo.database import Database
 # TODO https://splight.atlassian.net/browse/FAC-223 Fix circular reference.
-from splight_lib.asset import Asset
+from django.utils import timezone
 from parameterized import parameterized
 from splight_datalake.database.mongo import MongoPipelines, MongoClient
 from splight_communication import Variable
 
 
-class FakeDate(datetime.datetime):
+class FakeDate(timezone.datetime):
     @classmethod
     def now(cls, tz=None):
         return cls(2021, 5, 12)
@@ -18,13 +17,15 @@ class FakeDate(datetime.datetime):
 class TestMongoPipelines(TestCase):
     @parameterized.expand([
         ([],),
-        ([1,2,3],),
+        ([1, 2, 3],),
     ])
+    @patch('splight_datalake.database.mongo.timezone.datetime', new=FakeDate)
     def test_fetch_assets(self, asset_id_list):
+        min_date = FakeDate.now() - timezone.timedelta(minutes=10)
         self.assertEqual(len(MongoPipelines.fetch_assets(asset_id_list)), 5)
-        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[0], {'$match': {'asset_id': {'$in': asset_id_list}}})
+        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[0], {'$match': {'asset_id': {'$in': asset_id_list}, 'timestamp': {'$gte': {'$date': str(min_date)}}}}),
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[1], {'$sort': {'timestamp': 1}})
-        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[2], {'$group': {'_id': {'asset_id': '$asset_id'},'item': {'$mergeObjects': '$$ROOT'}}})
+        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[2], {'$group': {'_id': {'asset_id': '$asset_id'}, 'item': {'$mergeObjects': '$$ROOT'}}})
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[3], {'$replaceRoot': {'newRoot': '$item'}})
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[4], {'$project': {'_id': 0, 'timestamp': 0}})
 
@@ -42,7 +43,7 @@ class TestMongoClient(TestCase):
 
     def test_find(self):
         client = MongoClient()
-        return_value = [1,2,3]
+        return_value = [1, 2, 3]
         filters = {}
         with patch("pymongo.collection.Collection.find", return_value=return_value) as find_call:
             self.assertEqual(client.find(collection="a_coll", filters=filters), return_value)
@@ -50,7 +51,7 @@ class TestMongoClient(TestCase):
 
     def test_aggregate(self):
         client = MongoClient()
-        return_value = [1,2,3]
+        return_value = [1, 2, 3]
         pipeline = [{}, {}, {}]
         with patch("pymongo.collection.Collection.aggregate", return_value=return_value) as agg_call:
             self.assertEqual(client.aggregate(collection="a_coll", pipeline=pipeline), return_value)
@@ -71,6 +72,7 @@ class TestMongoClient(TestCase):
             self.assertIsNone(client.insert_many(collection="a_coll", data=data, kwarg1=kwarg1))
             ins_call.assert_called_once_with(data, kwarg1=kwarg1)
 
+    @patch('splight_datalake.database.mongo.timezone.datetime', new=FakeDate)
     def test_fetch_updates(self):
         vars = [
             Variable(asset_id=1, field="field1", args={}),
@@ -96,9 +98,9 @@ class TestMongoClient(TestCase):
         client = MongoClient()
         with patch("splight_datalake.database.mongo.MongoClient.aggregate", return_value=return_value) as agg_call:
             self.assertEqual(client.fetch_updates(variables=vars), expected_result)
-            agg_call.assert_called_once_with(client.UPDATES_COLLECTION, MongoPipelines.fetch_assets([1,2]))
+            agg_call.assert_called_once_with(client.UPDATES_COLLECTION, MongoPipelines.fetch_assets([1, 2]))
 
-    @patch('splight_datalake.database.mongo.datetime', new=FakeDate)
+    @patch('splight_datalake.database.mongo.timezone.datetime', new=FakeDate)
     def test_push_updates(self):
         vars = [
             Variable(asset_id=1, field="field1", args={"value": "value1"}),
