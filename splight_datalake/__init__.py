@@ -1,8 +1,9 @@
-from .database import DatalakeClient
-from .files import FileManager
+from splight_datalake.database.mongo import MongoClient
+from .database import MongoClient
+from .files import S3Manager
 
 
 __all__ = [
-    DatalakeClient,
-    FileManager
+    MongoClient,
+    S3Manager
 ]

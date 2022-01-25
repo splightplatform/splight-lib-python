@@ -8,7 +8,3 @@ __all__ = [
     Variable,
     Message
 ]
-
-
-InternalCommunicationClient = ZMQueueCommunication
-ExternalCommunicationClient = KafkaQueueCommunication

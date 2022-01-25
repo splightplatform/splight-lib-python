@@ -1,5 +1,7 @@
 from .kubernetes import KubernetesClient
 from .status import Status
 
-
-DeploymentClient = KubernetesClient
+__all__ = [
+    KubernetesClient,
+    Status
+]
