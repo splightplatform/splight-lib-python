@@ -22,8 +22,8 @@ class MongoPipelines:
         pipe = [
             {'$match':
                 {
-                    'asset_id': {'$in': asset_ids},
-                    'timestamp': {'$gte': {'$date': str(min_date)}}
+                    'asset_id': {'$in': asset_ids },
+                    'timestamp': {'$gte': min_date }
                 }
              },
             {"$sort":
