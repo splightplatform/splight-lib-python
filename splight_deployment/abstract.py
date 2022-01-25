@@ -17,7 +17,7 @@ class AbstractDeploymentClient(ABC):
         pass
 
     @abstractmethod
-    def get_deployment_yaml(self, instance: Model) -> Dict:
+    def get_deployment_yaml(self, instance: Model) -> str:
         pass
 
     @abstractmethod
