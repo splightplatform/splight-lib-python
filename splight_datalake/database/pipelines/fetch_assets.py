@@ -1,16 +1,17 @@
-from typing import List, Dict
+from .utils import Pipeline
+from typing import List
 from django.utils import timezone
 
 
-def get_fetch_assets_pipeline(asset_ids: List[int]) -> List[Dict]:
+def get_fetch_assets_pipeline(asset_ids: List[int], max_backward_time=10) -> Pipeline:
 
-    min_date = timezone.datetime.now() - timezone.timedelta(minutes=10)
+    min_date = timezone.datetime.now() - timezone.timedelta(minutes=max_backward_time)
 
     pipe = [
         {'$match':
             {
-                'asset_id': {'$in': asset_ids },
-                'timestamp': {'$gte': min_date }
+                'asset_id': {'$in': asset_ids},
+                'timestamp': {'$gte': min_date}
             }
          },
         {"$sort":

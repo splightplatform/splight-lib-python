@@ -1,4 +1,5 @@
 import os
+import sys
 import ast
 
 INSTALLED_APPS = [
@@ -7,6 +8,7 @@ INSTALLED_APPS = [
     'splight_storage'
 ]
 
+TESTING = "test" in sys.argv
 MEDIA_ROOT = "/data/media/"
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
@@ -25,7 +27,7 @@ DATABASES = {
     }
 }
 
-if ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
+if TESTING or ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
