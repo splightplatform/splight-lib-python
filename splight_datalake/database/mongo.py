@@ -1,4 +1,4 @@
-import logging
+from splight_lib import logging
 from pymongo import MongoClient as PyMongoClient
 from pandas import DataFrame
 from pandas import json_normalize
@@ -10,46 +10,7 @@ from splight_lib.component import DigitalOfferComponent
 from splight_lib.tenant import Tenant
 from splight_lib.communication import Variable
 from splight_datalake.settings import setup
-
-
-class MongoPipelines:
-
-    @staticmethod
-    def fetch_assets(asset_ids: List[int]) -> List[Dict]:
-
-        min_date = timezone.datetime.now() - timezone.timedelta(minutes=10)
-
-        pipe = [
-            {'$match':
-                {
-                    'asset_id': {'$in': asset_ids },
-                    'timestamp': {'$gte': min_date }
-                }
-             },
-            {"$sort":
-                {
-                    "timestamp": 1
-                }
-             },
-            {'$group':
-                {
-                    '_id': {'asset_id': '$asset_id'},
-                    'item': {'$mergeObjects': '$$ROOT'},
-                }
-             },
-            {'$replaceRoot':
-                {
-                    'newRoot': '$item'
-                }
-             },
-            {"$project":
-                {
-                    "_id": 0,
-                    "timestamp": 0
-                }
-             }
-        ]
-        return pipe
+from .pipelines import MongoPipelines
 
 
 class MongoClient:

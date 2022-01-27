@@ -23,7 +23,7 @@ class TestMongoPipelines(TestCase):
     def test_fetch_assets(self, asset_id_list):
         min_date = FakeDate.now() - timezone.timedelta(minutes=10)
         self.assertEqual(len(MongoPipelines.fetch_assets(asset_id_list)), 5)
-        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[0], {'$match': {'asset_id': {'$in': asset_id_list}, 'timestamp': {'$gte': {'$date': str(min_date)}}}}),
+        self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[0], {'$match': {'asset_id': {'$in': asset_id_list}, 'timestamp': {'$gte': min_date}}}),
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[1], {'$sort': {'timestamp': 1}})
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[2], {'$group': {'_id': {'asset_id': '$asset_id'}, 'item': {'$mergeObjects': '$$ROOT'}}})
         self.assertEqual(MongoPipelines.fetch_assets(asset_id_list)[3], {'$replaceRoot': {'newRoot': '$item'}})
