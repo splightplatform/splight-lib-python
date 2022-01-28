@@ -64,11 +64,11 @@ class ResolvedMapping(BaseModel):
     type: str
     attr: str
     asset_id: int
+    ref_attr: str
 
 
 class ResolvedClientMapping(ResolvedMapping):
     type: str = "client"
-    ref_attr: str
 
 
 class ResolvedValueMapping(ResolvedMapping):

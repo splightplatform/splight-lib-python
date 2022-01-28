@@ -30,7 +30,10 @@ def _resolve_attribute(asset: BaseAsset, attr: Attribute, original_attr: Attribu
         return _resolve_attribute(reference_mapping.ref_asset, reference_mapping.ref_attribute, original_attr)
 
     value_mapping: ValueMapping = asset.value_mappings.filter(attribute=attr).first()
-    return ResolvedValueMapping(attr=original_attr.name, asset_id=asset.pk, value=value_mapping.value)
+    return ResolvedValueMapping(attr=original_attr.name,
+                                ref_attr=attr.name,
+                                asset_id=asset.pk,
+                                value=value_mapping.value)
 
 
 class Asset(BaseAsset):
@@ -80,7 +83,7 @@ class Asset(BaseAsset):
             client.send(msg.dict())
         else:
             mapping = ValueMapping.objects.get(asset__pk=resolved_mapping.asset_id,
-                                               attribute__name=resolved_mapping.attr)
+                                               attribute__name=resolved_mapping.ref_attr)
             mapping.value = value
             mapping.save()
 
