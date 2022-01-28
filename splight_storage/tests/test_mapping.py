@@ -55,7 +55,7 @@ class TestMapping(TestCase):
         self.assertEqual(msg.variables[0].field, "p")
         self.assertEqual(msg.variables[0].args, {"value": "10"})
 
-    def test_reference_mapping_set(self):
+    def test_reference_client_mapping_set(self):
         scada1 = Asset.objects.create()
         p = Attribute.objects.create(name="p")
         ClientMapping.objects.create(asset=scada1, attribute=p)
@@ -68,6 +68,17 @@ class TestMapping(TestCase):
         msg = Message(**data)
         self.assertEqual(msg.variables[0].field, "p")
         self.assertEqual(msg.variables[0].args, {"value": "10"})
+
+    def test_reference_value_mapping_set(self):
+        scada1 = Asset.objects.create()
+        p = Attribute.objects.create(name="p")
+        ValueMapping.objects.create(asset=scada1, attribute=p, value="5")
+        base_voltage = Attribute.objects.create(name="base_voltage")
+        bus1 = Asset.objects.create()
+        ReferenceMapping.objects.create(asset=bus1, attribute=base_voltage, ref_asset=scada1, ref_attribute=p)
+        bus1.set("base_voltage", "10")
+        self.assertEqual(bus1.get("base_voltage"), "10")
+        self.assertEqual(scada1.get("p"), "10")
 
     def test_unexistent_attribute_set_raises(self):
         scada1 = Asset.objects.create()
