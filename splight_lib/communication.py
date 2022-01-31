@@ -1,6 +1,6 @@
 import os
 import ast
-from splight_communication import ZMQueueCommunication, KafkaQueueCommunication, Variable, Message
+from splight_communication import *
 from fake_splight_lib.communication import FakeQueueCommunication
 
 

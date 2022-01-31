@@ -1,7 +1,7 @@
 import json
+
 from typing import Dict, ByteString
-from abc import ABCMeta, abstractmethod
-from typing import Dict
+from abc import ABC, ABCMeta, abstractmethod
 
 
 class AbstractCommunication(metaclass=ABCMeta):

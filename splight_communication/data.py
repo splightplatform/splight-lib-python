@@ -1,5 +1,5 @@
-from typing import List, Dict
 from pydantic import BaseModel
+from typing import List, Dict, Union, Callable
 
 
 class Variable(BaseModel):
@@ -12,3 +12,6 @@ class Variable(BaseModel):
 class Message(BaseModel):
     action: str
     variables: List[Variable]
+
+
+Value = Union[int, float, str, bool]
