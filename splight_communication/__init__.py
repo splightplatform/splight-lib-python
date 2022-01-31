@@ -1,10 +1,11 @@
-from .kafka import KafkaQueueCommunication
 from .zmq import ZMQueueCommunication
-from .data import Variable, Message
+from .kafka import KafkaQueueCommunication
+from .data import Variable, Message, Value
 
 __all__ = [
-    ZMQueueCommunication,
-    KafkaQueueCommunication,
-    Variable,
-    Message
+    "ZMQueueCommunication",
+    "KafkaQueueCommunication",
+    "Variable",
+    "Message",
+    "Value"
 ]
