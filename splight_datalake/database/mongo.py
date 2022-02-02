@@ -67,9 +67,9 @@ class MongoClient:
         variables = []
         for update in self.aggregate(self.UPDATES_COLLECTION, MongoPipelines.fetch_assets(asset_ids)):
             asset_id = update['asset_id']
-            for field, args in update.items():
-                if field != 'asset_id':
-                    var: Variable = Variable(asset_id=asset_id, field=field, args=args)
+            for var in variables:
+                if int(var.asset_id) == update['asset_id'] and var.field in update:
+                    var.args = update[var.field]
                     variables.append(var)
         return variables
 
