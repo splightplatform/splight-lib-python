@@ -5,7 +5,7 @@ from django.utils import timezone
 
 def get_fetch_assets_pipeline(asset_ids: List[int], max_backward_time=10) -> Pipeline:
 
-    min_date = timezone.datetime.now() - timezone.timedelta(minutes=max_backward_time)
+    min_date = timezone.now() - timezone.timedelta(minutes=max_backward_time)
 
     pipe = [
         {'$match':
