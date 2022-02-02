@@ -64,14 +64,13 @@ class MongoClient:
 
         asset_ids = list(set([int(v.asset_id) for v in variables]))
 
-        variables = []
+        result = []
         for update in self.aggregate(self.UPDATES_COLLECTION, MongoPipelines.fetch_assets(asset_ids)):
-            asset_id = update['asset_id']
             for var in variables:
                 if int(var.asset_id) == update['asset_id'] and var.field in update:
                     var.args = update[var.field]
-                    variables.append(var)
-        return variables
+                    result.append(var)
+        return result
 
     def push_updates(self, variables: List[Variable]) -> None:
         if len(variables) < 1:
