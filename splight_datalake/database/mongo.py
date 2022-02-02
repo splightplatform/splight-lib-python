@@ -81,7 +81,7 @@ class MongoClient:
             data = dict()
             data['asset_id'] = var.asset_id
             data[var.field] = var.args
-            data['timestamp'] = timezone.datetime.now()
+            data['timestamp'] = timezone.now()
             data_list.append(data)
         self.insert_many(self.UPDATES_COLLECTION, data=data_list)
 
