@@ -1,41 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: {{ instance.namespace }}
-    name: "{{instance.id}}"
+    namespace: {{ namespace }}
+    name: "{{id}}"
     labels:
-        id: "{{instance.id}}"
-        external_id: "{{instance.external_id}}"
-        type: {{instance.type}}
-        subtype: {{instance.subtype}}
-        version: "{{instance.version}}"
+        id: "{{id}}"
+        external_id: "{{external_id}}"
+        type: {{type}}
+        subtype: {{subtype}}
+        version: "{{version}}"
 spec:
     replicas: 1
     selector:
         matchLabels:
-            id: "{{instance.id}}"
-            external_id: "{{instance.external_id}}"
-            type: {{instance.type}}
-            subtype: {{instance.subtype}}
-            version: "{{instance.version}}"
+            id: "{{id}}"
+            external_id: "{{external_id}}"
+            type: {{type}}
+            subtype: {{subtype}}
+            version: "{{version}}"
     template:
         metadata:
             labels:
-                id: "{{instance.id}}"
-                external_id: "{{instance.external_id}}"
-                type: {{instance.type}}
-                subtype: {{instance.subtype}}
-                version: "{{instance.version}}"
+                id: "{{id}}"
+                external_id: "{{external_id}}"
+                type: {{type}}
+                subtype: {{subtype}}
+                version: "{{version}}"
         spec:
             imagePullSecrets:
                 - name: awsecr-cred
-            serviceAccountName: sa-splight-components
-            serviceAccount: sa-splight-components
+            serviceAccountName: {{serviceaccount}}
+            serviceAccount: {{serviceaccount}}
             containers:
-                - name: "{{instance.id}}"
-                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{instance.type | lower}}:{{instance.subtype}}-{{instance.version}}
+                - name: "{{id}}"
+                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{type | lower}}:{{subtype}}-{{version}}
                   command: ["python", "runner.py"]
-                  args: ["-i", "{{instance.external_id}}", "-c", "{{instance.type}}"]
+                  args: ["-i", "{{external_id}}", "-c", "{{type}}"]
                   imagePullPolicy: "IfNotPresent"
                   tty: true
                   securityContext:
@@ -50,7 +50,7 @@ spec:
                     periodSeconds: 5
                   envFrom:
                     - configMapRef:
-                        name: splight-config
+                        name: {{configmap}}
                   volumeMounts:
                     - name: splight-data
                       mountPath: /data
@@ -62,21 +62,21 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: {{ instance.namespace }}
-  name: {{instance.service}}
+  namespace: {{ namespace }}
+  name: {{service}}
   labels:
-    id: "{{instance.id}}"
-    external_id: "{{instance.external_id}}"
-    type: {{instance.type}}
-    subtype: {{instance.subtype}}
-    version: "{{instance.version}}"
+    id: "{{id}}"
+    external_id: "{{external_id}}"
+    type: {{type}}
+    subtype: {{subtype}}
+    version: "{{version}}"
 spec:
   selector:
-      id: "{{instance.id}}"
-      external_id: "{{instance.external_id}}"
-      type: {{instance.type}}
-      subtype: {{instance.subtype}}
-      version: "{{instance.version}}"
+      id: "{{id}}"
+      external_id: "{{external_id}}"
+      type: {{type}}
+      subtype: {{subtype}}
+      version: "{{version}}"
   ports:
     - name: proxy
       protocol: TCP

@@ -60,6 +60,6 @@ class TestKubernetesClient(TestCase):
         self.client = KubernetesClient(namespace='UPPER_WITH_UNDERSCOReee')
         self.assertEqual(self.client.namespace, 'upperwithunderscoreee')
 
-    def test_startup(self):
+    def test_configure(self):
         # TODO
         pass

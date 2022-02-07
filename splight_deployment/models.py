@@ -20,8 +20,3 @@ class DeploymentInfo(Deployment):
 
     class Config:
         arbitrary_types_allowed = True
-
-    @property
-    def spec(self):
-        if self.template:
-            return self.template.render(instance=self)

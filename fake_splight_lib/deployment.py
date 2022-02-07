@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from splight_deployment.abstract import AbstractDeploymentClient
 from splight_deployment.models import Deployment, DeploymentInfo
 from splight_lib import logging
@@ -10,6 +10,9 @@ logger = logging.getLogger()
 class FakeDeploymentClient(AbstractDeploymentClient):
     namespace = "default"
     deployments = {}
+
+    def configure(self, namespace: str, environment: Dict = {}):
+        logger.info("[FAKED] Configure fake namespace")
 
     def create(self, instance: Deployment) -> DeploymentInfo:
         logger.info("[FAKED] Applying fake deployment")
