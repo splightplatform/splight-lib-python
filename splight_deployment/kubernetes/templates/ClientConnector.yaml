@@ -33,7 +33,7 @@ spec:
             serviceAccount: {{serviceaccount}}
             containers:
                 - name: "{{id}}"
-                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{type | lower}}:{{subtype}}-{{version}}
+                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-io:{{subtype}}-{{version}}
                   command: ["python", "runner.py"]
                   args: ["-i", "{{external_id}}", "-c", "{{type}}"]
                   imagePullPolicy: "IfNotPresent"

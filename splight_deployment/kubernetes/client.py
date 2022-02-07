@@ -78,14 +78,16 @@ class KubernetesClient(AbstractDeploymentClient):
             name=self._get_deployment_name(instance),
             namespace=self.namespace,
             service=self._get_service_name(instance),
-            configmap = self.config_map,
-            serviceaccount = self.service_account,
             template=template,
             **instance.dict()
         )
 
     def apply(self, info: DeploymentInfo) -> None:
-        spec = info.template.render(info.dict())
+        spec = info.template.render(
+            configmap = self.config_map,
+            serviceaccount = self.service_account,
+            **info.dict()
+        )
         self._apply_yaml(spec)
 
     def get(self, id: str = '') -> List[Deployment]:
