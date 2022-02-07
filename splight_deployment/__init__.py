@@ -1,7 +1,10 @@
-from .kubernetes import KubernetesClient
-from .status import Status
+from .models import Deployment, DeploymentInfo
+from .kubernetes import KubernetesClient, MissingTemplate
+
 
 __all__ = [
+    Deployment,
+    DeploymentInfo,
     KubernetesClient,
-    Status
+    MissingTemplate,
 ]

@@ -1,40 +1,26 @@
-from django.db.models import Model
 from abc import ABC, abstractmethod
-from typing import Dict
-from .status import Status
+from pydantic import BaseModel
+from typing import List
+from .models import Deployment
 
 
 class AbstractDeploymentClient(ABC):
 
-    namespace = "default"
+    def __init__(self, namespace: str = "default") -> None:
+        self.namespace = namespace.lower()
 
     @abstractmethod
-    def get_deployment_name(self, instance: Model) -> str:
+    def create(self, instance: BaseModel) -> Deployment:
         pass
 
     @abstractmethod
-    def get_service_name(self, instance: Model) -> str:
+    def apply(self, spec: Deployment) -> Deployment:
         pass
 
     @abstractmethod
-    def get_deployment_yaml(self, instance: Model) -> str:
+    def get(self, id: str) -> List[Deployment]:
         pass
 
     @abstractmethod
-    def apply_deployment(self, instance: Model) -> None:
-        pass
-
-    @abstractmethod
-    def delete_deployment(self, instance: Model) -> None:
-        pass
-
-    @abstractmethod
-    def get_info(self, instance: Model, kind: str) -> Dict:
-        pass
-
-    @abstractmethod
-    def get_status(self, instance: Model) -> Status:
-        pass
-
-    def get_logs(self, instance: Model) -> str:
+    def delete(self, deployment: Deployment) -> None:
         pass

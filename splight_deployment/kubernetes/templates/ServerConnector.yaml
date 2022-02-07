@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: {{ instance.namespace }}
+    name: "{{instance.id}}"
+    labels:
+        id: "{{instance.id}}"
+        external_id: "{{instance.external_id}}"
+        type: {{instance.type}}
+        subtype: {{instance.subtype}}
+        version: "{{instance.version}}"
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            id: "{{instance.id}}"
+            external_id: "{{instance.external_id}}"
+            type: {{instance.type}}
+            subtype: {{instance.subtype}}
+            version: "{{instance.version}}"
+    template:
+        metadata:
+            labels:
+                id: "{{instance.id}}"
+                external_id: "{{instance.external_id}}"
+                type: {{instance.type}}
+                subtype: {{instance.subtype}}
+                version: "{{instance.version}}"
+        spec:
+            imagePullSecrets:
+                - name: awsecr-cred
+            serviceAccountName: sa-splight-components
+            serviceAccount: sa-splight-components
+            containers:
+                - name: "{{instance.id}}"
+                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{instance.type | lower}}:{{instance.subtype}}-{{instance.version}}
+                  command: ["python", "runner.py"]
+                  args: ["-i", "{{instance.id}}", "-c", "{{instance.type}}"]
+                  imagePullPolicy: "IfNotPresent"
+                  tty: true
+                  securityContext:
+                    privileged: true
+                  livenessProbe:
+                    exec:
+                        command:
+                          - sh
+                          - -c
+                          - ls /tmp/ | grep -q healthy_
+                    initialDelaySeconds: 20
+                    periodSeconds: 5
+                  envFrom:
+                    - configMapRef:
+                        name: splight-config
+                  volumeMounts:
+                    - name: splight-data
+                      mountPath: /data
+            volumes:
+              - name: splight-data
+                hostPath:
+                    path: /data

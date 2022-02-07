@@ -1,0 +1,2 @@
+class MissingTemplate(Exception):
+    pass
