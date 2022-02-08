@@ -1,4 +1,24 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: {{ namespace }}
+  name: {{ id }}
+  labels:
+    id: "{{id}}"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{configmap}}
+data:
+  {% for key, value in environment.items() %}
+  key: value
+  {% endfor %}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{serviceaccount}}
+  {% if environment.get("SERVICE_ACCOUNT_ROLE_ARN") %}
+  annotations:
+    eks.amazonaws.com/role-arn: {{environment.get("SERVICE_ACCOUNT_ROLE_ARN")}}
+  {% endif %}
