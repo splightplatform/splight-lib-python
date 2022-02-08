@@ -1,7 +1,7 @@
-from abc import ABC, abstractclassmethod, abstractmethod
+from abc import ABC, abstractmethod
 from pydantic import BaseModel
-from typing import List, Dict
-from .models import Deployment
+from typing import List
+from .models import Deployment, Namespace
 
 
 class AbstractDeploymentClient(ABC):
@@ -9,16 +9,8 @@ class AbstractDeploymentClient(ABC):
     def __init__(self, namespace: str = "default") -> None:
         self.namespace = namespace.lower()
 
-    @abstractclassmethod
-    def configure(self, namespace: str, environment: Dict = {}):
-        pass
-
     @abstractmethod
     def create(self, instance: BaseModel) -> Deployment:
-        pass
-
-    @abstractmethod
-    def apply(self, spec: Deployment) -> Deployment:
         pass
 
     @abstractmethod
@@ -26,5 +18,17 @@ class AbstractDeploymentClient(ABC):
         pass
 
     @abstractmethod
-    def delete(self, deployment: Deployment) -> None:
+    def delete(self, id: str) -> None:
+        pass
+
+    @abstractmethod
+    def create_namespace(self, instance: BaseModel) -> Namespace:
+        pass
+
+    @abstractmethod
+    def get_namespace(self, id: str) -> List[Namespace]:
+        pass
+
+    @abstractmethod
+    def delete_namespace(self, id: str) -> None:
         pass

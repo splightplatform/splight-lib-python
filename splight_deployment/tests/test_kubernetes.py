@@ -2,7 +2,7 @@ import json
 from unittest import TestCase
 from unittest.mock import patch
 from splight_deployment.kubernetes import KubernetesClient, MissingTemplate
-from splight_deployment.models import Deployment, DeploymentInfo
+from splight_deployment.models import Deployment, Namespace
 
 
 class TestKubernetesClient(TestCase):
@@ -14,6 +14,12 @@ class TestKubernetesClient(TestCase):
             subtype='openvpn',
             version="0_1_0"
         )
+        self.namespace = Namespace(
+            id='anothernamespace',
+            environment={
+                'key': 'value'
+            }
+        )
         return super().setUp()
 
     def test_create_deployment_without_template_raises(self):
@@ -22,25 +28,15 @@ class TestKubernetesClient(TestCase):
             self.client.create(self.instance)
 
     def test_create_deployment(self):
-        deployment = self.client.create(self.instance)
-        self.assertIsInstance(deployment, DeploymentInfo)
-        self.assertIsNotNone(deployment.spec)
-        self.assertEqual(deployment.namespace, self.client.namespace)
-        self.assertEqual(deployment.service, self.client._get_service_name(self.instance))
-        self.assertEqual(deployment.name, self.client._get_deployment_name(self.instance))
-
-    def test_apply_deployment(self):
-        info = self.client.create(self.instance)
         with patch("os.system") as os:
-            _ = self.client.apply(info)
+            self.client.create(self.instance)
             os.assert_called_once()
             args, _ = os.call_args_list[0]
             self.assertIn('kubectl apply -f', args[0])
 
     def test_delete_deployment(self):
-        deployment = self.client.create(self.instance)
+        self.client.create(self.instance)
         with patch("os.system") as os:
-            _ = self.client.apply(deployment)
             self.client.delete(id=self.instance.id)
             os.assert_any_call(f"kubectl delete deployment --selector=id={self.instance.id} -n {self.client.namespace}")
             os.assert_any_call(f"kubectl delete service --selector=id={self.instance.id} -n {self.client.namespace}")
@@ -56,10 +52,32 @@ class TestKubernetesClient(TestCase):
             self.assertEqual(self.client.get(), expected_result)
             sp.assert_called_once()
 
-    def test_namespace_name_tuned(self):
+    def test_client_namespace_tuned(self):
         self.client = KubernetesClient(namespace='UPPER_WITH_UNDERSCOReee')
         self.assertEqual(self.client.namespace, 'upperwithunderscoreee')
 
-    def test_configure(self):
-        # TODO
-        pass
+    def test_create_namespace(self):
+        with patch("os.system") as os:
+            self.client.create_namespace(self.namespace)
+            os.assert_called_once()
+            args, _ = os.call_args_list[0]
+            self.assertIn('kubectl apply -f', args[0])
+
+    def test_delete_deployment(self):
+        self.client.create_namespace(self.namespace)
+        with patch("os.system") as os:
+            self.client.delete_namespace(id=self.namespace.id)
+            os.assert_any_call(f"kubectl delete namespace --selector=id={self.namespace.id}")
+
+    def test_get_namespace(self):
+        return_value = json.dumps({
+            "metadata": {
+                "labels": {
+                    "id": self.namespace.id
+                }
+            }
+        })
+        expected_result = [Namespace(id=self.namespace.id)]
+        with patch("subprocess.getoutput", return_value=return_value) as sp:
+            self.assertEqual(self.client.get_namespace(), expected_result)
+            sp.assert_called_once()
