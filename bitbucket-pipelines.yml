@@ -1,7 +1,7 @@
 image: python:3.8
 pipelines:
   pull-requests:
-    '**':
+    "**":
       - step:
           name: unit testing
           size: 1x
@@ -14,7 +14,12 @@ pipelines:
       - step:
           name: upload library to jfrog
           script:
-            - printf "[distutils]\nindex-servers=splightlib\n[splightlib]\nrepository:https://splight.jfrog.io/artifactory/api/pypi/testjfrog-pypi\nusername=bot@splight-ae.com\npassword=N0us4rExcl4maci0n" >> ~/.pypirc
+            - printf "[distutils]\n" >> ~/.pypirc
+            - printf "index-servers=splightlib\n" >> ~/.pypirc
+            - printf "[splightlib]\n" >> ~/.pypirc
+            - printf "repository:https://splight.jfrog.io/artifactory/api/pypi/splight-local\n" >> ~/.pypirc
+            - printf "username=$JFROG_BOT_USERNAME\n" >> ~/.pypirc
+            - printf "password=$JFROG_BOT_PASS" >> ~/.pypirc
             - python setup.py bdist_wheel upload -r splightlib
             - rm ~/.pypirc;
     main: *shared
