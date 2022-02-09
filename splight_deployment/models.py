@@ -9,6 +9,7 @@ class Deployment(BaseModel):
     external_id: str = None
     status: str = None
 
+
 class Namespace(BaseModel):
     id: str
     environment: Dict = {}
