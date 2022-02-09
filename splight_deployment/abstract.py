@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
-from typing import List
-from .models import Deployment, Namespace
+from typing import List, Type
 
 
 class AbstractDeploymentClient(ABC):
@@ -10,25 +9,13 @@ class AbstractDeploymentClient(ABC):
         self.namespace = namespace.lower()
 
     @abstractmethod
-    def create(self, instance: BaseModel) -> Deployment:
+    def create(self, instance: BaseModel) -> None:
         pass
 
     @abstractmethod
-    def get(self, id: str) -> List[Deployment]:
+    def get(self,  resource_type: Type, resource_id: str) -> List[BaseModel]:
         pass
 
     @abstractmethod
-    def delete(self, id: str) -> None:
-        pass
-
-    @abstractmethod
-    def create_namespace(self, instance: BaseModel) -> Namespace:
-        pass
-
-    @abstractmethod
-    def get_namespace(self, id: str) -> List[Namespace]:
-        pass
-
-    @abstractmethod
-    def delete_namespace(self, id: str) -> None:
+    def delete(self, resource_type: Type, resource_id: str) -> None:
         pass

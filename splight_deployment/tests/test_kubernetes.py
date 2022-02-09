@@ -37,7 +37,7 @@ class TestKubernetesClient(TestCase):
     def test_delete_deployment(self):
         self.client.create(self.instance)
         with patch("os.system") as os:
-            self.client.delete(id=self.instance.id)
+            self.client.delete(resource_type=Namespace, resource_id=self.instance.id)
             os.assert_any_call(f"kubectl delete deployment --selector=id={self.instance.id} -n {self.client.namespace}")
             os.assert_any_call(f"kubectl delete service --selector=id={self.instance.id} -n {self.client.namespace}")
 
@@ -49,7 +49,7 @@ class TestKubernetesClient(TestCase):
         })
         expected_result = [Deployment(**self.instance.dict())]
         with patch("subprocess.getoutput", return_value=return_value) as sp:
-            self.assertEqual(self.client.get(), expected_result)
+            self.assertEqual(self.client.get(resource_type=Deployment), expected_result)
             sp.assert_called_once()
 
     def test_client_namespace_tuned(self):
@@ -58,15 +58,15 @@ class TestKubernetesClient(TestCase):
 
     def test_create_namespace(self):
         with patch("os.system") as os:
-            self.client.create_namespace(self.namespace)
+            self.client.create(self.namespace)
             os.assert_called_once()
             args, _ = os.call_args_list[0]
             self.assertIn('kubectl apply -f', args[0])
 
     def test_delete_deployment(self):
-        self.client.create_namespace(self.namespace)
+        self.client.create(self.namespace)
         with patch("os.system") as os:
-            self.client.delete_namespace(id=self.namespace.id)
+            self.client.delete(resource_type=Namespace, resource_id=self.namespace.id)
             os.assert_any_call(f"kubectl delete namespace --selector=id={self.namespace.id}")
 
     def test_get_namespace(self):
@@ -79,5 +79,5 @@ class TestKubernetesClient(TestCase):
         })
         expected_result = [Namespace(id=self.namespace.id)]
         with patch("subprocess.getoutput", return_value=return_value) as sp:
-            self.assertEqual(self.client.get_namespace(), expected_result)
+            self.assertEqual(self.client.get(resource_type=Namespace), expected_result)
             sp.assert_called_once()

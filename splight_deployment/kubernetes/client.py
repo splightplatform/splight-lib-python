@@ -2,10 +2,11 @@ import tempfile
 import json
 import os
 import logging
-from pathlib import Path
 import subprocess as sp
+from pydantic import BaseModel
+from pathlib import Path
 from jinja2 import Template
-from typing import List
+from typing import List, Type
 from splight_deployment.models import Deployment, Namespace
 from splight_deployment.abstract import AbstractDeploymentClient
 from .exceptions import MissingTemplate
@@ -51,7 +52,7 @@ class KubernetesClient(AbstractDeploymentClient):
             result = os.system(f"kubectl apply -f {fp.name} -n {self.namespace}")
             logger.info(result)
 
-    def create(self, instance: Deployment) -> None:
+    def _create_deployment(self, instance: Deployment) -> None:
         template = self._get_template(name=instance.type)
         spec = template.render(
             configmap = self.config_map,
@@ -63,7 +64,7 @@ class KubernetesClient(AbstractDeploymentClient):
         )
         self._apply_yaml(spec)
 
-    def get(self, id: str = '') -> List[Deployment]:
+    def _get_deployment(self, id: str = '') -> List[Deployment]:
         cmd = f"kubectl get pod -n {self.namespace} -o json"
         if id:
             cmd += f" --selector=id={id}"
@@ -72,11 +73,11 @@ class KubernetesClient(AbstractDeploymentClient):
         data = data['items'] if 'items' in data.keys() else [data]
         return [Deployment(**item['metadata']['labels']) for item in data]
 
-    def delete(self, id: str) -> None:
+    def _delete_deployment(self, id: str) -> None:
         os.system(f"kubectl delete deployment --selector=id={id} -n {self.namespace}")
         os.system(f"kubectl delete service --selector=id={id} -n {self.namespace}")
 
-    def create_namespace(self, instance: Namespace):
+    def _create_namespace(self, instance: Namespace) -> None:
         template = self._get_template(name='Namespace')
         spec = template.render(
             configmap = self.config_map,
@@ -86,7 +87,7 @@ class KubernetesClient(AbstractDeploymentClient):
         )
         self._apply_yaml(spec)
 
-    def get_namespace(self, id: str = ''):
+    def _get_namespace(self, id: str = ''):
         cmd = f"kubectl get namespace -o json"
         if id:
             cmd += f" --selector=id={id}"
@@ -95,5 +96,26 @@ class KubernetesClient(AbstractDeploymentClient):
         data = data['items'] if 'items' in data.keys() else [data]
         return [Namespace(**item['metadata']['labels']) for item in data]
 
-    def delete_namespace(self, id: str) -> None:
+    def _delete_namespace(self, id: str) -> None:
         os.system(f"kubectl delete namespace --selector=id={id}")
+
+    def create(self, instance: BaseModel) -> None:
+        if isinstance(instance, Deployment):
+            return self._create_deployment(instance)
+        if isinstance(instance, Namespace):
+            return self._create_namespace(instance)
+        raise NotImplementedError
+
+    def get(self, resource_type: Type, resource_id: str = '') -> List[BaseModel]:
+        if resource_type == Deployment:
+            return self._get_deployment(id=resource_id)
+        if resource_type == Namespace:
+            return self._get_namespace(id=resource_id)
+        raise NotImplementedError
+    
+    def delete(self, resource_type: Type, resource_id: BaseModel) -> None:
+        if resource_type == Deployment:
+            return self._delete_deployment(id=resource_id)
+        if resource_type == Namespace:
+            return self._delete_namespace(id=resource_id)
+        raise NotImplementedError
