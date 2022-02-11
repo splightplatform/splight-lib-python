@@ -7,6 +7,7 @@ from splight_storage.models.component import (
 from .io import AbstractIOComponent
 from .digital_offer import AbstractDigitalOfferComponent
 from .network import AbstractNetworkComponent
+from .trigger import AbstractTriggerGroupComponent
 
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     'DigitalOfferComponent',
     'DigitalOffer',
     'RunningDigitalOffer',
+    'AbstractTriggerGroupComponent'
 ]
