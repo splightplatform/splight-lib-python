@@ -17,7 +17,8 @@ class MongoClient:
     logger = logging.getLogger()
     REPORTS_COLLECTION = "reports"
     UPDATES_COLLECTION = "updates"
-
+    NOTIFICATION_COLLECTION = "notifications"
+    
     def __init__(self, database: str = 'default') -> None:
         connection = f'{setup["PROTOCOL"]}://{setup["USER"]}:{setup["PASSWORD"]}@{setup["HOST"]}'
         if setup["PORT"]:
