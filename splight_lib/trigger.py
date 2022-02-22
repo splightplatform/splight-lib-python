@@ -1,1 +1,1 @@
-from splight_storage.models.trigger import Trigger, TriggerGroup, TriggerGroupLimitException
+from splight_models import Trigger, TriggerGroup

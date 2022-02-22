@@ -1,4 +1,4 @@
-from .models import Deployment, Namespace
+from splight_models import Deployment, Namespace
 from .kubernetes import KubernetesClient, MissingTemplate
 
 

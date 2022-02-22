@@ -1,11 +1,12 @@
 from .zmq import ZMQueueCommunication
 from .kafka import KafkaQueueCommunication
-from .data import Variable, Message, Value
+from splight_models import Variable, Message, Value, Action
 
 __all__ = [
     "ZMQueueCommunication",
     "KafkaQueueCommunication",
     "Variable",
     "Message",
-    "Value"
+    "Value",
+    "Action"
 ]

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+## TODO move or remove this file from here
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
@@ -6,7 +7,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'splight_storage.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'splight_database.django.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
