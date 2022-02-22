@@ -32,7 +32,7 @@ spec:
                 - name: "{{id}}"
                   image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{type | lower}}:{{version}}
                   command: ["python", "runner.py"]
-                  args: ["-i", "{{external_id}}", "-c", "{{type}}"]
+                  args: ["-i", "{{external_id}}", "-c", "{{type}}", "-n", "{{namespace}}"]
                   imagePullPolicy: "IfNotPresent"
                   tty: true
                   securityContext:

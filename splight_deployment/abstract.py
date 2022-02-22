@@ -1,19 +1,17 @@
-from abc import ABC, abstractmethod
+from client import AbstractClient
+from abc import abstractmethod
 from pydantic import BaseModel
-from typing import List, Type
+from typing import Type, List
 
 
-class AbstractDeploymentClient(ABC):
-
-    def __init__(self, namespace: str = "default") -> None:
-        self.namespace = namespace.lower()
+class AbstractDeploymentClient(AbstractClient):
 
     @abstractmethod
-    def create(self, instance: BaseModel) -> None:
+    def create(self, instance: BaseModel) -> BaseModel:
         pass
 
     @abstractmethod
-    def get(self,  resource_type: Type, resource_id: str) -> List[BaseModel]:
+    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
         pass
 
     @abstractmethod

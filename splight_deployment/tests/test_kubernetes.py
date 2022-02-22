@@ -2,7 +2,7 @@ import json
 from unittest import TestCase
 from unittest.mock import patch
 from splight_deployment.kubernetes import KubernetesClient, MissingTemplate
-from splight_deployment.models import Deployment, Namespace
+from splight_models import Deployment, Namespace
 
 
 class TestKubernetesClient(TestCase):

@@ -3,6 +3,7 @@ import sys
 import time
 from typing import Optional
 from abc import ABCMeta, abstractmethod
+from splight_lib.database import DatabaseClient
 from splight_lib.task import TaskManager
 from splight_lib import logging
 from tempfile import NamedTemporaryFile
@@ -17,12 +18,17 @@ class AbstractComponent(metaclass=ABCMeta):
     logger = logging.getLogger()
     healthcheck_interval = 5
 
-    def __init__(self, instance_id: str, environment: Optional[str] = None):
+    def __init__(self,
+                 instance_id: str,
+                 namespace: Optional[str] = 'default',
+                 environment: Optional[str] = None):
         self.health_file = NamedTemporaryFile(prefix="healthy_")
         self.task_manager = TaskManager()
+        self.database = DatabaseClient(namespace)
         self.instance_id = instance_id
+        self.namespace = namespace
         self.environment = environment
-        self.object = self.managed_class.objects.get(id=instance_id)
+        self.object = self.database.get(resource_type=self.managed_class, id=instance_id, first=True)
 
     def mark_unhealthy(self):
         self.logger.debug(f"Healthcheck file removed: {self.health_file}")

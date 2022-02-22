@@ -1,7 +1,7 @@
 import json
 from unittest import TestCase
 from pydantic import ValidationError
-from splight_communication.data import Variable, Message
+from splight_models import Variable, Message
 
 
 class TestVariable(TestCase):
@@ -9,8 +9,8 @@ class TestVariable(TestCase):
         variable_data = {
             "args": {},
             "path": "path1",
-            "field": "field1",
-            "asset_id": "id1"
+            "asset_id": "id1",
+            "attribute_id": "1",
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.json(), str)
@@ -20,7 +20,7 @@ class TestVariable(TestCase):
         variable_data = {
             "args": {},
             "path": "path1",
-            "field": "field1",
+            "attribute_id": "1",
             "asset_id": "id1"
         }
         variable = Variable(**variable_data)
@@ -34,7 +34,7 @@ class TestVariable(TestCase):
         variable = Variable(**variable_data)
         self.assertTrue(hasattr(variable, "path"))
         self.assertTrue(hasattr(variable, "args"))
-        self.assertTrue(hasattr(variable, "field"))
+        self.assertTrue(hasattr(variable, "attribute_id"))
         self.assertTrue(hasattr(variable, "asset_id"))
 
 
@@ -61,9 +61,9 @@ class TestMessage(TestCase):
         message_data = {
             "action": "write",
             "variables": [
-                Variable(field="1", args={}),
-                Variable(field="2", args={}),
-                Variable(field="3", args={})
+                Variable(attribute_id="1", args={}),
+                Variable(attribute_id="2", args={}),
+                Variable(attribute_id="3", args={})
             ]
         }
         message = Message(**message_data)
@@ -71,7 +71,7 @@ class TestMessage(TestCase):
         self.assertDictEqual(message.dict(), message_data)
         message_data = {
             "action": "write",
-            "variables": [1,2,3]
+            "variables": [1, 2, 3]
         }
         with self.assertRaises(ValidationError):
             message = Message(**message_data)

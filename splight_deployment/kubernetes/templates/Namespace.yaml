@@ -11,7 +11,7 @@ metadata:
   name: {{configmap}}
 data:
   {% for key, value in environment.items() %}
-  key: value
+  {{key}}: {{value}}
   {% endfor %}
 ---
 apiVersion: v1
