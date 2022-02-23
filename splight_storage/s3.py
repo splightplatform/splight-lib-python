@@ -32,8 +32,8 @@ class S3StorageClient(AbstractStorageClient):
         s3.download_file(Bucket=self.namespace, Key=id, Filename=path)
         return path
 
-    def delete(self, resource_type: Type, resource_id: str) -> List[BaseModel]:
+    def delete(self, resource_type: Type, id: str) -> List[BaseModel]:
         if resource_type == StorageFile:
             s3 = boto3.client('s3')
-            s3.delete_object(Bucket=self.namespace, Key=resource_id)
+            s3.delete_object(Bucket=self.namespace, Key=id)
         raise NotImplementedError
