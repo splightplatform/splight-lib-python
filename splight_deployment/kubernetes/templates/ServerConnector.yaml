@@ -62,7 +62,7 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: {{ namespace_name }}
-  name: {{id}}
+  name: {{service}}
   labels:
       id: "{{id}}"
       external_id: "{{external_id}}"
@@ -77,5 +77,5 @@ spec:
   ports:
     - name: proxy
       protocol: TCP
-      port: {{instance.port}}
-      targetPort: {{instance.port}}
+      port: 1080
+      targetPort: 1080

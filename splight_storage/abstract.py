@@ -7,7 +7,7 @@ from client import AbstractClient
 class AbstractStorageClient(AbstractClient):
 
     @abstractmethod
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         pass
 
     @abstractmethod

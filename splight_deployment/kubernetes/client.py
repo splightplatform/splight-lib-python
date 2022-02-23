@@ -72,7 +72,7 @@ class KubernetesClient(AbstractDeploymentClient):
         return instance
 
     def _get_deployment(self, id: str = '') -> List[Deployment]:
-        cmd = f"kubectl get pod -n {self.namespace} -o json"
+        cmd = f"kubectl get deployment -n {self.namespace} -o json"
         if id:
             cmd += f" --selector=id={id}"
         result = sp.getoutput(cmd)
@@ -110,7 +110,7 @@ class KubernetesClient(AbstractDeploymentClient):
         os.system(f"kubectl delete namespace --selector=id={id}")
 
     @validate_instance_type
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         if instance.id is None:
             instance.id = str(uuid.uuid4())
         if isinstance(instance, Deployment):
@@ -124,7 +124,6 @@ class KubernetesClient(AbstractDeploymentClient):
             result: List[Deployment] = self._get_deployment(id=id)
         elif resource_type == Namespace:
             result: List[Namespace] = self._get_namespace(id=id)
-
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         result = self._filter(result, **kwargs)
         if first:
@@ -132,9 +131,9 @@ class KubernetesClient(AbstractDeploymentClient):
         return result
 
     @validate_resource_type
-    def delete(self, resource_type: Type, resource_id: BaseModel) -> None:
+    def delete(self, resource_type: Type, id: BaseModel) -> None:
         if resource_type == Deployment:
-            return self._delete_deployment(id=resource_id)
+            return self._delete_deployment(id=id)
         if resource_type == Namespace:
-            return self._delete_namespace(id=resource_id)
+            return self._delete_namespace(id=id)
         raise NotImplementedError

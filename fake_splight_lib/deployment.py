@@ -50,7 +50,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         except KeyError:
             logger.warning(f"[FAKED] Deployment not present {id}")
 
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         if isinstance(instance, Deployment):
             return self._create_deployment(instance)
         if isinstance(instance, Namespace):
