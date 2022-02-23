@@ -64,9 +64,9 @@ class FakeDeploymentClient(AbstractDeploymentClient):
             return self._get_namespace(id=id)
         raise NotImplementedError
 
-    def delete(self, resource_type: Type, instance: BaseModel) -> None:
+    def delete(self, resource_type: Type, id: BaseModel) -> None:
         if resource_type == Deployment:
-            return self._delete_deployment(instance)
+            return self._delete_deployment(id)
         if resource_type == Namespace:
-            return self._delete_namespace(instance)
+            return self._delete_namespace(id)
         raise NotImplementedError
