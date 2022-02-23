@@ -18,7 +18,7 @@ class TestS3StorageClient(TestCase):
 
     def test_create_file(self):
         with patch.object(self.boto3_client, 'upload_file') as mocked_upload:
-            self.client.create(self.instance)
+            self.client.save(self.instance)
             mocked_upload.assert_called_with(
                 Filename='something.abc',
                 Bucket='splight-api',

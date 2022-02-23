@@ -9,7 +9,7 @@ logger = logging.getLogger()
 
 class FakeStorageClient(AbstractStorageClient):
 
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         logger.debug(f"[FAKED] created file {instance}")
 
     def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:

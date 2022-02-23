@@ -34,7 +34,7 @@ class S3StorageClient(AbstractStorageClient):
         return zlib.decompress(b64d(name)).decode('utf-8')
 
     @validate_instance_type
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         self.s3.upload_file(
             Filename=instance.file,
             Bucket=AWS_STORAGE_BUCKET_NAME,

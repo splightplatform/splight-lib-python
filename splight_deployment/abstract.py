@@ -7,7 +7,7 @@ from typing import Type, List
 class AbstractDeploymentClient(AbstractClient):
 
     @abstractmethod
-    def create(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: BaseModel) -> BaseModel:
         pass
 
     @abstractmethod

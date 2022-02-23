@@ -25,17 +25,16 @@ class TestKubernetesClient(TestCase):
     def test_create_deployment_without_template_raises(self):
         self.instance.type = "MissingClass"
         with self.assertRaises(MissingTemplate):
-            self.client.create(self.instance)
+            self.client.save(self.instance)
 
     def test_create_deployment(self):
         with patch("os.system") as os:
-            self.client.create(self.instance)
+            self.client.save(self.instance)
             os.assert_called_once()
             args, _ = os.call_args_list[0]
             self.assertIn('kubectl apply -f', args[0])
 
     def test_delete_deployment(self):
-        self.client.create(self.instance)
         with patch("os.system") as os:
             self.client.delete(resource_type=Namespace, resource_id=self.instance.id)
             os.assert_any_call(f"kubectl delete deployment --selector=id={self.instance.id} -n {self.client.namespace}")
@@ -58,15 +57,14 @@ class TestKubernetesClient(TestCase):
 
     def test_create_namespace(self):
         with patch("os.system") as os:
-            self.client.create(self.namespace)
+            self.client.save(self.namespace)
             os.assert_called_once()
             args, _ = os.call_args_list[0]
             self.assertIn('kubectl apply -f', args[0])
 
     def test_delete_deployment(self):
-        self.client.create(self.namespace)
         with patch("os.system") as os:
-            self.client.delete(resource_type=Namespace, resource_id=self.namespace.id)
+            self.client.delete(resource_type=Namespace, id=self.namespace.id)
             os.assert_any_call(f"kubectl delete namespace --selector=id={self.namespace.id}")
 
     def test_get_namespace(self):
