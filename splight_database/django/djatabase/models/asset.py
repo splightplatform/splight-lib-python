@@ -13,6 +13,7 @@ class Asset(NamespaceAwareModel):
     name = models.CharField(max_length=100)
     tags = models.ManyToManyField(Tag, blank=True)
     geopoints = models.ManyToManyField(Geopoint, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
 
 
 class Attribute(NamespaceAwareModel):

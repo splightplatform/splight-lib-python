@@ -6,3 +6,4 @@ class Asset(BaseModel):
     id: Optional[str]
     external_id: Optional[str]
     name: str
+    description: Optional[str] = None
