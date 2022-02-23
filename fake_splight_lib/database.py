@@ -47,14 +47,14 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         return queryset
 
 
-    def delete(self, resource_type: Type, resource_id: str) -> None:
-        logger.debug(f"[FAKED] Executing delete with {resource_type} {resource_id}")
+    def delete(self, resource_type: Type, id: str) -> None:
+        logger.debug(f"[FAKED] Executing delete with {resource_type} {id}")
         if resource_type not in self.CLASSES:
             raise NotImplementedError
 
         queryset = self.database.get(resource_type, [])
         for i, item in enumerate(queryset):
-            if item.id == resource_id:
+            if item.id == id:
                 del queryset[i]
                 return
         

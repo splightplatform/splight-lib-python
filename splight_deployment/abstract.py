@@ -15,5 +15,5 @@ class AbstractDeploymentClient(AbstractClient):
         pass
 
     @abstractmethod
-    def delete(self, resource_type: Type, resource_id: str) -> None:
+    def delete(self, resource_type: Type, id: str) -> None:
         pass
