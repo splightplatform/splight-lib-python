@@ -5,4 +5,4 @@ class Action(str, Enum):
     UNSUBSCRIBE = "unsubscribe"
     WRITE = "write"
     UPDATE = "update"
-    
+    OPERATE = "operate"
