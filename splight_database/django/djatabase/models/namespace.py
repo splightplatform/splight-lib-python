@@ -44,4 +44,7 @@ class NamespaceAwareModel(models.Model):
         super(NamespaceAwareModel, self).save(*args, **kwargs)
 
     def to_dict(self):
-        return self.__dict__
+        data = self.__dict__
+        for m2m_field in self._meta.local_many_to_many:
+            data[m2m_field.name] = [t.id for t in getattr(self, m2m_field.name).all()]
+        return data

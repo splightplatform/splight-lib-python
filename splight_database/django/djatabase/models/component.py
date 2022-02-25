@@ -24,7 +24,10 @@ class DigitalOffer(models.Model):
         return self.name
 
     def to_dict(self):
-        return self.__dict__
+        data = self.__dict__
+        for m2m_field in self._meta.local_many_to_many:
+            data[m2m_field.name] = [t.id for t in getattr(self, m2m_field.name).all()]
+        return data
 
 class RunningDigitalOffer(NamespaceAwareModel):
     tag = models.ForeignKey(Tag, related_name="digital_offers", on_delete=models.CASCADE, null=True)
@@ -32,6 +35,3 @@ class RunningDigitalOffer(NamespaceAwareModel):
 
     def __str__(self):
         return f"{self.digital_offer}@{self.tag}-{self.tenant.org_id}"
-    
-    def to_dict(self):
-        return self.__dict__
