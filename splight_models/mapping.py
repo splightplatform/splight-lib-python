@@ -15,7 +15,6 @@ class ValueMapping(Mapping):
 class ReferenceMapping(Mapping):
     asset_id: str
     attribute_id: str
-    value: str
     ref_asset_id: str
     ref_attribute_id: str
 

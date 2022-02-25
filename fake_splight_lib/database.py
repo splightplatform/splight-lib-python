@@ -11,7 +11,7 @@ logger = logging.getLogger()
 
 class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
-    CLASSES = [Network, Namespace, ClientMapping, ServerMapping, ClientConnector, ServerConnector, Asset, Attribute, Trigger, TriggerGroup, Tag]
+    CLASSES = [Network, Namespace, ClientMapping, ServerMapping, ValueMapping, ReferenceMapping, ClientConnector, ServerConnector, Asset, Attribute, Trigger, TriggerGroup, Tag]
 
     def _create(self, instance: BaseModel) -> BaseModel:
         if type(instance) not in self.CLASSES:
@@ -27,6 +27,14 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         if type(instance) not in self.CLASSES:
             raise NotImplementedError
         
+        if type(instance) in [ClientMapping, ValueMapping, ReferenceMapping]:
+            same_mapping = lambda x : x.id != instance.id and x.asset_id == instance.asset_id and x.attribute_id == instance.attribute_id
+            client_mappings = list(filter(lambda x: same_mapping(x), self.database[ClientMapping]))
+            value_mappings = list(filter(lambda x: same_mapping(x), self.database[ValueMapping]))
+            reference_mappings = list(filter(lambda x: same_mapping(x), self.database[ReferenceMapping]))
+            if any([client_mappings, value_mappings, reference_mappings]):
+                raise ValueError("A mapping already exists for this asset and attribute")
+
         for i, item in enumerate(self.database[type(instance)]):
             if item.id == instance.id:
                 self.database[type(instance)][i] = instance
