@@ -13,6 +13,9 @@ class Namespace(models.Model):
     id = models.CharField(max_length=255, primary_key=True, default="default")
     environment = models.JSONField(default=dict)
 
+    def to_dict(self):
+        return self.__dict__
+
 
 class NamespaceAwareModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -39,3 +42,6 @@ class NamespaceAwareModel(models.Model):
         if any(conflicts):
             raise CrossNamespaceTryException(namespace=self.namespace, conflicts=conflicts)
         super(NamespaceAwareModel, self).save(*args, **kwargs)
+
+    def to_dict(self):
+        return self.__dict__

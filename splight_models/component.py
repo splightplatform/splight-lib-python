@@ -15,5 +15,5 @@ class DigitalOffer(BaseModel):
 
 class RunningDigitalOffer(BaseModel):
     id: Optional[str]
-    tag_ids: List[str]
+    tags: List[str] = []
     digital_offer_id: str

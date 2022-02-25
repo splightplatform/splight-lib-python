@@ -7,3 +7,4 @@ class Asset(BaseModel):
     external_id: Optional[str]
     name: str
     description: Optional[str] = None
+    tags: List[str] = []

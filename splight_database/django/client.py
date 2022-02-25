@@ -45,9 +45,14 @@ class DjangoClient(AbstractDatabaseClient):
 
     @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
-        default = instance.dict()
-        default["namespace"] = self.namespace
-        object, _ = CLASSMAP.get(type(instance)).objects.update_or_create(id=instance.id, defaults=default)
+        data = instance.dict()
+        data["namespace"] = self.namespace
+        obj_class = CLASSMAP.get(type(instance))
+        for m2m_field in obj_class._meta.local_many_to_many:
+            data.pop(m2m_field.name, [])
+        object, _ = obj_class.objects.update_or_create(id=instance.id, defaults=data)
+        for m2m_field in obj_class._meta.local_many_to_many:
+            getattr(object, m2m_field.name).set(instance.dict().get(m2m_field.name, []))
         instance.id = str(object.id)
         return instance
 
@@ -63,8 +68,8 @@ class DjangoClient(AbstractDatabaseClient):
         if "id__in" in kwargs:
             kwargs["id__in"] = [int(x) for x in kwargs["id__in"]]
         queryset = queryset.filter(**kwargs)
+        result = [resource_type(**i.to_dict()) for i in queryset]
 
-        result = [resource_type(**i.__dict__) for i in queryset]
         if first:
             return result[0] if result else None
 
