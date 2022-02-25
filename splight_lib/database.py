@@ -8,6 +8,8 @@ from splight_models import (
     ClientConnector,
     ServerConnector,
     ClientMapping,
+    ValueMapping,
+    ReferenceMapping,
     ServerMapping,
     Asset,
     Attribute
@@ -30,6 +32,8 @@ __all__ = [
     "ClientConnector",
     "ServerConnector",
     "ClientMapping",
+    "ValueMapping",
+    "ReferenceMapping",
     "ServerMapping",
     "DatabaseClient"
 ]
