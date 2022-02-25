@@ -10,6 +10,9 @@ class DigitalOfferComponent(models.Model):
     def __str__(self):
         return self.name
 
+    def to_dict(self):
+        return self.__dict__
+
 
 class DigitalOffer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -20,6 +23,8 @@ class DigitalOffer(models.Model):
     def __str__(self):
         return self.name
 
+    def to_dict(self):
+        return self.__dict__
 
 class RunningDigitalOffer(NamespaceAwareModel):
     tag = models.ForeignKey(Tag, related_name="digital_offers", on_delete=models.CASCADE, null=True)
@@ -27,3 +32,6 @@ class RunningDigitalOffer(NamespaceAwareModel):
 
     def __str__(self):
         return f"{self.digital_offer}@{self.tag}-{self.tenant.org_id}"
+    
+    def to_dict(self):
+        return self.__dict__

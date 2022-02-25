@@ -4,5 +4,5 @@ from typing import Optional
 
 class Tag(BaseModel):
     id: Optional[str]
-    type: str
-    value: Optional[str]
+    name: str
+    description: Optional[str]
