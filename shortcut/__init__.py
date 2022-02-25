@@ -1,0 +1,1 @@
+from .asset_attributes import *
