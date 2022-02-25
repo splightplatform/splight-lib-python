@@ -1,7 +1,8 @@
 from typing import Dict, List
 from datetime import datetime
 from splight_lib.communication import Variable
-
+from typing import Dict, List, Type, Optional
+from pydantic import BaseModel
 
 class FakeDatalakeClient:
     def __init__(self, database: str = 'default') -> None:
@@ -12,7 +13,8 @@ class FakeDatalakeClient:
             {
                 "_id": "jashdasd",
                 "asset_id": "1",
-                "p": {
+                "attribute_id": "1",
+                "args": {
                     "value": 1
                 },
                 "timestamp": datetime.now()
@@ -20,7 +22,8 @@ class FakeDatalakeClient:
             {
                 "_id": "jashdasd",
                 "asset_id": "1",
-                "p": {
+                "attribute_id": "1",
+                "args": {
                     "value": 4
                 },
                 "timestamp": datetime.now()
@@ -43,14 +46,14 @@ class FakeDatalakeClient:
             "timestamp": datetime.now()
         }
 
-    def fetch_updates(self, variables: List[Variable]) -> List[Variable]:
-        var = self.aggregate("", [])
+    def get(self, resource_type: Type, instances: List[BaseModel], fields: List[str] ,limit: Optional[int] = 1, from_: Optional[datetime] = None, to_: Optional[datetime] = None) -> List[BaseModel]:
+        var = self.find("", {})
         vars = []
-        for v in variables:
+        for v in instances:
             if v.attribute_id in var:
-                v.args = var[v.attribute_id]
+                v.args = var["args"]
                 vars.append(v)
         return vars
 
-    def push_updates(self, variables: List[Variable]) -> None:
+    def save(self, resource_type: Type, instances: List[BaseModel]) -> List[BaseModel]:
         pass

@@ -1,7 +1,7 @@
 import json
 from unittest import TestCase
 from pydantic import ValidationError
-from splight_models import Variable, Message
+from splight_models import Variable, Message, Action
 
 
 class TestVariable(TestCase):
@@ -41,7 +41,7 @@ class TestVariable(TestCase):
 class TestMessage(TestCase):
     def test_message_json(self):
         message_data = {
-            "action": "write",
+            "action": Action.WRITE,
             "variables": []
         }
         message = Message(**message_data)
@@ -50,7 +50,7 @@ class TestMessage(TestCase):
 
     def test_message_dict(self):
         message_data = {
-            "action": "write",
+            "action": Action.WRITE,
             "variables": []
         }
         message = Message(**message_data)
@@ -59,7 +59,7 @@ class TestMessage(TestCase):
 
     def test_message_variables_typed(self):
         message_data = {
-            "action": "write",
+            "action": Action.WRITE,
             "variables": [
                 Variable(attribute_id="1", args={}),
                 Variable(attribute_id="2", args={}),
@@ -70,7 +70,7 @@ class TestMessage(TestCase):
         self.assertIsInstance(message.dict(), dict)
         self.assertDictEqual(message.dict(), message_data)
         message_data = {
-            "action": "write",
+            "action": Action.WRITE,
             "variables": [1, 2, 3]
         }
         with self.assertRaises(ValidationError):
