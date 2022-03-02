@@ -16,7 +16,9 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         logger.info("[FAKED] Applying fake deployment")
-        self.deployments[instance.id] = instance.dict()
+        count = len(self.deployments)
+        self.deployments[count] = instance
+        instance.id = count
         return instance
 
     def _get_deployment(self, id: str = '') -> List[Deployment]:
@@ -34,7 +36,10 @@ class FakeDeploymentClient(AbstractDeploymentClient):
             logger.warning(f"[FAKED] Deployment not present {id}")
 
     def _create_namespace(self, instance: Namespace) -> Namespace:
-        self.namespaces[instance.id] = instance
+        logger.info("[FAKED] Applying fake namespace")
+        count = len(self.namespaces)
+        self.namespaces[count] = instance
+        instance.id = count
         return instance
 
     def _get_namespace(self, id: str = '') -> List[Namespace]:
@@ -70,7 +75,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         queryset = self._filter(queryset, **kwargs)
         if first:
             return queryset[0] if queryset else None
-        raise NotImplementedError
+        return queryset
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: BaseModel) -> None:
