@@ -25,4 +25,6 @@ class Attribute(NamespaceAwareModel):
     def save(self, *args, **kwargs):
         if Attribute.objects.filter(name=self.name, namespace=self.namespace):
             raise DuplicatedAttribute
+        if self.name in [field.name for field in Asset._meta.fields]:
+            raise AttributeError(f'Attribute name "{self.name}" is reserved')
         super(Attribute, self).save(*args, **kwargs)
