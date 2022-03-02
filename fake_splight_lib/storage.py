@@ -23,6 +23,7 @@ class FakeStorageClient(AbstractStorageClient):
         queryset = self.database[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+
         if first:
             return queryset[0] if queryset else None
         return queryset
