@@ -24,6 +24,7 @@ class TestShortcuts(TestCase):
         
 
     def test_multiple_mappings(self):
+        # the mapping (asset,attribute) must be unique among all mappings of any types
         client_mapping = self.database.save(ClientMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, connector_id=self.client_connector.id, path="2/1"))
         self.assertEqual(isinstance(client_mapping, ClientMapping), True)
         client_mapping.path = "3/1"
@@ -34,6 +35,9 @@ class TestShortcuts(TestCase):
             self.database.save(ClientMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, connector_id=self.client_connector.id, path="2/1"))
         with self.assertRaises(Exception):
             self.database.save(ValueMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, value=1))
+        with self.assertRaises(Exception):
+            # other mapping type with same id
+            self.database.save(ValueMapping(id=client_mapping.id, asset_id=self.asset.id, attribute_id=self.attribute.id, value=1))
         with self.assertRaises(Exception):
             self.database.save(ReferenceMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, ref_asset_id=self.asset.id, ref_attribute_id=self.attribute.id))
 

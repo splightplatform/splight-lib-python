@@ -68,10 +68,14 @@ class ServerMapping(Mapping):
 
 
 def validate_unique_mapping(self, *args, **kwargs):
-    value_mappings = ValueMapping.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute).exists()
-    client_mappings = ClientMapping.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute).exists()
-    reference_mappings = ReferenceMapping.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute).exists()
-    if any([value_mappings, client_mappings, reference_mappings]):
+    mapping_types = [ClientMapping, ValueMapping, ReferenceMapping]
+    mappings = []
+    for mapping_type in mapping_types:
+        if self.__class__ == mapping_type:
+            mappings.append(mapping_type.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute).exists())
+        else:
+            mappings.append(mapping_type.objects.filter(asset=self.asset, attribute=self.attribute).exists())
+    if any(mappings):
         raise ValueError("A mapping already exists for this asset and attribute")
 
 
