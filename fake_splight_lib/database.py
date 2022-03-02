@@ -55,8 +55,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:
         logger.debug(f"[FAKED] Executing delete with {resource_type} {id}")
-        if resource_type not in self.CLASSES:
-            raise NotImplementedError
 
         queryset = self.database.get(resource_type, [])
         for i, item in enumerate(queryset):
