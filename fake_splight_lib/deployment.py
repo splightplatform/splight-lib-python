@@ -3,7 +3,7 @@ from typing import List, Type
 from splight_deployment.abstract import AbstractDeploymentClient
 from splight_models import Deployment, Namespace
 from splight_lib import logging
-
+from client import validate_instance_type, validate_resource_type
 
 logger = logging.getLogger()
 
@@ -12,6 +12,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
     namespace = "default"
     deployments = {}
     namespaces = {}
+    valid_classes = [Deployment, Namespace]
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         logger.info("[FAKED] Applying fake deployment")
@@ -50,6 +51,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         except KeyError:
             logger.warning(f"[FAKED] Deployment not present {id}")
 
+    @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
         if isinstance(instance, Deployment):
             return self._create_deployment(instance)
@@ -57,13 +59,20 @@ class FakeDeploymentClient(AbstractDeploymentClient):
             return self._create_namespace(instance)
         raise NotImplementedError
 
-    def get(self, resource_type: Type, first: bool = False, id: str = '') -> List[BaseModel]:
+    @validate_resource_type
+    def get(self, resource_type: Type, first: bool = False, id: str = '', **kwargs) -> List[BaseModel]:
         if resource_type == Deployment:
-            return self._get_deployment(id=id)
+            queryset = self._get_deployment(id=id)
         if resource_type == Namespace:
-            return self._get_namespace(id=id)
+            queryset = self._get_namespace(id=id)
+
+        kwargs = self._validated_kwargs(resource_type, **kwargs)
+        queryset = self._filter(queryset, **kwargs)
+        if first:
+            return queryset[0] if queryset else None
         raise NotImplementedError
 
+    @validate_resource_type
     def delete(self, resource_type: Type, id: BaseModel) -> None:
         if resource_type == Deployment:
             return self._delete_deployment(id)
