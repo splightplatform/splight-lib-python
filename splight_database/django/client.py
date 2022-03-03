@@ -33,6 +33,7 @@ CLASSMAP = {
     Trigger: DBTrigger,
     TriggerGroup: DBTriggerGroup,
     Tag: DBTag,
+    Namespace: DBNamespace
 }
 
 

@@ -32,8 +32,8 @@ spec:
                 - name: "{{id}}"
                   image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-triggergroup:{{version}}
                   command: ["python", "runner.py"]
-                  args: ["-i", "{{external_id}}", "-c", "{{type}}"]
-                  imagePullPolicy: "IfNotPresent"
+                  args: ["-i", "{{external_id}}", "-c", "{{type}}", "-n", "{{namespace}}"]
+                  imagePullPolicy: "Always"
                   tty: true
                   securityContext:
                     privileged: true
