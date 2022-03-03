@@ -8,6 +8,7 @@ from .geopoint import *
 from .mapping import *
 from .message import *
 from .namespace import *
+from .notification import *
 from .network import *
 from .tag import *
 from .trigger import *
