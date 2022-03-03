@@ -4,7 +4,7 @@ from splight_deployment.abstract import AbstractDeploymentClient
 from splight_models import Deployment, Namespace
 from splight_lib import logging
 from client import validate_instance_type, validate_resource_type
-
+import random
 logger = logging.getLogger()
 
 
@@ -16,7 +16,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         logger.info("[FAKED] Applying fake deployment")
-        count = len(self.deployments)
+        count = str(random.randint(1, 1000))
         self.deployments[count] = instance
         instance.id = count
         return instance

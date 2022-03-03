@@ -33,10 +33,10 @@ class AbstractClient(ABC):
         Filter a queryset by the given kwargs.
         '''
         field_filters = [
-            lambda x: getattr(x, field) == value for field, value in kwargs.items() if not field.endswith("__in")
+            lambda x, field=field, value=value: getattr(x, field) == value for field, value in kwargs.items() if not field.endswith("__in")
         ]
         in_filters = [
-            lambda x: getattr(x, field) in values for field, values in kwargs.items() if field.endswith("__in")
+            lambda x, field=field, values=values: getattr(x, field) in values for field, values in kwargs.items() if field.endswith("__in")
         ]
         filters = field_filters + in_filters
         return [obj for obj in queryset if all([f(obj) for f in filters])]
