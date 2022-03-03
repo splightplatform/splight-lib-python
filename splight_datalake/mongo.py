@@ -8,6 +8,7 @@ from django.utils import timezone
 from .abstract import AbstractDatalakeClient
 from splight_datalake.settings import setup
 from splight_lib.communication import Variable
+from splight_lib.database import Notification
 from client import validate_resource_type, validate_instance_type
 utc = pytz.utc
 
@@ -15,7 +16,7 @@ utc = pytz.utc
 class MongoClient(AbstractDatalakeClient):
     logger = logging.getLogger()
 
-    valid_classes = [Variable]
+    valid_classes = [Variable, Notification]
 
     def __init__(self, *args, **kwargs) -> None:
         super(MongoClient, self).__init__(*args, **kwargs)
