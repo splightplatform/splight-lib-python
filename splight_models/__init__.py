@@ -3,6 +3,7 @@ from .asset import *
 from .attribute import *
 from .component import *
 from .connector import *
+from .channel import *
 from .deployment import *
 from .geopoint import *
 from .mapping import *

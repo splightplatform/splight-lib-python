@@ -1,16 +1,22 @@
 from pusher import Pusher
 from .abstract import AbstractNotificationClient
+from splight_lib.database import Channel
 from .settings import PUSHER_CONFIG
 from typing import Dict
 
-
 class PusherClient(AbstractNotificationClient):
-    def __init__(self, channel: str):
-        self._channel = channel
+
+    def __init__(self, *args, **kwargs):
+        super(PusherClient, self).__init__(*args, **kwargs)
         self._client = Pusher(**PUSHER_CONFIG)
 
-    def send(self, topic: str, data: Dict):
-        self._client.trigger(self._channel, topic, data)
+    def get_channel_name(self, channel: str, channel_type: Channel) -> str:
+        return f"{channel_type.value}-{self.namespace}-{channel}"
 
-    def authenticate(self, socket: str) -> Dict:
-        return self._client.authenticate(self._channel, socket)
+    def send(self, topic: str, data: Dict, channel: str = "default", channel_type: Channel = Channel.PRIVATE) -> None:
+        channel = self.get_channel_name(channel, channel_type)
+        self._client.trigger(channel, topic, data)
+
+    def authenticate(self, socket: str, channel: str = "default", channel_type: Channel = Channel.PRIVATE) -> Dict:
+        channel = self.get_channel_name(channel, channel_type)
+        return self._client.authenticate(channel, socket)
