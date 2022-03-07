@@ -35,3 +35,6 @@ class RunningDigitalOffer(NamespaceAwareModel):
 
     def __str__(self):
         return f"{self.digital_offer}@{self.tag}-{self.tenant.org_id}"
+    
+    def to_dict(self):
+        return self.__dict__

@@ -12,6 +12,8 @@ class Protocol(models.TextChoices):
 
 class Connector(NamespaceAwareModel):
     objects = InheritanceManager()
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, null=True, blank=True)
     host = models.CharField(max_length=60)
     port = models.IntegerField()
     protocol = models.CharField(max_length=4, choices=Protocol.choices)
