@@ -28,4 +28,4 @@ class TestNamespace(TestCase):
         cross_namespace = Namespace.objects.create(id="123")
         net = Network.objects.create(name="NET1", namespace=namespace)
         with self.assertRaises(CrossNamespaceTryException):
-            ClientConnector.objects.create(namespace=cross_namespace, network=net)
+            ClientConnector.objects.create(name="connector", namespace=cross_namespace, network=net)

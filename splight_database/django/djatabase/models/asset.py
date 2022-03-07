@@ -15,6 +15,11 @@ class Asset(NamespaceAwareModel):
     geopoints = models.ManyToManyField(Geopoint, blank=True)
     description = models.CharField(max_length=100, null=True, blank=True)
 
+    def to_dict(self):
+        data = self.__dict__
+        data["tags"] = [t.id for t in self.tags.all()]
+        return data
+
 
 class Attribute(NamespaceAwareModel):
     name = models.CharField(max_length=40)

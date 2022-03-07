@@ -9,6 +9,7 @@ def upload_to(instance, filename):
 
 class Network(NamespaceAwareModel):
     name = models.CharField(max_length=10, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
     username = models.CharField(max_length=100, null=True, blank=True)
     password = models.CharField(max_length=100, null=True, blank=True)
-    file = models.CharField(max_length=100, null=True, blank=True)
+    file_id = models.CharField(max_length=100, null=True, blank=True)

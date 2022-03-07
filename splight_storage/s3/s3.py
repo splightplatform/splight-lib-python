@@ -35,11 +35,13 @@ class S3StorageClient(AbstractStorageClient):
 
     @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
+        key = self.namespace + "/" + instance.name
         self.s3.upload_file(
             Filename=instance.file,
             Bucket=AWS_STORAGE_BUCKET_NAME,
-            Key=self.namespace + "/" + instance.name
+            Key=key
         )
+        instance.id = self._encode_name(key)
         return instance
 
     @validate_resource_type

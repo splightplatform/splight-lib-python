@@ -6,6 +6,7 @@ from enum import Enum
 class Network(BaseModel):
     id: Optional[str]
     name: str
+    description: Optional[str] = None
     username: Optional[str]
     password: Optional[str]
-    file: Optional[str]
+    file_id: Optional[str]

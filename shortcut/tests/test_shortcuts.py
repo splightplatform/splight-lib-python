@@ -16,8 +16,8 @@ class TestShortcuts(TestCase):
         self.asset = self.database.save(Asset(name="Asset1", description="test_description"))
         self.attribute = self.database.save(Attribute(name="Attribute11"))
         self.network = self.database.save(Network(name="Network1"))
-        self.client_connector = self.database.save(ClientConnector(host="123", port=123, protocol="asd", network_id=self.network.id))
-        self.server_connector = self.database.save(ServerConnector(host="123", port=123, protocol="asd", network_id=self.network.id, external_port="123"))
+        self.client_connector = self.database.save(ClientConnector(name="Client connector", host="123", port=123, protocol="asd", network_id=self.network.id))
+        self.server_connector = self.database.save(ServerConnector(name="Server connector", host="123", port=123, protocol="asd", network_id=self.network.id, external_port="123"))
 
         self.variable = Variable(asset_id=self.asset.id, attribute_id=self.attribute.id, args=dict({"value": 1}))
         return super().setUp()
