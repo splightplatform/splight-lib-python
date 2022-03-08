@@ -68,7 +68,7 @@ class DjangoClient(AbstractDatabaseClient):
             kwargs["id"] = int(kwargs["id"])
         if "id__in" in kwargs:
             kwargs["id__in"] = [int(x) for x in kwargs["id__in"]]
-        queryset = queryset.filter(**kwargs)
+        queryset = queryset.filter(**kwargs).distinct()
         result = [resource_type(**i.to_dict()) for i in queryset]
 
         if first:
