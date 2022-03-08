@@ -33,12 +33,16 @@ class AbstractClient(ABC):
         Filter a queryset by the given kwargs.
         '''
         field_filters = [
-            lambda x, field=field, value=value: getattr(x, field) == value for field, value in kwargs.items() if not field.endswith("__in")
+            lambda x, field=field, value=value: getattr(x, field) == value for field, value in kwargs.items() if "__" not in field
         ]
         in_filters = [
             lambda x, field=field, values=values: getattr(x, field) in values for field, values in kwargs.items() if field.endswith("__in")
         ]
-        filters = field_filters + in_filters
+        contains_filters = [
+            lambda x, field=field, value=value: value in getattr(x, field) for field, value in kwargs.items() if field.endswith("__contains")
+        ]
+
+        filters = field_filters + in_filters + contains_filters
         return [obj for obj in queryset if all([f(obj) for f in filters])]
 
     def _validated_kwargs(self, resource_type: Type, **kwargs):
@@ -48,6 +52,8 @@ class AbstractClient(ABC):
         class_fields = list(resource_type.__fields__.keys())
         valid_kwargs = [
             f"{field}__in" for field in class_fields
+        ] + [
+            f"{field}__contains" for field in class_fields
         ] + class_fields
 
         invalid_kwargs = [key for key in kwargs.keys() if key not in valid_kwargs]
