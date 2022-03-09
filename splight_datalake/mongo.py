@@ -45,41 +45,33 @@ class MongoClient(AbstractDatalakeClient):
         self.db[collection].insert_many(data, **kwargs)
 
 
-    def _get_filters(self, instance: BaseModel, fields: List[str], from_: Optional[datetime], to_: Optional[datetime]) -> Dict:
-        if not fields:
-            fields = list(instance.__fields__.keys())
+    def _get_filters(self, from_: Optional[datetime], to_: Optional[datetime], **kwargs) -> Dict:
         timestamp = dict()
         if from_:
             timestamp["$gte"] = from_
         if to_:
             timestamp["$lte"] = to_
-        
-        filters = {}
-        for field in fields:
-            if field in instance.__fields__:
-                filters[field] = getattr(instance, field)
         if timestamp:
-            filters["timestamp"] = timestamp
+            kwargs["timestamp"] = timestamp
 
-        return filters
+        special_filters = [key for key in kwargs.keys() if key.endswith(("__in", "__contains"))]
+        for key in special_filters:
+            if key.endswith("__in"):
+                kwargs[key[:-len("__in")]] = {"$in": kwargs[key]}
+                kwargs.pop(key)
+            elif key.endswith("__contains"):
+                kwargs[key[:-len("__contains")]] = {"$regex": kwargs[key]}
+                kwargs.pop(key)
+        return kwargs
 
     @validate_resource_type
-    def get(self,
-        resource_type: Type,
-        instances: List[BaseModel],
-        fields: List[str] = [],
-        limit: Optional[int] = 1,
-        from_: Optional[datetime] = None,
-        to_: Optional[datetime] = None) -> List[BaseModel]:
-        
-        data = []
-        for instance in instances:
-            validate_instance_type(instance)
-            updates = list(self._find(resource_type.__name__, self._get_filters(instance, fields, from_, to_), limit=limit, sort=[('timestamp', -1)]))
-            for update in updates:
-                data.append(resource_type(**update))
-
-        return data
+    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first_: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
+        kwargs = self._validated_kwargs(resource_type, **kwargs)
+        updates = list(self._find(resource_type.__name__, self._get_filters(from_, to_, **kwargs), limit=limit_, skip=skip_, sort=[('timestamp', -1)]))
+        result = [resource_type(**update) for update in updates]
+        if first_:
+            return result[0] if result else None
+        return result
 
     @validate_resource_type
     def save(self, resource_type: Type, instances: List[BaseModel]) -> List[BaseModel]:

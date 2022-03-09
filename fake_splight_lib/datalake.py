@@ -46,13 +46,11 @@ class FakeDatalakeClient:
             "timestamp": datetime.now()
         }
 
-    def get(self, resource_type: Type, instances: List[BaseModel], fields: List[str] ,limit: Optional[int] = 1, from_: Optional[datetime] = None, to_: Optional[datetime] = None) -> List[BaseModel]:
+    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first_: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
         var = self.find("", {})
         vars = []
-        for v in instances:
-            if v.attribute_id in var:
-                v.args = var["args"]
-                vars.append(v)
+        for v in var:
+            vars.append(resource_type(**v))
         return vars
 
     def save(self, resource_type: Type, instances: List[BaseModel]) -> List[BaseModel]:
