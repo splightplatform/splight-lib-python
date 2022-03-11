@@ -5,7 +5,7 @@ from typing import Dict, List, Type, Optional
 from pydantic import BaseModel
 
 class FakeDatalakeClient:
-    def __init__(self, database: str = 'default') -> None:
+    def __init__(self, namespace: str = 'default') -> None:
         pass
 
     def find(self, collection: str, filters: Dict = None, **kwargs) -> List[Dict]:

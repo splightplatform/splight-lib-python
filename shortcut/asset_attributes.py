@@ -40,7 +40,7 @@ def _asset_read(asset_id: str, attribute_id: str, datalake_client: DatalakeClien
                                         attribute_id=mapping.attribute_id,
                                         args=dict())
 
-        variable = datalake_client.get(Variable, instances=[variable], fields=['asset_id', 'attribute_id'])
+        variable = datalake_client.get(Variable, asset_id=variable.asset_id, attribute_id=variable.attribute_id)
 
         if not variable:
             raise AttributeError("No variable value found")
