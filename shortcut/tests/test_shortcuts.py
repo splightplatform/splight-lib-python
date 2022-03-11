@@ -90,7 +90,7 @@ class TestShortcuts(TestCase):
 
             result = asset_get(self.asset.id, self.attribute.id, self.namespace)
             self.assertEqual(result, 123)
-            mock.assert_has_calls([call(Variable, instances=[Variable(asset_id=self.asset.id,attribute_id=self.attribute.id,args=dict())], fields=['asset_id', 'attribute_id'])]*2)
+            mock.assert_has_calls([call(Variable, asset_id=self.asset.id, attribute_id=self.attribute.id)]*2)
 
 
     def test_asset_set(self):
