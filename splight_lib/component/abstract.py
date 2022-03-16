@@ -30,9 +30,9 @@ class HealthCheckMixin:
     def healthcheck(self) -> None:
         while True:
             if not self.execution_client.healthcheck():
-                logger.debug("A task has failed")
+                logger.error("A task has failed")
                 self.health_file.close()
-                logger.debug(f"Healthcheck file removed: {self.health_file}")
+                logger.error(f"Healthcheck file removed: {self.health_file}")
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
@@ -62,7 +62,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.execution_client.start(Thread(target=self.listen_commands))
         self.execution_client.start(Thread(target=self.listen_internal_commands))
 
-        super(AbstractComponent).__init__()
+        super(AbstractComponent, self).__init__()
 
     @property
     def name(self):
