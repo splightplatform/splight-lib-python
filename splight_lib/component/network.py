@@ -16,8 +16,8 @@ class AbstractNetworkComponent(AbstractComponent):
     def __init__(self,
                  instance_id: str,
                  namespace: Optional[str] = 'default'):
-        self.execution_client.start(Thread(target=self.refresh_rules_forever))
         super(AbstractNetworkComponent, self).__init__(instance_id, namespace)
+        self.execution_client.start(Thread(target=self.refresh_rules_forever))
 
     def refresh_rules_forever(self) -> None:
         while True:

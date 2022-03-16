@@ -17,8 +17,8 @@ class AbstractIOComponent(AbstractComponent):
     mappings: List = []
 
     def __init__(self, *args, **kwargs):
-        self.execution_client.start(Thread(target=self.refresh_mappings_forever))
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
+        self.execution_client.start(Thread(target=self.refresh_mappings_forever))
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:
         """
@@ -55,10 +55,12 @@ class AbstractIOComponent(AbstractComponent):
         return result
 
     def refresh_mappings_forever(self) -> None:
+        time_interval: int = 60
+
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
             return
-        time_interval: int = 60
+
         while True:
             logger.debug("Updating mapping in connector")
             self.mappings = self.database_client.get(
@@ -76,8 +78,8 @@ class AbstractClientComponent(AbstractIOComponent):
     def __init__(self,
                  instance_id: str,
                  namespace: Optional[str] = 'default'):
-        self.execution_client.start(Thread(target=self.sync_mappings_to_device))
         super(AbstractClientComponent, self).__init__(instance_id, namespace)
+        self.execution_client.start(Thread(target=self.sync_mappings_to_device))
 
     @abstractmethod
     def handle_write(self, variables: List[Variable]) -> None:
@@ -121,8 +123,8 @@ class AbstractServerComponent(AbstractIOComponent):
     def __init__(self,
                  instance_id: str,
                  namespace: Optional[str] = 'default'):
-        self.execution_client.start(Thread(target=self.sync_from_datalake))
         super(AbstractClientComponent, self).__init__(instance_id, namespace)
+        self.execution_client.start(Thread(target=self.sync_from_datalake))
 
     @abstractmethod
     def handle_update(self, variables: List[Variable]) -> None:
