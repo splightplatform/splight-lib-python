@@ -1,6 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional
-from enum import Enum
+from typing import Optional, List
+
+
+class NetTarget(BaseModel):
+    ip: str
+    port: int
+
+
+class NetRule(BaseModel):
+    origin: NetTarget
+    destination: NetTarget
+
+
+class NetValue(BaseModel):
+    value: List[NetRule]
 
 
 class Network(BaseModel):

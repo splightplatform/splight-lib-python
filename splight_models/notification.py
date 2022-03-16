@@ -3,7 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 class Notification(BaseModel):
-    # TODO: "General" notifications here
     pass
 
 

@@ -1,65 +1,103 @@
-import os
 import sys
 import time
-from typing import Optional
-from abc import ABCMeta, abstractmethod
-from splight_lib.database import DatabaseClient
-from splight_lib.task import TaskManager
-from splight_lib import logging
+from typing import Optional, Type
 from tempfile import NamedTemporaryFile
+from abc import ABCMeta
+from splight_lib.database import DatabaseClient
+from splight_lib.datalake import DatalakeClient
+from splight_lib.deployment import DeploymentClient
+from splight_lib.storage import StorageClient
+from splight_lib.communication import (
+    InternalCommunicationClient,
+    ExternalCommunicationClient,
+)
+from splight_lib.execution import Thread, ExecutionClient
+from splight_lib import logging
+from splight_models import Message
+from splight_lib.logging import logging
 
 
-class HealthCheckException(Exception):
-    pass
+logger = logging.getLogger()
 
 
-class AbstractComponent(metaclass=ABCMeta):
-    managed_class = None
-    logger = logging.getLogger()
+class HealthCheckMixin:
     healthcheck_interval = 5
 
-    def __init__(self,
-                 instance_id: str,
-                 namespace: Optional[str] = 'default',
-                 environment: Optional[str] = None):
+    def __init__(self):
         self.health_file = NamedTemporaryFile(prefix="healthy_")
-        self.task_manager = TaskManager()
-        self.database = DatabaseClient(namespace)
-        self.instance_id = instance_id
-        self.namespace = namespace
-        self.environment = environment
-        self.object = self.database.get(resource_type=self.managed_class, id=instance_id, first=True)
-
-    def mark_unhealthy(self):
-        self.logger.debug(f"Healthcheck file removed: {self.health_file}")
-        self.health_file.close()
-
-    def pre_execution(self) -> None:
-        pass
-
-    @abstractmethod
-    def main_task(self) -> None:
-        pass
-
-    def refresh_task(self) -> None:
-        pass
-
-    def server_task(self) -> None:
-        pass
+        self.healthcheck()
 
     def healthcheck(self) -> None:
         while True:
-            if not self.task_manager.healthcheck():
-                self.logger.debug("A task has failed")
-                self.mark_unhealthy()
+            if not self.execution_client.healthcheck():
+                logger.debug("A task has failed")
+                self.health_file.close()
+                logger.debug(f"Healthcheck file removed: {self.health_file}")
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
-    def execute(self) -> None:
-        self.pre_execution()
 
-        self.task_manager.start_thread(target=self.refresh_task)
-        self.task_manager.start_thread(target=self.server_task)
-        self.task_manager.start_thread(target=self.main_task)
+class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
+    managed_class: Type = None
 
-        self.healthcheck()
+    def __init__(self,
+                 instance_id: str,
+                 namespace: Optional[str] = 'default'):
+
+        # Params to start Lib clients
+        # TODO https://splight.atlassian.net/browse/FAC-343
+        self.namespace = namespace
+        self.instance_id = instance_id
+
+        # Lib clients
+        self.database_client = DatabaseClient(namespace)
+        self.storage_client = StorageClient(namespace)
+        self.datalake_client = DatalakeClient(namespace)
+        self.deployment_client = DeploymentClient(namespace)
+        self.internal_comm_client = InternalCommunicationClient(namespace)
+        self.external_comm_client = ExternalCommunicationClient(namespace)
+        self.execution_client = ExecutionClient(namespace)
+
+        # Main execution
+        self.execution_client.start(Thread(target=self.listen_commands))
+        self.execution_client.start(Thread(target=self.listen_internal_commands))
+
+        super(AbstractComponent).__init__()
+
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
+    def instance(self):
+        return self.database_client.get(
+            resource_type=self.managed_class,
+            id=self.instance_id,
+            first=True
+        )
+
+    def listen_commands(self) -> None:
+        while True:
+            data = self.external_comm_client.receive()
+            logger.debug(f"Message received from queue {data}")
+            msg = Message(**data)
+            action, variables = msg.action, msg.variables
+            handler = getattr(self, f'handle_{action.value}', None)
+            if handler is None:
+                logger.error(f"Handler not defined in class for action {action}. "
+                             "Please provide a function with name handle_{action.value}")
+                continue
+            handler(variables)
+
+    def listen_internal_commands(self) -> None:
+        while True:
+            data = self.internal_comm_client.receive()
+            logger.debug(f"Message received from internal queue {data}")
+            msg = Message(**data)
+            action, variables = msg.action, msg.variables
+            handler = getattr(self, f'_handle_{action.value}', None)
+            if handler is None:
+                logger.error(f"Handler not defined in class for action {action}. "
+                             "Please provide a function with name handle_{action.value}")
+                continue
+            handler(variables)
