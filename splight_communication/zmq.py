@@ -6,11 +6,10 @@ from .abstract import AbstractCommunication
 
 
 class ZMQueueCommunication(AbstractCommunication):
-    def __init__(self, reverse=False, *args, **kwargs):
+    def __init__(self, namespace, reverse=False, *args, **kwargs):
         recv_port, sender_port = ZMQ_RECEIVER_PORT, ZMQ_SENDER_PORT
         if reverse:
             recv_port, sender_port = ZMQ_SENDER_PORT, ZMQ_RECEIVER_PORT
-
         context = zmq.Context()
         self.receiver = context.socket(zmq.PAIR)
         self.receiver.bind("tcp://*:{}".format(recv_port))

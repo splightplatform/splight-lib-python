@@ -82,10 +82,10 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
             logger.debug(f"Message received from queue {data}")
             msg = Message(**data)
             action, variables = msg.action, msg.variables
-            handler = getattr(self, f'handle_{action.value}', None)
+            handler = getattr(self, f'handle_{action}', None)
             if handler is None:
                 logger.error(f"Handler not defined in class for action {action}. "
-                             "Please provide a function with name handle_{action.value}")
+                             f"Please provide a function with name handle_{action}")
                 continue
             handler(variables)
 
@@ -95,9 +95,9 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
             logger.debug(f"Message received from internal queue {data}")
             msg = Message(**data)
             action, variables = msg.action, msg.variables
-            handler = getattr(self, f'_handle_{action.value}', None)
+            handler = getattr(self, f'_handle_{action}', None)
             if handler is None:
                 logger.error(f"Handler not defined in class for action {action}. "
-                             "Please provide a function with name handle_{action.value}")
+                             f"Please provide a function with name _handle_{action}")
                 continue
             handler(variables)
