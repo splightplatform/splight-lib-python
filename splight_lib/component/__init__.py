@@ -1,15 +1,13 @@
-from .io import AbstractIOComponent
-from .digital_offer import AbstractDigitalOfferComponent
+from .io import AbstractServerComponent, AbstractClientComponent
+from .algorithms import AbstractAlgorithmComponent
 from .network import AbstractNetworkComponent
 from .trigger import AbstractTriggerGroupComponent
 
 
 __all__ = [
-    'AbstractIOComponent',
+    'AbstractServerComponent',
+    'AbstractClientComponent',
     'AbstractNetworkComponent',
-    'AbstractDigitalOfferComponent',
-    'DigitalOfferComponent',
-    'DigitalOffer',
-    'RunningDigitalOffer',
+    'AbstractAlgorithmComponent',
     'AbstractTriggerGroupComponent'
 ]
