@@ -25,7 +25,7 @@ class HealthCheckMixin:
 
     def __init__(self):
         self.health_file = NamedTemporaryFile(prefix="healthy_")
-        self.healthcheck()
+        self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
         while True:
