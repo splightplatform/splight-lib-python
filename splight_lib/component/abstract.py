@@ -53,7 +53,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.database_client = DatabaseClient(namespace)
         self.storage_client = StorageClient(namespace)
         self.datalake_client = DatalakeClient(namespace)
-        self.deployment_client = DeploymentClient(namespace)
+        self.deployment_client = DeploymentClient(namespace=namespace)
         self.internal_comm_client = InternalCommunicationClient(namespace)
         self.external_comm_client = ExternalCommunicationClient(namespace)
         self.execution_client = ExecutionClient(namespace)
