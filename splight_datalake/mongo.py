@@ -65,11 +65,11 @@ class MongoClient(AbstractDatalakeClient):
         return kwargs
 
     @validate_resource_type
-    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first_: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
+    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         updates = list(self._find(resource_type.__name__, self._get_filters(from_, to_, **kwargs), limit=limit_, skip=skip_, sort=[('timestamp', -1)]))
         result = [resource_type(**update) for update in updates]
-        if first_:
+        if first:
             return result[0] if result else None
         return result
 

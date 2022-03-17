@@ -12,5 +12,5 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first_: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
+    def get(self, resource_type: Type, from_: datetime = None, to_: datetime = None, first: bool = False, limit_: int = 50, skip_: int = 0, **kwargs) -> List[BaseModel]:
         pass
