@@ -133,10 +133,10 @@ class AbstractServerComponent(AbstractIOComponent):
 
     def sync_from_datalake(self):
         while True:
-            logger.debug(f"Trying to fetch from datalake {len(variables)} variables")
             variables = [
                 self.datalake_client.get(Variable, first=True, asset_id=mapping.asset_id, attribute_id=mapping.attribute_id)
                 for mapping in self.mappings
             ]
+            logger.debug(f"Fetched from datalake {len(variables)} variables")
             self.handle_update(variables)
             time.sleep(10)
