@@ -137,6 +137,9 @@ class AbstractServerComponent(AbstractIOComponent):
                 self.datalake_client.get(Variable, first=True, asset_id=mapping.asset_id, attribute_id=mapping.attribute_id)
                 for mapping in self.mappings
             ]
+            variables = [
+                variable for variable in variables if variable is not None
+            ]
             logger.debug(f"Fetched from datalake {len(variables)} variables")
             self.handle_update(variables)
             time.sleep(10)
