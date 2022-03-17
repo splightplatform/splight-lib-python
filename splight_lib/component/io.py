@@ -68,6 +68,7 @@ class AbstractIOComponent(AbstractComponent):
                 connector_id=self.instance_id
             )
             logger.debug(f"Maps found {len(self.mappings)}")
+            logger.debug(self.mappings)
             time.sleep(time_interval)
 
 
@@ -123,7 +124,7 @@ class AbstractServerComponent(AbstractIOComponent):
     def __init__(self,
                  instance_id: str,
                  namespace: Optional[str] = 'default'):
-        super(AbstractClientComponent, self).__init__(instance_id, namespace)
+        super(AbstractServerComponent, self).__init__(instance_id, namespace)
         self.execution_client.start(Thread(target=self.sync_from_datalake))
 
     @abstractmethod
