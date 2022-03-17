@@ -6,7 +6,11 @@ from splight_models import (
     ServerConnector,
     Deployment
 )
+from splight_lib import logging
 from .abstract import AbstractComponent
+
+
+logger = logging.getLogger()
 
 
 class AbstractNetworkComponent(AbstractComponent):
@@ -32,4 +36,5 @@ class AbstractNetworkComponent(AbstractComponent):
                 )
                 srv.host = self.deployment_client._get_service_name(deployment) if deployment else None
             self.rules = [srv for srv in related_servers if srv.host]
+            logger.debug("Updated rules ", self.rules)
             time.sleep(10)
