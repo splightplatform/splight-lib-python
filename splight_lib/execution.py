@@ -12,6 +12,10 @@ from threading import (
 from subprocess import Popen as DefaultPopen
 from functools import wraps
 from client.abstract import AbstractClient
+from splight_lib import logging
+
+
+logger = logging.getLogger()
 
 
 class Empty(object):
@@ -296,18 +300,22 @@ class ExecutionClient(AbstractClient):
             return self._stop_task(job)
 
     def _start_process(self, job: Popen) -> None:
+        logger.debug(f"Starting process {job}")
         self.processes.append(job)
         return
 
     def _start_thread(self, job: Thread) -> None:
+        logger.debug(f"Starting Thread {job}")
         self.threads.append(job)
         job.start()
         return
 
     def _start_task(self, job: Task) -> None:
+        logger.debug(f"Starting Task {job}")
         return self._scheduler.schedule(job)
     
     def _stop_task(self, job: Task) -> None:
+        logger.debug(f"Stopping Task {job}")
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
