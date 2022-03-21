@@ -1,5 +1,6 @@
 # Models to be considered in database
 
+from .algorithm import *
 from .asset import *
 from .network import *
 from .component import *
