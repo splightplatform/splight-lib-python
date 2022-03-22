@@ -46,17 +46,16 @@ class DjangoClient(AbstractDatabaseClient):
 
     def __init__(self, *args, **kwargs) -> None:
         super(DjangoClient, self).__init__(*args, **kwargs)
-        if hasattr(self, "namespace"):
-            self.namespace, _ = DBNamespace.objects.get_or_create(id=self.namespace)
+        self.namespace, _ = DBNamespace.objects.get_or_create(id=self.namespace)
 
     @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
         data = instance.dict()
-        if hasattr(self, "namespace"):
-            data["namespace"] = self.namespace
         obj_class = CLASSMAP.get(type(instance))
         for m2m_field in obj_class._meta.local_many_to_many:
             data.pop(m2m_field.name, [])
+        if hasattr(obj_class, "namespace"):
+            data["namespace"] = self.namespace
         object, _ = obj_class.objects.update_or_create(id=instance.id, defaults=data)
         for m2m_field in obj_class._meta.local_many_to_many:
             getattr(object, m2m_field.name).set(instance.dict().get(m2m_field.name, []))
@@ -68,13 +67,15 @@ class DjangoClient(AbstractDatabaseClient):
         """
         Valid filtering options fields or fields with __in
         """
-        queryset = CLASSMAP[resource_type].objects.filter(namespace=self.namespace)
+        obj_class = CLASSMAP[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         if "id" in kwargs:
             kwargs["id"] = int(kwargs["id"])
         if "id__in" in kwargs:
             kwargs["id__in"] = [int(x) for x in kwargs["id__in"]]
-        queryset = queryset.filter(**kwargs).distinct()
+        if hasattr(obj_class, "namespace"):
+            kwargs["namespace"] = self.namespace
+        queryset = obj_class.objects.filter(**kwargs).distinct()
         result = [resource_type(**i.to_dict()) for i in queryset]
 
         if first:
@@ -84,4 +85,8 @@ class DjangoClient(AbstractDatabaseClient):
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:
-        CLASSMAP[resource_type].objects.filter(namespace=self.namespace, id=id).delete()
+        obj_class = CLASSMAP[resource_type]
+        filters = {"id": id}
+        if hasattr(obj_class, "namespace"):
+            filters["namespace"] = self.namespace
+        obj_class.objects.filter(**filters).delete()
