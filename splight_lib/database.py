@@ -15,7 +15,9 @@ from splight_models import (
     ServerMapping,
     Trigger,
     TriggerGroup,
-    ValueMapping
+    ValueMapping,
+    Tag,
+    Runner
 )
 from splight_database.django.client import DjangoClient
 from fake_splight_lib.database import FakeDatabaseClient
@@ -41,5 +43,7 @@ __all__ = [
     "ServerMapping",
     "Trigger",
     "TriggerGroup",
-    "ValueMapping"
+    "ValueMapping",
+    "Tag",
+    "Runner"
 ]
