@@ -14,6 +14,7 @@ class TestVariable(TestCase):
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.json(), str)
+        variable_data["timestamp"] = None
         self.assertEqual(variable.json(), json.dumps(variable_data))
 
     def test_variable_dict(self):
@@ -25,6 +26,7 @@ class TestVariable(TestCase):
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.dict(), dict)
+        variable_data["timestamp"] = None
         self.assertDictEqual(variable.dict(), variable_data)
 
     def test_variable_defaults(self):
