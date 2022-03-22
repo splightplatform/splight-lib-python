@@ -98,14 +98,14 @@ class TestMongoClient(TestCase):
             }
         ]
         expected_result_first_call = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None)
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None, timestamp=datetime(2022, 2, 21, 17, 0)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2022, 2, 21, 17, 1)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None, timestamp=datetime(2022, 2, 21, 17, 2))
         ]
         expected_result_second_call = [
-            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None)
+            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None, timestamp=datetime(2022, 2, 21, 17, 0)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None, timestamp=datetime(2022, 2, 21, 17, 1)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None, timestamp=datetime(2022, 2, 21, 17, 2))
         ]
 
         client = MongoClient()
