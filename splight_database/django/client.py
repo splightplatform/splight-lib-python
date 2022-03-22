@@ -3,6 +3,7 @@ from typing import List, Type
 from splight_models import *
 from splight_database.abstract import AbstractDatabaseClient
 from .djatabase.models import (
+    Algorithm as DBAlgorithm,
     Network as DBNetwork,
     ClientMapping as DBClientMapping,
     ServerMapping as DBServerMapping,
@@ -21,6 +22,7 @@ from client import validate_instance_type, validate_resource_type
 
 
 CLASSMAP = {
+    Algorithm: DBAlgorithm,
     Network: DBNetwork,
     ClientMapping: DBClientMapping,
     ServerMapping: DBServerMapping,
