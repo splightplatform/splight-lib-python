@@ -2,6 +2,7 @@
 import ast
 import os
 from splight_models import (
+    Algorithm,
     Asset,
     Attribute,
     ClientConnector,
@@ -26,6 +27,7 @@ if ast.literal_eval(os.getenv("FAKE_DATABASE", "True")):
     DatabaseClient = FakeDatabaseClient
 
 __all__ = [
+    "Algorithm",
     "Asset",
     "Attribute",
     "ClientConnector",
