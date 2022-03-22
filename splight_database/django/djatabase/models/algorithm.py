@@ -7,3 +7,7 @@ class Algorithm(models.Model):
     description = models.CharField(max_length=100, null=True, blank=True)
     version = models.CharField(max_length=100)
     parameters = models.JSONField()
+
+    def to_dict(self):
+        data = self.__dict__
+        return data
