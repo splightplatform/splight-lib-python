@@ -46,12 +46,14 @@ class DjangoClient(AbstractDatabaseClient):
 
     def __init__(self, *args, **kwargs) -> None:
         super(DjangoClient, self).__init__(*args, **kwargs)
-        self.namespace, _ = DBNamespace.objects.get_or_create(id=self.namespace)
+        if hasattr(self, "namespace"):
+            self.namespace, _ = DBNamespace.objects.get_or_create(id=self.namespace)
 
     @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
         data = instance.dict()
-        data["namespace"] = self.namespace
+        if hasattr(self, "namespace"):
+            data["namespace"] = self.namespace
         obj_class = CLASSMAP.get(type(instance))
         for m2m_field in obj_class._meta.local_many_to_many:
             data.pop(m2m_field.name, [])
