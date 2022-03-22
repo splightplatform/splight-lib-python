@@ -17,6 +17,7 @@ from .djatabase.models import (
     TriggerGroup as DBTriggerGroup,
     Tag as DBTag,
     Namespace as DBNamespace,
+    Runner as DBRunner,
 )
 from client import validate_instance_type, validate_resource_type
 
@@ -35,7 +36,8 @@ CLASSMAP = {
     Trigger: DBTrigger,
     TriggerGroup: DBTriggerGroup,
     Tag: DBTag,
-    Namespace: DBNamespace
+    Namespace: DBNamespace,
+    Runner: DBRunner
 }
 
 

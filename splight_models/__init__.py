@@ -2,7 +2,7 @@ from .algorithm import *
 from .action import *
 from .asset import *
 from .attribute import *
-from .component import *
+from .runner import *
 from .connector import *
 from .channel import *
 from .deployment import *
