@@ -70,7 +70,7 @@ class MongoClient(AbstractDatalakeClient):
         updates = list(self._find(resource_type.__name__, self._get_filters(from_, to_, **kwargs), limit=limit_, skip=skip_, sort=[('timestamp', -1)]))
         result = [resource_type(**update) for update in updates]
         if first:
-            return result[0] if result else None
+            return [result[0]] if result else None
         return result
 
     @validate_resource_type
