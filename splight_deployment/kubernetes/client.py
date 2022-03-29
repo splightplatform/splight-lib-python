@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class KubernetesClient(AbstractDeploymentClient):
     TEMPLATES_FOLDER = os.path.join(Path(__file__).resolve().parent, "templates")
+    DOCKER_REGISTRY = os.getenv("DOCKER_REGISTRY", "609067598877.dkr.ecr.us-east-1.amazonaws.com")
     valid_classes = [Deployment, Namespace]
 
     def __init__(self,
@@ -38,6 +39,15 @@ class KubernetesClient(AbstractDeploymentClient):
         id = str(instance.id).lower()
         type_id = str(instance.type).lower()
         return f"service-{type_id}-{id}"
+
+    def _get_docker_image(self, instance: Deployment):
+        image = f"splight-{instance.type.lower()}:{instance.version}"
+        if self.DOCKER_REGISTRY:
+            return f"{self.DOCKER_REGISTRY}/{image}"
+        return image
+
+    def _get_run_spec(self, instance: Deployment):
+        return instance.dict()
 
     def _get_template(self, name) -> Template:
         template_path = os.path.join(self.TEMPLATES_FOLDER, f"{name}.yaml")
@@ -60,12 +70,13 @@ class KubernetesClient(AbstractDeploymentClient):
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         template = self._get_template(name=instance.type)
+        instance.namespace = self.namespace
         spec = template.render(
             configmap=self.config_map,
-            name=self._get_deployment_name(instance),
-            namespace=self.namespace,
-            service=self._get_service_name(instance),
             serviceaccount=self.service_account,
+            service=self._get_service_name(instance),
+            dockerimg=self._get_docker_image(instance),
+            run_spec=self._get_run_spec(instance),
             **instance.dict()
         )
         self._apply_yaml(spec)

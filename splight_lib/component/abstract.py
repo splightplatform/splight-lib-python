@@ -1,6 +1,7 @@
 import sys
 import time
-from typing import Optional, Type
+import pandas as pd
+from typing import Optional, Type, List
 from tempfile import NamedTemporaryFile
 from abc import ABCMeta
 from splight_lib.database import DatabaseClient
@@ -13,8 +14,8 @@ from splight_lib.communication import (
 )
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib import logging
-from splight_models import Message
 from splight_lib.logging import logging
+from splight_models import Message, VariableDataFrame, Variable
 
 
 logger = logging.getLogger()
@@ -101,3 +102,15 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
                              f"Please provide a function with name _handle_{action}")
                 continue
             handler(variables)
+
+    def get_history(self, asset_id, attribute_ids: List) -> VariableDataFrame:
+        _data = pd.concat([
+            self.datalake_client.get_dataframe(
+                variable=Variable(asset_id=asset_id, attribute_id=attribute_id, args={})
+            )
+            for attribute_id in attribute_ids
+        ], axis=1)
+        return _data
+
+    def save_results(self, data: VariableDataFrame) -> None:
+        self.datalake_client.save_dataframe(data, collection=self.name)
