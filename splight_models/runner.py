@@ -1,5 +1,20 @@
+from typing import List, Any, Optional
 from pydantic import BaseModel
-from typing import List, Optional
+
+
+class Parameter(BaseModel):
+    name: str
+    type: str = "str"
+    required: bool = False
+    value: Any = None
+
+
+class Algorithm(BaseModel):
+    id: Optional[str]
+    name: str
+    description: Optional[str]
+    version: str
+    parameters: List[Parameter]
 
 
 class Runner(BaseModel):
@@ -8,4 +23,4 @@ class Runner(BaseModel):
     description: Optional[str]
     tag_id: str
     algorithm_id: str
-    settings: List[dict] = []
+    parameters: List[Parameter]

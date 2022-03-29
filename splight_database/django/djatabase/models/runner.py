@@ -8,4 +8,4 @@ class Runner(NamespaceAwareModel):
     description = models.CharField(max_length=100, null=True, blank=True)
     tag_id = models.CharField(max_length=100, null=True, blank=True)
     algorithm_id = models.CharField(max_length=100, null=True, blank=True)
-    settings = models.JSONField()
+    parameters = models.JSONField()

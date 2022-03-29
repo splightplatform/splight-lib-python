@@ -104,7 +104,11 @@ class TestShortcuts(TestCase):
 
             client_mapping = self.database.save(ClientMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, connector_id=self.client_connector.id, path="2/1"))
             asset_set(self.asset.id, self.attribute.id, VALUE1, self.namespace)
-            mock_send.assert_called_once_with({"action":Action.WRITE, "variables":[Variable(asset_id=self.asset.id, attribute_id=self.attribute.id, args=dict(value=VALUE1)).dict()]})
+            self.assertEqual(mock_send.call_args[0][0]["action"], Action.WRITE)
+            self.assertEqual(len(mock_send.call_args[0][0]["variables"]), 1)
+            self.assertEqual(mock_send.call_args[0][0]["variables"][0]["asset_id"], self.asset.id)
+            self.assertEqual(mock_send.call_args[0][0]["variables"][0]["attribute_id"], self.attribute.id)
+            self.assertDictEqual(mock_send.call_args[0][0]["variables"][0]["args"], dict(value=VALUE1))
 
             self.database.delete(ClientMapping, client_mapping.id)
             value_mapping = self.database.save(ValueMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, value=VALUE2))

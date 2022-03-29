@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: {{ namespace }}
+    name: "{{id}}"
+    labels:
+        id: "{{id}}"
+        external_id: "{{external_id}}"
+        type: "{{type}}"
+        name: "{{name}}"
+        version: "{{version}}"
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            id: "{{id}}"
+            external_id: "{{external_id}}"
+            type: "{{type}}"
+            name: "{{name}}"
+            version: "{{version}}"
+    template:
+        metadata:
+            labels:
+                id: "{{id}}"
+                external_id: "{{external_id}}"
+                type: "{{type}}"
+                name: "{{name}}"
+                version: "{{version}}"
+        spec:
+            imagePullSecrets:
+                - name: awsecr-cred
+            serviceAccountName: {{serviceaccount}}
+            serviceAccount: {{serviceaccount}}
+            containers:
+                - name: "{{id}}"
+                  image: {{dockerimg}}
+                  command: ["python", "runner.py"]
+                  args: ["-r", "{{run_spec}}"]
+                  imagePullPolicy: "Always"
+                  tty: true
+                  securityContext:
+                    privileged: true
+                  livenessProbe:
+                    exec:
+                        command:
+                          - sh
+                          - -c
+                          - ls /tmp/ | grep -q healthy_
+                    initialDelaySeconds: 20
+                    periodSeconds: 5
+                  envFrom:
+                    - configMapRef:
+                        name: {{configmap}}
+                  volumeMounts:
+                    - name: splight-data
+                      mountPath: /data
+            volumes:
+              - name: splight-data
+                hostPath:
+                    path: /data

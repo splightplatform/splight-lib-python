@@ -2,9 +2,11 @@ import json
 from unittest import TestCase
 from pydantic import ValidationError
 from splight_models import Variable, Message, Action
+from datetime import datetime
 
 
 class TestVariable(TestCase):
+
     def test_variable_json(self):
         variable_data = {
             "args": {},
@@ -14,8 +16,9 @@ class TestVariable(TestCase):
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.json(), str)
-        variable_data["timestamp"] = None
-        self.assertEqual(variable.json(), json.dumps(variable_data))
+        self.assertIsNotNone(variable.timestamp)
+        variable_data["timestamp"] = variable.timestamp.isoformat()
+        self.assertEqual(json.loads(variable.json()), variable_data)
 
     def test_variable_dict(self):
         variable_data = {
@@ -26,7 +29,7 @@ class TestVariable(TestCase):
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.dict(), dict)
-        variable_data["timestamp"] = None
+        variable_data["timestamp"] = variable.timestamp
         self.assertDictEqual(variable.dict(), variable_data)
 
     def test_variable_defaults(self):
@@ -38,6 +41,7 @@ class TestVariable(TestCase):
         self.assertTrue(hasattr(variable, "args"))
         self.assertTrue(hasattr(variable, "attribute_id"))
         self.assertTrue(hasattr(variable, "asset_id"))
+        self.assertTrue(hasattr(variable, "timestamp"))
 
 
 class TestMessage(TestCase):
