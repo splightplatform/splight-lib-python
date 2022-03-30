@@ -14,7 +14,7 @@ class Algorithm(BaseModel):
     name: str
     description: Optional[str]
     version: str
-    parameters: List[Parameter]
+    parameters: List[Parameter] = []
 
 
 class Runner(BaseModel):
@@ -23,4 +23,4 @@ class Runner(BaseModel):
     description: Optional[str]
     tag_id: str
     algorithm_id: str
-    parameters: List[Parameter]
+    parameters: List[Parameter] = []

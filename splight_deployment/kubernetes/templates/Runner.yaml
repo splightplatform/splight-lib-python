@@ -35,7 +35,7 @@ spec:
                 - name: "{{id}}"
                   image: {{dockerimg}}
                   command: ["python", "runner.py"]
-                  args: ["-r", "{{run_spec}}"]
+                  args: ["-r", '{{run_spec}}']
                   imagePullPolicy: "Always"
                   tty: true
                   securityContext:
