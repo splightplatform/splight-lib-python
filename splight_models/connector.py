@@ -15,7 +15,7 @@ class Connector(BaseModel):
     host: str
     port: int
     protocol: str
-    extra_properties: Optional[str]
+    extra_properties: Optional[str] = None
 
 
 class ClientConnector(Connector):

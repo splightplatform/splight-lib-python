@@ -47,7 +47,7 @@ class KubernetesClient(AbstractDeploymentClient):
         return image
 
     def _get_run_spec(self, instance: Deployment):
-        return instance.dict()
+        return instance.json()
 
     def _get_template(self, name) -> Template:
         template_path = os.path.join(self.TEMPLATES_FOLDER, f"{name}.yaml")
