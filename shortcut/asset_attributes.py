@@ -1,7 +1,8 @@
 from typing import List, Any, Union, Optional
 from splight_lib.communication import Variable, Message, Action, ExternalCommunicationClient
 from splight_lib.datalake import DatalakeClient
-from splight_lib.database import *
+from splight_lib.database import DatabaseClient
+from splight_models import *
 from splight_lib import logging
 
 logger = logging.getLogger()

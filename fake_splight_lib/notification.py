@@ -1,6 +1,6 @@
 from splight_notification.abstract import AbstractNotificationClient
 from typing import Dict, Optional
-from splight_lib.database import Channel
+from splight_models import Channel
 
 class FakeNotificationClient(AbstractNotificationClient):
 

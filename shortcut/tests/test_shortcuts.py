@@ -1,8 +1,9 @@
 from django.test import TestCase
 from splight_models import Variable
-from splight_lib.database import *
+from splight_lib.database import DatabaseClient
 from splight_lib.datalake import DatalakeClient
 from splight_lib.communication import *
+from splight_models import *
 from unittest.mock import  patch, call
 from ..asset_attributes import _get_asset_attribute_mapping, asset_get, asset_set, NoDefaultValue
 import os

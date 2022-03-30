@@ -8,8 +8,7 @@ from django.utils import timezone
 from client import validate_resource_type, validate_instance_type
 from splight_datalake.settings import setup
 from splight_lib import logging
-from splight_lib.database import TriggerNotification
-from splight_models import Variable, VariableDataFrame
+from splight_models import Variable, VariableDataFrame, TriggerNotification
 from .abstract import AbstractDatalakeClient
 
 
