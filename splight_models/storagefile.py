@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 
@@ -10,3 +10,13 @@ class StorageFile(BaseModel):
     @property
     def name(self):
         return self.file.split(os.sep)[-1]
+
+
+class StorageDirectory(BaseModel):
+    id: Optional[str] = None
+    dir: str
+    files: List[StorageFile] = list()
+
+    @property
+    def name(self):
+        return self.dir.split(os.sep)[-1]

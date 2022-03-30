@@ -1,6 +1,6 @@
 from pusher import Pusher
 from .abstract import AbstractNotificationClient
-from splight_lib.database import Channel
+from splight_models import Channel
 from .settings import PUSHER_CONFIG
 from typing import Dict
 
