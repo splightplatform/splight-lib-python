@@ -7,7 +7,7 @@ from abc import ABC, ABCMeta, abstractmethod
 class AbstractCommunication(metaclass=ABCMeta):
     @staticmethod
     def _encode(data: Dict):
-        return json.dumps(data).encode('utf-8')
+        return json.dumps(data, default=str).encode('utf-8')
 
     @staticmethod
     def _decode(data: ByteString):
