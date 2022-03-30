@@ -8,6 +8,7 @@ from typing import Dict
 class Protocol(models.TextChoices):
     DNP3 = 'dnp3', "DNP3"
     IEC61850 = 'iec6', "IEC61850"
+    FTP = 'ftp', "FTP"
 
 
 class Connector(NamespaceAwareModel):

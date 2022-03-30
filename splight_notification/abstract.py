@@ -1,6 +1,6 @@
 from typing import Dict
 from abc import ABCMeta, abstractmethod
-from splight_lib.database import Channel
+from splight_models import Channel
 
 
 class AbstractNotificationClient(metaclass=ABCMeta):

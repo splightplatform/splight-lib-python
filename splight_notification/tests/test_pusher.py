@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from pusher import Pusher
 from splight_notification.pusher import PusherClient
-from splight_lib.database import Channel
+from splight_models import Channel
 
 class TestPusherClient(TestCase):
     channel = 'sample_channel'
