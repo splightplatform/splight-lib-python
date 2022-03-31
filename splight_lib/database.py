@@ -1,9 +1,9 @@
 
 import ast
 import os
-from splight_database.django.client import DjangoClient
-from fake_splight_lib.database import FakeDatabaseClient
 
+from fake_splight_lib.database import FakeDatabaseClient
+from splight_database.django.client import DjangoClient
 
 DatabaseClient = DjangoClient
 

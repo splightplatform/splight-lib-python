@@ -8,3 +8,4 @@ from .namespace import *
 from .connector import *
 from .mapping import *
 from .trigger import *
+from .dashboard import *
