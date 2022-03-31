@@ -138,6 +138,9 @@ class AbstractServerComponent(AbstractIOComponent):
                 for mapping in self.mappings
             ]
             variables = [
+                v for v_list in variables for v in v_list
+            ]
+            variables = [
                 variable for variable in variables if variable is not None
             ]
             logger.debug(f"Fetched from datalake {len(variables)} variables")
