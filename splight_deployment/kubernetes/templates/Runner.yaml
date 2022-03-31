@@ -7,7 +7,6 @@ metadata:
         id: "{{id}}"
         external_id: "{{external_id}}"
         type: "{{type}}"
-        name: "{{name}}"
         version: "{{version}}"
 spec:
     replicas: 1
@@ -16,7 +15,6 @@ spec:
             id: "{{id}}"
             external_id: "{{external_id}}"
             type: "{{type}}"
-            name: "{{name}}"
             version: "{{version}}"
     template:
         metadata:
@@ -24,7 +22,6 @@ spec:
                 id: "{{id}}"
                 external_id: "{{external_id}}"
                 type: "{{type}}"
-                name: "{{name}}"
                 version: "{{version}}"
         spec:
             imagePullSecrets:
