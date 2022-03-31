@@ -18,6 +18,10 @@ from .djatabase.models import (
     Tag as DBTag,
     Namespace as DBNamespace,
     Runner as DBRunner,
+    Dashboard as DBDashboard,
+    Tab as DBTab,
+    Filter as DBFilter,
+    Chart as DBChart,
 )
 from client import validate_instance_type, validate_resource_type
 
@@ -37,7 +41,11 @@ CLASSMAP = {
     TriggerGroup: DBTriggerGroup,
     Tag: DBTag,
     Namespace: DBNamespace,
-    Runner: DBRunner
+    Runner: DBRunner,
+    Dashboard: DBDashboard,
+    Tab: DBTab,
+    Filter: DBFilter,
+    Chart: DBChart,
 }
 
 

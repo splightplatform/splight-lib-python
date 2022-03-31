@@ -14,5 +14,6 @@ from .network import *
 from .tag import *
 from .trigger import *
 from .storagefile import *
+from .dashboard import *
 from .variable import *
 from .value import *
