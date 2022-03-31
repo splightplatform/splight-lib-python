@@ -39,6 +39,7 @@ class HealthCheckMixin:
 
 
 class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
+    collection_name: 'default'
     managed_class: Type = None
 
     def __init__(self,
@@ -64,10 +65,6 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.execution_client.start(Thread(target=self.listen_internal_commands))
 
         super(AbstractComponent, self).__init__()
-
-    @property
-    def name(self):
-        return self.__class__.__name__
 
     @property
     def instance(self):
@@ -113,4 +110,4 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         return _data
 
     def save_results(self, data: VariableDataFrame) -> None:
-        self.datalake_client.save_dataframe(data, collection=self.name)
+        self.datalake_client.save_dataframe(data, collection=self.collection_name)

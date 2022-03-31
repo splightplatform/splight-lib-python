@@ -20,10 +20,6 @@ class AbstractNetworkComponent(AbstractComponent):
         super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
         self.execution_client.start(Thread(target=self.refresh_rules_forever, daemon=True))
 
-    @property
-    def name(self):
-        return "Network"
-
     def refresh_rules_forever(self) -> None:
         time_interval = 10
         while True:
