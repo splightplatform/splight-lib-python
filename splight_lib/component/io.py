@@ -138,10 +138,10 @@ class AbstractServerComponent(AbstractIOComponent):
                 for mapping in self.mappings
             ]
             variables = [
-                v for v_list in variables for v in v_list
+                variable for variable in variables if variable is not None
             ]
             variables = [
-                variable for variable in variables if variable is not None
+                v for v_list in variables for v in v_list
             ]
             logger.debug(f"Fetched from datalake {len(variables)} variables")
             self.handle_update(variables)
