@@ -15,6 +15,7 @@ class Tab(BaseModel):
 
 
 class Filter(BaseModel):
+    id: Optional[str]
     operator: str = "eq"  # eg. eq, gt, gte, lt
     key: str              # asset_id
     value: str            # 5
