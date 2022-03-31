@@ -12,7 +12,7 @@ class AbstractAlgorithmComponent(AbstractComponent):
         self._load_metadata()
         self._load_parameters()
         self._load_context()
-        self.collection_name = self._version + self.instance_id
+        self.collection_name = self.managed_class + self.instance_id
 
     def _load_metadata(self):
         self._version = self._spec.version
@@ -20,6 +20,7 @@ class AbstractAlgorithmComponent(AbstractComponent):
 
     def _load_context(self):
         self.namespace = self._spec.namespace
+        self.instance_id = self._spec.external_id
 
     def _load_parameters(self):
         _parameters = self._spec.parameters
