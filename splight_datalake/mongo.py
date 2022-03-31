@@ -16,7 +16,6 @@ logger = logging.getLogger()
 
 
 class MongoClient(AbstractDatalakeClient):
-    DEFAULT_COLLECTION = "Variable" # TODO define this
     valid_classes = [Variable]
 
     def __init__(self, *args, **kwargs) -> None:
