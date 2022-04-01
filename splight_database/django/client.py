@@ -21,6 +21,7 @@ from .djatabase.models import (
     Dashboard as DBDashboard,
     Tab as DBTab,
     Filter as DBFilter,
+    ChartItem as DBChartItem,
     Chart as DBChart,
 )
 from client import validate_instance_type, validate_resource_type
@@ -45,6 +46,7 @@ CLASSMAP = {
     Dashboard: DBDashboard,
     Tab: DBTab,
     Filter: DBFilter,
+    ChartItem: DBChartItem,
     Chart: DBChart,
 }
 
