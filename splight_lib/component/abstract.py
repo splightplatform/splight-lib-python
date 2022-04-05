@@ -39,7 +39,7 @@ class HealthCheckMixin:
 
 
 class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
-    collection_name: 'default'
+    collection_name = 'default'
     managed_class: Type = None
 
     def __init__(self,
@@ -100,14 +100,14 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
                 continue
             handler(variables)
 
-    def get_history(self, asset_id, attribute_ids: List) -> VariableDataFrame:
-        _data = pd.concat([
-            self.datalake_client.get_dataframe(
-                variable=Variable(asset_id=asset_id, attribute_id=attribute_id, args={})
-            )
-            for attribute_id in attribute_ids
-        ], axis=1)
-        return _data
+    def get_history(self, asset_id: str, attribute_ids: List[str], **kwargs) -> VariableDataFrame:
+        return self.datalake_client.get_dataframe(
+            resource_type=Variable,
+            asset_id=asset_id,
+            attribute_id__in=attribute_ids,
+            collection=self.collection_name,
+            limit=0,
+            **kwargs)
 
     def save_results(self, data: VariableDataFrame) -> None:
-        self.datalake_client.save_dataframe(data, collection=self.collection_name)
+        self.datalake_client.save_dataframe(data)

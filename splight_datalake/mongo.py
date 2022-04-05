@@ -1,4 +1,3 @@
-import pytz
 import pandas as pd
 from pymongo import MongoClient as PyMongoClient
 from typing import Dict, List, Type, Optional
@@ -8,7 +7,7 @@ from django.utils import timezone
 from client import validate_resource_type, validate_instance_type
 from splight_datalake.settings import setup
 from splight_lib import logging
-from splight_models import Variable, VariableDataFrame, TriggerNotification
+from splight_models import Variable, VariableDataFrame
 from .abstract import AbstractDatalakeClient
 
 
@@ -101,33 +100,24 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def get_dataframe(self, variable: Variable, freq="H", collection: str = 'default') -> VariableDataFrame:
-        _data = self.get(
-            Variable,
-            asset_id=variable.asset_id,
-            attribute_id=variable.attribute_id,
-            collection=collection
-        )
+    def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
+        _data = self.get(*args, **kwargs)
         _data = pd.json_normalize(
             [d.dict() for d in _data]
         )
+        _data = VariableDataFrame(_data)
         if not _data.empty:
-            _data = _data.drop(["asset_id", "attribute_id", "path"], axis=1)
-            _data.timestamp = _data.timestamp.dt.round(freq=freq)
-            _data = _data.groupby(['timestamp'], as_index=True).mean()
-            _data.columns = [col.replace("args.value", variable.attribute_id) for col in _data.columns]
+            _data.columns = [col.replace("args.", "") for col in _data.columns]
         return _data
 
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
-        for index, row in dataframe.iterrows():
-            variables = [
-                Variable(
-                    timestamp=pd.to_datetime(row.get("timestamp", index)),
-                    asset_id=row.get("asset_id", None),
-                    path=row.get("path", None),
-                    attribute_id=col,
-                    args={"value": row.get(col)}
-                )
-                for col in row.keys() if col not in Variable.__fields__
-            ]
-            self.save(Variable, instances=variables, collection=collection)
+        variables = [
+            Variable(
+                timestamp=pd.to_datetime(row.get("timestamp", index)),
+                asset_id=row.get("asset_id", None),
+                path=row.get("path", None),
+                attribute_id=row.get("attribute_id", None),
+                args={col: value for col, value in row.items() if col not in Variable.__fields__}
+            ) for index, row in dataframe.iterrows()
+        ]
+        self.save(Variable, instances=variables, collection=collection)
