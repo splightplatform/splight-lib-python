@@ -10,12 +10,14 @@ class TestKubernetesClient(TestCase):
         self.client = KubernetesClient()
         self.instance = Deployment(
             id='1',
+            name="test",
             type='Network',
             subtype='openvpn',
             version="0_1_0"
         )
         self.namespace = Namespace(
             id='anothernamespace',
+            name="n_test",
             environment={
                 'key': 'value'
             }
