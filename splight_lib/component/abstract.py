@@ -105,9 +105,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
             resource_type=Variable,
             asset_id=asset_id,
             attribute_id__in=attribute_ids,
-            collection=self.collection_name,
-            limit=0,
             **kwargs)
 
     def save_results(self, data: VariableDataFrame) -> None:
-        self.datalake_client.save_dataframe(data)
+        self.datalake_client.save_dataframe(data, collection=self.collection_name)
