@@ -34,7 +34,7 @@ spec:
                 - name: "{{id}}"
                   image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-io:{{version}}
                   command: ["python", "runner.py"]
-                  args: ["-i", "{{external_id}}", "-c", "{{type}}", "-n", "{{namespace}}"]
+                  args: ["-i", "{{external_id}}", "-c", "{{type}}", "-n", "{{namespace}}", "-v", "{{version}}"]
                   imagePullPolicy: "Always"
                   tty: true
                   securityContext:
