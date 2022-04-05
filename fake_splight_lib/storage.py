@@ -19,11 +19,10 @@ class FakeStorageClient(AbstractStorageClient):
         return instance
 
     def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
-        logger.debug(f"[FAKED] Geted file {kwargs.get('id')}")
+        logger.debug(f"[FAKED] Getting files {kwargs}")
         queryset = self.database[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
-
         if first:
             return queryset[0] if queryset else None
         return queryset
