@@ -3,6 +3,7 @@ import operator
 import os
 import json
 from collections import defaultdict
+from collections import MutableMapping
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Dict, List, Type, Optional
@@ -14,6 +15,15 @@ from splight_lib.settings import SPLIGHT_HOME
 DATALAKE_HOME = os.path.join(SPLIGHT_HOME, "datalake")
 logger = logging.getLogger()
 
+def flatten_dict(d, parent_key='', sep='.'):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, MutableMapping):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 class FakeDatalakeClient:
     def __init__(self, namespace: str = 'default') -> None:
@@ -37,6 +47,7 @@ class FakeDatalakeClient:
         col_file = os.path.join(DATALAKE_HOME, collection)
         with open(col_file, 'r+') as f:
             return json.loads(f.read())
+
 
     def _default_load(self):
         data = [
@@ -66,6 +77,23 @@ class FakeDatalakeClient:
         for key, op, value in filters:
             values = [v for v in values if op(v.get(key), value)]
         return values
+    
+    def list_collection_names(self):
+        return [f for f in os.listdir(DATALAKE_HOME) if os.path.isfile(os.path.join(DATALAKE_HOME, f))]
+
+    def get_unique_keys(self, collection: str):
+        read = self._read_from_collection(collection)
+        # flatten all dicts
+        read = [flatten_dict(d) for d in read]
+        return list(set(key for dic in read for key in dic.keys()))
+
+    def get_values_for_key(self, collection: str, key: str):
+        read = self._read_from_collection(collection)
+        # flatten all dicts
+        read = [flatten_dict(d) for d in read]
+        ret = list(set(d[key] for d in read if key in d))
+        return ret
+        
 
     @staticmethod
     def _parse_filters(**kwargs) -> Dict:

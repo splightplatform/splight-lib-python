@@ -32,3 +32,15 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = "default") -> None:
         pass
+
+    @abstractmethod
+    def list_collection_names(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_unique_keys(self, collection: str) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_values_for_key(self, collection: str, key: str) -> List[str]:
+        pass
