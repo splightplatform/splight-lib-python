@@ -5,7 +5,6 @@ from splight_models.runner import Parameter
 
 class Deployment(BaseModel):
     id: Optional[str] = None
-    name: str
     type: str  # eg. ClientConnector, Runner
     external_id: str = None  # eg. 1
     version: str  # eg. Forecasting-0_2
