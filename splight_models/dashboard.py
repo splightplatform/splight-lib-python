@@ -32,6 +32,7 @@ class ChartItem(BaseModel):
 
 class Chart(BaseModel):
     id: Optional[str]
+    name: Optional[str]
     tab_id: str
     type: str
     refresh_interval: Optional[str] = None
