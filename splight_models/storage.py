@@ -7,6 +7,13 @@ class StorageFile(BaseModel):
     id: Optional[str] = None
     file: str
 
+    def __init__(self, **kwargs):
+        file = kwargs.pop('file', None)
+        file = file.replace('/', os.sep)
+        file = file.replace('\\', os.sep)
+        kwargs['file'] = file
+        super(StorageFile, self).__init__(**kwargs)
+
     @property
     def name(self):
         return self.file.split(os.sep)[-1]
