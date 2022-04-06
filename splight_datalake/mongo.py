@@ -3,6 +3,7 @@ from pymongo import MongoClient as PyMongoClient
 from typing import Dict, List, Type, Optional
 from datetime import datetime
 from pydantic import BaseModel
+from collections import MutableMapping
 from django.utils import timezone
 from client import validate_resource_type, validate_instance_type
 from splight_datalake.settings import setup
@@ -13,6 +14,16 @@ from .abstract import AbstractDatalakeClient
 
 logger = logging.getLogger()
 
+
+def flatten_dict(d, parent_key='', sep='.'):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, MutableMapping):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 class MongoClient(AbstractDatalakeClient):
     valid_classes = [Variable]
@@ -62,6 +73,21 @@ class MongoClient(AbstractDatalakeClient):
                 kwargs.pop(key)
         return kwargs
 
+    def list_collection_names(self):
+        return self.db.list_collection_names()
+
+    def get_unique_keys(self, collection: str):
+        docs = list(self._find(
+            collection=collection,
+            limit=10,
+            sort=[('timestamp', -1)])
+        )
+        docs = [flatten_dict(d) for d in docs]
+        return list(set(key for dic in docs for key in dic.keys()))
+
+    def get_values_for_key(self, collection: str, key: str):
+        return self.db[collection].distinct(key)
+            
     @validate_resource_type
     def get(self,
             resource_type: Type,
