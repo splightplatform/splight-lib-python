@@ -1,6 +1,7 @@
 import builtins
 from .abstract import AbstractComponent
-from splight_models import Runner
+from splight_models import Runner, Deployment
+import json
 
 
 class AbstractAlgorithmComponent(AbstractComponent):
@@ -8,7 +9,7 @@ class AbstractAlgorithmComponent(AbstractComponent):
 
     def __init__(self, run_spec, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._spec = run_spec
+        self._spec = Deployment(**json.loads(run_spec))
         self._load_metadata()
         self._load_parameters()
         self._load_context()

@@ -41,7 +41,10 @@ class KubernetesClient(AbstractDeploymentClient):
         return f"service-{type_id}-{id}"
 
     def _get_docker_image(self, instance: Deployment):
-        image = f"splight-{instance.type.lower()}:{instance.version}"
+        version = instance.version
+        if instance.type == "Runner":
+            version = "latest"
+        image = f"splight-{instance.type.lower()}:{version}"
         if self.DOCKER_REGISTRY:
             return f"{self.DOCKER_REGISTRY}/{image}"
         return image
