@@ -25,6 +25,7 @@ def flatten_dict(d, parent_key='', sep='.'):
             items.append((new_key, v))
     return dict(items)
 
+
 class MongoClient(AbstractDatalakeClient):
     valid_classes = [Variable]
 
@@ -63,13 +64,17 @@ class MongoClient(AbstractDatalakeClient):
         if timestamp:
             kwargs["timestamp"] = timestamp
 
-        special_filters = [key for key in kwargs.keys() if key.endswith(("__in", "__contains"))]
+        special_filters = [key for key in kwargs.keys() if "__" in key]
         for key in special_filters:
             if key.endswith("__in"):
                 kwargs[key[:-len("__in")]] = {"$in": kwargs[key]}
                 kwargs.pop(key)
             elif key.endswith("__contains"):
                 kwargs[key[:-len("__contains")]] = {"$regex": kwargs[key]}
+                kwargs.pop(key)
+            elif "__" in key:
+                print("Hola")
+                kwargs[key.replace("__", ".")] = kwargs[key]
                 kwargs.pop(key)
         return kwargs
 
@@ -87,7 +92,7 @@ class MongoClient(AbstractDatalakeClient):
 
     def get_values_for_key(self, collection: str, key: str):
         return self.db[collection].distinct(key)
-            
+
     @validate_resource_type
     def get(self,
             resource_type: Type,
@@ -100,10 +105,12 @@ class MongoClient(AbstractDatalakeClient):
             **kwargs) -> List[BaseModel]:
         # TODO implement from_ to_ with timestamp__gt timestamp__lt
         # TODO first limit_ skip_ is redundant choose one.
+
         kwargs = self._validated_kwargs(resource_type, **kwargs)
+        filters = self._get_filters(from_, to_, **kwargs)
         updates = list(self._find(
             collection=collection,
-            filters=self._get_filters(from_, to_, **kwargs),
+            filters=filters,
             limit=limit_,
             skip=skip_,
             sort=[('timestamp', -1)])
