@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
-    valid_classes = [Algorithm, Network, Namespace, ClientMapping, ServerMapping, ValueMapping, ReferenceMapping, ClientConnector, ServerConnector, Asset, Attribute, Trigger, TriggerGroup, Tag, Runner]
+    valid_classes = [Network, Namespace, ClientMapping, ServerMapping, ValueMapping, ReferenceMapping, ClientConnector, ServerConnector, Asset, Attribute, Trigger, TriggerGroup, Tag, Runner]
 
     def _create(self, instance: BaseModel) -> BaseModel:
         instance.id = str(len(self.database[type(instance)]) + 1)

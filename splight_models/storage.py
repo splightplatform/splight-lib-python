@@ -12,6 +12,7 @@ class StorageFile(BaseModel):
         return self.file.split(os.sep)[-1]
 
 
+# TODO: Remove this
 class StorageDirectory(BaseModel):
     id: Optional[str] = None
     dir: str
