@@ -15,6 +15,7 @@ from splight_lib.settings import SPLIGHT_HOME
 DATALAKE_HOME = os.path.join(SPLIGHT_HOME, "datalake")
 logger = logging.getLogger()
 
+
 def flatten_dict(d, parent_key='', sep='.'):
     items = []
     for k, v in d.items():
@@ -24,6 +25,7 @@ def flatten_dict(d, parent_key='', sep='.'):
         else:
             items.append((new_key, v))
     return dict(items)
+
 
 class FakeDatalakeClient:
     def __init__(self, namespace: str = 'default') -> None:
@@ -47,7 +49,6 @@ class FakeDatalakeClient:
         col_file = os.path.join(DATALAKE_HOME, collection)
         with open(col_file, 'r+') as f:
             return json.loads(f.read())
-
 
     def _default_load(self):
         data = [
@@ -77,7 +78,7 @@ class FakeDatalakeClient:
         for key, op, value in filters:
             values = [v for v in values if op(v.get(key), value)]
         return values
-    
+
     def list_collection_names(self):
         return [f for f in os.listdir(DATALAKE_HOME) if os.path.isfile(os.path.join(DATALAKE_HOME, f))]
 
@@ -93,7 +94,6 @@ class FakeDatalakeClient:
         read = [flatten_dict(d) for d in read]
         ret = list(set(d[key] for d in read if key in d))
         return ret
-        
 
     @staticmethod
     def _parse_filters(**kwargs) -> Dict:
@@ -103,6 +103,7 @@ class FakeDatalakeClient:
         setattr(operator, "lte", operator.le)
         setattr(operator, "like", lambda x, y: x in y)
         setattr(operator, "ilike", lambda x, y: x.lower() in y.lower())
+        setattr(operator, "eqin", lambda key: lambda x, y: key in x and x[key] == y)
         filters = []
         for key, value in kwargs.items():
             if "__" not in key:
@@ -110,7 +111,10 @@ class FakeDatalakeClient:
                 continue
 
             key, op = key.split("__")
-            filters.append((key, getattr(operator, op), value))
+            try:
+                filters.append((key, getattr(operator, op), value))
+            except Exception:
+                filters.append((key, operator.eqin(op), value))
         return filters
 
     def get(self,

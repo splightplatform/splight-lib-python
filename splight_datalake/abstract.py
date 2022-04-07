@@ -1,8 +1,7 @@
-import pandas as pd
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Type, List, Optional
+from typing import Type, List, Dict
 from datetime import datetime
 from splight_models import Variable, VariableDataFrame
 
@@ -44,3 +43,9 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         pass
+
+    def _validated_kwargs(self, resource_type: Type, **kwargs):
+        valid_fields: List[str] = list(f"{key}__" for key in resource_type.__fields__.keys())
+        valid_filter: Dict[str, str] = {key: value for key, value in kwargs.items() if any(key.startswith(s) for s in valid_fields)}
+        kwargs = super()._validated_kwargs(resource_type, **kwargs)
+        return {**kwargs, **valid_filter}
