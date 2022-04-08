@@ -9,18 +9,10 @@ class Parameter(BaseModel):
     value: Any = None
 
 
-class Algorithm(BaseModel):
-    id: Optional[str]
-    name: str
-    description: Optional[str]
-    version: str
-    parameters: List[Parameter] = []
-
-
 class Runner(BaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
     tag_id: str
-    algorithm_id: str
+    version: str
     parameters: List[Parameter] = []
