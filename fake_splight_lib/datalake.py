@@ -90,10 +90,9 @@ class FakeDatalakeClient:
 
     def get_values_for_key(self, collection: str, key: str):
         read = self._read_from_collection(collection)
-        _key = key.replace('__', '.')
         # flatten all dicts
         read = [flatten_dict(d) for d in read]
-        ret = list(set(d[_key] for d in read if _key in d))
+        ret = list(set(d[key] for d in read if key in d))
         return ret
 
     @staticmethod
