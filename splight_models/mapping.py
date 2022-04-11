@@ -24,6 +24,7 @@ class ClientMapping(Mapping):
     attribute_id: str
     connector_id: str
     path: str
+    period: int = 5000
 
 
 class ServerMapping(Mapping):
