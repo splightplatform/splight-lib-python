@@ -51,6 +51,7 @@ class ClientMapping(Mapping):
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="client_mappings", null=True)
     connector = models.ForeignKey(ClientConnector, on_delete=models.CASCADE, related_name='mappings', null=True)
     path = models.CharField(max_length=300, null=True)
+    period = models.IntegerField(default=5000)
 
     class Meta:
         unique_together = ("attribute", "asset",)
