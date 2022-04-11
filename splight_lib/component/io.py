@@ -95,14 +95,13 @@ class AbstractClientComponent(AbstractIOComponent):
         pass
 
     def sync_mappings_to_device(self):
-        default_args = {"period": 5000}
         old_status = set()
         while True:
             new_status = set([map.path for map in self.mappings])
             if old_status != new_status:
                 mappings_to_subscribe = new_status - old_status
                 variables_to_subscribe = [
-                    m
+                    Variable(path=m.path, args={"period": m.period})
                     for m in self.mappings
                     if m.path in mappings_to_subscribe
                 ]
@@ -110,7 +109,7 @@ class AbstractClientComponent(AbstractIOComponent):
 
                 mappings_to_unsubscribe = old_status - new_status
                 variables_to_unsubscribe = [
-                    m
+                    Variable(path=m.path, args={"period": m.period})
                     for m in mappings_to_unsubscribe
                     if m.path in mappings_to_unsubscribe
                 ]
