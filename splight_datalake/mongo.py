@@ -73,7 +73,6 @@ class MongoClient(AbstractDatalakeClient):
                 kwargs[key[:-len("__contains")]] = {"$regex": kwargs[key]}
                 kwargs.pop(key)
             elif "__" in key:
-                print("Hola")
                 kwargs[key.replace("__", ".")] = kwargs[key]
                 kwargs.pop(key)
         return kwargs
