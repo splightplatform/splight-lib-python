@@ -23,4 +23,3 @@ pipelines:
             - printf "password=$JFROG_BOT_PASS" >> ~/.pypirc
             - python setup.py bdist_wheel upload -r splightlib
             - rm ~/.pypirc;
-    main: *shared

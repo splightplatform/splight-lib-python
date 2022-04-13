@@ -43,7 +43,7 @@ class MongoClient(AbstractDatalakeClient):
         )
         documents = self.db.get_collection(
             collection,
-            codec_option=codec_options
+            codec_options=codec_options
         ).find(
             filter=filters,
             return_key=False,
