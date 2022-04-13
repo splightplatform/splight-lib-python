@@ -1,11 +1,11 @@
 import pandas as pd
-from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Type, Optional
-from datetime import datetime
-from pydantic import BaseModel
+from bson.codec_options import CodecOptions
 from collections import MutableMapping
-from django.utils import timezone
-from client import validate_resource_type, validate_instance_type
+from client import validate_resource_type
+from datetime import datetime, timezone, timedelta
+from pymongo import MongoClient as PyMongoClient
+from pydantic import BaseModel
+from typing import Dict, List, Type, Optional
 from splight_datalake.settings import setup
 from splight_lib import logging
 from splight_models import Variable, VariableDataFrame
@@ -36,8 +36,15 @@ class MongoClient(AbstractDatalakeClient):
         client = PyMongoClient(connection)
         self.db = client[self.namespace]
 
-    def _find(self, collection: str, filters: Dict = None, **kwargs) -> List[Dict]:
-        documents = self.db[collection].find(
+    def _find(self, collection: str, filters: Dict = None, tzinfo=timezone(timedelta()), **kwargs) -> List[Dict]:
+        codec_options = CodecOptions(
+            tz_aware=True,
+            tzinfo=tzinfo
+        )
+        documents = self.db.get_collection(
+            collection,
+            codec_options=codec_options
+        ).find(
             filter=filters,
             return_key=False,
             **kwargs
@@ -97,16 +104,18 @@ class MongoClient(AbstractDatalakeClient):
             first: bool = False,
             limit_: int = 50,
             skip_: int = 0,
+            tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
         # TODO implement from_ to_ with timestamp__gt timestamp__lt
         # TODO first limit_ skip_ is redundant choose one.
         kwargs = self._validated_kwargs(resource_type, **kwargs)
-        updates = list(self._find(
+        updates = self._find(
             collection=collection,
             filters=self._get_filters(from_, to_, **kwargs),
             limit=limit_,
             skip=skip_,
-            sort=[('timestamp', -1)])
+            sort=[('timestamp', -1)],
+            tzinfo=tzinfo
         )
         result = [resource_type(**update) for update in updates]
         if first:
