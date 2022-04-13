@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest import TestCase
 from unittest.mock import patch, call
 from pymongo.database import Database
@@ -43,7 +43,8 @@ class TestMongoClient(TestCase):
                 },
                 limit = 50,
                 skip = 0,
-                sort=[('timestamp', -1)]
+                sort=[('timestamp', -1)],
+                tzinfo=timezone.utc
             )
 
     def test_get_multiple_variables(self):
@@ -120,7 +121,8 @@ class TestMongoClient(TestCase):
                     },
                     limit = 3,
                     skip = 0,
-                    sort=[('timestamp', -1)]),
+                    sort=[('timestamp', -1)],
+                    tzinfo=timezone.utc),
                 call(
                     collection='default', 
                     filters={
@@ -133,7 +135,8 @@ class TestMongoClient(TestCase):
                     },
                     limit = 3,
                     skip = 0,
-                    sort=[('timestamp', -1)])
+                    sort=[('timestamp', -1)],
+                    tzinfo=timezone.utc)
             ])
 
     def test_save_variable(self):
