@@ -11,10 +11,12 @@ class Protocol(Enum):
 class Connector(BaseModel):
     id: Optional[str]
     name: str
-    description: Optional[str]  = None
+    description: Optional[str] = None
     host: str
     port: int
     protocol: str
+    username: Optional[str] = None
+    password: Optional[str] = None
     extra_properties: Optional[str] = None
 
 
