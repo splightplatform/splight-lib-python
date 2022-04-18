@@ -104,12 +104,10 @@ class MongoClient(AbstractDatalakeClient):
     def get(self,
             resource_type: Type,
             collection: str = 'default',
-            first: bool = False,
             limit_: int = 50,
             skip_: int = 0,
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
-        # TODO first limit_ skip_ is redundant choose one.
 
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         filters = self._get_filters(**kwargs)
@@ -122,8 +120,6 @@ class MongoClient(AbstractDatalakeClient):
             tzinfo=tzinfo
         )
         result = [resource_type(**obj) for obj in result]
-        if first:
-            return [result[0]] if result else None
         return result
 
     @validate_resource_type
