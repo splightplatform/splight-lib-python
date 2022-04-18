@@ -1,4 +1,3 @@
-import re
 import pandas as pd
 import operator
 import os
@@ -53,7 +52,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     @staticmethod
     def _date_hook(json_dict):
-        timeformat = "%Y-%m-%d %H:%M:%S.%f"
+        timeformat = "%Y-%m-%d %H:%M:%S.%z"
         for (key, value) in json_dict.items():
             try:
                 json_dict[key] = datetime.strptime(value, timeformat)
@@ -70,7 +69,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     @staticmethod
     def _resolve_filter(keys: List[str], value: Any, oper: str):
-        def inner(x: dict) -> bool:
+        def inner(x: Dict) -> bool:
             for key in keys:
                 if not isinstance(x, dict) or not key in x:
                     return False
@@ -143,7 +142,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
 
         if first:
-            result = result[0] if result else None
+            return [result[0]] if result else None
 
         return result[skip_:skip_ + limit_]
 
