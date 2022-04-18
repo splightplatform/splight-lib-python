@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 from typing import Dict, Optional
 
@@ -9,7 +9,7 @@ class Variable(BaseModel):
     path: Optional[str] = None
     asset_id: Optional[str] = None
     attribute_id: Optional[str] = None
-    timestamp: datetime = Field(default_factory=datetime.now)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class VariableDataFrame(pd.DataFrame):

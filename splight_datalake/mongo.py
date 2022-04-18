@@ -1,14 +1,20 @@
-import pandas as pd
-from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Type
-from pydantic import BaseModel
-from collections import MutableMapping
-from collections import defaultdict
-from client import validate_resource_type
-from splight_datalake.settings import setup
-from splight_lib import logging
-from splight_models import Variable, VariableDataFrame
 from .abstract import AbstractDatalakeClient
+from splight_models import Variable, VariableDataFrame
+from splight_lib import logging
+from splight_datalake.settings import setup
+from typing import Dict, List, Type, Optional
+from collections import defaultdict
+from pydantic import BaseModel
+from typing import Dict, List, Type
+import pandas as pd
+from bson.codec_options import CodecOptions
+from collections import MutableMapping
+from client import validate_resource_type
+from datetime import datetime, timezone, timedelta
+from pymongo import MongoClient as PyMongoClient
+<< << << < HEAD
+== == == =
+>>>>>> > master
 
 
 logger = logging.getLogger()
@@ -43,8 +49,15 @@ class MongoClient(AbstractDatalakeClient):
         client = PyMongoClient(connection)
         self.db = client[self.namespace]
 
-    def _find(self, collection: str, filters: Dict = None, **kwargs) -> List[Dict]:
-        documents = self.db[collection].find(
+    def _find(self, collection: str, filters: Dict = None, tzinfo=timezone(timedelta()), **kwargs) -> List[Dict]:
+        codec_options = CodecOptions(
+            tz_aware=True,
+            tzinfo=tzinfo
+        )
+        documents = self.db.get_collection(
+            collection,
+            codec_options=codec_options
+        ).find(
             filter=filters,
             return_key=False,
             **kwargs
@@ -96,24 +109,26 @@ class MongoClient(AbstractDatalakeClient):
             first: bool = False,
             limit_: int = 50,
             skip_: int = 0,
+            tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
         # TODO implement from_ to_ with timestamp__gt timestamp__lt
 
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         filters = self._get_filters(**kwargs)
-        updates = list(self._find(
+        result = self._find(
             collection=collection,
             filters=filters,
             limit=limit_,
             skip=skip_,
-            sort=[('timestamp', -1)])
+            sort=[('timestamp', -1)],
+            tzinfo=tzinfo
         )
         result = [resource_type(**update) for update in updates]
         if first:
             return [result[0]] if result else None
         return result
 
-    @validate_resource_type
+    @ validate_resource_type
     def save(self,
              resource_type: Type,
              instances: List[BaseModel],

@@ -18,6 +18,8 @@ class Connector(NamespaceAwareModel):
     host = models.CharField(max_length=60)
     port = models.IntegerField()
     protocol = models.CharField(max_length=4, choices=Protocol.choices)
+    username = models.CharField(max_length=100, null=True, blank=True, default=None)
+    password = models.CharField(max_length=100, null=True, blank=True, default=None)
     extra_properties = models.TextField(null=True, blank=True)
 
     def __repr__(self):
