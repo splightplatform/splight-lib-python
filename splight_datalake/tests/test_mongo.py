@@ -38,8 +38,8 @@ class TestMongoClient(TestCase):
             find_call.assert_called_once_with(
                 collection='default',
                 filters={
-                    "asset_id": "1",
-                    "attribute_id": "1"
+                    "asset_id": {"$eq": "1"},
+                    "attribute_id": {"$eq": "1"}
                 },
                 limit=50,
                 skip=0,
@@ -106,14 +106,14 @@ class TestMongoClient(TestCase):
 
         client = MongoClient()
         with patch("splight_datalake.mongo.MongoClient._find", side_effect=[first_call, second_call]) as find_call:
-            self.assertEqual(client.get(resource_type=Variable, asset_id="1", attribute_id="1", limit_=3, from_=datetime(2012, 1, 1, 17, 0), to_=datetime(2012, 1, 1, 18, 0)), expected_result_first_call)
-            self.assertEqual(client.get(resource_type=Variable, asset_id__in=["2"], attribute_id__contains="2", limit_=3, from_=datetime(2012, 1, 1, 17, 0), to_=datetime(2012, 1, 1, 18, 0)), expected_result_second_call)
+            self.assertEqual(client.get(resource_type=Variable, asset_id="1", attribute_id="1", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_first_call)
+            self.assertEqual(client.get(resource_type=Variable, asset_id__in=["2"], attribute_id__contains="2", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_second_call)
             find_call.assert_has_calls([
                 call(
                     collection='default',
                     filters={
-                        "asset_id": "1",
-                        "attribute_id": "1",
+                        "asset_id": {"$eq": "1"},
+                        "attribute_id": {"$eq": "1"},
                         "timestamp": {
                             "$gte": datetime(2012, 1, 1, 17, 0),
                             "$lte": datetime(2012, 1, 1, 18, 0)
@@ -191,9 +191,10 @@ class TestMongoClient(TestCase):
             find_call.assert_called_once_with(
                 collection='default',
                 filters={
-                    "args.value": "value1"
+                    "args.value": {"$eq": "value1"}
                 },
                 limit=50,
                 skip=0,
-                sort=[('timestamp', -1)]
+                sort=[('timestamp', -1)],
+                tzinfo=timezone.utc
             )
