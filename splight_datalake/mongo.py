@@ -109,7 +109,7 @@ class MongoClient(AbstractDatalakeClient):
             skip_: int = 0,
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
-        # TODO implement from_ to_ with timestamp__gt timestamp__lt
+        # TODO first limit_ skip_ is redundant choose one.
 
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         filters = self._get_filters(**kwargs)
