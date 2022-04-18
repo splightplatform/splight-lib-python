@@ -1,11 +1,10 @@
 import pandas as pd
 from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Type, Optional
-from datetime import datetime
+from typing import Dict, List, Type
 from pydantic import BaseModel
 from collections import MutableMapping
-from django.utils import timezone
-from client import validate_resource_type, validate_instance_type
+from collections import defaultdict
+from client import validate_resource_type
 from splight_datalake.settings import setup
 from splight_lib import logging
 from splight_models import Variable, VariableDataFrame
@@ -27,7 +26,14 @@ def flatten_dict(d, parent_key='', sep='__'):
 
 
 class MongoClient(AbstractDatalakeClient):
-    valid_classes = [Variable]
+    valid_classes: List[Type] = [Variable]
+    operation_map: Dict[str, str] = {
+        'eq': '$eq',
+        'in': '$in',
+        'contains': '$regex',
+        'gte': '$gte',
+        'lte': '$lte',
+    }
 
     def __init__(self, *args, **kwargs) -> None:
         super(MongoClient, self).__init__(*args, **kwargs)
@@ -55,27 +61,17 @@ class MongoClient(AbstractDatalakeClient):
     def _insert_many(self, collection: str, data: List[Dict], **kwargs) -> None:
         self.db[collection].insert_many(data, **kwargs)
 
-    def _get_filters(self, from_: Optional[datetime], to_: Optional[datetime], **kwargs) -> Dict:
-        timestamp = dict()
-        if from_:
-            timestamp["$gte"] = from_
-        if to_:
-            timestamp["$lte"] = to_
-        if timestamp:
-            kwargs["timestamp"] = timestamp
+    def _get_filters(self, **kwargs) -> Dict:
+        filters: defaultdict = defaultdict(dict)
 
-        special_filters = [key for key in kwargs.keys() if "__" in key]
-        for key in special_filters:
-            if key.endswith("__in"):
-                kwargs[key[:-len("__in")]] = {"$in": kwargs[key]}
-                kwargs.pop(key)
-            elif key.endswith("__contains"):
-                kwargs[key[:-len("__contains")]] = {"$regex": kwargs[key]}
-                kwargs.pop(key)
-            elif "__" in key:
-                kwargs[key.replace("__", ".")] = kwargs[key]
-                kwargs.pop(key)
-        return kwargs
+        for key, value in kwargs.items():
+            args = key.split('__')
+            oper = args[-1] if args[-1] in self.valid_filters else 'eq'
+            args = args if oper == "eq" else args[:-1]
+            key = '.'.join(args)
+            filters[key][self.operation_map[oper]] = value
+
+        return filters
 
     def list_collection_names(self):
         return self.db.list_collection_names()
@@ -97,17 +93,14 @@ class MongoClient(AbstractDatalakeClient):
     def get(self,
             resource_type: Type,
             collection: str = 'default',
-            from_: datetime = None,
-            to_: datetime = None,
             first: bool = False,
             limit_: int = 50,
             skip_: int = 0,
             **kwargs) -> List[BaseModel]:
         # TODO implement from_ to_ with timestamp__gt timestamp__lt
-        # TODO first limit_ skip_ is redundant choose one.
 
         kwargs = self._validated_kwargs(resource_type, **kwargs)
-        filters = self._get_filters(from_, to_, **kwargs)
+        filters = self._get_filters(**kwargs)
         updates = list(self._find(
             collection=collection,
             filters=filters,

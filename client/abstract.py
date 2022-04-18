@@ -4,7 +4,7 @@ from functools import wraps
 from abc import ABC
 
 
-def validate_resource_type(func: Callable):
+def validate_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, resource_type: Type, *args, **kwargs):
         if resource_type not in self.valid_classes:
@@ -13,7 +13,7 @@ def validate_resource_type(func: Callable):
     return wrapper
 
 
-def validate_instance_type(func: Callable):
+def validate_instance_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, instance: BaseModel, *args, **kwargs):
         if type(instance) not in self.valid_classes:
