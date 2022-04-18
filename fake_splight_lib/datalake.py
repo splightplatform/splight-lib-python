@@ -134,16 +134,11 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def get(self,
             resource_type: Type,
             collection: str = "default",
-            first: bool = False,
             limit_: int = 100,
             skip_: int = 0,
             **kwargs) -> List[BaseModel]:
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-
-        if first:
-            return [result[0]] if result else None
-
         return result[skip_:skip_ + limit_]
 
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
