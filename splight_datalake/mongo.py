@@ -1,20 +1,18 @@
-from .abstract import AbstractDatalakeClient
-from splight_models import Variable, VariableDataFrame
-from splight_lib import logging
-from splight_datalake.settings import setup
-from typing import Dict, List, Type, Optional
-from collections import defaultdict
-from pydantic import BaseModel
-from typing import Dict, List, Type
 import pandas as pd
 from bson.codec_options import CodecOptions
 from collections import MutableMapping
 from client import validate_resource_type
-from datetime import datetime, timezone, timedelta
+from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
-<< << << < HEAD
-== == == =
->>>>>> > master
+from typing import Dict, List, Type
+from pydantic import BaseModel
+from collections import MutableMapping
+from collections import defaultdict
+from client import validate_resource_type
+from splight_datalake.settings import setup
+from splight_lib import logging
+from splight_models import Variable, VariableDataFrame
+from .abstract import AbstractDatalakeClient
 
 
 logger = logging.getLogger()
@@ -84,7 +82,7 @@ class MongoClient(AbstractDatalakeClient):
             key = '.'.join(args)
             filters[key][self.operation_map[oper]] = value
 
-        return filters
+        return dict(filters)
 
     def list_collection_names(self):
         return self.db.list_collection_names()
@@ -123,12 +121,12 @@ class MongoClient(AbstractDatalakeClient):
             sort=[('timestamp', -1)],
             tzinfo=tzinfo
         )
-        result = [resource_type(**update) for update in updates]
+        result = [resource_type(**obj) for obj in result]
         if first:
             return [result[0]] if result else None
         return result
 
-    @ validate_resource_type
+    @validate_resource_type
     def save(self,
              resource_type: Type,
              instances: List[BaseModel],
