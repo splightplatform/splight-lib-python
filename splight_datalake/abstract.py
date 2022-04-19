@@ -1,13 +1,14 @@
-import pandas as pd
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Type, List, Optional
+from typing import Type, List, Dict
 from datetime import datetime
 from splight_models import Variable, VariableDataFrame
 
 
 class AbstractDatalakeClient(AbstractClient):
+
+    valid_filters = ["in", "contains", "gte", "lte"]
 
     @abstractmethod
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
@@ -17,8 +18,6 @@ class AbstractDatalakeClient(AbstractClient):
     def get(self,
             resource_type: Type,
             collection: str = "default",
-            from_: datetime = None,
-            to_: datetime = None,
             first: bool = False,
             limit_: int = 50,
             skip_: int = 0,
@@ -44,3 +43,14 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         pass
+
+    def _validated_kwargs(self, resource_type: Type, **kwargs):
+        valid_fields: List[str] = list(resource_type.__fields__.keys())
+
+        valid_filter: Dict[str, str] = {
+            key: value for key, value in kwargs.items()
+            if key in valid_fields or
+            any(f"{valid_field}__" in key for valid_field in valid_fields)
+        }
+
+        return valid_filter
