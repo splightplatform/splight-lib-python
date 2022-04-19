@@ -4,7 +4,7 @@ import os
 import json
 from collections import defaultdict
 from collections import MutableMapping
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any
 from splight_models import Variable, VariableDataFrame
@@ -52,7 +52,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     @staticmethod
     def _date_hook(json_dict):
-        timeformat = "%Y-%m-%d %H:%M:%S.%z"
+        timeformat = "%Y-%m-%d %H:%M:%S.%f%z"
         for (key, value) in json_dict.items():
             try:
                 json_dict[key] = datetime.strptime(value, timeformat)
@@ -86,7 +86,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 "args": {
                     "value": 1
                 },
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(timezone.utc)
             },
             {
                 "_id": "jashdasd",
@@ -95,7 +95,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 "args": {
                     "value": 4
                 },
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(timezone.utc)
             }
         ]
         self._write_to_collection('default', data)
