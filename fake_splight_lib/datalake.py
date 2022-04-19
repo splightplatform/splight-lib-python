@@ -4,10 +4,11 @@ import os
 import json
 from collections import defaultdict
 from collections import MutableMapping
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel
-from typing import Dict, List, Type, Optional
+from typing import Dict, List, Type, Any
 from splight_models import Variable, VariableDataFrame
+from splight_datalake.abstract import AbstractDatalakeClient
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
 
@@ -15,7 +16,14 @@ from splight_lib.settings import SPLIGHT_HOME
 DATALAKE_HOME = os.path.join(SPLIGHT_HOME, "datalake")
 logger = logging.getLogger()
 
-def flatten_dict(d, parent_key='', sep='.'):
+# overload operator class with methods not covered
+setattr(operator, "in", lambda x, y: x in y)
+setattr(operator, "contains", lambda x, y: y in x)
+setattr(operator, "gte", lambda x, y: x >= y)
+setattr(operator, "lte", lambda x, y: x <= y)
+
+
+def flatten_dict(d, parent_key='', sep='__'):
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
@@ -25,7 +33,8 @@ def flatten_dict(d, parent_key='', sep='.'):
             items.append((new_key, v))
     return dict(items)
 
-class FakeDatalakeClient:
+
+class FakeDatalakeClient(AbstractDatalakeClient):
     def __init__(self, namespace: str = 'default') -> None:
         self.collections = defaultdict(list)
         self._default_load()
@@ -42,12 +51,31 @@ class FakeDatalakeClient:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
 
     @staticmethod
+    def _date_hook(json_dict):
+        timeformat = "%Y-%m-%d %H:%M:%S.%f%z"
+        for (key, value) in json_dict.items():
+            try:
+                json_dict[key] = datetime.strptime(value, timeformat)
+            except:
+                pass
+        return json_dict
+
+    @staticmethod
     def _read_from_collection(collection: str) -> List[dict]:
         os.makedirs(DATALAKE_HOME, exist_ok=True)
         col_file = os.path.join(DATALAKE_HOME, collection)
         with open(col_file, 'r+') as f:
-            return json.loads(f.read())
+            return json.loads(f.read(), object_hook=FakeDatalakeClient._date_hook)
 
+    @staticmethod
+    def _resolve_filter(keys: List[str], value: Any, oper: str):
+        def inner(x: Dict) -> bool:
+            for key in keys:
+                if not isinstance(x, dict) or not key in x:
+                    return False
+                x = x[key]
+            return getattr(operator, oper)(x, value)
+        return inner
 
     def _default_load(self):
         data = [
@@ -58,7 +86,7 @@ class FakeDatalakeClient:
                 "args": {
                     "value": 1
                 },
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(timezone.utc)
             },
             {
                 "_id": "jashdasd",
@@ -67,17 +95,16 @@ class FakeDatalakeClient:
                 "args": {
                     "value": 4
                 },
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(timezone.utc)
             }
         ]
         self._write_to_collection('default', data)
 
-    def _find(self, collection: str, filters: Dict = {}, **kwargs) -> List[Dict]:
-        values = self._read_from_collection(collection)
-        for key, op, value in filters:
-            values = [v for v in values if op(v.get(key), value)]
+    def _find(self, collection: str, filters: List = [], **kwargs) -> List[Dict]:
+        values: List[Dict] = self._read_from_collection(collection)
+        values = [v for v in values if all(f(v) for f in filters)]
         return values
-    
+
     def list_collection_names(self):
         return [f for f in os.listdir(DATALAKE_HOME) if os.path.isfile(os.path.join(DATALAKE_HOME, f))]
 
@@ -93,40 +120,26 @@ class FakeDatalakeClient:
         read = [flatten_dict(d) for d in read]
         ret = list(set(d[key] for d in read if key in d))
         return ret
-        
 
-    @staticmethod
-    def _parse_filters(**kwargs) -> Dict:
-        # overload operator class with methods not covered
-        setattr(operator, "in", lambda x, y: x in y)
-        setattr(operator, "gte", operator.ge)
-        setattr(operator, "lte", operator.le)
-        setattr(operator, "like", lambda x, y: x in y)
-        setattr(operator, "ilike", lambda x, y: x.lower() in y.lower())
-        filters = []
+    def _parse_filters(self, **kwargs) -> List:
+        filters: List = []
         for key, value in kwargs.items():
-            if "__" not in key:
-                filters.append((key, operator.eq, value))
-                continue
+            args: List[str] = key.split('__')
+            oper = args[-1] if args[-1] in self.valid_filters else 'eq'
+            args = args if oper == 'eq' else args[:-1]
+            filters.append(self._resolve_filter(args, value, oper))
 
-            key, op = key.split("__")
-            filters.append((key, getattr(operator, op), value))
         return filters
 
     def get(self,
             resource_type: Type,
             collection: str = "default",
-            from_: datetime = None,
-            to_: datetime = None,
-            first: bool = False,
             limit_: int = 100,
             skip_: int = 0,
             **kwargs) -> List[BaseModel]:
-        if from_:
-            kwargs["timestamp__gt"] = from_
-        if to_:
-            kwargs["timestamp__lt"] = to_
-        return [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
+
+        result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
+        return result[skip_:skip_ + limit_]
 
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
