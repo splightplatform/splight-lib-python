@@ -2,7 +2,7 @@ import boto3
 import zlib
 from pydantic import BaseModel
 from base64 import urlsafe_b64encode as b64e, urlsafe_b64decode as b64d
-from typing import Type, List
+from typing import Type, List, Optional
 from splight_models import StorageFile
 from ..abstract import AbstractStorageClient
 from .settings import (
@@ -34,12 +34,15 @@ class S3StorageClient(AbstractStorageClient):
         return zlib.decompress(b64d(name)).decode('utf-8')
 
     @validate_instance_type
-    def save(self, instance: BaseModel) -> BaseModel:
-        key = self.namespace + "/" + instance.name
+    def save(self, instance: BaseModel, prefix: Optional[str] = None,) -> BaseModel:
+
+        keys = [self.namespace, prefix] if prefix else [self.namespace]
+        keys.append(instance.name)
+        key = '/'.join(keys)
         self.s3.upload_file(
             Filename=instance.file,
             Bucket=AWS_STORAGE_BUCKET_NAME,
-            Key=key
+            Key=key,
         )
         instance.id = self._encode_name(key)
         return instance
