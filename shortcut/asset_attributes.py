@@ -64,7 +64,9 @@ def _asset_write(asset_id: str, attribute_id: str, value: Any, database_client: 
     if type(mapping) == ClientMapping:
         variable: Variable = Variable(asset_id=mapping.asset_id, attribute_id=mapping.attribute_id, args=dict(value=value))
         msg: Message = Message(action=Action.WRITE, variables=[variable])
+        logger.debug(f"Executing write asset attribute. external communication = {communication_client}, message = {msg}")
         communication_client.send(msg.dict())
+        logger.debug(f"Write message sent through {communication_client}: {msg}")
 
     elif type(mapping) == ValueMapping:
         mapping.value = str(value)
