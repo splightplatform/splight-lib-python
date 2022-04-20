@@ -46,6 +46,7 @@ class NamespaceAwareModel(models.Model):
 
     def to_dict(self):
         data = self.__dict__
+        data['id'] = str(data['id'])
         for m2m_field in self._meta.local_many_to_many:
             data[m2m_field.name] = [t.id for t in getattr(self, m2m_field.name).all()]
         return data
