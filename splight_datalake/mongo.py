@@ -87,18 +87,19 @@ class MongoClient(AbstractDatalakeClient):
     def list_collection_names(self):
         return self.db.list_collection_names()
 
-    def get_unique_keys(self, collection: str):
+    def get_unique_keys(self, collection: str, **kwargs):
         docs = list(self._find(
             collection=collection,
             limit=10,
-            sort=[('timestamp', -1)])
+            sort=[('timestamp', -1)],
+            filters=self._get_filters(**kwargs)),
         )
         docs = [flatten_dict(d) for d in docs]
         return list(set(key for dic in docs for key in dic.keys()))
 
-    def get_values_for_key(self, collection: str, key: str):
+    def get_values_for_key(self, collection: str, key: str, **kwargs):
         _key = key.replace('__', '.')
-        return self.db[collection].distinct(_key)
+        return self.db[collection].distinct(_key, filter=self._get_filters(**kwargs))
 
     @validate_resource_type
     def get(self,

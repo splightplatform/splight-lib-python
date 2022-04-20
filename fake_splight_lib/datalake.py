@@ -108,14 +108,14 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def list_collection_names(self):
         return [f for f in os.listdir(DATALAKE_HOME) if os.path.isfile(os.path.join(DATALAKE_HOME, f))]
 
-    def get_unique_keys(self, collection: str):
-        read = self._read_from_collection(collection)
+    def get_unique_keys(self, collection: str, **kwargs):
+        read = self._find(collection, filters=self._parse_filters(**kwargs))
         # flatten all dicts
         read = [flatten_dict(d) for d in read]
         return list(set(key for dic in read for key in dic.keys()))
 
-    def get_values_for_key(self, collection: str, key: str):
-        read = self._read_from_collection(collection)
+    def get_values_for_key(self, collection: str, key: str, **kwargs):
+        read = self._find(collection, filters=self._parse_filters(**kwargs))
         # flatten all dicts
         read = [flatten_dict(d) for d in read]
         ret = list(set(d[key] for d in read if key in d))
