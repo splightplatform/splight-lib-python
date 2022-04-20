@@ -1,10 +1,11 @@
 import json
 
 from typing import Dict, ByteString
-from abc import ABC, ABCMeta, abstractmethod
+from client import AbstractClient
+from abc import abstractmethod
 
 
-class AbstractCommunication(metaclass=ABCMeta):
+class AbstractCommunication(AbstractClient):
     @staticmethod
     def _encode(data: Dict):
         return json.dumps(data, default=str).encode('utf-8')

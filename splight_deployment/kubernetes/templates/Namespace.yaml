@@ -18,7 +18,31 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{serviceaccount}}
+  namespace: {{ id }}
   {% if environment.get("SERVICE_ACCOUNT_ROLE_ARN") %}
   annotations:
     eks.amazonaws.com/role-arn: {{environment.get("SERVICE_ACCOUNT_ROLE_ARN")}}
   {% endif %}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: '*'
+  name: splight-role
+rules:
+- apiGroups: ["extensions", "apps", ""]
+  resources: ["pods", "deployments"]
+  verbs: ["get", "list", "watch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: splight-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: splight-role
+subjects:
+- kind: ServiceAccount
+  namespace: {{ id }}
+  name: {{serviceaccount}}

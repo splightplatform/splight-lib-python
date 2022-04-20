@@ -77,13 +77,6 @@ class DjangoClient(AbstractDatabaseClient):
         """
         obj_class = CLASSMAP[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
-        if "id" in kwargs:
-            kwargs["id"] = int(kwargs["id"])
-        if "id__in" in kwargs:
-            if isinstance(kwargs["id__in"], int):
-                kwargs["id__in"] = [int(kwargs["id__in"])]
-            else:
-                kwargs["id__in"] = [int(x) for x in kwargs["id__in"]]
         if hasattr(obj_class, "namespace"):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()

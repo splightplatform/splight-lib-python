@@ -9,8 +9,9 @@ logger = logging.getLogger()
 
 
 class KafkaQueueCommunication(AbstractCommunication):
-    def __init__(self, topic: str = 'default'):
-        self.topic = topic
+    def __init__(self, *args, **kwargs):
+        super(KafkaQueueCommunication, self).__init__(*args, **kwargs)
+        self.topic = self.namespace
         self.consumer = Consumer(CONFLUENT_CONSUMER_CONFIG)
         self.consumer.subscribe([self.topic])
         self.producer = Producer(CONFLUENT_PRODUCER_CONFIG)

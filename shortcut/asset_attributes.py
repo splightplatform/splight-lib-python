@@ -62,11 +62,11 @@ def _asset_write(asset_id: str, attribute_id: str, value: Any, database_client: 
     mapping: Union[ClientMapping, ValueMapping] = _get_asset_attribute_mapping(asset_id=asset_id, attribute_id=attribute_id, database_client=database_client)
 
     if type(mapping) == ClientMapping:
-        variable: Variable = Variable(asset_id=mapping.asset_id, attribute_id=mapping.attribute_id, args=dict(value=value))
+        variable: Variable = Variable(asset_id=mapping.asset_id, attribute_id=mapping.attribute_id, args=dict(value=value), path=mapping.path)
         msg: Message = Message(action=Action.WRITE, variables=[variable])
         logger.debug(f"Executing write asset attribute. external communication = {communication_client}, message = {msg}")
         communication_client.send(msg.dict())
-        logger.debug(f"Write message sent through {communication_client}: {msg}")
+        logger.debug(f"Write message sent through {communication_client}: {msg}. {communication_client.topic}")
 
     elif type(mapping) == ValueMapping:
         mapping.value = str(value)
