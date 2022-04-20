@@ -23,7 +23,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Asset,
         Attribute,
         Trigger,
-        TriggerGroup,
         Tag,
         Namespace,
         Runner,
