@@ -35,6 +35,8 @@ class Chart(BaseModel):
     name: Optional[str]
     tab_id: str
     type: str
+    timestamp_gte: Optional[str] = None
+    timestamp_lte: Optional[str] = None
     refresh_interval: Optional[str] = None
     relative_window_time: Optional[str] = None
 
