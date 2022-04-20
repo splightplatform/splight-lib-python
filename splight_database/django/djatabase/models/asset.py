@@ -17,7 +17,8 @@ class Asset(NamespaceAwareModel):
 
     def to_dict(self):
         data = self.__dict__
-        data["tags"] = [t.id for t in self.tags.all()]
+        data['id'] = str(data['id'])
+        data["tags"] = [str(t.id) for t in self.tags.all()]
         return data
 
 
