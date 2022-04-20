@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -18,7 +19,7 @@ class Namespace(models.Model):
 
 
 class NamespaceAwareModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     namespace = models.ForeignKey(Namespace, on_delete=models.CASCADE, default=None, null=True, blank=True)
 
     class Meta:
