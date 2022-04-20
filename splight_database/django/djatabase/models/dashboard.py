@@ -19,6 +19,8 @@ class Chart(NamespaceAwareModel):
     tab = models.ForeignKey(Tab, on_delete=models.CASCADE, related_name="tab_charts")
     name = models.CharField(max_length=100, null=True, blank=True)
     type = models.CharField(max_length=100, null=True, blank=True)
+    timestamp_gte = models.CharField(max_length=100, null=True, blank=True)
+    timestamp_lte = models.CharField(max_length=100, null=True, blank=True)
     refresh_interval = models.CharField(max_length=100, null=True, blank=True)
     relative_window_time = models.CharField(max_length=100, null=True, blank=True)
 
