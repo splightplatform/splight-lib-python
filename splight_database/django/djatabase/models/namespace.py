@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -18,7 +19,7 @@ class Namespace(models.Model):
 
 
 class NamespaceAwareModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     namespace = models.ForeignKey(Namespace, on_delete=models.CASCADE, default=None, null=True, blank=True)
 
     class Meta:
@@ -45,6 +46,7 @@ class NamespaceAwareModel(models.Model):
 
     def to_dict(self):
         data = self.__dict__
+        data['id'] = str(data['id'])
         for m2m_field in self._meta.local_many_to_many:
             data[m2m_field.name] = [t.id for t in getattr(self, m2m_field.name).all()]
         return data
