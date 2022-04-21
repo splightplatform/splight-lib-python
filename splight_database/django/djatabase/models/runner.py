@@ -14,8 +14,6 @@ class Category(models.TextChoices):
 class Runner(NamespaceAwareModel):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100, null=True, blank=True)
-    # TODO remove tag_id
     tag_id = models.CharField(max_length=100, null=True, blank=True)
-    category = models.CharField(max_length=50, choices=Category.choices, default=Category.ALGORITHM)
     version = models.CharField(max_length=100, null=True, blank=True)
     parameters = models.JSONField()
