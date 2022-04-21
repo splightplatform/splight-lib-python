@@ -1,14 +1,6 @@
-from unicodedata import category
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from .namespace import NamespaceAwareModel
-
-
-class Category(models.TextChoices):
-    ALGORITHM = 'algorithm', _('Algorithm')
-    CONNECTOR = 'connector', _('Connector')
-    NETWORK = 'network', _('Network')
-    TRIGGER_HANDLER = 'trigger-handler', _('Trigger handler')
 
 
 class Runner(NamespaceAwareModel):
