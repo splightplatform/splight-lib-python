@@ -33,7 +33,7 @@ class RuleVariableType(str, Enum):
 
 
 class RuleVariable(BaseModel):
-    id: Optional[str]
+    id: str
     collection: str = 'default'
     filters: Dict = {}
     key: str = "args.value"
@@ -42,16 +42,16 @@ class RuleVariable(BaseModel):
 
 class Rule(BaseModel):
     id: Optional[str]
-    variables: List[RuleVariable]
+    variables: List[RuleVariable] = []
     statement: str
 
     @validator('statement', always=True)
     def statement_validate(cls, value, values):
         _value = value
-        if values['variables']:
+        if values.get('variables'):
             rep = {
-                re.escape(var.id): repr(locate(var.type)(1))
-                for var in values['variables']
+                re.escape(val.id): repr(locate(val.type)(1))
+                for val in values['variables']
             }
             _pattern = re.compile("|".join(rep.keys()))
             _value = _pattern.sub(lambda m: rep[re.escape(m.group(0))], value)
