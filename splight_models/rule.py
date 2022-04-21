@@ -1,10 +1,15 @@
 import re
+import json
+json.dumps
 import math
+from enum import Enum
+from pydoc import locate
 from pydantic import BaseModel, validator
 from typing import Optional, List, Dict
 
 
 def _eval(expression):
+    # Raises on syntax error
     ALLOWED_NAMES = {
         key: value
         for key, value in math.__dict__.items()
@@ -21,31 +26,37 @@ def _eval(expression):
     return eval(code, {"__builtins__": {}}, ALLOWED_NAMES)
 
 
-class TriggerVariable(BaseModel):
-    id: str
+class RuleVariableType(str, Enum):
+    str = 'str'
+    int = 'int'
+    bool = 'bool'
+
+
+class RuleVariable(BaseModel):
+    id: Optional[str]
     collection: str = 'default'
     filters: Dict = {}
     key: str = "args.value"
-    type: type 
+    type: RuleVariableType = RuleVariableType.str
 
 
-class Trigger(BaseModel):
+class Rule(BaseModel):
     id: Optional[str]
-    variables: List[TriggerVariable]
-    rule: str
+    variables: List[RuleVariable]
+    statement: str
 
-    @validator('rule', always=True)
-    def rule_validate(cls, value, values):
+    @validator('statement', always=True)
+    def statement_validate(cls, value, values):
         _value = value
         if values['variables']:
             rep = {
-                re.escape(var.id): str(var.type(1))
+                re.escape(var.id): repr(locate(var.type)(1))
                 for var in values['variables']
             }
             _pattern = re.compile("|".join(rep.keys()))
             _value = _pattern.sub(lambda m: rep[re.escape(m.group(0))], value)
         try:
-            _eval(_value) # Raises on syntax error
+            _eval(_value)
         except (SyntaxError, NameError):
             raise ValueError("Invalid syntax")
         return value

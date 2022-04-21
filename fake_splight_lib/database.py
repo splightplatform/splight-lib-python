@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 from typing import List, Type
 from splight_database.abstract import AbstractDatabaseClient
@@ -22,7 +23,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         ServerConnector,
         Asset,
         Attribute,
-        Trigger,
         Tag,
         Namespace,
         Runner,
@@ -34,7 +34,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
-        instance.id = str(len(self.database[type(instance)]) + 1)
+        instance.id = str(uuid.uuid4())
         self.database[type(instance)].append(instance)
         return instance
 
