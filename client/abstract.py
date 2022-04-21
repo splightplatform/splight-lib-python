@@ -32,14 +32,15 @@ class AbstractClient(ABC):
         '''
         Filter a queryset by the given kwargs.
         '''
+
         field_filters = [
             lambda x, field=field, value=value: getattr(x, field) == value for field, value in kwargs.items() if "__" not in field
         ]
         in_filters = [
-            lambda x, field=field, values=values: getattr(x, field) in values for field, values in kwargs.items() if field.endswith("__in")
+            lambda x, field=field, values=values: getattr(x, field.replace("__in", "")) in values for field, values in kwargs.items() if field.endswith("__in")
         ]
         contains_filters = [
-            lambda x, field=field, value=value: value in getattr(x, field) for field, value in kwargs.items() if field.endswith("__contains")
+            lambda x, field=field, value=value: value in getattr(x, field.replace("__contains", "")) for field, value in kwargs.items() if field.endswith("__contains")
         ]
 
         filters = field_filters + in_filters + contains_filters
