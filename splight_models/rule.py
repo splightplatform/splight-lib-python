@@ -42,6 +42,8 @@ class RuleVariable(BaseModel):
 
 class Rule(BaseModel):
     id: Optional[str]
+    name: str
+    description: Optional[str] = None
     variables: List[RuleVariable] = []
     statement: str
 

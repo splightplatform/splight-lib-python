@@ -20,6 +20,8 @@ class TestRule(TestCase):
             RuleVariable(id='C', type="str", key="args.value")
         ]
         Rule(
+            name="Rule1",
+            description="",
             variables=variables,
             statement=statement
         )
@@ -34,6 +36,8 @@ class TestRule(TestCase):
                 RuleVariable(id='B', type="int", key="args.value")
             ]
             Rule(
+                name="Rule1",
+                description="",
                 variables=variables,
                 statement=statement
             )
