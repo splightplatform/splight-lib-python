@@ -12,7 +12,7 @@ from .namespace import *
 from .notification import *
 from .network import *
 from .tag import *
-from .trigger import *
+from .rule import *
 from .storage import *
 from .dashboard import *
 from .variable import *
