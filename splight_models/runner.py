@@ -13,6 +13,5 @@ class Runner(BaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
-    tag_id: str
     version: str
     parameters: List[Parameter] =   []
