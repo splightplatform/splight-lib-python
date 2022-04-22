@@ -1,9 +1,9 @@
+from os import stat
 import re
 import math
 from collections import defaultdict
 from enum import Enum
 from pydoc import locate
-from xmlrpc.client import Boolean
 from pydantic import BaseModel, validator
 from typing import Optional, List, Dict
 
@@ -48,17 +48,20 @@ class Rule(BaseModel):
     statement: str
 
     @staticmethod
-    def statement_evaluation(statement, variables: List, values: Dict) -> Boolean:
-        _variables = defaultdict(int)
+    def statement_evaluation(statement, variables: List, values: Dict) -> bool:
+        _variables = {}
+        # Parse variables
         for var in variables:
             _type = locate(var.type)
             _default_value = _type()
             _value = values.get(var.id)
             _casted_value = _type(_value) if _value else _default_value
             _variables[re.escape(var.id)] = repr(_casted_value)
-        _pattern = re.compile("|".join(_variables.keys()))
-        _value = _pattern.sub(lambda m: _variables[re.escape(m.group(0))], statement)
-        return _safe_eval(_value)
+        # Replace ONLY if needed
+        if _variables:
+            _pattern = re.compile("|".join(_variables.keys()))
+            statement = _pattern.sub(lambda m: _variables[re.escape(m.group(0))], statement)
+        return _safe_eval(statement)
 
 
     @validator('statement', always=True)

@@ -6,6 +6,19 @@ from splight_models.rule import Rule, RuleVariable
 class TestRule(TestCase):
 
     @parameterized.expand([
+        ("True and False",),
+        ("True and 1",),
+        ("True or 5 < 1",),
+    ])
+    def test_rule_default(self, statement):
+        Rule(
+            name="Rule1",
+            description="",
+            variables=[],
+            statement=statement
+        )
+
+    @parameterized.expand([
         ("A and B == 2 or C == 's'",),
         ("A and not(A)",),
         ("A and A",),
