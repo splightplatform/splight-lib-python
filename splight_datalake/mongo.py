@@ -1,12 +1,11 @@
 import pandas as pd
 from bson.codec_options import CodecOptions
-from collections import MutableMapping
 from client import validate_resource_type
 from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
 from typing import Dict, List, Type
 from pydantic import BaseModel
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from collections import defaultdict
 from client import validate_resource_type
 from splight_datalake.settings import setup
