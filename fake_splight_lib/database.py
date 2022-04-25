@@ -23,6 +23,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         ServerConnector,
         Asset,
         Attribute,
+        Rule,
         Tag,
         Namespace,
         Runner,

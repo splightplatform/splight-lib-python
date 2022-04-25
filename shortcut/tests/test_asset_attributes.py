@@ -6,10 +6,9 @@ from splight_lib.communication import *
 from splight_models import *
 from unittest.mock import patch, call
 from ..asset_attributes import _get_asset_attribute_mapping, asset_get, asset_set, NoDefaultValue
-import os
 
 
-class TestShortcuts(TestCase):
+class TestAssetAttributes(TestCase):
     def setUp(self):
         self.namespace = "default"
         self.database = DatabaseClient(self.namespace)
