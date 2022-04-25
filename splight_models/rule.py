@@ -1,14 +1,14 @@
+from os import stat
 import re
-import json
-json.dumps
 import math
+from collections import defaultdict
 from enum import Enum
 from pydoc import locate
 from pydantic import BaseModel, validator
 from typing import Optional, List, Dict
 
 
-def _eval(expression):
+def _safe_eval(expression):
     # Raises on syntax error
     ALLOWED_NAMES = {
         key: value
@@ -42,21 +42,32 @@ class RuleVariable(BaseModel):
 
 class Rule(BaseModel):
     id: Optional[str]
+    name: str
+    description: Optional[str] = None
     variables: List[RuleVariable] = []
     statement: str
 
+    @staticmethod
+    def statement_evaluation(statement, variables: List, values: Dict) -> bool:
+        _variables = {}
+        # Parse variables
+        for var in variables:
+            _type = locate(var.type)
+            _default_value = _type()
+            _value = values.get(var.id)
+            _casted_value = _type(_value) if _value else _default_value
+            _variables[re.escape(var.id)] = repr(_casted_value)
+        # Replace ONLY if needed
+        if _variables:
+            _pattern = re.compile("|".join(_variables.keys()))
+            statement = _pattern.sub(lambda m: _variables[re.escape(m.group(0))], statement)
+        return _safe_eval(statement)
+
+
     @validator('statement', always=True)
-    def statement_validate(cls, value, values):
-        _value = value
-        if values.get('variables'):
-            rep = {
-                re.escape(val.id): repr(locate(val.type)(1))
-                for val in values['variables']
-            }
-            _pattern = re.compile("|".join(rep.keys()))
-            _value = _pattern.sub(lambda m: rep[re.escape(m.group(0))], value)
+    def statement_validate(cls, statement, values):
         try:
-            _eval(_value)
+            cls.statement_evaluation(statement, values.get('variables'), defaultdict(int))
         except (SyntaxError, NameError):
             raise ValueError("Invalid syntax")
-        return value
+        return statement

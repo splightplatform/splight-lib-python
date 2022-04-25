@@ -89,6 +89,7 @@ def asset_get(asset_id: str, attribute_id: str, namespace: str, default=NoDefaul
     '''
     This function returns the value of an attribute of an asset.
     '''
+    # WARNING: this method is using $last as aggregation method to obtain the resulting value of a rule
     dl_client = DatalakeClient(namespace)
     db_client = DatabaseClient(namespace)
     try:

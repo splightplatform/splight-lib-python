@@ -3,7 +3,7 @@ import operator
 import os
 import json
 from collections import defaultdict
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any
