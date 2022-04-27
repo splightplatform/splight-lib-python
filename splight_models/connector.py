@@ -21,9 +21,9 @@ class Connector(BaseModel):
 
 
 class ClientConnector(Connector):
-    network_id: Optional[str]
+    network_id: Optional[str] = None
 
 
 class ServerConnector(Connector):
-    network_id: Optional[str]
+    network_id: Optional[str] = None
     external_port: Optional[int]
