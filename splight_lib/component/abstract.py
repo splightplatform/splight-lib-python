@@ -1,9 +1,11 @@
 import sys
 import time
 import pandas as pd
+import builtins
 from typing import Optional, Type, List
 from tempfile import NamedTemporaryFile
 from abc import ABCMeta
+import json
 from splight_lib.database import DatabaseClient
 from splight_lib.datalake import DatalakeClient
 from splight_lib.deployment import DeploymentClient
@@ -15,7 +17,8 @@ from splight_lib.communication import (
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib import logging
 from splight_lib.logging import logging
-from splight_models import Message, VariableDataFrame, Variable
+import splight_models as models
+from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
 
 
 logger = logging.getLogger()
@@ -44,7 +47,9 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
 
     def __init__(self,
                  instance_id: str,
-                 namespace: Optional[str] = 'default'):
+                 run_spec: str,
+                 namespace: Optional[str] = 'default',
+                 *args, **kwargs):
 
         # Params to start Lib clients
         # TODO https://splight.atlassian.net/browse/FAC-343
@@ -64,7 +69,27 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.execution_client.start(Thread(target=self.listen_commands))
         self.execution_client.start(Thread(target=self.listen_internal_commands))
 
-        super(AbstractComponent, self).__init__()
+        super().__init__(*args, **kwargs)
+        self._spec = Deployment(**json.loads(run_spec))
+        self._load_metadata()
+        self._load_parameters()
+        self._load_context()
+        self.collection_name = str(self.managed_class) + self.instance_id
+
+    def _load_metadata(self):
+        self._version = self._spec.version
+        self.managed_class = getattr(models, self._spec.type, Runner)
+
+    def _load_context(self):
+        self.namespace = self._spec.namespace
+        self.instance_id = self._spec.external_id
+
+    def _load_parameters(self):
+        _parameters = self._spec.parameters
+        for p in _parameters:
+            name = p.name
+            value = getattr(builtins, p.type, str)(p.value)
+            setattr(self, name, value)
 
     @property
     def instance(self):

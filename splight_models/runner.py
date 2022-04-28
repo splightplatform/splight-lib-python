@@ -15,3 +15,15 @@ class Runner(BaseModel):
     description: Optional[str]
     version: str
     parameters: List[Parameter] =   []
+
+
+class Algorithm(Runner):
+    pass
+
+
+class Network(Runner):
+    pass
+
+
+class Connector(Runner):
+    pass

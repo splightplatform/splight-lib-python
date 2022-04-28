@@ -30,9 +30,9 @@ spec:
             serviceAccount: {{serviceaccount}}
             containers:
                 - name: "{{id}}"
-                  image: 609067598877.dkr.ecr.us-east-1.amazonaws.com/splight-{{type | lower}}:{{version}}
+                  image: {{dockerimg}}
                   command: ["python", "runner.py"]
-                  args: ["-i", "{{external_id}}", "-c", "{{type}}", "-n", "{{namespace}}"]
+                  args: ["-r", '{{run_spec}}']
                   imagePullPolicy: "Always"
                   tty: true
                   securityContext:
@@ -43,7 +43,7 @@ spec:
                           - sh
                           - -c
                           - ls /tmp/ | grep -q healthy_
-                    initialDelaySeconds: 20
+                    initialDelaySeconds: 300
                     periodSeconds: 5
                   envFrom:
                     - configMapRef:

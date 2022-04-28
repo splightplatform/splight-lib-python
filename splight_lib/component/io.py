@@ -2,9 +2,7 @@ from abc import abstractmethod
 import logging
 import time
 from typing import List, Optional, Type
-from splight_models.connector import ClientConnector, ServerConnector
-from splight_models.mapping import ClientMapping, ServerMapping
-from splight_models import Variable
+from splight_models import Connector, ClientMapping, ServerMapping, Variable
 from splight_lib.execution import Thread
 from .abstract import AbstractComponent
 
@@ -73,13 +71,11 @@ class AbstractIOComponent(AbstractComponent):
 
 
 class AbstractClientComponent(AbstractIOComponent):
-    managed_class = ClientConnector
+    managed_class = Connector
     mapping_class = ClientMapping
 
-    def __init__(self,
-                 instance_id: str,
-                 namespace: Optional[str] = 'default'):
-        super(AbstractClientComponent, self).__init__(instance_id, namespace)
+    def __init__(self, *args, **kwargs):
+        super(AbstractClientComponent, self).__init__(*args, **kwargs)
         self.execution_client.start(Thread(target=self.sync_mappings_to_device))
 
     @abstractmethod
@@ -119,7 +115,7 @@ class AbstractClientComponent(AbstractIOComponent):
 
 
 class AbstractServerComponent(AbstractIOComponent):
-    managed_class = ServerConnector
+    managed_class = Connector
     mapping_class = ServerMapping
 
     def __init__(self,

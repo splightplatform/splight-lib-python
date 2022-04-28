@@ -1,7 +1,7 @@
 from django.db import models
 from model_utils.managers import InheritanceManager
 from .exception import CyclicReference, InvalidReference
-from ..connector import ClientConnector, ServerConnector
+from ..connector import Connector
 from ..namespace import NamespaceAwareModel
 from ..asset import Asset, Attribute
 from django.db.models import Q
@@ -49,7 +49,7 @@ class ReferenceMapping(Mapping):
 class ClientMapping(Mapping):
     asset = models.ForeignKey(Asset, related_name="client_mappings", on_delete=models.CASCADE)
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="client_mappings", null=True)
-    connector = models.ForeignKey(ClientConnector, on_delete=models.CASCADE, related_name='mappings', null=True)
+    connector = models.ForeignKey(Connector, on_delete=models.CASCADE, related_name='cmappings', null=True)
     path = models.CharField(max_length=300, null=True)
     period = models.IntegerField(default=5000)
 
@@ -64,7 +64,7 @@ class ClientMapping(Mapping):
 class ServerMapping(Mapping):
     asset = models.ForeignKey(Asset, related_name="server_mappings", on_delete=models.CASCADE)
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="server_mappings", null=True)
-    connector = models.ForeignKey(ServerConnector, on_delete=models.CASCADE, related_name='mappings', null=True)
+    connector = models.ForeignKey(Connector, on_delete=models.CASCADE, related_name='smappings', null=True)
     path = models.CharField(max_length=300, null=True)
 
 

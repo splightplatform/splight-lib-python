@@ -1,8 +1,8 @@
 from django.test import TestCase
-
 from splight_database.django.djatabase.models.namespace import Namespace, CrossNamespaceTryException
-from splight_database.django.djatabase.models.connector import ClientConnector
-from splight_database.django.djatabase.models.network import Network
+from splight_database.django.djatabase.models.asset import Asset, Attribute
+from splight_database.django.djatabase.models.connector import Connector
+from splight_database.django.djatabase.models.mapping import ClientMapping
 
 
 class TestNamespace(TestCase):
@@ -26,6 +26,8 @@ class TestNamespace(TestCase):
     def test_cross_namespace_try_fk_raises(self):
         namespace = Namespace.objects.create()
         cross_namespace = Namespace.objects.create(id="123")
-        net = Network.objects.create(name="NET1", namespace=namespace)
+        connector = Connector.objects.create(name="connector", version="dnp3", parameters=[], namespace=cross_namespace)
+        attribute = Attribute.objects.create(name="attribute", namespace=namespace)
+        asset = Asset.objects.create(name="asset", namespace=namespace)
         with self.assertRaises(CrossNamespaceTryException):
-            ClientConnector.objects.create(name="connector", namespace=cross_namespace, network=net)
+            ClientMapping.objects.create(asset=asset, attribute=attribute, connector=connector, path='pat', namespace=namespace)
