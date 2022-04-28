@@ -32,7 +32,6 @@ class AbstractClient(ABC):
         '''
         Filter a queryset by the given kwargs.
         '''
-
         field_filters = [
             lambda x, field=field, value=value: getattr(x, field) == value for field, value in kwargs.items() if "__" not in field
         ]
@@ -44,6 +43,7 @@ class AbstractClient(ABC):
         ]
 
         filters = field_filters + in_filters + contains_filters
+
         return [obj for obj in queryset if all([f(obj) for f in filters])]
 
     def _validated_kwargs(self, resource_type: Type, **kwargs):

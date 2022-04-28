@@ -74,7 +74,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self._load_metadata()
         self._load_parameters()
         self._load_context()
-        self.collection_name = str(self.managed_class) + self.instance_id
+        self.collection_name = str(self.instance_id)
 
     def _load_metadata(self):
         self._version = self._spec.version
