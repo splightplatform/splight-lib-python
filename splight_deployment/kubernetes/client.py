@@ -41,10 +41,11 @@ class KubernetesClient(AbstractDeploymentClient):
         return f"service-{type_id}-{id}"
 
     def _get_docker_image(self, instance: Deployment):
+        # TODO: Migrate all to get image splight-runner
         version = instance.version
-        if instance.type == "Runner":
-            version = "latest"
         image = f"splight-{instance.type.lower()}:{version}"
+        if instance.type in ["Algorithm", "Runner", "ClientConnector"]:
+            image = "splight-runner:latest"
         if self.DOCKER_REGISTRY:
             return f"{self.DOCKER_REGISTRY}/{image}"
         return image

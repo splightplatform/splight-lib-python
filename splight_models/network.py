@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import List
 
 
 class NetTarget(BaseModel):
@@ -15,11 +15,3 @@ class NetRule(BaseModel):
 class NetValue(BaseModel):
     value: List[NetRule]
 
-
-class Network(BaseModel):
-    id: Optional[str]
-    name: str
-    description: Optional[str] = None
-    username: Optional[str]
-    password: Optional[str]
-    file_id: Optional[str]
