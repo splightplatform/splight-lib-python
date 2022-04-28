@@ -16,6 +16,7 @@ class AbstractIOComponent(AbstractComponent):
 
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
+        self.collection_name = 'default'
         self.execution_client.start(Thread(target=self.refresh_mappings_forever))
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:
