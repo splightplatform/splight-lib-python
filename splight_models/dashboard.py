@@ -25,6 +25,7 @@ class Filter(BaseModel):
 class ChartItem(BaseModel):
     id: Optional[str]
     chart_id: str
+    color: Optional[str]
     source: Optional[str]
     target: Optional[str]
     split_by: Optional[str]
