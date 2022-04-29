@@ -107,7 +107,7 @@ class AbstractClientComponent(AbstractIOComponent):
                 mappings_to_unsubscribe = old_status - new_status
                 variables_to_unsubscribe = [
                     Variable(path=m.path, args={"period": m.period})
-                    for m in mappings_to_unsubscribe
+                    for m in self.mappings
                     if m.path in mappings_to_unsubscribe
                 ]
                 self.handle_unsubscribe(variables_to_unsubscribe)
