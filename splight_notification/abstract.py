@@ -1,22 +1,10 @@
-from typing import Dict
-from abc import ABCMeta, abstractmethod
-from splight_models import Channel
+from abc import abstractmethod
+from client import AbstractClient
+from splight_models import Notification
 
 
-class AbstractNotificationClient(metaclass=ABCMeta):
-
-    def __init__(self, namespace = "default"):
-        self.namespace = namespace.replace("_","").lower()
+class AbstractNotificationClient(AbstractClient):
 
     @abstractmethod
-    def get_channel_name(self, channel: str, channel_type: Channel) -> str:
-        pass
-
-    @abstractmethod
-    def send(self, topic: str, data: Dict, channel: str = "default", channel_type: Channel = Channel.PRIVATE) -> None:
-        pass
-
-    @abstractmethod
-    def authenticate(self, socket: str, channel: str = "default", channel_type: Channel = Channel.PRIVATE) -> Dict:
-        pass
-
+    def send(self, instance: Notification, topic: str = 'default') -> None:
+        self._client.trigger(self.channel, topic, instance.dict())

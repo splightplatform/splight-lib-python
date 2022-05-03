@@ -20,6 +20,7 @@ from .djatabase.models import (
     Filter as DBFilter,
     ChartItem as DBChartItem,
     Chart as DBChart,
+    Notification as DBNotification,
 )
 from client import validate_instance_type, validate_resource_type
 
@@ -42,6 +43,7 @@ CLASSMAP = {
     Filter: DBFilter,
     ChartItem: DBChartItem,
     Chart: DBChart,
+    Notification: DBNotification,
 }
 
 

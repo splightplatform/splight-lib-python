@@ -6,6 +6,7 @@ from splight_lib.datalake import DatalakeClient
 from shortcut import rule_eval
 from splight_models.variable import Variable
 
+
 class TestRuleEval(TestCase):
     def setUp(self):
         self.namespace = "default"
