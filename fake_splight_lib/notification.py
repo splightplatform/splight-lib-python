@@ -1,14 +1,15 @@
 from splight_notification.abstract import AbstractNotificationClient
-from typing import Dict, Optional
-from splight_models import Channel
+from splight_models import Notification
+from splight_lib import logging
+
+
+logger = logging.getLogger()
+
 
 class FakeNotificationClient(AbstractNotificationClient):
+    @property
+    def channel(self):
+        return f"private-{self.namespace}"
 
-    def get_channel_name(self, channel: str, channel_type: Channel):
-        return f"{channel_type.value}-{self.namespace}-{channel}"
-
-    def send(self, topic: str, data: Dict, channel: str = "default", channel_type: Channel = Channel.PRIVATE):
-        self.logger.debug(f"{__class__.__name__} Sent data: {data} {topic}")
-
-    def authenticate(self, socket: str, channel: str = "default", channel_type: Channel = Channel.PRIVATE) -> Dict:
-        return {"auth": "abc123"}
+    def send(self, instance: Notification, topic: str = 'default') -> None:
+        logger.info(f"[FAKED] Notification sent channel:{self.channel} topic:{topic} data:{instance.dict()} ")

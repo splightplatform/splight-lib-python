@@ -4,6 +4,7 @@ from .asset import *
 from .network import *
 from .algorithm import *
 from .namespace import *
+from .notification import *
 from .connector import *
 from .mapping import *
 from .rule import *
