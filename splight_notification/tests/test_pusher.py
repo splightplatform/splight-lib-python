@@ -19,4 +19,4 @@ class TestPusherClient(TestCase):
         client = PusherClient()
         data = Notification(**self.data)
         client.send(data, self.topic)
-        mocked_call.assert_called_with(client.channel, self.topic, data)
+        mocked_call.assert_called_with(client.channel, self.topic, data.json())

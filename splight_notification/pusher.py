@@ -14,4 +14,4 @@ class PusherClient(AbstractNotificationClient):
         return f"private-{self.namespace}"
 
     def send(self, instance: Notification, topic: str = 'default') -> None:
-        self._client.trigger(self.channel, topic, instance.dict())
+        self._client.trigger(self.channel, topic, instance.json())
