@@ -1,10 +1,11 @@
+from .base import SplightBaseModel
 from os import stat
 import re
 import math
 from collections import defaultdict
 from enum import Enum
 from pydoc import locate
-from pydantic import BaseModel, validator
+from pydantic import validator
 from typing import Optional, List, Dict
 
 
@@ -32,7 +33,7 @@ class RuleVariableType(str, Enum):
     bool = 'bool'
 
 
-class RuleVariable(BaseModel):
+class RuleVariable(SplightBaseModel):
     id: str
     collection: str = 'default'
     filters: Dict = {}
@@ -40,7 +41,7 @@ class RuleVariable(BaseModel):
     type: RuleVariableType = RuleVariableType.str
 
 
-class Rule(BaseModel):
+class Rule(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None

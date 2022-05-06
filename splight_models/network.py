@@ -1,17 +1,17 @@
-from pydantic import BaseModel
+from .base import SplightBaseModel
 from typing import List
 
 
-class NetTarget(BaseModel):
+class NetTarget(SplightBaseModel):
     ip: str
     port: int
 
 
-class NetRule(BaseModel):
+class NetRule(SplightBaseModel):
     origin: NetTarget
     destination: NetTarget
 
 
-class NetValue(BaseModel):
+class NetValue(SplightBaseModel):
     value: List[NetRule]
 

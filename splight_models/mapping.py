@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from .base import SplightBaseModel
 from typing import Optional
 
 
-class Mapping(BaseModel):
+class Mapping(SplightBaseModel):
     id: Optional[str]
 
 

@@ -1,9 +1,9 @@
 import os
 from typing import Optional, List
-from pydantic import BaseModel
+from .base import SplightBaseModel
 
 
-class StorageFile(BaseModel):
+class StorageFile(SplightBaseModel):
     id: Optional[str] = None
     file: str
 

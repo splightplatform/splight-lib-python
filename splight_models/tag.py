@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from .base import SplightBaseModel
 from typing import Optional
 
 
-class Tag(BaseModel):
+class Tag(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
