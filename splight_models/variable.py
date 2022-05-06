@@ -1,10 +1,11 @@
 import pandas as pd
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field
+from pydantic import Field
 from typing import Dict, Optional
+from .base import SplightBaseModel
 
 
-class Variable(BaseModel):
+class Variable(SplightBaseModel):
     args: Dict
     path: Optional[str] = None
     asset_id: Optional[str] = None

@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
+from .base import SplightBaseModel
 from datetime import datetime, timezone
 from typing import Optional
 
 
-class Notification(BaseModel):
+class Notification(SplightBaseModel):
     id: Optional[str]
     title: str
     message: str

@@ -1,20 +1,20 @@
-from pydantic import BaseModel
+from .base import SplightBaseModel
 from typing import Optional, List
 
 
-class Dashboard(BaseModel):
+class Dashboard(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
 
 
-class Tab(BaseModel):
+class Tab(SplightBaseModel):
     id: Optional[str]
     dashboard_id: str
     name: str
 
 
-class Filter(BaseModel):
+class Filter(SplightBaseModel):
     id: Optional[str]
     chart_item_id: str
     operator: str = "eq"  # eg. eq, gt, gte, lt
@@ -22,7 +22,7 @@ class Filter(BaseModel):
     value: str            # 5
 
 
-class ChartItem(BaseModel):
+class ChartItem(SplightBaseModel):
     id: Optional[str]
     chart_id: str
     color: Optional[str]
@@ -31,7 +31,7 @@ class ChartItem(BaseModel):
     split_by: Optional[str]
 
 
-class Chart(BaseModel):
+class Chart(SplightBaseModel):
     id: Optional[str]
     name: Optional[str]
     tab_id: str

@@ -1,15 +1,15 @@
 from typing import List, Any, Optional
-from pydantic import BaseModel
+from .base import SplightBaseModel
 
 
-class Parameter(BaseModel):
+class Parameter(SplightBaseModel):
     name: str
     type: str = "str"
     required: bool = False
     value: Any = None
 
 
-class Runner(BaseModel):
+class Runner(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]

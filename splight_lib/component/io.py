@@ -94,21 +94,27 @@ class AbstractClientComponent(AbstractIOComponent):
     def sync_mappings_to_device(self):
         old_status = set()
         while True:
-            new_status = set([map.path for map in self.mappings])
+            new_status = set(self.mappings)
             if old_status != new_status:
                 mappings_to_subscribe = new_status - old_status
                 variables_to_subscribe = [
-                    Variable(path=m.path, args={"period": m.period})
-                    for m in self.mappings
-                    if m.path in mappings_to_subscribe
+                    Variable(
+                        path=m.path, 
+                        args={"period": m.period},
+                        asset_id=m.asset_id,
+                        attribute_id=m.attribute_id)
+                    for m in mappings_to_subscribe
                 ]
                 self.handle_subscribe(variables_to_subscribe)
 
                 mappings_to_unsubscribe = old_status - new_status
                 variables_to_unsubscribe = [
-                    Variable(path=m.path, args={"period": m.period})
-                    for m in self.mappings
-                    if m.path in mappings_to_unsubscribe
+                    Variable(
+                        path=m.path, 
+                        args={"period": m.period},
+                        asset_id=m.asset_id,
+                        attribute_id=m.attribute_id)
+                    for m in mappings_to_unsubscribe
                 ]
                 self.handle_unsubscribe(variables_to_unsubscribe)
             old_status = new_status

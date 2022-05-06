@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from .base import SplightBaseModel
 from typing import List, Optional
 
 
-class Asset(BaseModel):
+class Asset(SplightBaseModel):
     id: Optional[str]
     external_id: Optional[str]
     name: str
