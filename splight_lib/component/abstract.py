@@ -9,6 +9,7 @@ import json
 from splight_lib.database import DatabaseClient
 from splight_lib.datalake import DatalakeClient
 from splight_lib.deployment import DeploymentClient
+from splight_lib.notification import NotificationClient
 from splight_lib.storage import StorageClient
 from splight_lib.communication import (
     InternalCommunicationClient,
@@ -61,6 +62,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.storage_client = StorageClient(namespace)
         self.datalake_client = DatalakeClient(namespace)
         self.deployment_client = DeploymentClient(namespace=namespace)
+        self.notification_client = NotificationClient(namespace=self.namespace)
         self.internal_comm_client = InternalCommunicationClient(namespace)
         self.external_comm_client = ExternalCommunicationClient(namespace)
         self.execution_client = ExecutionClient(namespace)
