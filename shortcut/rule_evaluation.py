@@ -19,5 +19,10 @@ def rule_eval(rule_id: str, dl_client: DatalakeClient, db_client: DatabaseClient
         reads = dl_client.get(Variable, collection=var.collection, **var.filters)
         if not reads:
             continue
-        values[var.id] = reads[0].args.get(var.key)
+        read = reads[0].dict()
+        for key in var.key.split("__"):
+            read = read.get(key)
+            if read is None:
+                continue
+        values[var.id] = read
     return rule.statement_evaluation(rule.statement, rule.variables, values)
