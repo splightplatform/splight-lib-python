@@ -9,6 +9,6 @@ logger = logging.getLogger()
 
 
 def notify(notification: Notification, database_client: DatabaseClient, notification_client: NotificationClient) -> None:
+    notification = database_client.save(notification)
     notification_client.send(notification)
-    database_client.save(notification)
     return
