@@ -90,7 +90,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         _parameters = self._spec.parameters
         for p in _parameters:
             name = p.name
-            value = getattr(builtins, p.type, str)(p.value)
+            value = p.value
             setattr(self, name, value)
 
     @property
