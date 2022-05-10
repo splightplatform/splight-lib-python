@@ -8,10 +8,13 @@ from pydantic import BaseModel
 from pathlib import Path
 from jinja2 import Template
 from typing import List, Type, Optional
+
+from pyparsing import Opt
 from splight_models import Deployment, Namespace
 from splight_deployment.abstract import AbstractDeploymentClient
 from .exceptions import MissingTemplate
 from client import validate_instance_type, validate_resource_type
+from pprint import pprint as print
 
 logger = logging.getLogger(__name__)
 
@@ -148,3 +151,16 @@ class KubernetesClient(AbstractDeploymentClient):
         if resource_type == Namespace:
             return self._delete_namespace(id=id)
         raise NotImplementedError
+
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
+        cmd = f"kubectl logs --selector id={id} -n {self.namespace}"
+
+        if limit:
+            cmd += f" --tail {limit}"
+        else:
+            cmd += " --tail -1"
+
+        if since:
+            cmd += f" --since {since}"
+
+        return sp.getoutput(cmd).split("\n")

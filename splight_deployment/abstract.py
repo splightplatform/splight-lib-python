@@ -1,11 +1,10 @@
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Type, List
+from typing import Type, List, Optional
 
 
 class AbstractDeploymentClient(AbstractClient):
-
     @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:
         pass
@@ -16,4 +15,7 @@ class AbstractDeploymentClient(AbstractClient):
 
     @abstractmethod
     def delete(self, resource_type: Type, id: str) -> None:
+        pass
+
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
         pass
