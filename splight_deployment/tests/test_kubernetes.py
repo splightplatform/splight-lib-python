@@ -81,3 +81,16 @@ class TestKubernetesClient(TestCase):
         with patch("subprocess.getoutput", return_value=return_value) as sp:
             self.assertEqual(self.client.get(resource_type=Namespace), expected_result)
             sp.assert_called_once()
+
+    def test_get_deployment_logs(self):
+        return_value = "test Logs1\n test Logs2\n test Logs3\n"
+        expected_result = return_value.split("\n")
+        params = {
+            "id": self.instance.id,
+            "limit": 3,
+            "since": "4s"
+        }
+
+        with patch("subprocess.getoutput", return_value=return_value) as sp:
+            self.assertEqual(self.client.get_deployment_logs(**params), expected_result)
+            sp.assert_called_once_with(f"kubectl logs --selector id={self.instance.id} -n {self.client.namespace} --tail 3 --since 4s")

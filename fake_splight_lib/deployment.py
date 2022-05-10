@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Type
+from typing import List, Type, Optional
 from splight_deployment.abstract import AbstractDeploymentClient
 from splight_models import Deployment, Namespace
 from splight_lib import logging
@@ -84,3 +84,6 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         if resource_type == Namespace:
             return self._delete_namespace(id)
         raise NotImplementedError
+
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
+        return [f"[FAKE] log for {id}"]
