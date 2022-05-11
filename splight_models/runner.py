@@ -6,6 +6,7 @@ class Parameter(SplightBaseModel):
     name: str
     type: str = "str"
     required: bool = False
+    multiple: bool = False
     value: Any = None
 
 
