@@ -2,7 +2,7 @@ from redis import Redis
 
 from splight_lib import logging
 from splight_cache.abstract import AbstractCacheClient
-from .settings import REDIS_HOST, REDIS_PORT
+from .settings import REDIS_HOST, REDIS_PORT, REDIS_PASSWORD
 
 logger = logging.getLogger()
 
@@ -10,7 +10,7 @@ logger = logging.getLogger()
 class RedisClient(AbstractCacheClient):
 
     def __init__(self, *args, **kwargs):
-        self.redis = Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+        self.redis = Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, db=0)
         super(RedisClient, self).__init__(*args, **kwargs)
 
     def get(self, key) -> bytes:
