@@ -23,7 +23,7 @@ class SplightHubClient(AbstractHubClient):
 
     @validate_resource_type
     def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
-        url = "/".join([self.host, "hub", resource_type.__name__.lower()])
+        url = "/".join([self.host, resource_type.__name__.lower()])
         response = requests.get(url, headers=self.headers)
         assert response.status_code == 200, "Unreachable hub host"
         queryset = [
