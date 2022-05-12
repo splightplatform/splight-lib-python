@@ -10,7 +10,23 @@ logger = logging.getLogger()
 
 
 class FakeHubClient(AbstractHubClient):
-    database: Dict[Type, List[BaseModel]] = defaultdict(list)
+    networks = [
+        Network(id="1", name='Net1', description=None, version='01', parameters=[]),
+        Network(id="2", name='Net2', description=None, version='01', parameters=[]),
+        Network(id="3", name='Net3', description=None, version='01', parameters=[])
+    ]
+    algorithms = [
+        Algorithm(id="4", name='Algo1', description=None, version='01', parameters=[]),
+        Algorithm(id="5", name='Algo2', description=None, version='01', parameters=[])
+    ]
+    connectors = [
+        Connector(id="6", name='Conn1', description=None, version='01', parameters=[])
+    ]
+    database: Dict[Type, List[BaseModel]] = {
+        Network: networks,
+        Algorithm: algorithms,
+        Connector: connectors,
+    }
     valid_classes = [
         Network,
         Connector,
