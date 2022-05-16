@@ -31,6 +31,7 @@ class ChartItem(NamespaceAwareModel):
     source = models.CharField(max_length=100, null=True, blank=True)
     target = models.CharField(max_length=100, null=True, blank=True)
     split_by = models.CharField(max_length=100, null=True, blank=True)
+    label = models.CharField(max_length=100, null=True, blank=True)
 
 class Filter(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
