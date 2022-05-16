@@ -16,7 +16,7 @@ class TestRuleEval(TestCase):
         self.filters_B = {"asset_id": str(uuid.uuid4()), "attribute_id": "234"}
         variables = [
                 RuleVariable(id='A', type="bool", filters=self.filters_A, key="args__value"),
-                RuleVariable(id='B', type="int", filters=self.filters_B, key="args__value"),
+                RuleVariable(id='B', type="float", filters=self.filters_B, key="args__value"),
                 RuleVariable(id='C', type="str", key="args__value")
             ]
         self.rule = Rule(
