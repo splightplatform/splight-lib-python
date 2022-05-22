@@ -1,0 +1,21 @@
+name: Upload library
+on:
+  push:
+    branches:
+      - master
+      - firstgha
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    name: uploading lib to jfrog
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: printf "[distutils]\n" >> ~/.pypirc
+      - run: printf "index-servers=splightlib\n" >> ~/.pypirc
+      - run: printf "[splightlib]\n" >> ~/.pypirc
+      - run: printf "repository:https://splight.jfrog.io/artifactory/api/pypi/splight-local\n" >> ~/.pypirc
+      - run: printf "username=bot@splight-ae.com\n" >> ~/.pypirc
+      - run: printf "password=N0us4rExcl4maci0n" >> ~/.pypirc
+      - run: python setup.py bdist_wheel upload -r splightlib
+      - run: rm ~/.pypirc;
