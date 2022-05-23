@@ -1,0 +1,16 @@
+name: "Running Tests"
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - 'firstgha'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    name: running tests
+    steps:
+      - run: python setup.py install
+      - run: python manage.py migrate
+      - run: pytest .
