@@ -13,6 +13,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: python setup.py install
-      - run: python manage.py migrate
-      - run: pytest .
+      - run: sudo python setup.py install
+      - run: sudo python manage.py migrate
+      - run: sudo pytest .
