@@ -1,4 +1,4 @@
-[![Upload library](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml/badge.svg)](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml)
+[![Lib upload](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml/badge.svg)](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml)
 
 # Splight Library
 Elements to build components. Language defined to sync BE and Worker tasks.
