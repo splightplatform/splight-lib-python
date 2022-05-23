@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - firstgha
 jobs:
   upload:
     runs-on: ubuntu-latest
