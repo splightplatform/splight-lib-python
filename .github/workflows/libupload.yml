@@ -14,7 +14,11 @@ jobs:
       - run: printf "index-servers=splightlib\n" >> ~/.pypirc
       - run: printf "[splightlib]\n" >> ~/.pypirc
       - run: printf "repository:https://splight.jfrog.io/artifactory/api/pypi/splight-local\n" >> ~/.pypirc
-      - run: printf "username=bot@splight-ae.com\n" >> ~/.pypirc
-      - run: printf "password=N0us4rExcl4maci0n" >> ~/.pypirc
+      - run: printf "username=$JFROG_USERNAME\n" >> ~/.pypirc
+        env: 
+          JFROG_USERNAME: ${{secrets.JFROG_USERNAME}}
+      - run: printf "password=$JFROG_PASS" >> ~/.pypirc
+        env: 
+          JFROG_PASS: ${{secrets.JFROG_PASS}}
       - run: python setup.py bdist_wheel upload -r splightlib
       - run: rm ~/.pypirc;
