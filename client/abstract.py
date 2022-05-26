@@ -8,7 +8,7 @@ def validate_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, resource_type: Type, *args, **kwargs):
         if resource_type not in self.valid_classes:
-            raise NotImplementedError
+            raise NotImplementedError("Not a valid resource_type")
         return func(self, resource_type, *args, **kwargs)
     return wrapper
 
@@ -17,7 +17,7 @@ def validate_instance_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, instance: BaseModel, *args, **kwargs):
         if type(instance) not in self.valid_classes:
-            raise NotImplementedError
+            raise NotImplementedError("Not a valid instance type")
         return func(self, instance, *args, **kwargs)
     return wrapper
 

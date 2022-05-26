@@ -15,7 +15,8 @@ class Runner(SplightBaseModel):
     name: str
     description: Optional[str]
     version: str
-    parameters: List[Parameter] =   []
+    parameters: List[Parameter] = []
+    readme_url: Optional[str]
 
 
 class Algorithm(Runner):
