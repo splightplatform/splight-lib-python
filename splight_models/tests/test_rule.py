@@ -29,7 +29,7 @@ class TestRule(TestCase):
     def test_Rule_ok(self, statement):
         variables = [
             RuleVariable(id='A', type="bool", filters={'asset_id__gte': 1}, key="args.value"),
-            RuleVariable(id='B', type="int", key="args.value"),
+            RuleVariable(id='B', type="float", key="args.value"),
             RuleVariable(id='C', type="str", key="args.value")
         ]
         Rule(
@@ -46,7 +46,7 @@ class TestRule(TestCase):
     def test_Rule_nok(self, statement):
         with self.assertRaises(ValueError):
             variables = [
-                RuleVariable(id='B', type="int", key="args.value")
+                RuleVariable(id='B', type="float", key="args.value")
             ]
             Rule(
                 name="Rule1",

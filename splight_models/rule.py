@@ -29,7 +29,7 @@ def _safe_eval(expression):
 
 class RuleVariableType(str, Enum):
     str = 'str'
-    int = 'int'
+    float = 'float'
     bool = 'bool'
 
 

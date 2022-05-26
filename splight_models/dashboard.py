@@ -29,6 +29,7 @@ class ChartItem(SplightBaseModel):
     source: Optional[str]
     target: Optional[str]
     split_by: Optional[str]
+    label: Optional[str]
 
 
 class Chart(SplightBaseModel):
