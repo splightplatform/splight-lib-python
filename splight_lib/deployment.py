@@ -11,7 +11,7 @@ DeploymentClient = SELECTOR.get(os.environ.get('DEPLOYMENT', 'fake'))
 
 
 __all__ = [
-    Deployment,
-    Namespace,
-    DeploymentClient
+    'Deployment',
+    'Namespace',
+    'DeploymentClient'
 ]
