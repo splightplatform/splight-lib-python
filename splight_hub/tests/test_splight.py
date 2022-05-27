@@ -10,7 +10,7 @@ from splight_models import Network, Algorithm, Connector, Rule
 class TestVariable(TestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.client = SplightHubClient(namespace="default", token="Splight abc def")
+        self.client = SplightHubClient(namespace="default", token="Bearer abcdef")
 
     def test_save_raises(self):
         with self.assertRaises(NotImplementedError):
