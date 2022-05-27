@@ -5,7 +5,7 @@ from typing import List, Type
 from splight_models.runner import Algorithm, Network, Connector
 
 from splight_hub.abstract import AbstractHubClient
-from splight_hub.settings import SPLIGHT_HUB_HOST, SPLIGHT_HUB_TOKEN
+from splight_hub.settings import SPLIGHT_HUB_HOST
 
 
 class SplightHubClient(AbstractHubClient):
