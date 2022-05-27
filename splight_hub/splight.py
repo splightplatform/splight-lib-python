@@ -11,12 +11,12 @@ from splight_hub.settings import SPLIGHT_HUB_HOST, SPLIGHT_HUB_TOKEN
 class SplightHubClient(AbstractHubClient):
     valid_classes = [Algorithm, Network, Connector]
     
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, token=None, *args, **kwargs) -> None:
         super(SplightHubClient, self).__init__(*args, **kwargs)
         self.host = SPLIGHT_HUB_HOST
         self.headers = {}
-        if SPLIGHT_HUB_TOKEN:
-            self.headers = {'Authorization': f'Token {SPLIGHT_HUB_TOKEN}'}
+        if token:
+            self.headers = {'Authorization': token}
 
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
