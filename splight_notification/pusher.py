@@ -1,4 +1,4 @@
-from pusher import Pusher
+from pusher import Pusher 
 from splight_models.notification import Notification
 from .abstract import AbstractNotificationClient
 from .settings import PUSHER_CONFIG
@@ -15,3 +15,6 @@ class PusherClient(AbstractNotificationClient):
 
     def send(self, instance: Notification, topic: str = 'default') -> None:
         self._client.trigger(self.channel, topic, instance.json())
+    
+    def authenticate(self, channel_name: str, socket_id: str) -> dict:
+        return self._client.authenticate(channel_name, socket_id)
