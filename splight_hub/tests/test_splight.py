@@ -10,7 +10,7 @@ from splight_models import Network, Algorithm, Connector, Rule
 class TestVariable(TestCase):
     def setUp(self) -> None:
         super().setUp()
-        self.client = SplightHubClient(namespace="default")
+        self.client = SplightHubClient(namespace="default", token="Bearer abcdef")
 
     def test_save_raises(self):
         with self.assertRaises(NotImplementedError):
@@ -27,15 +27,15 @@ class TestVariable(TestCase):
     @parameterized.expand([
         (Network, []),
         (Network, [
-            dict(id="123", name='Net1', description=None, version='01', parameters=[], readme_url=None)
+            dict(id="123", name='Net1', description=None, version='01', parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
         (Algorithm, []),
         (Algorithm, [
-            dict(id="123", name='Algo1', description=None, version='01', parameters=[], readme_url=None)
+            dict(id="123", name='Algo1', description=None, version='01', parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
         (Connector, []),
         (Connector, [
-            dict(id="123", name='Conn1', description=None, version='01', parameters=[], readme_url=None)
+            dict(id="123", name='Conn1', description=None, version='01', parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
     ])
     def test_get(self, class_, result):
