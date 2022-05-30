@@ -15,6 +15,8 @@ class Runner(SplightBaseModel):
     name: str
     description: Optional[str]
     version: str
+    privacy_policy: Optional[str] = None
+    tenant: Optional[str] = None
     parameters: List[Parameter] = []
     readme_url: Optional[str]
 
