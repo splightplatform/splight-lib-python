@@ -1,6 +1,5 @@
 import os
-import sys
-from splight_lib.settings import SPLIGHT_HOME, TESTING
+from splight_lib.settings import SPLIGHT_HOME
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
@@ -11,17 +10,14 @@ DATABASE_HOME = os.path.join(SPLIGHT_HOME, "database")
 
 
 MEDIA_ROOT = os.path.join(DATABASE_HOME, "media")
+
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT)
 
 
-DATABASE = 'testing' if TESTING else os.getenv("DATABASE", "sqlite")
+DATABASE = os.getenv("DATABASE", "sqlite")
 
 SELECTOR = {
-    'testing': {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(DATABASE_HOME, "db.sqlite3"),
-    },
     'sqlite': {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(DATABASE_HOME, "db.sqlite3"),
