@@ -1,9 +1,14 @@
 from splight_datalake import MongoClient
 from fake_splight_lib.datalake import FakeDatalakeClient
-import ast
 import os
 
-DatalakeClient = MongoClient
+SELECTOR = {
+    'fake': FakeDatalakeClient,
+    'mongo': MongoClient,
+}
 
-if ast.literal_eval(os.getenv("FAKE_DATALAKE", "True")):
-    DatalakeClient = FakeDatalakeClient
+DatalakeClient = SELECTOR.get(os.environ.get('DATALAKE', 'fake'))
+
+__all__ = [
+    "DatalaakeClient",
+]

@@ -1,14 +1,16 @@
 import os
-import ast
 from splight_communication import *
 from fake_splight_lib.communication import FakeQueueCommunication
 
 InternalCommunicationClient = ZMQueueCommunication
-ExternalCommunicationClient = KafkaQueueCommunication
 
+SELECTOR = {
+    'zmq': ZMQueueCommunication,
+    'kafka': KafkaQueueCommunication,
+    'fake': FakeQueueCommunication,
+}
 
-if ast.literal_eval(os.getenv("FAKE_COMMUNICATION", "True")):
-    ExternalCommunicationClient = FakeQueueCommunication
+ExternalCommunicationClient = SELECTOR.get(os.environ.get('COMMUNICATION', 'fake'))
 
 __all__ = [
     "InternalCommunicationClient",

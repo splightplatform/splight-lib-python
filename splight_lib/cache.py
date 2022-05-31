@@ -1,7 +1,5 @@
 import os
 import json
-import ast
-
 from functools import wraps
 from typing import Callable, List
 
@@ -11,10 +9,12 @@ from fake_splight_lib.cache import FakeCacheClient
 
 logger = logging.getLogger()
 
-if ast.literal_eval(os.getenv("FAKE_CACHE", "True")):
-    CacheClient = FakeCacheClient()
-else:
-    CacheClient = RedisClient()
+SELECTOR = {
+    'fake': FakeCacheClient,
+    'redis': RedisClient,
+}
+
+CacheClient = SELECTOR.get(os.environ.get('CACHE', 'fake'))()
 
 
 def get_cache(cache_key: str, cache_key_args: str or List[str] = None) -> Callable:
