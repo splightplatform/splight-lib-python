@@ -10,5 +10,5 @@ SELECTOR = {
 DatalakeClient = SELECTOR.get(os.environ.get('DATALAKE', 'fake'))
 
 __all__ = [
-    "DatalaakeClient",
+    "DatalakeClient",
 ]
