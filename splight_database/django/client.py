@@ -19,6 +19,7 @@ from .djatabase.models import (
     Tab as DBTab,
     Filter as DBFilter,
     ChartItem as DBChartItem,
+    AgregateItem as DBAgregateItem,
     Chart as DBChart,
     Notification as DBNotification,
 )
@@ -42,6 +43,7 @@ CLASSMAP = {
     Tab: DBTab,
     Filter: DBFilter,
     ChartItem: DBChartItem,
+    AgregateItem: DBAgregateItem,
     Chart: DBChart,
     Notification: DBNotification,
 }
