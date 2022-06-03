@@ -31,6 +31,12 @@ class ChartItem(SplightBaseModel):
     split_by: Optional[str]
     label: Optional[str]
 
+class AgregateItem(SplightBaseModel):
+    id: Optional[str]
+    chart_id: str
+    criteria: Optional[str]
+    period: Optional[str]
+
 
 class Chart(SplightBaseModel):
     id: Optional[str]
