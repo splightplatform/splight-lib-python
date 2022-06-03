@@ -41,7 +41,7 @@ class RuleVariable(SplightBaseModel):
     type: RuleVariableType = RuleVariableType.str
 
 
-class Rule(SplightBaseModel):
+class AlgorithmRule(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
@@ -72,3 +72,20 @@ class Rule(SplightBaseModel):
         except (SyntaxError, NameError):
             raise ValueError("Invalid syntax")
         return statement
+
+
+class MappingRule(SplightBaseModel):
+    id: Optional[str]
+    asset_id: str
+    attribute_id: str
+    value: str
+    type: RuleVariableType = RuleVariableType.str
+    message: str
+
+    @property
+    def name(self):
+        return self.value
+
+    @property
+    def description(self):
+        return self.message
