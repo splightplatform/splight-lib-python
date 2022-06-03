@@ -35,7 +35,7 @@ CLASSMAP = {
     Connector: DBConnector, 
     Asset: DBAsset,
     Attribute: DBAttribute,
-    MappingRule: MappingRule,
+    MappingRule: DBMappingRule,
     Tag: DBTag,
     Namespace: DBNamespace,
     Algorithm: DBAlgorithm,
