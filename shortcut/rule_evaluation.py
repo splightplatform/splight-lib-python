@@ -8,9 +8,8 @@ from splight_lib import logging
 logger = logging.getLogger()
 
 
-def rule_eval(rule_id: str, dl_client: DatalakeClient, db_client: DatabaseClient) -> bool:
+def rule_eval(rule: AlgorithmRule, dl_client: DatalakeClient, db_client: DatabaseClient) -> bool:
     # !!WARNING: this method is using $last as aggregation method to obtain the resulting value of a rule
-    rule = db_client.get(Rule, id=rule_id, first=True)
     if rule is None:
         return None
     

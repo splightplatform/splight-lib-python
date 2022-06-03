@@ -4,7 +4,7 @@ from unittest.mock import patch
 from parameterized import parameterized
 from requests.models import Response
 from splight_hub import SplightHubClient
-from splight_models import Network, Algorithm, Connector, Rule
+from splight_models import Network, Algorithm, Connector, MappingRule
 
 
 class TestVariable(TestCase):
@@ -22,7 +22,7 @@ class TestVariable(TestCase):
 
     def test_get_validate_resource_type(self):
         with self.assertRaises(NotImplementedError):
-            self.client.get(resource_type=Rule)
+            self.client.get(resource_type=MappingRule)
 
     @parameterized.expand([
         (Network, []),
