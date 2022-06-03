@@ -35,7 +35,8 @@ def flatten_dict(d, parent_key='', sep='__'):
 
 
 class FakeDatalakeClient(AbstractDatalakeClient):
-    def __init__(self, namespace: str = 'default') -> None:
+    def __init__(self, namespace: str = 'default', *args, **kwargs) -> None:
+        super(FakeDatalakeClient, self).__init__(namespace, *args, **kwargs)
         self.collections = defaultdict(list)
         self._default_load()
 

@@ -113,7 +113,7 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     rand_str_arg = 'title'
 
 class TestRuleHash(AbstractBaseHash, TestCase):
-    class_model = Rule
+    class_model = AlgorithmRule
     args = {'name': '1', 'statement': '1'}
     rand_str_arg = 'name'
 
@@ -121,6 +121,11 @@ class TestRuleVariableHash(AbstractBaseHash, TestCase):
     class_model = RuleVariable
     args = {'id': '1'}
     rand_str_arg = 'id'
+
+class TestMappingRule(AbstractBaseHash, TestCase):
+    class_model = MappingRule
+    args = {'id': '1', 'message': 'message', 'value': 'value', 'asset_id': '2', 'attribute_id': '2'}
+    rand_str_arg = 'message'
 
 class TestRunnerHash(AbstractBaseHash, TestCase):
     class_model = Runner
