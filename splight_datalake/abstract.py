@@ -1,3 +1,4 @@
+from venv import create
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
@@ -6,9 +7,13 @@ from datetime import datetime
 from splight_models import Variable, VariableDataFrame
 
 
+
+
 class AbstractDatalakeClient(AbstractClient):
 
     valid_filters = ["in", "contains", "gte", "lte"]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @abstractmethod
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:

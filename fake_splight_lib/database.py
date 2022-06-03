@@ -22,7 +22,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Connector,
         Asset,
         Attribute,
-        Rule,
+        MappingRule,
         Tag,
         Namespace,
         Algorithm,
