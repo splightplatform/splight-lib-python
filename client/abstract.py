@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import List, Type, Callable
 from functools import wraps
 from abc import ABC
+from splight_lib import logging
+
+
+logger = logging.getLogger()
 
 
 def validate_resource_type(func: Callable) -> Callable:
