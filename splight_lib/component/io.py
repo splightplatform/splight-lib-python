@@ -124,6 +124,8 @@ class AbstractIOComponent(AbstractComponent):
         }
         logger.debug(f"Maps found {len(self.mappings)}")
         logger.debug(self.mappings)
+        logger.debug(f"Rules found {len(self.rules)}")
+        logger.debug(self.rules)
 
 
 class AbstractClientComponent(AbstractIOComponent):
