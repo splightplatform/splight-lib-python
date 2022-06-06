@@ -198,3 +198,11 @@ class TestMongoClient(TestCase):
                 sort=[('timestamp', -1)],
                 tzinfo=timezone.utc
             )
+
+    def test_add_pre_hook(self):
+        class ParticularException(Exception): pass
+        def foo(*args, **kwargs): raise ParticularException
+        client = MongoClient()
+        client.add_pre_hook("save", foo)
+        with self.assertRaises(ParticularException):
+            client.save()
