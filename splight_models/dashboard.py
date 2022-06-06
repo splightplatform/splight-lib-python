@@ -1,4 +1,3 @@
-from turtle import position
 from .base import SplightBaseModel
 from typing import Optional, List
 
