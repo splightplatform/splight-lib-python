@@ -76,6 +76,16 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self._load_context()
         self.collection_name = str(self.instance_id)
 
+    @staticmethod
+    def _add_pre_hook(func, hook):
+        def hooked_func(*args, **kwargs):
+            args, kwargs = hook(*args, **kwargs)
+            return func(*args, **kwargs)
+        return hooked_func
+
+    def add_pre_hook(self, function, hook):
+        setattr(self, function, AbstractComponent._add_pre_hook(getattr(self, function), hook))
+
     def _load_metadata(self):
         self._version = self._spec.version
         self.managed_class = getattr(models, self._spec.type, Runner)
