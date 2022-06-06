@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import List, Type, Callable
 from functools import wraps
 from abc import ABC
+from splight_lib import logging
+
+
+logger = logging.getLogger()
 
 
 def validate_resource_type(func: Callable) -> Callable:
@@ -31,6 +35,7 @@ class AbstractClient(ABC):
     @staticmethod
     def _add_pre_hook(func, hook):
         def hooked_func(*args, **kwargs):
+            logger.debug(f"[HOOKED] {hook}")
             args, kwargs = hook(*args, **kwargs)
             return func(*args, **kwargs)
         return hooked_func
