@@ -7,8 +7,6 @@ from datetime import datetime
 from splight_models import Variable, VariableDataFrame
 
 
-
-
 class AbstractDatalakeClient(AbstractClient):
 
     valid_filters = ["in", "contains", "gte", "lte"]
