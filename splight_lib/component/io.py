@@ -29,7 +29,7 @@ class AbstractIOComponent(AbstractComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
-        self.execution_client.start(Task(handler=self.refresh_config_forever, period=60))
+        self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=60))
         self._add_pre_hook('save', self.hook_map_variable)
         self._add_pre_hook('save', self.hook_rules)
 
@@ -135,7 +135,7 @@ class AbstractClientComponent(AbstractIOComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractClientComponent, self).__init__(*args, **kwargs)
         self._mappings_last_sync = set()
-        self.execution_client.start(Task(handler=self.sync_mappings_to_device, period=10))
+        self.execution_client.start(Task(handler=self.sync_mappings_to_device, args=tuple(), period=10))
 
     @abstractmethod
     def handle_write(self, variables: List[Variable]) -> None:
@@ -184,7 +184,7 @@ class AbstractServerComponent(AbstractIOComponent):
                  instance_id: str,
                  namespace: Optional[str] = 'default'):
         super(AbstractServerComponent, self).__init__(instance_id, namespace)
-        self.execution_client.start(Task(handler=self.sync_from_datalake, period=10))
+        self.execution_client.start(Task(handler=self.sync_from_datalake, args=tuple(), period=10))
 
     @abstractmethod
     def handle_update(self, variables: List[Variable]) -> None:
