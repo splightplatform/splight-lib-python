@@ -28,16 +28,6 @@ class AbstractClient(ABC):
     def __init__(self, namespace: str = "default", *args, **kwargs):
         self.namespace = namespace.lower().replace("_", "")
 
-    @staticmethod
-    def _add_pre_hook(func, hook):
-        def hooked_func(*args, **kwargs):
-            args, kwargs = hook(*args, **kwargs)
-            return func(*args, **kwargs)
-        return hooked_func
-
-    def add_pre_hook(self, function, hook):
-        setattr(self, function, AbstractClient._add_pre_hook(getattr(self, function), hook))
-
     def _filter(self, queryset: List[BaseModel], **kwargs) -> List[BaseModel]:
         '''
         Filter a queryset by the given kwargs.
