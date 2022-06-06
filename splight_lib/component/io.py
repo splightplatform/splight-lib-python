@@ -1,3 +1,4 @@
+import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
 from shortcut.notification import notify
@@ -40,7 +41,7 @@ class AbstractIOComponent(AbstractComponent):
         variables = kwargs.get("instances", [])
         for variable in variables:
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
-            if rule is not None:
+            if rule is not None and getattr(builtins, rule.type)(rule.value) == variable.args.get("value", None):
                 notify(
                     notification=Notification(
                         title=rule.message,
