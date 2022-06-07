@@ -15,7 +15,7 @@ class Runner(SplightBaseModel):
     name: str
     description: Optional[str]
     version: str
-    size: Optional[str] = None
+    impact: Optional[int] = None
     privacy_policy: Optional[str] = None
     tenant: Optional[str] = None
     parameters: List[Parameter] = []
