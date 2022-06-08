@@ -3,6 +3,7 @@
 from .asset import *
 from .network import *
 from .algorithm import *
+from .billing import *
 from .namespace import *
 from .notification import *
 from .connector import *

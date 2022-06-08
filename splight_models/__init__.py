@@ -1,6 +1,7 @@
 from .action import *
 from .asset import *
 from .attribute import *
+from .billing import *
 from .runner import *
 from .channel import *
 from .deployment import *

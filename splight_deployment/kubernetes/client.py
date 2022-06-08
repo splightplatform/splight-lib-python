@@ -10,7 +10,7 @@ from jinja2 import Template
 from typing import List, Type, Optional
 
 from pyparsing import Opt
-from splight_models import Deployment, Namespace
+from splight_models import Deployment, Namespace, BillingEvent
 from splight_deployment.abstract import AbstractDeploymentClient
 from .exceptions import MissingTemplate
 from client import validate_instance_type, validate_resource_type
