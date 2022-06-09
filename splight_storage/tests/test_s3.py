@@ -22,7 +22,8 @@ class TestS3StorageClient(TestCase):
             mocked_upload.assert_called_with(
                 Filename='something.abc',
                 Bucket='splight-api',
-                Key='default/something.abc'
+                Key='default/something.abc',
+                ExtraArgs={'ContentType': None}
             )
 
     def test_get_file(self):

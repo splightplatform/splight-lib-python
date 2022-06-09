@@ -6,6 +6,7 @@ from .base import SplightBaseModel
 class StorageFile(SplightBaseModel):
     id: Optional[str] = None
     file: str
+    content_type: Optional[str] = None
 
     def __init__(self, **kwargs):
         file = kwargs.pop('file', None)
