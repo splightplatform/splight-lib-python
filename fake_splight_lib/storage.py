@@ -43,3 +43,6 @@ class FakeStorageClient(AbstractStorageClient):
 
     def upload(self, id: str):
         logger.debug(f"[FAKED] Uploading file {id}")
+
+    def get_temporary_link(self, instance: BaseModel) -> str:
+        raise NotImplementedError
