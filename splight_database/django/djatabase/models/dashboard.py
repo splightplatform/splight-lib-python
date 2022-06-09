@@ -25,7 +25,7 @@ class Chart(NamespaceAwareModel):
     relative_window_time = models.CharField(max_length=100, null=True, blank=True)
     aggregate_criteria = models.CharField(max_length=100, null=True, blank=True)
     aggregate_period = models.CharField(max_length=100, null=True, blank=True)
-    image = models.CharField(max_length=100, null=True, blank=True)
+    image = models.CharField(max_length=200, null=True, blank=True)
 
 class ChartItem(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
