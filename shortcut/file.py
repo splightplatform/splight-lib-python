@@ -30,4 +30,4 @@ def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
 
     var = Variable(asset_id=asset_id, attribute_id=attribute_id, path=path, args=args)
     datalake_client.save(Variable, var, collection=COLLECTION)
-    storage_client.save(StorageFile(filename), prefix=prefix)
+    storage_client.save(StorageFile(file=filename), prefix=prefix)
