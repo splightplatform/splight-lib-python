@@ -14,7 +14,7 @@ from splight_lib.communication import (
     ExternalCommunicationClient,
 )
 from splight_lib.execution import Thread, ExecutionClient
-from splight_lib import logging
+from splight_lib.shortcut import save_file as _save_file
 from splight_lib.logging import logging
 import splight_models as models
 from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
@@ -134,3 +134,6 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
 
     def save_results(self, data: VariableDataFrame) -> None:
         self.datalake_client.save_dataframe(data, collection=self.collection_name)
+
+    def save_file(self, filename, prefix, asset_id, attribute_id, path, args) -> None:
+        return _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
