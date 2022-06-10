@@ -21,3 +21,7 @@ class AbstractStorageClient(AbstractClient):
     @abstractmethod
     def download(self, filename: str, target: str) -> str:
         pass
+
+    @abstractmethod
+    def get_temporary_link(self, filename: str, target: str) -> str:
+        pass
