@@ -32,6 +32,9 @@ class SplightHubClient(AbstractHubClient):
         ]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+
+        if first:
+            return queryset[0] if queryset else None
         return queryset
 
     def delete(self, resource_type: Type, id: str) -> None:
