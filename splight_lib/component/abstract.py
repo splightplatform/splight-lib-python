@@ -1,6 +1,6 @@
 import sys
 import time
-from typing import Optional, Type, List
+from typing import Optional, Type, List, Dict
 from tempfile import NamedTemporaryFile
 from abc import ABCMeta
 import json
@@ -135,5 +135,6 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
     def save_results(self, data: VariableDataFrame) -> None:
         self.datalake_client.save_dataframe(data, collection=self.collection_name)
 
-    def save_file(self, filename, prefix, asset_id, attribute_id, path, args) -> None:
-        return _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
+    def save_file(self, filename: str, prefix: Optional[str],
+                  asset_id: Optional[str], attribute_id: Optional[str], path: str, args: Dict) -> None:
+        _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
