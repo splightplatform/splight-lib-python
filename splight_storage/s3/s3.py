@@ -28,10 +28,12 @@ class S3StorageClient(AbstractStorageClient):
                             region_name=AWS_REGION)
 
     def _encode_name(self, name):
+        name = name.replace(f"{self.namespace}/", '')
         return b64e(zlib.compress(name.encode('utf-8'), 9))
 
     def _decode_name(self, name):
-        return zlib.decompress(b64d(name)).decode('utf-8')
+        decoded_name = zlib.decompress(b64d(name)).decode('utf-8')
+        return f"{self.namespace}/{decoded_name}"
 
     @validate_instance_type
     def save(self, instance: BaseModel, prefix: Optional[str] = None,) -> BaseModel:
@@ -43,6 +45,9 @@ class S3StorageClient(AbstractStorageClient):
             Filename=instance.file,
             Bucket=AWS_STORAGE_BUCKET_NAME,
             Key=key,
+            ExtraArgs={
+                'ContentType': instance.content_type
+            }
         )
         instance.id = self._encode_name(key)
         return instance
@@ -73,6 +78,18 @@ class S3StorageClient(AbstractStorageClient):
             Filename=target
         )
         return target
+    
+    @validate_instance_type
+    def get_temporary_link(self, instance: BaseModel) -> str:
+        url = self.s3.generate_presigned_url(
+            'get_object',
+            Params= {
+                'Bucket': AWS_STORAGE_BUCKET_NAME,
+                'Key': self.namespace + '/' + instance.name,
+            },
+            ExpiresIn=3600
+        )
+        return url
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> List[BaseModel]:
