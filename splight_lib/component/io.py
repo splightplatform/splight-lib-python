@@ -1,3 +1,4 @@
+import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
 from shortcut.notification import notify
@@ -30,18 +31,23 @@ class AbstractIOComponent(AbstractComponent):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
         self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=60))
+<<<<<<< HEAD
         self._add_pre_hook('save', self.hook_map_variable)
         self._add_pre_hook('save', self.hook_rules)
         self.datalake_client.create_index(self.collection_name, [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
+=======
+        self.datalake_client.add_pre_hook('save', self.hook_rules)
+        self.datalake_client.add_pre_hook('save', self.hook_map_variable)
+>>>>>>> hotfix/storage-decode-encode-namespace
 
     def hook_rules(self, *args, **kwargs):
         """
         Hook to handle rules and send notifier if a rule applies
         """
-        variables = kwargs.get("variables", [])
+        variables = kwargs.get("instances", [])
         for variable in variables:
-            rule = self.rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
-            if rule is not None:
+            rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
+            if rule is not None and getattr(builtins, rule.type)(rule.value) == variable.args.get("value", None):
                 notify(
                     notification=Notification(
                         title=rule.message,
@@ -56,14 +62,14 @@ class AbstractIOComponent(AbstractComponent):
         """
         Hook to add info about asset_id attribute_id for variables
         """
-        variables = kwargs.get("variables", [])
+        variables = kwargs.get("instances", [])
         for variable in variables:
             mapping = self._hashed_mappings_by_path.get(f"{variable.path}", None)
             if mapping is not None:
                 variable.asset_id = mapping.asset_id
                 variable.attribute_id = mapping.attribute_id
         if variables:
-            kwargs['variables'] = variables
+            kwargs['instances'] = variables
         return args, kwargs
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:

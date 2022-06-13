@@ -31,20 +31,18 @@ class ChartItem(SplightBaseModel):
     split_by: Optional[str]
     label: Optional[str]
 
-class AgregateItem(SplightBaseModel):
-    id: Optional[str]
-    chart_id: str
-    criteria: Optional[str]
-    period: Optional[str]
-
-
 class Chart(SplightBaseModel):
     id: Optional[str]
     name: Optional[str]
+    description: Optional[str] = None
     tab_id: str
     type: str
+    position: Optional[str]
     timestamp_gte: Optional[str] = None
     timestamp_lte: Optional[str] = None
     refresh_interval: Optional[str] = None
     relative_window_time: Optional[str] = None
+    aggregate_criteria: Optional[str] = None
+    aggregate_period: Optional[str] = None
+    image: Optional[str] = None
 
