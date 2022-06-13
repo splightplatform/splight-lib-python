@@ -11,7 +11,7 @@ from splight_lib import logging
 
 logger = logging.getLogger()
 
-COLLECTION = 'storage'
+COLLECTION = 'files'
 
 
 def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
@@ -29,11 +29,11 @@ def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
         logger.error(msg)
         raise Exception(msg)
 
-    file = storage_client.save(StorageFile(file=filename), prefix=prefix)
-    if args.get('file_id',None) and args['file_id'] != file.id:
+    if args.get('file_id',None):
         msg = "Can't overwrite file_id"
         logger.error(msg)
         raise Exception(msg)
+    file = storage_client.save(StorageFile(file=filename), prefix=prefix)
     args['file_id'] = file.id
     var = Variable(asset_id=asset_id, attribute_id=attribute_id, path=path, args=args)
     datalake_client.save(Variable, var, collection=COLLECTION)
