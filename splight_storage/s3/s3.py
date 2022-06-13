@@ -97,4 +97,4 @@ class S3StorageClient(AbstractStorageClient):
         )
 
     def get_encoding(self,name):
-        return self._encode_name(name)
+        return self._encode_name('/'.join([self.namespace,name]))
