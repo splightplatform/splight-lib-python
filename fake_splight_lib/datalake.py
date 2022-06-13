@@ -138,7 +138,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             limit_: int = 100,
             skip_: int = 0,
             **kwargs) -> List[BaseModel]:
-
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
         if limit_ == 0:
             return result[skip_:]

@@ -156,3 +156,6 @@ class MongoClient(AbstractDatalakeClient):
             ) for index, row in dataframe.iterrows()
         ]
         self.save(Variable, instances=variables, collection=collection)
+
+    def create_index(self, collection: str, index: list) -> None:
+        self.db[collection].create_index(index)
