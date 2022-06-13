@@ -1,7 +1,6 @@
 import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
-from shortcut.notification import notify
 from splight_models import (
     Connector,
     ClientMapping,
@@ -38,7 +37,8 @@ class AbstractIOComponent(AbstractComponent):
         """
         Hook to handle rules and send notifier if a rule applies
         """
-        variables = kwargs.get("instances", [])
+        instances = kwargs.get("instances", [])
+        variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
             if rule is not None and getattr(builtins, rule.type)(rule.value) == variable.args.get("value", None):
@@ -48,7 +48,8 @@ class AbstractIOComponent(AbstractComponent):
                         message=rule.message
                     ),
                     database_client=self.database_client,
-                    notification_client=self.notification_client
+                    notification_client=self.notification_client,
+                    datalake_client=self.datalake_client,
                 )
         return args, kwargs
 
@@ -56,7 +57,8 @@ class AbstractIOComponent(AbstractComponent):
         """
         Hook to add info about asset_id attribute_id for variables
         """
-        variables = kwargs.get("instances", [])
+        instances = kwargs.get("instances", [])
+        variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             mapping = self._hashed_mappings_by_path.get(f"{variable.path}", None)
             if mapping is not None:
