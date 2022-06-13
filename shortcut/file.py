@@ -16,7 +16,7 @@ COLLECTION = 'files'
 
 def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
               filename, prefix: Optional[str] = None,
-              asset_id: Optional[str] = None, attribute_id: Optional[str] = None, path: str = '', args: Dict = dict()) -> StorageFile:
+              asset_id: Optional[str] = None, attribute_id: Optional[str] = None, path: str = '', args: Dict = None) -> StorageFile:
     if not os.path.exists(filename):
         logger.error("File must be locally found")
         raise Exception()
@@ -28,7 +28,7 @@ def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
         msg = "Given attribute but no asset"
         logger.error(msg)
         raise Exception(msg)
-
+    args = args if args else dict()
     if args.get('file_id',None) is not None:
         msg = "Can't overwrite file_id"
         logger.error(msg)
