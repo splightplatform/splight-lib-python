@@ -77,6 +77,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self._load_parameters()
         self._load_context()
         self.collection_name = str(self.instance_id)
+        self.datalake_client.create_index(self.collection_name, [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
 
     @staticmethod
     def _add_pre_hook(func, hook):
