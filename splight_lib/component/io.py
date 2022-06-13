@@ -1,4 +1,3 @@
-import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
 from shortcut.notification import notify
@@ -11,7 +10,6 @@ from splight_models import (
     Notification,
 )
 from splight_lib import logging
-from splight_lib.shortcut import notify
 from splight_lib.execution import Task
 from .abstract import AbstractComponent
 
@@ -41,15 +39,24 @@ class AbstractIOComponent(AbstractComponent):
         variables = kwargs.get("instances", [])
         for variable in variables:
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
-            if rule is not None and getattr(builtins, rule.type)(rule.value) == variable.args.get("value", None):
-                notify(
-                    notification=Notification(
-                        title=rule.message,
-                        message=rule.message
-                    ),
-                    database_client=self.database_client,
-                    notification_client=self.notification_client
-                )
+            if 'value' in variable.args and rule:  # None could be utilized as a value.
+                value = variable.args['value']
+                if value in rule:
+                    notify(
+                        notification=Notification(
+                            title=rule.message,
+                            message=rule.message,
+                            severity=rule.severity,
+                            asset_id=rule.asset.id,
+                            attribute_id=rule.attribute.id,
+                            rule_id=rule.id,
+                            source_id=self.instance_id,
+                            source_type=str(self.managed_class)
+
+                        ),
+                        database_client=self.database_client,
+                        notification_client=self.notification_client
+                    )
         return args, kwargs
 
     def hook_map_variable(self, *args, **kwargs):
