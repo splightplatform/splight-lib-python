@@ -1,3 +1,5 @@
+import builtins
+import operator
 from .base import SplightBaseModel
 from os import stat
 import re
@@ -7,6 +9,7 @@ from enum import Enum
 from pydoc import locate
 from pydantic import validator
 from typing import Optional, List, Dict
+from splight_database.django.djatabase.models.constants import SEVERITIES, OPERATORS, INFO, EQUAL
 
 
 def _safe_eval(expression):
@@ -64,7 +67,6 @@ class AlgorithmRule(SplightBaseModel):
             statement = _pattern.sub(lambda m: _variables[re.escape(m.group(0))], statement)
         return _safe_eval(statement)
 
-
     @validator('statement', always=True)
     def statement_validate(cls, statement, values):
         try:
@@ -74,6 +76,10 @@ class AlgorithmRule(SplightBaseModel):
         return statement
 
 
+SeverityType = Enum('SeverityType', {field: field for field, _ in SEVERITIES})
+OperatorType = Enum('OperatorType', {field: field for field, _ in OPERATORS})
+
+
 class MappingRule(SplightBaseModel):
     id: Optional[str]
     asset_id: str
@@ -81,6 +87,8 @@ class MappingRule(SplightBaseModel):
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str
+    severity: SeverityType = getattr(SeverityType, INFO)
+    operator: OperatorType = getattr(OperatorType, EQUAL)
 
     @property
     def name(self):
@@ -89,3 +97,8 @@ class MappingRule(SplightBaseModel):
     @property
     def description(self):
         return self.message
+
+    def __contains__(self, value):
+        rule_value = getattr(builtins, self.type)(self.value)
+        value = getattr(builtins, self.type)(value)
+        return getattr(operator, self.operator)(rule_value, value)
