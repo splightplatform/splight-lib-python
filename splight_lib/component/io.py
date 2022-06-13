@@ -58,14 +58,15 @@ class AbstractIOComponent(AbstractComponent):
         Hook to add info about asset_id attribute_id for variables
         """
         instances = kwargs.get("instances", [])
-        variables = [v for v in instances if isinstance(v, Variable)]
-        for variable in variables:
-            mapping = self._hashed_mappings_by_path.get(f"{variable.path}", None)
+        for instance in instances:
+            if not isinstance(instance, Variable):
+                continue
+            mapping = self._hashed_mappings_by_path.get(f"{instance.path}", None)
             if mapping is not None:
-                variable.asset_id = mapping.asset_id
-                variable.attribute_id = mapping.attribute_id
-        if variables:
-            kwargs['instances'] = variables
+                instance.asset_id = mapping.asset_id
+                instance.attribute_id = mapping.attribute_id
+        if instances:
+            kwargs['instances'] = instances
         return args, kwargs
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:
