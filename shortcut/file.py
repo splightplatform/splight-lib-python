@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 import os
 
 
@@ -15,7 +16,7 @@ COLLECTION = 'storage'
 
 def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
               filename, prefix: Optional[str] = None,
-              asset_id: Optional[str] = None, attribute_id: Optional[str] = None, path: str = '', args: Dict = {}) -> None:
+              asset_id: Optional[str] = None, attribute_id: Optional[str] = None, path: str = '', args: Dict = {}) -> StorageFile:
     if not os.path.exists(filename):
         logger.error("File must be locally found")
         raise Exception()
@@ -28,6 +29,12 @@ def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
         logger.error(msg)
         raise Exception(msg)
 
+    file = storage_client.save(StorageFile(file=filename), prefix=prefix)
+    if args.get('file_id',None) and args['file_id'] != file.id:
+        msg = "Can't overwrite file_id"
+        logger.error(msg)
+        raise Exception(msg)
+    args['file_id'] = file.id
     var = Variable(asset_id=asset_id, attribute_id=attribute_id, path=path, args=args)
     datalake_client.save(Variable, var, collection=COLLECTION)
-    storage_client.save(StorageFile(file=filename), prefix=prefix)
+    return file

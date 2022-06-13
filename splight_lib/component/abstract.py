@@ -18,6 +18,7 @@ from splight_lib.shortcut import save_file as _save_file
 from splight_lib.logging import logging
 import splight_models as models
 from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
+from splight_models.storage import StorageFile
 
 
 logger = logging.getLogger()
@@ -136,5 +137,5 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self.datalake_client.save_dataframe(data, collection=self.collection_name)
 
     def save_file(self, filename: str, prefix: Optional[str],
-                  asset_id: Optional[str], attribute_id: Optional[str], path: str, args: Dict) -> None:
-        _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
+                  asset_id: Optional[str], attribute_id: Optional[str], path: str, args: Dict) -> StorageFile:
+        return _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
