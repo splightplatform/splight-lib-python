@@ -20,14 +20,6 @@ def save_file(storage_client: StorageClient, datalake_client: DatalakeClient,
     if not os.path.exists(filename):
         logger.error("File must be locally found")
         raise Exception()
-    if asset_id and not attribute_id:
-        msg = "Given asset but no attribute"
-        logger.error(msg)
-        raise Exception(msg)
-    if attribute_id and not asset_id:
-        msg = "Given attribute but no asset"
-        logger.error(msg)
-        raise Exception(msg)
     args = args if args else dict()
     if args.get('file_id',None) is not None:
         msg = "Can't overwrite file_id"
