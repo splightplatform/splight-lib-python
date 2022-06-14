@@ -4,6 +4,7 @@ from pusher import Pusher
 from splight_notification.pusher import PusherClient
 from splight_models import Notification
 
+
 class TestPusherClient(TestCase):
     topic = 'sample_topic'
     data = {'message': 'Sample message', 'title': "Sample title"}

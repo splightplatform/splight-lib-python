@@ -1,6 +1,7 @@
 from parameterized import parameterized
 from unittest import TestCase
 from splight_models.rule import AlgorithmRule, RuleVariable, MappingRule
+from splight_database.django.djatabase.models.constants import INFO, GREATER_THAN
 
 
 class TestAlgorithmRule(TestCase):
@@ -55,6 +56,7 @@ class TestAlgorithmRule(TestCase):
                 statement=statement
             )
 
+
 class TestMappingRule(TestCase):
     def test_mapping_rule_ok(self):
         MappingRule(
@@ -62,5 +64,7 @@ class TestMappingRule(TestCase):
             attribute_id="123",
             value="4",
             type="float",
-            message="This is a sample message for the event description"
+            message="This is a sample message for the event description",
+            severity=INFO,
+            operator=GREATER_THAN,
         )
