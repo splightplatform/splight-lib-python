@@ -1,7 +1,7 @@
 import builtins
 import operator
 from .base import SplightBaseModel
-from os import stat
+from os import stat  # noqa
 import re
 import math
 from collections import defaultdict
@@ -9,7 +9,10 @@ from enum import Enum
 from pydoc import locate
 from pydantic import validator
 from typing import Optional, List, Dict
-from splight_database.django.djatabase.models.constants import SEVERITIES, OPERATORS, INFO, EQUAL
+from .common import SeverityType
+from splight_database.django.djatabase.models.constants import (
+    EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL
+)
 
 
 def _safe_eval(expression):
@@ -76,8 +79,12 @@ class AlgorithmRule(SplightBaseModel):
         return statement
 
 
-SeverityType = Enum('SeverityType', {field: field for field, _ in SEVERITIES})
-OperatorType = Enum('OperatorType', {field: field for field, _ in OPERATORS})
+class OperatorType(str, Enum):
+    greater_than = GREATER_THAN
+    greater_than_or_equal = GREATER_THAN_OR_EQUAL
+    lower_than = LOWER_THAN
+    lower_than_or_equal = LOWER_THAN_OR_EQUAL
+    equal = EQUAL
 
 
 class MappingRule(SplightBaseModel):
@@ -87,8 +94,8 @@ class MappingRule(SplightBaseModel):
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str
-    severity: SeverityType = getattr(SeverityType, INFO)
-    operator: OperatorType = getattr(OperatorType, EQUAL)
+    severity: SeverityType = SeverityType.info
+    operator: OperatorType = OperatorType.equal
 
     @property
     def name(self):
