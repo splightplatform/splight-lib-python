@@ -33,17 +33,22 @@ class TestMongoClient(TestCase):
             Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 8, 0))
         ]
         client = MongoClient()
-        with patch("splight_datalake.mongo.MongoClient._find", return_value=return_value) as find_call:
+        pipeline = client._get_pipeline(
+            filters={
+                "asset_id": {"$eq": "1"},
+                "attribute_id": {"$eq": "1"}
+            },
+            limit=50,
+            skip=0,
+            sort=[('timestamp', -1)],
+            group_id=[('timestamp', 'toString')],
+            group_fields=[]
+        )
+        with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
             self.assertEqual(client.get(Variable, asset_id="1", attribute_id="1"), expected_result)
             find_call.assert_called_once_with(
                 collection='default',
-                filters={
-                    "asset_id": {"$eq": "1"},
-                    "attribute_id": {"$eq": "1"}
-                },
-                limit=50,
-                skip=0,
-                sort=[('timestamp', -1)],
+                pipeline=pipeline,
                 tzinfo=timezone.utc
             )
 
@@ -105,37 +110,47 @@ class TestMongoClient(TestCase):
         ]
 
         client = MongoClient()
-        with patch("splight_datalake.mongo.MongoClient._find", side_effect=[first_call, second_call]) as find_call:
+        pipeline_first_call = client._get_pipeline(
+            filters={
+                "asset_id": {"$eq": "1"},
+                "attribute_id": {"$eq": "1"},
+                "timestamp": {
+                    "$gte": datetime(2012, 1, 1, 17, 0),
+                    "$lte": datetime(2012, 1, 1, 18, 0)
+                }
+            },
+            limit=3,
+            skip=0,
+            sort=[('timestamp', -1)],
+            group_id=[('timestamp', 'toString')],
+            group_fields=[]
+        )
+        pipeline_second_call = client._get_pipeline(
+            filters={
+                "asset_id": {"$in": ["2"]},
+                "attribute_id": {"$regex": "2"},
+                "timestamp": {
+                    "$gte": datetime(2012, 1, 1, 17, 0),
+                    "$lte": datetime(2012, 1, 1, 18, 0)
+                }
+            },
+            limit=3,
+            skip=0,
+            sort=[('timestamp', -1)],
+            group_id=[('timestamp', 'toString')],
+            group_fields=[]
+        )
+        with patch("splight_datalake.mongo.MongoClient._aggregate", side_effect=[first_call, second_call]) as find_call:
             self.assertEqual(client.get(resource_type=Variable, asset_id="1", attribute_id="1", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_first_call)
             self.assertEqual(client.get(resource_type=Variable, asset_id__in=["2"], attribute_id__contains="2", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_second_call)
             find_call.assert_has_calls([
                 call(
                     collection='default',
-                    filters={
-                        "asset_id": {"$eq": "1"},
-                        "attribute_id": {"$eq": "1"},
-                        "timestamp": {
-                            "$gte": datetime(2012, 1, 1, 17, 0),
-                            "$lte": datetime(2012, 1, 1, 18, 0)
-                        }
-                    },
-                    limit=3,
-                    skip=0,
-                    sort=[('timestamp', -1)],
+                    pipeline=pipeline_first_call,
                     tzinfo=timezone.utc),
                 call(
                     collection='default',
-                    filters={
-                        "asset_id": {"$in": ["2"]},
-                        "attribute_id": {"$regex": "2"},
-                        "timestamp": {
-                            "$gte": datetime(2012, 1, 1, 17, 0),
-                            "$lte": datetime(2012, 1, 1, 18, 0)
-                        }
-                    },
-                    limit=3,
-                    skip=0,
-                    sort=[('timestamp', -1)],
+                    pipeline=pipeline_second_call,
                     tzinfo=timezone.utc)
             ])
 
@@ -186,16 +201,21 @@ class TestMongoClient(TestCase):
             Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0))
         ]
         client = MongoClient()
-        with patch("splight_datalake.mongo.MongoClient._find", return_value=return_value) as find_call:
+        pipeline = client._get_pipeline(
+            filters={
+                "args.value": {"$eq": "value1"}
+            },
+            limit=50,
+            skip=0,
+            sort=[('timestamp', -1)],
+            group_id=[('timestamp', 'toString')],
+            group_fields=[]
+        )
+        with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
             self.assertEqual(client.get(Variable, args__value="value1"), expected_result)
             find_call.assert_called_once_with(
                 collection='default',
-                filters={
-                    "args.value": {"$eq": "value1"}
-                },
-                limit=50,
-                skip=0,
-                sort=[('timestamp', -1)],
+                pipeline=pipeline,
                 tzinfo=timezone.utc
             )
 
@@ -206,3 +226,39 @@ class TestMongoClient(TestCase):
         client.add_pre_hook("save", foo)
         with self.assertRaises(ParticularException):
             client.save()
+
+    def test_get_pipelines(self):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=[
+                ('timestamp', 'year'),
+                ('timestamp', 'dayOfYear'),
+                ('timestamp', 'hour'),
+                ('timestamp', 'minute'),
+                ('timestamp', 'second'),
+            ],
+            group_fields=[]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$group': {
+                '_id': {
+                    'year-timestamp': {'$year': '$timestamp'},
+                    'dayOfYear-timestamp': {'$dayOfYear': '$timestamp'},
+                    'hour-timestamp': {'$hour': '$timestamp'},
+                    'minute-timestamp': {'$minute': '$timestamp'},
+                    'second-timestamp': {'$second': '$timestamp'},
+                }, 
+                '_root': {'$last': '$$ROOT'}
+                }
+            },
+            {'$replaceRoot': {'newRoot': '$_root'}},
+            {'$skip': 3},
+            {'$limit': 2},
+            {'$sort': {'timestamp': -1}}
+        ])
+        

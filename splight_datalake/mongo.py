@@ -1,9 +1,10 @@
+from itertools import groupby
 import pandas as pd
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Type
+from typing import Dict, List, Tuple, Type
 from pydantic import BaseModel
 from collections.abc import MutableMapping
 from collections import defaultdict
@@ -61,8 +62,17 @@ class MongoClient(AbstractDatalakeClient):
         )
         return documents
 
-    def _aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-        documents = self.db[collection].aggregate(pipeline)
+    def _aggregate(self, collection: str, pipeline: List[Dict], tzinfo=timezone(timedelta())) -> List[Dict]:
+        codec_options = CodecOptions(
+            tz_aware=True,
+            tzinfo=tzinfo
+        )
+        documents = self.db.get_collection(
+            collection,
+            codec_options=codec_options
+        ).aggregate(
+            pipeline
+        )
         return documents
 
     def _delete_many(self, collection: str, filters: Dict = {}) -> None:
@@ -71,7 +81,7 @@ class MongoClient(AbstractDatalakeClient):
     def _insert_many(self, collection: str, data: List[Dict], **kwargs) -> None:
         self.db[collection].insert_many(data, **kwargs)
 
-    def _get_filters(self, **kwargs) -> Dict:
+    def __parse_filters(self, **kwargs) -> Dict:
         filters: defaultdict = defaultdict(dict)
 
         for key, value in kwargs.items():
@@ -83,6 +93,91 @@ class MongoClient(AbstractDatalakeClient):
 
         return dict(filters)
 
+    @staticmethod
+    def __parse_sort(sort: List = []):
+        _sort = [item.rsplit('__', 1) for item in sort]
+        _sort = [(k, -1) if v == 'desc' else (k, 1) if v == 'asc' else None for k,v in _sort]
+        _sort = [k for k in _sort if k is not None]
+        return _sort
+
+    @staticmethod
+    def __parse_group_id(group_id: List = []):
+        _group_id = [item.rsplit('__', 1) for item in group_id]
+        return _group_id
+
+    @staticmethod
+    def __parse_group_fields(group_fields):
+        _group_id = [item.rsplit('__', 1) for item in group_fields]
+        return _group_id
+
+    @staticmethod
+    def __get_match_pipeline_step(filters: Dict, **kwargs):
+        _match = filters
+        return {"$match": _match}
+
+    @staticmethod
+    def __get_group_pipeline_step(group_id: List[Tuple] = [], group_fields: List[Tuple] = [], **kwargs):
+        _group = None
+        if group_id:
+            _group = {
+                "_id": {
+                    f"{operator}-{field}": {f"${operator}": f"${field}"}
+                    for field, operator in group_id
+                },
+                "_root": {"$last": "$$ROOT"}
+            }
+            for field, operator in group_fields:
+                _group[f"agg_{field.replace('.', '__')}"] = {f"${operator}": f"${field.replace('__', '.')}"}
+
+        return {"$group": _group}
+
+    @staticmethod
+    def __get_set_pipeline_step(group_fields: List[Tuple] = [], **kwargs):
+        _set = {
+            f"_root.{field.replace('__', '.')}": f"$agg_{field.replace('.', '__')}"
+            for field, _ in group_fields
+        }
+        return  {"$set": _set}
+
+    @staticmethod
+    def __get_replaceRoot_pipeline_step(group_id: List[Tuple] = [], **kwargs):
+        _replaceRoot = None
+        if group_id:
+            # Only want to replace root if we did a group in the past 
+            _replaceRoot = {"newRoot": "$_root"}
+        return {"$replaceRoot": _replaceRoot}
+        
+    @staticmethod
+    def __get_skip_pipeline_step(skip: int = None, **kwargs):
+        _skip = skip
+        return {"$skip": _skip}
+
+    @staticmethod
+    def __get_limit_pipeline_step(limit: int = None, **kwargs):
+        _limit = limit
+        return {"$limit": limit}
+
+    @staticmethod
+    def __get_sort_pipeline_step(sort: List[Tuple] = None, **kwargs):
+        _sort = {
+            k:v
+            for k,v in sort
+        }
+        return {"$sort": _sort}
+
+    def _get_pipeline(self, **kwargs):
+        pipeline = []
+        pipeline.append(self.__get_match_pipeline_step(**kwargs))
+        pipeline.append(self.__get_group_pipeline_step(**kwargs))
+        pipeline.append(self.__get_set_pipeline_step(**kwargs))
+        pipeline.append(self.__get_replaceRoot_pipeline_step(**kwargs))
+        pipeline.append(self.__get_skip_pipeline_step(**kwargs))
+        pipeline.append(self.__get_limit_pipeline_step(**kwargs))
+        pipeline.append(self.__get_sort_pipeline_step(**kwargs))
+        # Omit those steps not completed
+        pipeline = [step for step in pipeline if all(step.values())]
+        return pipeline
+
     def list_collection_names(self):
         return self.db.list_collection_names()
 
@@ -91,14 +186,14 @@ class MongoClient(AbstractDatalakeClient):
             collection=collection,
             limit=10,
             sort=[('timestamp', -1)],
-            filters=self._get_filters(**kwargs)),
+            filters=self.__parse_filters(**kwargs)),
         )
         docs = [flatten_dict(d) for d in docs]
         return list(set(key for dic in docs for key in dic.keys()))
 
     def get_values_for_key(self, collection: str, key: str, **kwargs):
         _key = key.replace('__', '.')
-        return self.db[collection].distinct(_key, filter=self._get_filters(**kwargs))
+        return self.db[collection].distinct(_key, filter=self.__parse_filters(**kwargs))
 
     @validate_resource_type
     def get(self,
@@ -106,17 +201,23 @@ class MongoClient(AbstractDatalakeClient):
             collection: str = 'default',
             limit_: int = 50,
             skip_: int = 0,
+            sort: List = ['timestamp__desc'],
+            group_id: List = ['timestamp__toString'],
+            group_fields: List = [],
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
-
-        kwargs = self._validated_kwargs(resource_type, **kwargs)
-        filters = self._get_filters(**kwargs)
-        result = self._find(
-            collection=collection,
-            filters=filters,
+        instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
+        pipeline = self._get_pipeline(
+            filters=self.__parse_filters(**instance_kwargs),
+            sort=self.__parse_sort(sort=sort),
+            group_id=self.__parse_group_id(group_id=group_id),
+            group_fields=self.__parse_group_fields(group_fields=group_fields),
             limit=limit_,
             skip=skip_,
-            sort=[('timestamp', -1)],
+        )
+        result = self._aggregate(
+            collection=collection,
+            pipeline=pipeline,
             tzinfo=tzinfo
         )
         result = [resource_type(**obj) for obj in result]
