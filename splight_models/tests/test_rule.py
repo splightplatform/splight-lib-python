@@ -1,7 +1,8 @@
 from parameterized import parameterized
 from unittest import TestCase
 from splight_models.rule import AlgorithmRule, RuleVariable, MappingRule
-from splight_database.django.djatabase.models.constants import INFO, GREATER_THAN
+from splight_database.django.djatabase.models.constants import (
+    INFO, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL, EQUAL)
 
 
 class TestAlgorithmRule(TestCase):
@@ -68,3 +69,28 @@ class TestMappingRule(TestCase):
             severity=INFO,
             operator=GREATER_THAN,
         )
+
+    @parameterized.expand([
+        ('str', GREATER_THAN, 5, False),
+        ('str', GREATER_THAN, 4, True),
+        ('str', GREATER_THAN_OR_EQUAL, 5, True),
+        ('str', GREATER_THAN_OR_EQUAL, 6, False),
+        ('str', LOWER_THAN, 6, True),
+        ('str', LOWER_THAN, 2, False),
+        ('str', LOWER_THAN_OR_EQUAL, 2, False),
+        ('float', LOWER_THAN_OR_EQUAL, 5, True),
+        ('float', LOWER_THAN_OR_EQUAL, 6, True),
+        ('float', EQUAL, 5, True),
+        ('float', EQUAL, 2, False),
+    ])
+    def test_mapping_rule_eval(self, type, operator, value, expected_result):
+        rule = MappingRule(
+            asset_id="123",
+            attribute_id="123",
+            value="5",
+            type=type,
+            message="This is a sample message for the event description",
+            severity=INFO,
+            operator=operator,
+        )
+        self.assertTrue((value in rule) is expected_result)
