@@ -43,6 +43,9 @@ class S3StorageClient(AbstractStorageClient):
             Filename=instance.file,
             Bucket=AWS_STORAGE_BUCKET_NAME,
             Key=key,
+            ExtraArgs={
+                'ContentType': instance.content_type
+            }
         )
         instance.id = self._encode_name(key)
         return instance
@@ -73,6 +76,18 @@ class S3StorageClient(AbstractStorageClient):
             Filename=target
         )
         return target
+    
+    @validate_instance_type
+    def get_temporary_link(self, instance: BaseModel) -> str:
+        url = self.s3.generate_presigned_url(
+            'get_object',
+            Params= {
+                'Bucket': AWS_STORAGE_BUCKET_NAME,
+                'Key': self.namespace + '/' + instance.name,
+            },
+            ExpiresIn=3600
+        )
+        return url
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> List[BaseModel]:

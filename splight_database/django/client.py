@@ -4,7 +4,6 @@ from splight_models import *
 from splight_database.abstract import AbstractDatabaseClient
 from .djatabase.models import (
     Algorithm as DBAlgorithm,
-    AgregateItem as DBAgregateItem,
     Asset as DBAsset,
     Attribute as DBAttribute,
     Chart as DBChart,
@@ -31,7 +30,6 @@ from client import validate_instance_type, validate_resource_type
 
 CLASSMAP = {
     Algorithm: DBAlgorithm,
-    AgregateItem: DBAgregateItem,
     Asset: DBAsset,
     Attribute: DBAttribute,
     Chart: DBChart,
@@ -42,6 +40,7 @@ CLASSMAP = {
     Edge: DBEdge,
     Filter: DBFilter,
     Graph: DBGraph,
+    Namespace: DBNamespace,
     Network: DBNetwork,
     Notification: DBNotification,
     Node: DBNode,
