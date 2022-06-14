@@ -10,7 +10,7 @@ from collections import defaultdict
 from client import validate_resource_type
 from splight_datalake.settings import setup
 from splight_lib import logging
-from splight_models import Variable, VariableDataFrame
+from splight_models import Variable, VariableDataFrame, Notification
 from .abstract import AbstractDatalakeClient
 
 
@@ -29,7 +29,7 @@ def flatten_dict(d, parent_key='', sep='__'):
 
 
 class MongoClient(AbstractDatalakeClient):
-    valid_classes: List[Type] = [Variable]
+    valid_classes: List[Type] = [Variable, Notification]
     operation_map: Dict[str, str] = {
         'eq': '$eq',
         'in': '$in',

@@ -97,3 +97,6 @@ class S3StorageClient(AbstractStorageClient):
             Bucket=AWS_STORAGE_BUCKET_NAME,
             Key=self._decode_name(id)
         )
+
+    def get_encoding(self,name):
+        return self._encode_name('/'.join([self.namespace,name]))
