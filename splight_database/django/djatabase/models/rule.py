@@ -10,5 +10,5 @@ class MappingRule(NamespaceAwareModel):
     value = models.CharField(max_length=50)
     type = models.CharField(max_length=10)
     message = models.CharField(max_length=100)
-    severity = models.CharField(max_length=20, choices=SEVERITIES, null=True, default=INFO)
-    operator = models.CharField(max_length=20, choices=OPERATORS, null=True, default=EQUAL)
+    severity = models.CharField(max_length=20, choices=SEVERITIES, default=INFO)
+    operator = models.CharField(max_length=20, choices=OPERATORS, default=EQUAL)

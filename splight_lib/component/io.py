@@ -1,6 +1,6 @@
+import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
-from shortcut.notification import notify
 from splight_models import (
     Connector,
     ClientMapping,
@@ -10,6 +10,7 @@ from splight_models import (
     Notification,
 )
 from splight_lib import logging
+from splight_lib.shortcut import notify
 from splight_lib.execution import Task
 from .abstract import AbstractComponent
 
@@ -36,7 +37,8 @@ class AbstractIOComponent(AbstractComponent):
         """
         Hook to handle rules and send notifier if a rule applies
         """
-        variables = kwargs.get("instances", [])
+        instances = kwargs.get("instances", [])
+        variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
             if 'value' in variable.args and rule:  # None could be utilized as a value.
@@ -55,22 +57,25 @@ class AbstractIOComponent(AbstractComponent):
 
                         ),
                         database_client=self.database_client,
-                        notification_client=self.notification_client
-                    )
+                        notification_client=self.notification_client,
+                        datalake_client=self.datalake_client,
+                        )
         return args, kwargs
 
     def hook_map_variable(self, *args, **kwargs):
         """
         Hook to add info about asset_id attribute_id for variables
         """
-        variables = kwargs.get("instances", [])
-        for variable in variables:
-            mapping = self._hashed_mappings_by_path.get(f"{variable.path}", None)
+        instances = kwargs.get("instances", [])
+        for instance in instances:
+            if not isinstance(instance, Variable):
+                continue
+            mapping = self._hashed_mappings_by_path.get(f"{instance.path}", None)
             if mapping is not None:
-                variable.asset_id = mapping.asset_id
-                variable.attribute_id = mapping.attribute_id
-        if variables:
-            kwargs['instances'] = variables
+                instance.asset_id = mapping.asset_id
+                instance.attribute_id = mapping.attribute_id
+        if instances:
+            kwargs['instances'] = instances
         return args, kwargs
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:
