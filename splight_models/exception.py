@@ -16,3 +16,11 @@ class CrossNamespaceTryException(Exception):
         self.conflicts = conflicts
         message = f"Found conflicts in fields: {conflicts}. Current tenant: {self.tenant}"
         super().__init__(message, *args, **kwargs)
+
+
+class UnmodifiableGraphException(Exception):
+    pass
+
+
+class CrossGraphException(Exception):
+    pass
