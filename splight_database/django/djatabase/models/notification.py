@@ -1,6 +1,23 @@
 from django.db import models
 from .namespace import NamespaceAwareModel
-from .constants import SEVERITIES, INFO, SOURCE_TYPE
+from .constants import (SYSTEM, LOW, MEDIUM, HIGH, CRITICAL, INFO, ALGORITHM, NETWORK, CONNECTOR)
+
+
+SEVERITIES = (
+    (SYSTEM, 'system'),
+    (INFO, 'info'),
+    (LOW, 'low'),
+    (MEDIUM, 'medium'),
+    (HIGH, 'high'),
+    (CRITICAL, 'critical'),
+)
+
+
+SOURCE_TYPE = (
+    (ALGORITHM, 'Algorithm'),
+    (NETWORK, 'Network'),
+    (CONNECTOR, 'Connector'),
+)
 
 
 class Notification(NamespaceAwareModel):
@@ -13,4 +30,4 @@ class Notification(NamespaceAwareModel):
     attribute_id = models.CharField(null=True, max_length=100)
     rule_id = models.CharField(null=True, max_length=100)
     source_id = models.CharField(null=True, max_length=100)
-    source_type = models.CharField(max_length=20, choices=list(zip(SOURCE_TYPE, SOURCE_TYPE)), null=True)
+    source_type = models.CharField(max_length=20, choices=SOURCE_TYPE, null=True)

@@ -3,6 +3,14 @@ from .base import SplightBaseModel
 from datetime import datetime, timezone
 from typing import Optional
 from .common import SeverityType
+from enum import Enum
+from splight_database.django.djatabase.models.constants import (ALGORITHM, NETWORK, CONNECTOR)
+
+
+class SourceType(str, Enum):
+    algorithm = ALGORITHM
+    network = NETWORK
+    connector = CONNECTOR
 
 
 class Notification(SplightBaseModel):
@@ -16,4 +24,4 @@ class Notification(SplightBaseModel):
     attribute_id: Optional[str]
     rule_id: Optional[str]
     source_id: Optional[str]
-    source_type: Optional[str]
+    source_type: Optional[SourceType]
