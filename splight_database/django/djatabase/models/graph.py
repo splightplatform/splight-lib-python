@@ -2,7 +2,7 @@ from django.db import models
 from .namespace import NamespaceAwareModel
 
 
-class UnmodifiableGraphException(Exception):
+class LockedGraphException(Exception):
     pass
 
 
@@ -12,7 +12,8 @@ class CrossGraphException(Exception):
 
 class Graph(NamespaceAwareModel):
     title = models.CharField(max_length=100)
-    modifiable = models.BooleanField(default=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+    locked = models.BooleanField(default=False)
 
 
 class Node(NamespaceAwareModel):
@@ -22,8 +23,8 @@ class Node(NamespaceAwareModel):
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        if not self.graph.modifiable:
-            raise UnmodifiableGraphException()
+        if self.graph.locked:
+            raise LockedGraphException()
 
         super().save(*args, **kwargs)
 
@@ -36,8 +37,8 @@ class Edge(NamespaceAwareModel):
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='incoming_edges')
 
     def save(self, *args, **kwargs):
-        if not self.graph.modifiable:
-            raise UnmodifiableGraphException()
+        if self.graph.locked:
+            raise LockedGraphException()
 
         if not self.source.graph == self.graph:
             raise CrossGraphException()
