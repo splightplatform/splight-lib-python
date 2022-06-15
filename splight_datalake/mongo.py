@@ -172,8 +172,8 @@ class MongoClient(AbstractDatalakeClient):
         pipeline.append(self.__get_set_pipeline_step(**kwargs))
         pipeline.append(self.__get_replaceRoot_pipeline_step(**kwargs))
         pipeline.append(self.__get_skip_pipeline_step(**kwargs))
-        pipeline.append(self.__get_limit_pipeline_step(**kwargs))
         pipeline.append(self.__get_sort_pipeline_step(**kwargs))
+        pipeline.append(self.__get_limit_pipeline_step(**kwargs))
         # Omit those steps not completed
         pipeline = [step for step in pipeline if all(step.values())]
         return pipeline
@@ -202,7 +202,7 @@ class MongoClient(AbstractDatalakeClient):
             limit_: int = 50,
             skip_: int = 0,
             sort: List = ['timestamp__desc'],
-            group_id: List = ['timestamp__toString'],
+            group_id: List = [],
             group_fields: List = [],
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
