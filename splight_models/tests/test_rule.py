@@ -93,4 +93,4 @@ class TestMappingRule(TestCase):
             severity=INFO,
             operator=operator,
         )
-        self.assertTrue((value in rule) is expected_result)
+        self.assertTrue(rule.is_satisfied(value) is expected_result)

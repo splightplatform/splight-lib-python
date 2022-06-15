@@ -43,7 +43,7 @@ class AbstractIOComponent(AbstractComponent):
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
             if 'value' in variable.args and rule:  # None could be utilized as a value.
                 value = variable.args['value']
-                if value in rule:
+                if rule.is_satisfied(value):
                     notify(
                         notification=Notification(
                             title=rule.message,
