@@ -9,6 +9,8 @@ from django.db.models import Q
 
 class Mapping(NamespaceAwareModel):
     objects = InheritanceManager()
+    name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
 
 
 class ValueMapping(Mapping):
@@ -66,7 +68,6 @@ class ServerMapping(Mapping):
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="server_mappings", null=True)
     connector = models.ForeignKey(Connector, on_delete=models.CASCADE, related_name='smappings', null=True)
     path = models.CharField(max_length=300, null=True)
-
 
 def validate_unique_mapping(self, *args, **kwargs):
     mapping_types = [ClientMapping, ValueMapping, ReferenceMapping]

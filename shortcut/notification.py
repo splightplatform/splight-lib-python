@@ -18,5 +18,9 @@ def notify(notification: Notification,
     if notification_client:
         notification_client.send(notification)
     if datalake_client:
-        datalake_client.save(Notification, instances=[notification], collection='notification')
+        variable = Variable(
+            timestamp=notification.timestamp,
+            args=notification.dict(),
+        )
+        datalake_client.save(Variable, instances=[variable], collection='notification')
     return
