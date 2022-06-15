@@ -6,7 +6,7 @@ from collections import defaultdict
 from enum import Enum
 from pydoc import locate
 from pydantic import validator
-from typing import Optional, List, Dict
+from typing import Any, Optional, List, Dict
 
 
 def _safe_eval(expression):
@@ -81,11 +81,17 @@ class MappingRule(SplightBaseModel):
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str
+    name: Optional[str]
+    description: Optional[str] = None
 
-    @property
-    def name(self):
-        return self.value
+    @validator("name", always=True)
+    def get_name(cls, name: str, values: Dict[str, Any]) -> str:
+        if not name:
+            return values.get('message', "MappingRule")
+        return name
 
-    @property
-    def description(self):
-        return self.message
+    @validator("description", always=True)
+    def get_description(cls, description: str, values: Dict[str, Any]) -> str:
+        if not description:
+            return values.get('value', None)
+        return description
