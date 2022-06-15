@@ -5,7 +5,8 @@ from .base import SplightBaseModel
 class Graph(SplightBaseModel):
     id: Optional[str]
     title: str
-    modifiable: bool
+    description: Optional[str] = None
+    locked: bool = False
 
 
 class Node(SplightBaseModel):
