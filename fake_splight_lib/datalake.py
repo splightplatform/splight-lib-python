@@ -178,3 +178,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             ) for index, row in dataframe.iterrows()
         ]
         self.save(Variable, instances=variables, collection=collection)
+
+    def create_index(self, index):
+        pass
