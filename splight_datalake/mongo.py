@@ -1,10 +1,9 @@
-from itertools import groupby
 import pandas as pd
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Tuple, Type
+from typing import Dict, List, Tuple, Type, Union
 from pydantic import BaseModel
 from collections.abc import MutableMapping
 from collections import defaultdict
@@ -201,12 +200,15 @@ class MongoClient(AbstractDatalakeClient):
             collection: str = 'default',
             limit_: int = 50,
             skip_: int = 0,
-            sort: List = ['timestamp__desc'],
-            group_id: List = [],
-            group_fields: List = [],
+            sort: Union[List, str] = ['timestamp__desc'],
+            group_id: Union[List, str] = [],
+            group_fields: Union[List, str] = [],
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
         instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
+        sort = [sort] if isinstance(sort, str) else sort
+        group_id = [group_id] if isinstance(group_id, str) else group_id
+        group_fields = [group_fields] if isinstance(group_fields, str) else group_fields
         pipeline = self._get_pipeline(
             filters=self.__parse_filters(**instance_kwargs),
             sort=self.__parse_sort(sort=sort),

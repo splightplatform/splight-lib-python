@@ -41,7 +41,7 @@ class TestMongoClient(TestCase):
             limit=50,
             skip=0,
             sort=[('timestamp', -1)],
-            group_id=[('timestamp', 'toString')],
+            group_id=[],
             group_fields=[]
         )
         with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
@@ -122,7 +122,7 @@ class TestMongoClient(TestCase):
             limit=3,
             skip=0,
             sort=[('timestamp', -1)],
-            group_id=[('timestamp', 'toString')],
+            group_id=[],
             group_fields=[]
         )
         pipeline_second_call = client._get_pipeline(
@@ -137,7 +137,7 @@ class TestMongoClient(TestCase):
             limit=3,
             skip=0,
             sort=[('timestamp', -1)],
-            group_id=[('timestamp', 'toString')],
+            group_id=[],
             group_fields=[]
         )
         with patch("splight_datalake.mongo.MongoClient._aggregate", side_effect=[first_call, second_call]) as find_call:
@@ -208,7 +208,7 @@ class TestMongoClient(TestCase):
             limit=50,
             skip=0,
             sort=[('timestamp', -1)],
-            group_id=[('timestamp', 'toString')],
+            group_id=[],
             group_fields=[]
         )
         with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
@@ -258,7 +258,7 @@ class TestMongoClient(TestCase):
             },
             {'$replaceRoot': {'newRoot': '$_root'}},
             {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
             {'$limit': 2},
-            {'$sort': {'timestamp': -1}}
         ])
         
