@@ -159,7 +159,7 @@ class AbstractClientComponent(AbstractIOComponent):
             mappings_to_subscribe = new_status - self._mappings_last_sync
             variables_to_subscribe = [
                 Variable(
-                    path=m.path, 
+                    path=m.path,
                     args={"period": m.period},
                     asset_id=m.asset_id,
                     attribute_id=m.attribute_id)
@@ -170,7 +170,7 @@ class AbstractClientComponent(AbstractIOComponent):
             mappings_to_unsubscribe = self._mappings_last_sync - new_status
             variables_to_unsubscribe = [
                 Variable(
-                    path=m.path, 
+                    path=m.path,
                     args={"period": m.period},
                     asset_id=m.asset_id,
                     attribute_id=m.attribute_id)
