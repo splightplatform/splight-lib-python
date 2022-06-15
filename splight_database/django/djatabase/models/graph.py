@@ -1,13 +1,6 @@
 from django.db import models
 from .namespace import NamespaceAwareModel
-
-
-class LockedGraphException(Exception):
-    pass
-
-
-class CrossGraphException(Exception):
-    pass
+from splight_models.exception import LockedGraphException, CrossGraphException
 
 
 class Graph(NamespaceAwareModel):

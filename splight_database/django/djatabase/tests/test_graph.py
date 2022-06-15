@@ -1,6 +1,7 @@
 from django.test import TestCase
 from splight_database.django.djatabase.models.graph import *
 from splight_database.django.djatabase.models.asset import Asset
+from splight_models.exception import LockedGraphException, CrossGraphException
 
 
 class TestGraph(TestCase):

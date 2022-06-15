@@ -18,7 +18,7 @@ class CrossNamespaceTryException(Exception):
         super().__init__(message, *args, **kwargs)
 
 
-class UnmodifiableGraphException(Exception):
+class LockedGraphException(Exception):
     pass
 
 
