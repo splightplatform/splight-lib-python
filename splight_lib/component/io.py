@@ -33,6 +33,11 @@ class AbstractIOComponent(AbstractComponent):
         self.datalake_client.add_pre_hook('save', self.hook_rules)
         self.datalake_client.add_pre_hook('save', self.hook_map_variable)
 
+        # TODO: move this to create index on organization creation
+        self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
+        self.datalake_client.create_index('files', [('timestamp', -1)])
+        self.datalake_client.create_index('notification', [('timestamp', -1)])
+        
     def hook_rules(self, *args, **kwargs):
         """
         Hook to handle rules and send notifier if a rule applies
