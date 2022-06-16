@@ -49,9 +49,9 @@ class TestS3StorageClient(TestCase):
     def test_download_file(self):
         with patch.object(self.boto3_client, 'download_file') as mocked_upload:
             self.client.download(resource_type=StorageFile, id=self.instance.id, target='/tmp/tmp.file')
-            mocked_upload.assert_called_with(Bucket='splight-api', Key='something.abc', Filename='/tmp/tmp.file')
+            mocked_upload.assert_called_with(Bucket='splight-api', Key='default/something.abc', Filename='/tmp/tmp.file')
 
     def test_delete_file(self):
         with patch.object(self.boto3_client, 'delete_object') as mocked_delete:
             self.client.delete(resource_type=StorageFile, id=self.instance.id)
-            mocked_delete.assert_called_with(Bucket='splight-api', Key='something.abc')
+            mocked_delete.assert_called_with(Bucket='splight-api', Key='default/something.abc')

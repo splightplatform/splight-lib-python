@@ -10,9 +10,9 @@ class AbstractNetworkComponent(AbstractComponent):
     managed_class = Network
     rules = []
 
-    # def __init__(self, *args, **kwargs):
-    #     super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
-    #     self.execution_client.start(Thread(target=self.refresh_rules_forever, daemon=True))
+    def __init__(self, *args, **kwargs):
+        super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
+        self.datalake_client.create_index('network', [('timestamp', -1)])
 
     # def refresh_rules_forever(self) -> None:
     #     time_interval = 10
