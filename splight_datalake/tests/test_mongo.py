@@ -156,9 +156,9 @@ class TestMongoClient(TestCase):
 
     def test_save_variable(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0)),
+            Variable(asset_id="1", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
+            Variable(asset_id="2", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
+            Variable(asset_id="2", attribute_id="2", instance_id="1", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0)),
         ]
         expected_data_list = [
             {
@@ -166,6 +166,7 @@ class TestMongoClient(TestCase):
                 "path": None,
                 "asset_id": "1",
                 "attribute_id": "1",
+                "instance_id": "1",
                 "timestamp": datetime(2012, 1, 1, 8, 0)
             },
             {
@@ -173,6 +174,7 @@ class TestMongoClient(TestCase):
                 "path": None,
                 "asset_id": "2",
                 "attribute_id": "1",
+                "instance_id": "1",
                 "timestamp": datetime(2012, 1, 1, 8, 0)
             },
             {
@@ -180,6 +182,7 @@ class TestMongoClient(TestCase):
                 "path": None,
                 "asset_id": "2",
                 "attribute_id": "2",
+                "instance_id": "1",
                 "timestamp": datetime(2012, 1, 1, 8, 0)
             },
         ]
