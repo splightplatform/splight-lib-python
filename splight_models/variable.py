@@ -6,7 +6,7 @@ from .base import SplightBaseModel
 
 
 class Variable(SplightBaseModel):
-    args: Dict
+    args: Optional[Dict] = None
     path: Optional[str] = None
     asset_id: Optional[str] = None
     attribute_id: Optional[str] = None

@@ -1,7 +1,6 @@
 import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
-from shortcut.notification import notify
 from splight_models import (
     Connector,
     ClientMapping,
@@ -34,11 +33,17 @@ class AbstractIOComponent(AbstractComponent):
         self.datalake_client.add_pre_hook('save', self.hook_rules)
         self.datalake_client.add_pre_hook('save', self.hook_map_variable)
 
+        # TODO: move this to create index on organization creation
+        self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
+        self.datalake_client.create_index('files', [('timestamp', -1)])
+        self.datalake_client.create_index('notification', [('timestamp', -1)])
+        
     def hook_rules(self, *args, **kwargs):
         """
         Hook to handle rules and send notifier if a rule applies
         """
-        variables = kwargs.get("instances", [])
+        instances = kwargs.get("instances", [])
+        variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
             if rule is not None and getattr(builtins, rule.type)(rule.value) == variable.args.get("value", None):
@@ -48,7 +53,8 @@ class AbstractIOComponent(AbstractComponent):
                         message=rule.message
                     ),
                     database_client=self.database_client,
-                    notification_client=self.notification_client
+                    notification_client=self.notification_client,
+                    datalake_client=self.datalake_client,
                 )
         return args, kwargs
 
@@ -56,14 +62,16 @@ class AbstractIOComponent(AbstractComponent):
         """
         Hook to add info about asset_id attribute_id for variables
         """
-        variables = kwargs.get("instances", [])
-        for variable in variables:
-            mapping = self._hashed_mappings_by_path.get(f"{variable.path}", None)
+        instances = kwargs.get("instances", [])
+        for instance in instances:
+            if not isinstance(instance, Variable):
+                continue
+            mapping = self._hashed_mappings_by_path.get(f"{instance.path}", None)
             if mapping is not None:
-                variable.asset_id = mapping.asset_id
-                variable.attribute_id = mapping.attribute_id
-        if variables:
-            kwargs['instances'] = variables
+                instance.asset_id = mapping.asset_id
+                instance.attribute_id = mapping.attribute_id
+        if instances:
+            kwargs['instances'] = instances
         return args, kwargs
 
     def map_variable(self, variables: List[Variable]) -> List[Variable]:
@@ -156,7 +164,7 @@ class AbstractClientComponent(AbstractIOComponent):
             mappings_to_subscribe = new_status - self._mappings_last_sync
             variables_to_subscribe = [
                 Variable(
-                    path=m.path, 
+                    path=m.path,
                     args={"period": m.period},
                     asset_id=m.asset_id,
                     attribute_id=m.attribute_id)
@@ -167,7 +175,7 @@ class AbstractClientComponent(AbstractIOComponent):
             mappings_to_unsubscribe = self._mappings_last_sync - new_status
             variables_to_unsubscribe = [
                 Variable(
-                    path=m.path, 
+                    path=m.path,
                     args={"period": m.period},
                     asset_id=m.asset_id,
                     attribute_id=m.attribute_id)

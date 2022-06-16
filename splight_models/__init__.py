@@ -6,6 +6,7 @@ from .runner import *
 from .channel import *
 from .hub import *
 from .deployment import *
+from .graph import *
 from .geopoint import *
 from .mapping import *
 from .message import *

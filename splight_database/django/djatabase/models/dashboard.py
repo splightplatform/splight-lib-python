@@ -12,11 +12,13 @@ class Tab(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
     dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name="dashboard_tabs")
     name = models.CharField(max_length=100, null=True, blank=True)
+
+
 class Chart(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
     tab = models.ForeignKey(Tab, on_delete=models.CASCADE, related_name="tab_charts")
     name = models.CharField(max_length=100, null=True, blank=True)
-    description = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=300, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
     type = models.CharField(max_length=100, null=True, blank=True)
     timestamp_gte = models.CharField(max_length=100, null=True, blank=True)
@@ -27,6 +29,7 @@ class Chart(NamespaceAwareModel):
     aggregate_period = models.CharField(max_length=100, null=True, blank=True)
     image = models.CharField(max_length=200, null=True, blank=True)
 
+
 class ChartItem(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
     chart = models.ForeignKey(Chart, on_delete=models.CASCADE, related_name="chart_items")
@@ -35,6 +38,7 @@ class ChartItem(NamespaceAwareModel):
     target = models.CharField(max_length=100, null=True, blank=True)
     split_by = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100, null=True, blank=True)
+
 
 class Filter(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)

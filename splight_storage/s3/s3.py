@@ -28,10 +28,12 @@ class S3StorageClient(AbstractStorageClient):
                             region_name=AWS_REGION)
 
     def _encode_name(self, name):
+        name = name.replace(f"{self.namespace}/", '')
         return b64e(zlib.compress(name.encode('utf-8'), 9))
 
     def _decode_name(self, name):
-        return zlib.decompress(b64d(name)).decode('utf-8')
+        decoded_name = zlib.decompress(b64d(name)).decode('utf-8')
+        return f"{self.namespace}/{decoded_name}"
 
     @validate_instance_type
     def save(self, instance: BaseModel, prefix: Optional[str] = None,) -> BaseModel:
@@ -95,3 +97,6 @@ class S3StorageClient(AbstractStorageClient):
             Bucket=AWS_STORAGE_BUCKET_NAME,
             Key=self._decode_name(id)
         )
+
+    def get_encoding(self,name):
+        return self._encode_name('/'.join([self.namespace,name]))
