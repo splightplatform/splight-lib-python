@@ -8,7 +8,7 @@ from collections import defaultdict
 from enum import Enum
 from pydoc import locate
 from pydantic import validator
-from typing import Optional, List, Dict
+from typing import Any, Optional, List, Dict
 from .common import SeverityType
 from splight_database.django.djatabase.models.constants import (
     EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL
@@ -94,18 +94,25 @@ class MappingRule(SplightBaseModel):
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str
+    name: Optional[str]
+    description: Optional[str] = None
     severity: SeverityType = SeverityType.info
     operator: OperatorType = OperatorType.equal
 
-    @property
-    def name(self):
-        return self.value
+    @validator("name", always=True)
+    def get_name(cls, name: str, values: Dict[str, Any]) -> str:
+        if not name:
+            return values.get('message', "MappingRule")
+        return name
 
-    @property
-    def description(self):
-        return self.message
+    @validator("description", always=True)
+    def get_description(cls, description: str, values: Dict[str, Any]) -> str:
+        if not description:
+            return values.get('value', None)
+        return description
 
     def is_satisfied(self, value):
         rule_value = getattr(builtins, self.type)(self.value)
         value = getattr(builtins, self.type)(value)
         return getattr(operator, self.operator)(rule_value, value)
+

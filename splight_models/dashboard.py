@@ -31,6 +31,7 @@ class ChartItem(SplightBaseModel):
     split_by: Optional[str]
     label: Optional[str]
 
+
 class Chart(SplightBaseModel):
     id: Optional[str]
     name: Optional[str]
@@ -45,4 +46,3 @@ class Chart(SplightBaseModel):
     aggregate_criteria: Optional[str] = None
     aggregate_period: Optional[str] = None
     image: Optional[str] = None
-

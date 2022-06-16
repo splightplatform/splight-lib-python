@@ -137,7 +137,13 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             collection: str = "default",
             limit_: int = 100,
             skip_: int = 0,
+            group_id: List = [],
+            group_fields: List = [],
+            tzinfo: timezone = None,
             **kwargs) -> List[BaseModel]:
+
+        if group_id or group_fields or tzinfo:
+            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
         if limit_ == 0:
@@ -172,3 +178,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             ) for index, row in dataframe.iterrows()
         ]
         self.save(Variable, instances=variables, collection=collection)
+
+    def create_index(self, index):
+        pass
