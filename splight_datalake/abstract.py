@@ -47,6 +47,10 @@ class AbstractDatalakeClient(AbstractClient):
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         pass
 
+    @abstractmethod
+    def get_collection_size_gb(self, collection: str) -> float:
+        pass
+    
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
 
@@ -57,3 +61,4 @@ class AbstractDatalakeClient(AbstractClient):
         }
 
         return valid_filter
+

@@ -135,6 +135,9 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
+    def get_collection_size_gb(self, collection: str) -> float:
+        return self.db.command("collstats", collection)["totalSize"] / (1024 * 1024 * 1024)
+
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         _data = self.get(*args, **kwargs)
         _data = pd.json_normalize(

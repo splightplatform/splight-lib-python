@@ -4,7 +4,7 @@ from unittest.mock import patch
 from parameterized import parameterized
 from requests.models import Response
 from splight_hub import SplightHubClient
-from splight_models import Network, Algorithm, Connector, MappingRule
+from splight_models import HubNetwork, HubAlgorithm, HubConnector, MappingRule
 
 
 class TestVariable(TestCase):
@@ -25,16 +25,16 @@ class TestVariable(TestCase):
             self.client.get(resource_type=MappingRule)
 
     @parameterized.expand([
-        (Network, []),
-        (Network, [
+        (HubNetwork, []),
+        (HubNetwork, [
             dict(id="123", name='Net1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
-        (Algorithm, []),
-        (Algorithm, [
+        (HubAlgorithm, []),
+        (HubAlgorithm, [
             dict(id="123", name='Algo1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
-        (Connector, []),
-        (Connector, [
+        (HubConnector, []),
+        (HubConnector, [
             dict(id="123", name='Conn1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
         ]),
     ])

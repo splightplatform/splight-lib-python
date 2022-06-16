@@ -149,6 +149,10 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         data = [instance.dict() for instance in instances]
         self._write_to_collection(collection, data)
 
+    def get_collection_size_gb(self, collection: str) -> float:
+        logger.DEBUG(f"[FAKED] Collection {collection} size in gb retrieve")
+        return 0.8
+
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
         _data = self.get(*args, **kwargs)

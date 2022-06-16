@@ -21,7 +21,8 @@ from .djatabase.models import (
     ChartItem as DBChartItem,
     Chart as DBChart,
     Notification as DBNotification,
-    BillingEvent as DBBillingEvent,
+    BillingSettings as DBBillingSettings,
+    MonthBilling as DBMonthBilling,
 )
 from client import validate_instance_type, validate_resource_type
 
@@ -45,7 +46,8 @@ CLASSMAP = {
     ChartItem: DBChartItem,
     Chart: DBChart,
     Notification: DBNotification,
-    BillingEvent: DBBillingEvent,
+    BillingSettings: DBBillingSettings,
+    MonthBilling: DBMonthBilling,
 }
 
 

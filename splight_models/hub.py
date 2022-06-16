@@ -10,22 +10,25 @@ class Parameter(SplightBaseModel):
     value: Any = None
 
 
-class Runner(SplightBaseModel):
+class HubComponent(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
-    version: str # Pointer to hub component
+    version: str
+    impact: Optional[int] = None
+    privacy_policy: Optional[str] = None
+    tenant: Optional[str] = None
     parameters: List[Parameter] = []
     readme_url: Optional[str]
 
 
-class Algorithm(Runner):
+class HubAlgorithm(HubComponent):
     pass
 
 
-class Network(Runner):
+class HubNetwork(HubComponent):
     pass
 
 
-class Connector(Runner):
+class HubConnector(HubComponent):
     pass
