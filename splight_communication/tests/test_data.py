@@ -13,6 +13,7 @@ class TestVariable(TestCase):
             "path": "path1",
             "asset_id": "id1",
             "attribute_id": "1",
+            "instance_id": "1"
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.json(), str)
@@ -25,7 +26,8 @@ class TestVariable(TestCase):
             "args": {},
             "path": "path1",
             "attribute_id": "1",
-            "asset_id": "id1"
+            "asset_id": "id1",
+            "instance_id": "1"
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.dict(), dict)
