@@ -3,7 +3,7 @@ from typing import List, Type, Callable
 from functools import wraps
 from abc import ABC
 from splight_lib import logging
-
+from utils import PreHookMixin
 
 logger = logging.getLogger()
 
@@ -26,22 +26,11 @@ def validate_instance_type(func: Callable) -> Callable:
     return wrapper
 
 
-class AbstractClient(ABC):
+class AbstractClient(ABC, PreHookMixin):
     valid_classes: List[Type] = []
 
     def __init__(self, namespace: str = "default", *args, **kwargs):
         self.namespace = namespace.lower().replace("_", "")
-
-    @staticmethod
-    def _add_pre_hook(func, hook):
-        def hooked_func(*args, **kwargs):
-            logger.debug(f"[HOOKED] {hook}")
-            args, kwargs = hook(*args, **kwargs)
-            return func(*args, **kwargs)
-        return hooked_func
-
-    def add_pre_hook(self, function, hook):
-        setattr(self, function, AbstractClient._add_pre_hook(getattr(self, function), hook))
 
     def _filter(self, queryset: List[BaseModel], **kwargs) -> List[BaseModel]:
         '''
