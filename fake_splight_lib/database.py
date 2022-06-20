@@ -31,7 +31,10 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Filter,
         ChartItem,
         Chart,
-        Notification
+        Notification,
+        Graph,
+        Node,
+        Edge,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
