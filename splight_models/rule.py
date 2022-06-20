@@ -1,5 +1,7 @@
+import builtins
+import operator
 from .base import SplightBaseModel
-from os import stat
+from os import stat  # noqa
 import re
 import math
 from collections import defaultdict
@@ -7,6 +9,10 @@ from enum import Enum
 from pydoc import locate
 from pydantic import validator
 from typing import Any, Optional, List, Dict
+from .common import SeverityType
+from splight_database.django.djatabase.models.constants import (
+    EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL
+)
 
 
 def _safe_eval(expression):
@@ -64,7 +70,6 @@ class AlgorithmRule(SplightBaseModel):
             statement = _pattern.sub(lambda m: _variables[re.escape(m.group(0))], statement)
         return _safe_eval(statement)
 
-
     @validator('statement', always=True)
     def statement_validate(cls, statement, values):
         try:
@@ -72,6 +77,14 @@ class AlgorithmRule(SplightBaseModel):
         except (SyntaxError, NameError):
             raise ValueError("Invalid syntax")
         return statement
+
+
+class OperatorType(str, Enum):
+    greater_than = GREATER_THAN
+    greater_than_or_equal = GREATER_THAN_OR_EQUAL
+    lower_than = LOWER_THAN
+    lower_than_or_equal = LOWER_THAN_OR_EQUAL
+    equal = EQUAL
 
 
 class MappingRule(SplightBaseModel):
@@ -83,6 +96,8 @@ class MappingRule(SplightBaseModel):
     message: str
     name: Optional[str]
     description: Optional[str] = None
+    severity: SeverityType = SeverityType.info
+    operator: OperatorType = OperatorType.equal
 
     @validator("name", always=True)
     def get_name(cls, name: str, values: Dict[str, Any]) -> str:
@@ -95,3 +110,9 @@ class MappingRule(SplightBaseModel):
         if not description:
             return values.get('value', None)
         return description
+
+    def is_satisfied(self, value):
+        rule_value = getattr(builtins, self.type)(self.value)
+        value = getattr(builtins, self.type)(value)
+        return getattr(operator, self.operator)(rule_value, value)
+
