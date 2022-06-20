@@ -11,6 +11,7 @@ class Variable(SplightBaseModel):
     asset_id: Optional[str] = None
     attribute_id: Optional[str] = None
     instance_id: Optional[str] = None
+    instance_type: Optional[str] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

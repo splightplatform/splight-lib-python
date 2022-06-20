@@ -13,7 +13,8 @@ class TestVariable(TestCase):
             "path": "path1",
             "asset_id": "id1",
             "attribute_id": "1",
-            "instance_id": "1"
+            "instance_id": "1",
+            "instance_type": "testtype"
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.json(), str)
@@ -27,7 +28,8 @@ class TestVariable(TestCase):
             "path": "path1",
             "attribute_id": "1",
             "asset_id": "id1",
-            "instance_id": "1"
+            "instance_id": "1",
+            "instance_type": "testtype"
         }
         variable = Variable(**variable_data)
         self.assertIsInstance(variable.dict(), dict)
@@ -44,6 +46,8 @@ class TestVariable(TestCase):
         self.assertTrue(hasattr(variable, "attribute_id"))
         self.assertTrue(hasattr(variable, "asset_id"))
         self.assertTrue(hasattr(variable, "timestamp"))
+        self.assertTrue(hasattr(variable, "instance_id"))
+        self.assertTrue(hasattr(variable, "instance_type"))
 
 
 class TestMessage(TestCase):
