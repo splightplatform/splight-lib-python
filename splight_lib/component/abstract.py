@@ -87,6 +87,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         """
         instances = kwargs.get("instances", [])
         variables = [v for v in instances if isinstance(v, Variable)]
+        print(self.managed_class)
         for variable in variables:
             variable.instance_id = self.instance_id
             variable.instance_type = self.managed_class.__name__
@@ -94,7 +95,6 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
 
     def _load_metadata(self):
         self._version = self._spec.version
-        self.managed_class = getattr(models, self._spec.type, Runner)
 
     def _load_context(self):
         self.namespace = self._spec.namespace
