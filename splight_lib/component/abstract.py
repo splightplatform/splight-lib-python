@@ -87,7 +87,6 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         """
         instances = kwargs.get("instances", [])
         variables = [v for v in instances if isinstance(v, Variable)]
-        print(self.managed_class)
         for variable in variables:
             variable.instance_id = self.instance_id
             variable.instance_type = self.managed_class.__name__
