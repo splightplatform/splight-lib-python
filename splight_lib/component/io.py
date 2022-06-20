@@ -19,6 +19,7 @@ logger = logging.getLogger()
 
 
 class AbstractIOComponent(AbstractComponent):
+    managed_class = Connector
     mapping_class: Type = None
     mappings: List = []
     _hashed_mappings: Dict = {}
@@ -138,7 +139,6 @@ class AbstractIOComponent(AbstractComponent):
 
 
 class AbstractClientComponent(AbstractIOComponent):
-    managed_class = Connector
     mapping_class = ClientMapping
 
     def __init__(self, *args, **kwargs):
@@ -186,7 +186,6 @@ class AbstractClientComponent(AbstractIOComponent):
 
 
 class AbstractServerComponent(AbstractIOComponent):
-    managed_class = Connector
     mapping_class = ServerMapping
 
     def __init__(self,

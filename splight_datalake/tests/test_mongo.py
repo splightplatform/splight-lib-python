@@ -19,18 +19,20 @@ class TestMongoClient(TestCase):
 
     def test_get_variable(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_id="1", instance_type="testtype")
         ]
         return_value = [
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             }
         ]
         expected_result = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 8, 0), instance_id="1", instance_type="testtype")
         ]
         client = MongoClient()
         pipeline = client._get_pipeline(
@@ -54,27 +56,33 @@ class TestMongoClient(TestCase):
 
     def test_get_multiple_variables(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={}),
-            Variable(asset_id="2", attribute_id="2", args={})
+            Variable(asset_id="1", attribute_id="1", instance_id="1", instance_type="testtype", args={}),
+            Variable(asset_id="2", attribute_id="2", instance_id="1", instance_type="testtype", args={})
         ]
         first_call = [
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 17, 0)
+                "timestamp": datetime(2012, 1, 1, 17, 0),
+                "instance_id": "1",
+                "instance_type": "testtype"
             },
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 17, 1)
+                "timestamp": datetime(2012, 1, 1, 17, 1),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value3"},
-                "timestamp": datetime(2012, 1, 1, 17, 2)
+                "timestamp": datetime(2012, 1, 1, 17, 2),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
         ]
 
@@ -83,30 +91,36 @@ class TestMongoClient(TestCase):
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 17, 0)
+                "timestamp": datetime(2012, 1, 1, 17, 0),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 17, 1)
+                "timestamp": datetime(2012, 1, 1, 17, 1),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value3"},
-                "timestamp": datetime(2012, 1, 1, 17, 2)
+                "timestamp": datetime(2012, 1, 1, 17, 2),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             }
         ]
         expected_result_first_call = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None, timestamp=datetime(2012, 1, 1, 17, 0)),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 17, 1)),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None, timestamp=datetime(2012, 1, 1, 17, 2))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 0)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 1)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 2))
         ]
         expected_result_second_call = [
-            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None, timestamp=datetime(2012, 1, 1, 17, 0)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 17, 1)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None, timestamp=datetime(2012, 1, 1, 17, 2))
+            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 0)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 1)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 2))
         ]
 
         client = MongoClient()
@@ -156,9 +170,9 @@ class TestMongoClient(TestCase):
 
     def test_save_variable(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="2", instance_id="1", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0)),
+            Variable(asset_id="1", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
+            Variable(asset_id="2", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
+            Variable(asset_id="2", attribute_id="2", instance_id="1", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
         ]
         expected_data_list = [
             {
@@ -167,7 +181,8 @@ class TestMongoClient(TestCase):
                 "asset_id": "1",
                 "attribute_id": "1",
                 "instance_id": "1",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
             {
                 "args": {"value": "value1"},
@@ -175,7 +190,8 @@ class TestMongoClient(TestCase):
                 "asset_id": "2",
                 "attribute_id": "1",
                 "instance_id": "1",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
             {
                 "args": {"value": "value2"},
@@ -183,7 +199,8 @@ class TestMongoClient(TestCase):
                 "asset_id": "2",
                 "attribute_id": "2",
                 "instance_id": "1",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
         ]
         client = MongoClient()
@@ -197,11 +214,13 @@ class TestMongoClient(TestCase):
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype",
+                "instance_id" : "1"
             }
         ]
         expected_result = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype", instance_id="1")
         ]
         client = MongoClient()
         pipeline = client._get_pipeline(

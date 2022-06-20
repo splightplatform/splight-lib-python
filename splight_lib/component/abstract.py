@@ -89,6 +89,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             variable.instance_id = self.instance_id
+            variable.instance_type = self.managed_class.__name__
         return args, kwargs
 
     def _load_metadata(self):
