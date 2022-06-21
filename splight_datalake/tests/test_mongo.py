@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from unittest import TestCase
 from unittest.mock import patch, call
 from pymongo.database import Database
+from parameterized import parameterized
 from splight_communication import Variable
 from splight_datalake.mongo import MongoClient
 
@@ -283,4 +284,57 @@ class TestMongoClient(TestCase):
             {'$sort': {'timestamp': -1}},
             {'$limit': 2},
         ])
-        
+
+    @parameterized.expand([
+        ([None],),
+        ([
+            None,
+            ('timestamp', 'year'),
+            ('timestamp', 'dayOfYear'),
+            ('timestamp', 'hour'),
+            ('timestamp', 'minute'),
+            ('timestamp', 'second'),
+        ],),
+    ])
+    def test_get_pipelines_group_by_None(self, group_id):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=group_id,
+            group_fields=[]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$group': {
+                '_id': None, 
+                '_root': {'$last': '$$ROOT'}
+                }
+            },
+            {'$replaceRoot': {'newRoot': '$_root'}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])
+
+    def test_get_pipelines_group_fields_without_group_id(self):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=[],
+            group_fields=[
+                ('timestamp', 'last'),
+                ('asset_id', 'avg'),
+            ]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])
