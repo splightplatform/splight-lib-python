@@ -102,7 +102,7 @@ class MongoClient(AbstractDatalakeClient):
     @staticmethod
     def __parse_group_id(group_id: List = []):
         _group_id = [item.rsplit('__', 1) for item in group_id]
-        _group_id = [None if item == 'null' else item for item in _group_id]
+        _group_id = [None if item[0] == 'null' else item for item in _group_id]
         return _group_id
 
     @staticmethod
