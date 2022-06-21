@@ -250,7 +250,7 @@ class TestMongoClient(TestCase):
         with self.assertRaises(ParticularException):
             client.save()
 
-    def test_get_pipelines(self):
+    def test_get_pipelines_group_id_without_group_fields(self):
         client = MongoClient()
         pipeline = client._get_pipeline(
             filters = {"key": 2},
@@ -296,7 +296,7 @@ class TestMongoClient(TestCase):
             ('timestamp', 'second'),
         ],),
     ])
-    def test_get_pipelines_group_by_None(self, group_id):
+    def test_get_pipelines_group_id_None(self, group_id):
         client = MongoClient()
         pipeline = client._get_pipeline(
             filters = {"key": 2},
@@ -334,6 +334,50 @@ class TestMongoClient(TestCase):
         )
         self.assertEqual(pipeline, [
             {'$match': {'key': 2}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])
+
+    def test_get_pipelines_group_id_with_group_fields(self):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=[
+                ('timestamp', 'year'),
+                ('timestamp', 'dayOfYear'),
+                ('timestamp', 'hour'),
+                ('timestamp', 'minute'),
+                ('timestamp', 'second'),
+            ],
+            group_fields=[
+                ('args.value', 'avg'),
+                ('timestamp', 'last')
+            ]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$group': {
+                '_id': {
+                    'year-timestamp': {'$year': '$timestamp'},
+                    'dayOfYear-timestamp': {'$dayOfYear': '$timestamp'},
+                    'hour-timestamp': {'$hour': '$timestamp'},
+                    'minute-timestamp': {'$minute': '$timestamp'},
+                    'second-timestamp': {'$second': '$timestamp'},
+                }, 
+                '_root': {'$last': '$$ROOT'},
+                'agg_args__value': {'$avg': '$args.value'},
+                'agg_timestamp': {'$last': '$timestamp'}
+                }
+            },
+            {'$set': {
+                '_root.args.value': '$agg_args__value',
+                '_root.timestamp': '$agg_timestamp'
+            }},
+            {'$replaceRoot': {'newRoot': '$_root'}},
             {'$skip': 3},
             {'$sort': {'timestamp': -1}},
             {'$limit': 2},
