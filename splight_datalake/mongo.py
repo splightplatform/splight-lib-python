@@ -238,8 +238,30 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def get_collection_size_gb(self, collection: str) -> float:
-        return self.db.command("collstats", collection)["totalSize"] / (1024 * 1024 * 1024)
+    def get_component_storage_size_gb(self, id: str) -> float:
+        collections = self.db.collection_names()
+        size = 0
+        for collection in collections:
+            result = self._aggregate(
+                collection=collection,
+                pipeline=[
+                    {"$match": {"instance_id": id}},
+                    { 
+                        "$group": {
+                            "_id": "null",
+                            "size": { "$sum": { "$bsonSize": "$$ROOT" } }
+                        }
+                    }
+                ]
+            )
+            result = list(result)
+            if not result:
+                continue
+            result = list(result)[0]
+            result_size = result["size"]
+            result_size_gb = result_size / (1024 * 1024 * 1024)
+            size += result_size_gb
+        return size
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         _data = self.get(*args, **kwargs)

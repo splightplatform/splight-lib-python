@@ -4,6 +4,7 @@ from pydantic import validator, root_validator
 from ..base import SplightBaseModel
 from typing import List, Optional, Dict
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 
 class BillingEventType(str, Enum):
     COMPONENT_DEPLOYMENT = "component_deployment"
@@ -21,7 +22,7 @@ class Discount(SplightBaseModel):
     def check_discount_value(cls, values):
         v = values['value']
         if values['type'] == DiscountType.PERCENTAGE:
-            if v < 0 or values > 100:
+            if v < 0 or v > 100:
                 raise ValueError("Discount percentage must be between 0 and 100")
         return values
 
@@ -134,22 +135,26 @@ class MonthBilling(SplightBaseModel):
     def set_total_price(cls, values):
         billings = values['billings']
         discount = values['discount']
-        if not discount:
-            discount = 0
-        else:
-            discount = discount.dict()
-            discount = discount["value"] if discount["type"] == DiscountType.FIXED else billing_value * discount["value"] / 100
-        discount = max(0, discount)
 
-        billing_value = 0
+        billing_value: Decimal = Decimal(0)
         for billing in billings:
             if type(billing) != dict:
                 billing = billing.dict()
-            billing_value += billing["total_price"]
+            billing_value += Decimal(billing["total_price"])
 
-        billing_value = max(0, billing_value)
-        total_price = max(0, billing_value - discount)
+        if not discount:
+            discount = Decimal(0)
+        else:
+            if type(discount) != dict:
+                discount = discount.dict()
+            discount_value = Decimal(discount["value"])
+            discount = discount_value if discount["type"] == DiscountType.FIXED else billing_value * discount_value / Decimal(100)
+        discount = max(Decimal(0), discount).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
+        billing_value = max(Decimal(0), billing_value).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+        total_price = max(Decimal(0), billing_value - discount).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+
+        
         values['total_price_without_discount'] = billing_value
         values['total_price'] = total_price
         values['discount_value'] = discount

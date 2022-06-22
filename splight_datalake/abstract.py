@@ -48,7 +48,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get_collection_size_gb(self, collection: str) -> float:
+    def get_component_storage_size_gb(self, id: str) -> float:
         pass
     
     def _validated_kwargs(self, resource_type: Type, **kwargs):
@@ -61,4 +61,3 @@ class AbstractDatalakeClient(AbstractClient):
         }
 
         return valid_filter
-
