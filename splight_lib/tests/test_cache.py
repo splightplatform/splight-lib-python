@@ -41,6 +41,12 @@ class TestCacheFunctions(TestCase):
         self.assertEqual(self.called_count, 2)
 
     def test_cache_values(self):
+        EXPECTED_RESULT = self.cached_dummy(1)
+        res = self.cached_dummy(1)
+        self.assertEqual(self.called_count, 1)
+        self.assertEqual(res, EXPECTED_RESULT)
+
+    def test_flush_cache_multiple_values(self):
         self.cached_dummy(1, 'hola')
         self.cached_dummy(2, 'manola')
         self.flush_dummy_prefix()
