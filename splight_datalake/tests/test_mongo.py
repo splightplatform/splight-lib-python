@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from unittest import TestCase
 from unittest.mock import patch, call
 from pymongo.database import Database
+from parameterized import parameterized
 from splight_communication import Variable
 from splight_datalake.mongo import MongoClient
 
@@ -19,18 +20,20 @@ class TestMongoClient(TestCase):
 
     def test_get_variable(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_id="1", instance_type="testtype")
         ]
         return_value = [
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             }
         ]
         expected_result = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 8, 0), instance_id="1", instance_type="testtype")
         ]
         client = MongoClient()
         pipeline = client._get_pipeline(
@@ -54,27 +57,33 @@ class TestMongoClient(TestCase):
 
     def test_get_multiple_variables(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={}),
-            Variable(asset_id="2", attribute_id="2", args={})
+            Variable(asset_id="1", attribute_id="1", instance_id="1", instance_type="testtype", args={}),
+            Variable(asset_id="2", attribute_id="2", instance_id="1", instance_type="testtype", args={})
         ]
         first_call = [
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 17, 0)
+                "timestamp": datetime(2012, 1, 1, 17, 0),
+                "instance_id": "1",
+                "instance_type": "testtype"
             },
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 17, 1)
+                "timestamp": datetime(2012, 1, 1, 17, 1),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value3"},
-                "timestamp": datetime(2012, 1, 1, 17, 2)
+                "timestamp": datetime(2012, 1, 1, 17, 2),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
         ]
 
@@ -83,30 +92,36 @@ class TestMongoClient(TestCase):
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 17, 0)
+                "timestamp": datetime(2012, 1, 1, 17, 0),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value2"},
-                "timestamp": datetime(2012, 1, 1, 17, 1)
+                "timestamp": datetime(2012, 1, 1, 17, 1),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             },
             {
                 "asset_id": "2",
                 "attribute_id": "2",
                 "args": {"value": "value3"},
-                "timestamp": datetime(2012, 1, 1, 17, 2)
+                "timestamp": datetime(2012, 1, 1, 17, 2),
+                "instance_id": "1",
+                "instance_type": "testtype" 
             }
         ]
         expected_result_first_call = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None, timestamp=datetime(2012, 1, 1, 17, 0)),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 17, 1)),
-            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None, timestamp=datetime(2012, 1, 1, 17, 2))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 0)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value2"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 1)),
+            Variable(asset_id="1", attribute_id="1", args={"value": "value3"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 2))
         ]
         expected_result_second_call = [
-            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None, timestamp=datetime(2012, 1, 1, 17, 0)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None, timestamp=datetime(2012, 1, 1, 17, 1)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None, timestamp=datetime(2012, 1, 1, 17, 2))
+            Variable(asset_id="2", attribute_id="2", args={"value": "value1"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 0)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 1)),
+            Variable(asset_id="2", attribute_id="2", args={"value": "value3"}, path=None, instance_id="1", instance_type="testtype", timestamp=datetime(2012, 1, 1, 17, 2))
         ]
 
         client = MongoClient()
@@ -156,9 +171,9 @@ class TestMongoClient(TestCase):
 
     def test_save_variable(self):
         vars = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0)),
-            Variable(asset_id="2", attribute_id="2", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0)),
+            Variable(asset_id="1", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
+            Variable(asset_id="2", attribute_id="1", instance_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
+            Variable(asset_id="2", attribute_id="2", instance_id="1", args={"value": "value2"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype"),
         ]
         expected_data_list = [
             {
@@ -166,21 +181,27 @@ class TestMongoClient(TestCase):
                 "path": None,
                 "asset_id": "1",
                 "attribute_id": "1",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "instance_id": "1",
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
             {
                 "args": {"value": "value1"},
                 "path": None,
                 "asset_id": "2",
                 "attribute_id": "1",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "instance_id": "1",
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
             {
                 "args": {"value": "value2"},
                 "path": None,
                 "asset_id": "2",
                 "attribute_id": "2",
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "instance_id": "1",
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype"
             },
         ]
         client = MongoClient()
@@ -194,11 +215,13 @@ class TestMongoClient(TestCase):
                 "asset_id": "1",
                 "attribute_id": "1",
                 "args": {"value": "value1"},
-                "timestamp": datetime(2012, 1, 1, 8, 0)
+                "timestamp": datetime(2012, 1, 1, 8, 0),
+                "instance_type": "testtype",
+                "instance_id" : "1"
             }
         ]
         expected_result = [
-            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0))
+            Variable(asset_id="1", attribute_id="1", args={"value": "value1"}, timestamp=datetime(2012, 1, 1, 8, 0), instance_type="testtype", instance_id="1")
         ]
         client = MongoClient()
         pipeline = client._get_pipeline(
@@ -227,7 +250,7 @@ class TestMongoClient(TestCase):
         with self.assertRaises(ParticularException):
             client.save()
 
-    def test_get_pipelines(self):
+    def test_get_pipelines_group_id_without_group_fields(self):
         client = MongoClient()
         pipeline = client._get_pipeline(
             filters = {"key": 2},
@@ -261,4 +284,101 @@ class TestMongoClient(TestCase):
             {'$sort': {'timestamp': -1}},
             {'$limit': 2},
         ])
-        
+
+    @parameterized.expand([
+        ([None],),
+        ([
+            None,
+            ('timestamp', 'year'),
+            ('timestamp', 'dayOfYear'),
+            ('timestamp', 'hour'),
+            ('timestamp', 'minute'),
+            ('timestamp', 'second'),
+        ],),
+    ])
+    def test_get_pipelines_group_id_None(self, group_id):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=group_id,
+            group_fields=[]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$group': {
+                '_id': None, 
+                '_root': {'$last': '$$ROOT'}
+                }
+            },
+            {'$replaceRoot': {'newRoot': '$_root'}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])
+
+    def test_get_pipelines_group_fields_without_group_id(self):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=[],
+            group_fields=[
+                ('timestamp', 'last'),
+                ('asset_id', 'avg'),
+            ]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])
+
+    def test_get_pipelines_group_id_with_group_fields(self):
+        client = MongoClient()
+        pipeline = client._get_pipeline(
+            filters = {"key": 2},
+            limit = 2,
+            skip = 3,
+            sort=[('timestamp', -1)],
+            group_id=[
+                ('timestamp', 'year'),
+                ('timestamp', 'dayOfYear'),
+                ('timestamp', 'hour'),
+                ('timestamp', 'minute'),
+                ('timestamp', 'second'),
+            ],
+            group_fields=[
+                ('args.value', 'avg'),
+                ('timestamp', 'last')
+            ]
+        )
+        self.assertEqual(pipeline, [
+            {'$match': {'key': 2}},
+            {'$group': {
+                '_id': {
+                    'year-timestamp': {'$year': '$timestamp'},
+                    'dayOfYear-timestamp': {'$dayOfYear': '$timestamp'},
+                    'hour-timestamp': {'$hour': '$timestamp'},
+                    'minute-timestamp': {'$minute': '$timestamp'},
+                    'second-timestamp': {'$second': '$timestamp'},
+                }, 
+                '_root': {'$last': '$$ROOT'},
+                'agg_args__value': {'$avg': '$args.value'},
+                'agg_timestamp': {'$last': '$timestamp'}
+                }
+            },
+            {'$set': {
+                '_root.args.value': '$agg_args__value',
+                '_root.timestamp': '$agg_timestamp'
+            }},
+            {'$replaceRoot': {'newRoot': '$_root'}},
+            {'$skip': 3},
+            {'$sort': {'timestamp': -1}},
+            {'$limit': 2},
+        ])

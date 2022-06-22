@@ -5,6 +5,7 @@ from splight_lib.datalake import DatalakeClient
 from splight_lib.notification import NotificationClient
 from parameterized import parameterized
 from shortcut import notify
+from splight_database.django.djatabase.models.constants import ALGORITHM
 
 
 class TestNotification(TestCase):
@@ -31,7 +32,9 @@ class TestNotification(TestCase):
             title="Title sample",
             asset_id=1,
             attribute_id=1,
-            rule_id=1
+            rule_id=1,
+            source_id='3',
+            source_type=ALGORITHM,
         ),),
     ])
     def test_notify(self, notification):

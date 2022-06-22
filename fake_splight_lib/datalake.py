@@ -183,5 +183,5 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         ]
         self.save(Variable, instances=variables, collection=collection)
 
-    def create_index(self, index):
+    def create_index(self, collection: str, index: list) -> None:
         pass
