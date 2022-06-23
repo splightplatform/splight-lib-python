@@ -5,12 +5,12 @@ with open('requirements.txt') as fp:
     install_requires = fp.readlines()
 
 dependency_links = [
-    # External repositories different from pypi
+    # External repoitories different from pypi
 ]
 
 setup(
     name='splight-lib',
-    version='0.3.38',
+    version='0.3.39',
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
