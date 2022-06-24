@@ -8,7 +8,7 @@ SELECTOR = {
     'sqlite': DjangoClient,
 }
 
-DatabaseClient = SELECTOR.get(os.environ.get('DATABASE', 'fake'))
+DatabaseClient = SELECTOR.get(os.environ.get('DATABASE', 'sqlite'))
 
 __all__ = [
     "DatabaseClient",

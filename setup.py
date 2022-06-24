@@ -5,16 +5,19 @@ with open('requirements.txt') as fp:
     install_requires = fp.readlines()
 
 dependency_links = [
-    # External repositories different from pypi
+    # External repoitories different from pypi
 ]
 
 setup(
     name='splight-lib',
-    version='0.3.39',
+    version='0.3.40',
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
-    package_data={'splight_deployment': ['kubernetes/templates/*.yaml']},
+    package_data={
+        'splight_deployment': ['kubernetes/templates/*.yaml'],
+        'splight_database': ['django/db.sqlite3']
+    },
     include_package_data=True,
     scripts=[],
     url=None,
