@@ -52,5 +52,3 @@ Thumbs.db
 *.wmv
 #vscode
 .vscode
-#sqlite databases
-*.sqlite3
