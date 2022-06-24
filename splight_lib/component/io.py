@@ -30,7 +30,7 @@ class AbstractIOComponent(AbstractComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
-        self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=60))
+        self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=10))
         self.datalake_client.add_pre_hook('save', self.hook_rules)
         self.datalake_client.add_pre_hook('save', self.hook_map_variable)
 

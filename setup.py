@@ -14,7 +14,10 @@ setup(
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
-    package_data={'splight_deployment': ['kubernetes/templates/*.yaml']},
+    package_data={
+        'splight_deployment': ['kubernetes/templates/*.yaml'],
+        'splight_database': ['django/db.sqlite3']
+    },
     include_package_data=True,
     scripts=[],
     url=None,
