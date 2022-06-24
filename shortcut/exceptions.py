@@ -1,0 +1,2 @@
+class ShortcutException(Exception):
+    pass

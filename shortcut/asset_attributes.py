@@ -1,4 +1,7 @@
+from jsonpath_ng.ext import parse
+from jsonpath_ng import JSONPathError
 from typing import List, Any, Union, Optional
+from shortcut.exceptions import ShortcutException
 from splight_lib.communication import Variable, Message, Action, ExternalCommunicationClient
 from splight_lib.datalake import DatalakeClient
 from splight_lib.database import DatabaseClient
@@ -75,6 +78,7 @@ def _asset_write(asset_id: str, attribute_id: str, value: Any, database_client: 
     else:
         raise NotImplementedError
 
+
 def get_asset_attributes(asset_id: str, database_client: DatabaseClient) -> List[Attribute]:
     '''
     This function returns all the attributes of an asset.
@@ -107,3 +111,49 @@ def asset_set(asset_id: str, attribute_id: str, value: Any, namespace: str) -> N
     db_client = DatabaseClient(namespace)
     q_client = ExternalCommunicationClient(namespace)
     _asset_write(asset_id=asset_id, attribute_id=attribute_id, value=value, database_client=db_client, communication_client=q_client)
+
+
+def asset_load_history(
+        asset_id: str,
+        dataframe: pd.DataFrame,
+        db_client: DatabaseClient,
+        dl_client: DatalakeClient
+    ) -> None:
+    """
+    Loads history from dataframe with timestamp column
+    """
+    mappings = db_client.get(ClientMapping, asset_id=asset_id)
+    logger.info(mappings)
+
+    try:
+        dataframe.timestamp = pd.to_datetime(dataframe.timestamp)
+    except Exception as e:
+        raise ShortcutException(f"Invalid dataframe. Check timestamp column: {str(e)}")
+
+    for _, row in dataframe.iterrows():
+        for map in mappings:
+            try:
+                jsonpath = parse(map.path)
+            except JSONPathError:
+                logger.error(f"Not possible to parse {map.path}")
+                continue
+            variables = [
+                Variable(
+                    timestamp=row.timestamp,
+                    asset_id=map.asset_id,
+                    attribute_id=map.attribute_id,
+                    path=map.path,
+                    args={
+                        "value": match.value,
+                    }
+                )
+                for match in jsonpath.find([row.to_dict()])
+            ]
+            if not variables:
+                continue
+            dl_client.save(
+                Variable,
+                instances = variables
+            )
+
+

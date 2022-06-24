@@ -1,11 +1,14 @@
 from django.test import TestCase
+from shortcut.exceptions import ShortcutException
+from splight_lib.storage import StorageClient
 from splight_models import Variable
 from splight_lib.database import DatabaseClient
 from splight_lib.datalake import DatalakeClient
 from splight_lib.communication import *
 from splight_models import *
 from unittest.mock import patch, call
-from ..asset_attributes import _get_asset_attribute_mapping, asset_get, asset_set, NoDefaultValue
+from parameterized import parameterized
+from ..asset_attributes import _get_asset_attribute_mapping, asset_get, asset_set, NoDefaultValue, asset_load_history
 
 
 class TestAssetAttributes(TestCase):
@@ -13,6 +16,7 @@ class TestAssetAttributes(TestCase):
         self.namespace = "default"
         self.database = DatabaseClient(self.namespace)
         self.datalake = DatalakeClient(self.namespace)
+        self.storage = StorageClient(self.namespace)
 
         self.asset = self.database.save(Asset(name="Asset1", description="test_description"))
         self.attribute = self.database.save(Attribute(name="Attribute11"))
@@ -120,3 +124,95 @@ class TestAssetAttributes(TestCase):
             asset_set(self.asset.id, self.attribute.id, VALUE4, self.namespace)
             value_mapping = self.database.get(ValueMapping, asset_id=self.asset.id, attribute_id=self.attribute.id)[0]
             self.assertEqual(value_mapping.value, str(VALUE4))
+
+    def test_asset_load_history_raises(self):
+        rows = [
+            ('2018-01-02', 21.5, 'AlgunaCategoria', 12.2),
+            ('2018-01-03', 22.5, 'AlgunaCategoria', 13.5),
+            ('2018-01-04', 21.6, 'AlgunaCategoria', 15),
+        ]
+        dataframe = pd.DataFrame(
+            data=rows,
+            columns=['date', 'value', 'category', 'another_value']
+        )
+        with self.assertRaises(ShortcutException):
+            asset_load_history(self.asset.id, dataframe, self.database, self.datalake)
+
+    def test_asset_load_history_without_mappings(self):
+        rows = [
+            ('2018-01-02', 21.5, 'AlgunaCategoria', 12.2),
+            ('2018-01-03 14:00', 22.5, 'AlgunaCategoria', 13.5),
+            ('2018-01-03', 22.5, 'OtraCategoria', 13.5),
+            ('2018-01-04', 21.6, 'AlgunaCategoria', 15),
+        ]
+        dataframe = pd.DataFrame(
+            data=rows,
+            columns=['timestamp', 'value', 'category', 'another_value']
+        )
+        asset_history = self.datalake.get(Variable, asset_id=self.asset.id)
+        asset_load_history(self.asset.id, dataframe, self.database, self.datalake)
+        self.assertEqual(self.datalake.get(Variable, asset_id=self.asset.id), asset_history)
+
+    @parameterized.expand([
+        (
+            [
+                "$[?(@.category='AlgunaCategoria')].another_value"
+            ],
+            [
+                Variable(timestamp=datetime(2018, 1, 2, 0, 0), args={"value": 12.2}),
+                Variable(timestamp=datetime(2018, 1, 3, 14, 0), args={"value": 13.5}),
+                Variable(timestamp=datetime(2018, 1, 4, 0, 0), args={"value": 15}),
+            ]
+        ),
+        (
+            [
+                "$[?(@.category='AlgunaCategoria')].another_value",
+                "$[?(@.category='OtraCategoria')].value"
+            ],
+            [
+                Variable(timestamp=datetime(2018, 1, 2, 0, 0), args={"value": 12.2}),
+                Variable(timestamp=datetime(2018, 1, 3, 14, 0), args={"value": 13.5}),
+                Variable(timestamp=datetime(2018, 1, 3, 0), args={"value": 22.5}),
+                Variable(timestamp=datetime(2018, 1, 4, 0, 0), args={"value": 15}),
+            ]
+        ),
+        (
+            [
+                "$[?(@.category='AlgunaCategoria')].value",
+                "$[?(@.category='OtraCategoria')].another_value"
+            ],
+            [
+                Variable(timestamp=datetime(2018, 1, 2, 0, 0), args={"value": 21.5}),
+                Variable(timestamp=datetime(2018, 1, 3, 14, 0), args={"value": 22.5}),
+                Variable(timestamp=datetime(2018, 1, 3, 0), args={"value": 13.5}),
+                Variable(timestamp=datetime(2018, 1, 4, 0, 0), args={"value": 21.6}),
+            ]
+        ),
+    ])
+    def test_asset_load_history_with_mappings(self, paths, expected_results):
+        rows = [
+            ('2018-01-02', 21.5, 'AlgunaCategoria', 12.2),
+            ('2018-01-03 14:00', 22.5, 'AlgunaCategoria', 13.5),
+            ('2018-01-03', 22.5, 'OtraCategoria', 13.5),
+            ('2018-01-04', 21.6, 'AlgunaCategoria', 15),
+        ]
+        dataframe = pd.DataFrame(
+            data=rows,
+            columns=['timestamp', 'value', 'category', 'another_value']
+        )
+        asset_history = self.datalake.get(Variable, asset_id=self.asset.id)
+        for path in paths:
+            attribute = self.database.save(Attribute(name=path))
+            self.database.save(ClientMapping(
+                name="AlgunMapping",
+                path=path,
+                connector_id=self.client_connector.id,
+                asset_id=self.asset.id,
+                attribute_id=attribute.id
+            ))
+        asset_load_history(self.asset.id, dataframe, self.database, self.datalake)
+        new_asset_history = self.datalake.get(Variable, asset_id=self.asset.id)
+        self.assertNotEqual(new_asset_history, asset_history)
+        self.assertEqual(len(new_asset_history), len(expected_results))
+        self.assertEqual([v.timestamp for v in new_asset_history], [v.timestamp for v in expected_results])
+        self.assertEqual([v.args for v in new_asset_history], [v.args for v in expected_results])
