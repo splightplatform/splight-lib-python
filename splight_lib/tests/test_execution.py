@@ -65,7 +65,7 @@ class TestExecutionClient(TestCase):
         self.assertEqual(len(self.executions), 0)
         # Start task
         client.start(task)
-        
+
         # Check 1 more execution in a period after start
         prev_count = len(self.executions)
         time.sleep(0.99)

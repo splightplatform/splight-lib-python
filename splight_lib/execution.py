@@ -121,7 +121,7 @@ class TaskMap:
             self._map[task.hash] = TaskSet(task)
             return True
 
-        return self._map[task.hash].add_task(task)
+        return self._map[task.hash].add_period(task.period)
 
     def remove_task(self, task: Task) -> bool:
         """
@@ -139,9 +139,95 @@ class TaskMap:
         # This don't delete the key if is empty, it does not bother
         return self._map[task.hash].remove_period(task.period)
 
-    def get_list(self) -> TaskSet:
+    def get_list(self) -> List[TaskSet]:
         """Get the list of scans."""
-        return [value for _, value in self._map.items()]
+        return list(self._map.values())
+
+
+class Scheduler:
+    def __init__(self, *args, **kwargs) -> None:
+        self._tasks = TaskMap()
+        self._event = Event()
+        self._mutex = Lock()
+        self._to_add: List[Task] = []
+        self._to_remove: List[Task] = []
+
+    def start(self) -> None:
+        """Scheduler infinite loop."""
+        self._stop = False
+        while not self._stop:
+            # Update the task list
+            self._update_task_list()
+            # Run the scheduler task
+            near_event = self._schedule()
+            # Get the next event
+            next_event_time = near_event - time.time()
+
+            # Wait until next event or someone trigger the event
+            self._event.wait(timeout=next_event_time)
+            self._event.clear()
+
+    def stop(self) -> None:
+        self._stop = True
+
+    def _schedule(self) -> float:
+        """Scheduler main task."""
+        now = time.time()
+        near_event: float = now + 65536  # 2**16
+
+        for task_set in self._tasks.get_list():
+            if task_set.in_time(now):
+                task_set.handler(*task_set.args)
+                task_set.update_event()
+
+            near_event = min(near_event, task_set.next_event)
+
+        return near_event
+
+    def _notify_scheduler(self) -> None:
+        """
+        Unlock the scheduler if is locked.
+        This will run the scheduler main task.
+        """
+        self._event.set()
+
+    def schedule(self, task: Task) -> None:
+        """
+        Add new task to the scheduler.
+
+        Args:
+            task (Task): The new job.
+        """
+
+        with self._mutex:
+            self._to_add.append(task)
+
+        self._notify_scheduler()
+
+    def unschedule(self, task: Task) -> None:
+        """
+        Delete a task from the scheduler.
+
+        Args:
+            task (Task): Job to delete.
+        """
+        with self._mutex:
+            self._to_remove.append(task)
+
+        self._notify_scheduler()
+
+    def _update_task_list(self) -> None:
+        """
+        Update the task list.
+        """
+        with self._mutex:
+            for task in self._to_add:
+                self._tasks.add_task(task)
+            for task in self._to_remove:
+                self._tasks.remove_task(task)
+
+            self._to_add = []
+            self._to_remove = []
 
 
 class Thread(DefaultThread):
@@ -178,79 +264,6 @@ class Popen(DefaultPopen):
 
     def exit_ok(self) -> bool:
         return self.poll() == 0
-
-
-class Scheduler:
-    def __init__(self, *args, **kwargs) -> None:
-        self._tasks = TaskMap()
-        self._event = Event()
-        self._mutex = Lock()
-        self._stop = False
-
-    def start(self) -> None:
-        """Scheduler infinite loop."""
-        while not self._stop:
-            # Run the scheduler task
-            near_event = self._schedule()
-            # Get the next event
-            next_event_time = near_event - time.time()
-
-            # Wait until next event or someone trigger the event
-            self._event.wait(timeout=next_event_time)
-            self._event.clear()
-
-    def stop(self) -> None:
-        self._stop = True
-
-    def _schedule(self) -> float:
-        """Scheduler main task."""
-        now = time.time()
-        near_event: float = now + 65536  # 2**16
-
-        with self._mutex:
-            for task_set in self._tasks.get_list():
-                if task_set.in_time(now):
-                    task_set.handler(*task_set.args)
-                    task_set.update_event()
-
-                near_event = min(near_event, task_set.next_event)
-
-        return near_event
-
-    def _notify_scheduler(self) -> None:
-        """
-        Unlock the scheduler if is locked.
-        This will run the scheduler main task.
-        """
-        self._event.set()
-
-    def schedule(self, task: Task) -> None:
-        """
-        Add new task to the scheduler.
-
-        Args:
-            task (Task): The new job.
-        """
-        with self._mutex:
-            need_update = self._tasks.add_task(task)
-
-        # Run the scheduler if is needed
-        if need_update:
-            self._notify_scheduler()
-
-    def unschedule(self, task: Task) -> None:
-        """
-        Delete a task from the scheduler.
-
-        Args:
-            task (Task): Job to delete.
-        """
-        with self._mutex:
-            need_update = self._tasks.remove_task(task)
-
-        # Run the scheduler if is needed
-        if need_update:
-            self._notify_scheduler()
 
 
 class ExecutionClient(AbstractClient):
@@ -313,7 +326,7 @@ class ExecutionClient(AbstractClient):
     def _start_task(self, job: Task) -> None:
         logger.debug(f"Starting Task {job}")
         return self._scheduler.schedule(job)
-    
+
     def _stop_task(self, job: Task) -> None:
         logger.debug(f"Stopping Task {job}")
         return self._scheduler.unschedule(job)
