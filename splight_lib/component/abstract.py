@@ -76,10 +76,24 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self._load_parameters()
         self._load_context()
         self.collection_name = str(self.instance_id)
+        
+        # Hooks
+        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
+
+
+    def hook_insert_origin(self, *args, **kwargs):
+        """
+        Hook to insert instance_id on save
+        """
+        instances = kwargs.get("instances", [])
+        variables = [v for v in instances if isinstance(v, Variable)]
+        for variable in variables:
+            variable.instance_id = self.instance_id
+            variable.instance_type = self.managed_class.__name__
+        return args, kwargs
 
     def _load_metadata(self):
         self._version = self._spec.version
-        self.managed_class = getattr(models, self._spec.type, Runner)
 
     def _load_context(self):
         self.namespace = self._spec.namespace

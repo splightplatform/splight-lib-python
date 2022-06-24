@@ -102,6 +102,7 @@ class MongoClient(AbstractDatalakeClient):
     @staticmethod
     def __parse_group_id(group_id: List = []):
         _group_id = [item.rsplit('__', 1) for item in group_id]
+        _group_id = [None if item[0] == 'null' else item for item in _group_id]
         return _group_id
 
     @staticmethod
@@ -115,31 +116,39 @@ class MongoClient(AbstractDatalakeClient):
         return {"$match": _match}
 
     @staticmethod
-    def __get_group_pipeline_step(group_id: List[Tuple] = [], group_fields: List[Tuple] = [], **kwargs):
+    def __get_group_pipeline_step(group_id: Union[List[Tuple], None] = [], group_fields: List[Tuple] = [], **kwargs):
         _group = None
-        if group_id:
+        if not group_id:
+            return {"$group": _group}
+
+        if None in group_id:
+            _group = {
+                "_id": None,
+            }
+        else:
             _group = {
                 "_id": {
                     f"{operator}-{field}": {f"${operator}": f"${field}"}
                     for field, operator in group_id
                 },
-                "_root": {"$last": "$$ROOT"}
             }
-            for field, operator in group_fields:
-                _group[f"agg_{field.replace('.', '__')}"] = {f"${operator}": f"${field.replace('__', '.')}"}
-
+        _group["_root"] = {"$last": "$$ROOT"}
+        for field, operator in group_fields:
+            _group[f"agg_{field.replace('.', '__')}"] = {f"${operator}": f"${field.replace('__', '.')}"}
         return {"$group": _group}
 
     @staticmethod
-    def __get_set_pipeline_step(group_fields: List[Tuple] = [], **kwargs):
-        _set = {
-            f"_root.{field.replace('__', '.')}": f"$agg_{field.replace('.', '__')}"
-            for field, _ in group_fields
-        }
+    def __get_set_pipeline_step(group_id: Union[List[Tuple], None] = [], group_fields: List[Tuple] = [], **kwargs):
+        _set = None
+        if group_id:
+            _set = {
+                f"_root.{field.replace('__', '.')}": f"$agg_{field.replace('.', '__')}"
+                for field, _ in group_fields
+            }
         return  {"$set": _set}
 
     @staticmethod
-    def __get_replaceRoot_pipeline_step(group_id: List[Tuple] = [], **kwargs):
+    def __get_replaceRoot_pipeline_step(group_id: Union[List[Tuple], None] = [], **kwargs):
         _replaceRoot = None
         if group_id:
             # Only want to replace root if we did a group in the past 
