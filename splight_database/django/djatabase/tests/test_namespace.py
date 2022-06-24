@@ -10,7 +10,7 @@ class TestNamespace(TestCase):
         return super().setUp()
 
     def test_create_namespace(self):
-        namespace = Namespace.objects.create(id="123")
+        namespace, _ = Namespace.objects.get_or_create(id="123")
         self.assertIsInstance(namespace, Namespace)
 
     # TODO https://splight.atlassian.net/browse/FAC-223
@@ -24,8 +24,8 @@ class TestNamespace(TestCase):
     #         asset.save()
 
     def test_cross_namespace_try_fk_raises(self):
-        namespace = Namespace.objects.create()
-        cross_namespace = Namespace.objects.create(id="1234")
+        namespace, _ = Namespace.objects.get_or_create()
+        cross_namespace, _ = Namespace.objects.get_or_create(id="1234")
         connector = Connector.objects.create(name="connector", version="dnp3", parameters=[], namespace=cross_namespace)
         attribute = Attribute.objects.create(name="attribute", namespace=namespace)
         asset = Asset.objects.create(name="asset", namespace=namespace)
