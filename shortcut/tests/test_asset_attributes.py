@@ -1,6 +1,5 @@
 from django.test import TestCase
 from shortcut.exceptions import ShortcutException
-from splight_lib.storage import StorageClient
 from splight_models import Variable
 from splight_lib.database import DatabaseClient
 from splight_lib.datalake import DatalakeClient
@@ -15,7 +14,6 @@ class TestAssetAttributes(TestCase):
         self.namespace = "default"
         self.database = DatabaseClient(self.namespace)
         self.datalake = DatalakeClient(self.namespace)
-        self.storage = StorageClient(self.namespace)
 
         self.asset = self.database.save(Asset(name="Asset1", description="test_description"))
         self.attribute = self.database.save(Attribute(name="Attribute11"))
