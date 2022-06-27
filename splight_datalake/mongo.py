@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
@@ -247,7 +248,15 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def get_component_storage_size_gb(self, id: str) -> float:
+    def get_component_storage_size_gb(self, id: str, start: datetime = None, end: datetime = None) -> float:
+        def parse_timestamp(start, end):
+            res = defaultdict(dict)
+            if start:
+                res["timestamp"]["$gte"] = start
+            if end:
+                res["timestamp"]["$lte"] = end
+            return res
+
         collections = self.db.collection_names()
         size = 0
         for collection in collections:
@@ -255,6 +264,7 @@ class MongoClient(AbstractDatalakeClient):
                 collection=collection,
                 pipeline=[
                     {"$match": {"instance_id": id}},
+                    {"$match": parse_timestamp(start, end)},
                     { 
                         "$group": {
                             "_id": "null",

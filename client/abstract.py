@@ -59,6 +59,10 @@ class AbstractClient(ABC, PreHookMixin):
             f"{field}__in" for field in class_fields
         ] + [
             f"{field}__contains" for field in class_fields
+        ] + [
+            f"{field}__lte" for field in class_fields
+        ] + [
+            f"{field}__gte" for field in class_fields
         ] + class_fields
 
         invalid_kwargs = [key for key in kwargs.keys() if key not in valid_kwargs]

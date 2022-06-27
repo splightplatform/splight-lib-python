@@ -8,6 +8,8 @@ from .djatabase.models import (
     Attribute as DBAttribute,
     BillingSettings as DBBillingSettings,
     MonthBilling as DBMonthBilling,
+    Billing as DBBilling,
+    DeploymentBillingItem as DBDeploymentBillingItem,
     Chart as DBChart,
     ChartItem as DBChartItem,
     Connector as DBConnector,
@@ -36,6 +38,8 @@ CLASSMAP = {
     Attribute: DBAttribute,
     BillingSettings: DBBillingSettings,
     MonthBilling: DBMonthBilling,
+    Billing: DBBilling,
+    DeploymentBillingItem: DBDeploymentBillingItem,
     Chart: DBChart,
     ChartItem: DBChartItem,
     Connector: DBConnector,
@@ -89,7 +93,6 @@ class DjangoClient(AbstractDatabaseClient):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()
         result = [resource_type(**i.to_dict()) for i in queryset]
-
         if first:
             return result[0] if result else None
 
