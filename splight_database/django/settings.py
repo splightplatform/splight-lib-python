@@ -1,6 +1,6 @@
 import os
 from splight_lib.settings import SPLIGHT_HOME
-
+USE_TZ = True
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'splight_database.django.djatabase'
