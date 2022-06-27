@@ -15,11 +15,14 @@ class HubComponent(SplightBaseModel):
     name: str
     description: Optional[str]
     version: str
-    impact: Optional[int] = None
-    privacy_policy: Optional[str] = None
-    tenant: Optional[str] = None
+    privacy_policy: str
+    tenant: str
     parameters: List[Parameter] = []
-    readme_url: Optional[str]
+    impact: Optional[int]
+    readme_url: str
+    picture_url: str
+    verification: str
+    last_modified: str
 
 
 class HubAlgorithm(HubComponent):
