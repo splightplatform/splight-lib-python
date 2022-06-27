@@ -1,6 +1,6 @@
-from jsonpath_ng.ext import parse
-from jsonpath_ng import JSONPathError
 from typing import List, Any, Union, Optional
+
+from pydantic import BaseModel
 from shortcut.exceptions import ShortcutException
 from splight_lib.communication import Variable, Message, Action, ExternalCommunicationClient
 from splight_lib.datalake import DatalakeClient
@@ -113,47 +113,61 @@ def asset_set(asset_id: str, attribute_id: str, value: Any, namespace: str) -> N
     _asset_write(asset_id=asset_id, attribute_id=attribute_id, value=value, database_client=db_client, communication_client=q_client)
 
 
+# TODO move this to DBclient ?
+def __get_or_create_from_series(db_client: DatabaseClient, db_class: BaseModel, serie: pd.Series):
+    id_by_name = {
+        name: db_client.get(db_class, name=name, first=True)
+        for name in serie.unique()
+    }
+    id_by_name_created = {
+        name: db_client.save(db_class(name=name))
+        for name, value in id_by_name.items()
+        if value is None
+    }
+    logger.info(f"Created {db_class.__name__}s {id_by_name_created}")
+    id_by_name.update(id_by_name_created)
+    id_by_name = {
+        name: obj.id
+        for name, obj in id_by_name.items()
+    }
+    return id_by_name
+
+
 def asset_load_history(
-        asset_id: str,
         dataframe: pd.DataFrame,
         db_client: DatabaseClient,
-        dl_client: DatalakeClient
+        dl_client: DatalakeClient,
+        asset_id: str = None,
+        asset_name_cols: List[str] = [],
+        attribute_id: str = None,
+        attribute_name_cols: List[str] = [],
     ) -> None:
     """
-    Loads history from dataframe with timestamp column
+    Loads history from dataframe with
+    timestamp column asset and attribute reference
     """
-    mappings = db_client.get(ClientMapping, asset_id=asset_id)
-    logger.info(mappings)
-
     try:
-        dataframe.timestamp = pd.to_datetime(dataframe.timestamp)
+        dataframe['timestamp'] = pd.to_datetime(dataframe.timestamp)
     except Exception as e:
-        raise ShortcutException(f"Invalid dataframe. Check timestamp column: {str(e)}")
-
-    for _, row in dataframe.iterrows():
-        for map in mappings:
-            try:
-                jsonpath = parse(map.path)
-            except JSONPathError:
-                logger.error(f"Not possible to parse {map.path}")
-                continue
-            variables = [
-                Variable(
-                    timestamp=row.timestamp,
-                    asset_id=map.asset_id,
-                    attribute_id=map.attribute_id,
-                    path=map.path,
-                    args={
-                        "value": match.value,
-                    }
-                )
-                for match in jsonpath.find([row.to_dict()])
-            ]
-            if not variables:
-                continue
-            dl_client.save(
-                Variable,
-                instances = variables
-            )
-
-
+        raise ShortcutException(str(e))
+    if asset_id:
+        dataframe['asset_id'] = asset_id
+    elif asset_name_cols:
+        asset_names: pd.Series = dataframe[asset_name_cols].astype(str).agg('-'.join, axis=1)
+        asset_name_map = __get_or_create_from_series(db_client, Asset, asset_names)
+        dataframe['asset_id'] = asset_names.apply(lambda name: asset_name_map.get(name))
+        dataframe = dataframe.drop(asset_name_cols, axis=1)
+    else:
+        raise ShortcutException("Cant ingest. Provide asset_id or (asset_name_col and asset_name_map)")
+    if attribute_id:
+        dataframe['attribute_id'] = attribute_id
+    elif attribute_name_cols:
+        attribute_name_cols: pd.Series = pd.Series(attribute_name_cols)
+        attribute_name_map = __get_or_create_from_series(db_client, Attribute, attribute_name_cols)
+        dataframe = dataframe.rename(columns=attribute_name_map)
+        required_columns = list(attribute_name_map.values()) + ['timestamp', 'asset_id']
+        dataframe = dataframe.drop([col for col in dataframe.columns if col not in required_columns], axis=1)
+        dataframe = VariableDataFrame.unfold(dataframe, asset_id=asset_id)
+    else:
+        raise ShortcutException("Cant ingest. Provide attribute_id or (attribute_name_col and attribute_name_map)")
+    return dl_client.save_dataframe(dataframe)

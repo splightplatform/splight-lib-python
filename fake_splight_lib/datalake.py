@@ -174,10 +174,11 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 asset_id=row.get("asset_id", None),
                 path=row.get("path", None),
                 attribute_id=row.get("attribute_id", None),
-                args={col: value for col, value in row.items() if col not in Variable.__fields__}
+                args={col: value for col, value in row.items() if col not in list(Variable.__fields__) + ['index']}
             ) for index, row in dataframe.iterrows()
         ]
         self.save(Variable, instances=variables, collection=collection)
+        return variables
 
     def create_index(self, collection: str, index: list) -> None:
         pass
