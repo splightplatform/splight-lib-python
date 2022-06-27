@@ -46,8 +46,9 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         col_file = os.path.join(DATALAKE_HOME, collection)
         if os.path.exists(col_file):
             with open(col_file, 'r+') as f:
-                _prev_data = json.loads(f.read())
-                data = _prev_data + data
+                content = f.read()
+        _prev_data = json.loads(content) if content else []
+        data = _prev_data + data
         with open(col_file, 'w+') as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
 
