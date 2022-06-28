@@ -14,7 +14,7 @@
 \usepackage{ragged2e}
 \usepackage{hhline}
 \usepackage{array}
-\usepackage[sfdefault,medium]{inter}
+\usepackage[sfdefault,light]{roboto}
 \usepackage{xcolor}
 \usepackage{colortbl}
 \usepackage{blindtext}
@@ -34,7 +34,7 @@
 }
 
 \begin{document}
-	
+
 \thispagestyle{empty}
 
 % Header, for company, invoice info
@@ -43,28 +43,28 @@
 \begin{tabularx}{\textwidth}{Xlr}
 \multirow{2}{*}{\includegraphics[height=45px]{\VAR{logo}}}                                                                                     &                  & \textbf{\Large{INVOICE}}                                            \\
                                                                                                                                                      &                  &                                                                     \\
-                                                                                                                                                     &                  & \begin{tabular}[c]{@{}r@{}}\textcolor{invoicedatacolor}{ \interlight INVOICE Nº}\\\VAR{id}\end{tabular} \\
-\begin{tabular}[c]{@{}l@{}}\\\textbf{\Large{Splight}} \\ \rule{-2pt}{2.5ex} \large Fast Learning Software LLC\end{tabular}                           &                  & \begin{tabular}[c]{@{}r@{}}\textcolor{invoicedatacolor}{\interlight DATE}\\\VAR{month.strftime('%d, %B %Y')}\end{tabular}  \\
+                                                                                                                                                     &                  & \begin{tabular}[c]{@{}r@{}}\textcolor{invoicedatacolor}{\mdseries INVOICE Nº}\\\VAR{id}\end{tabular} \\
+\begin{tabular}[c]{@{}l@{}}\\\textbf{\Large{Splight}} \\ \rule{-2pt}{2.5ex} \large Fast Learning Software LLC\end{tabular}                           &                  & \begin{tabular}[c]{@{}r@{}}\textcolor{invoicedatacolor}{\mdseries DATE}\\\VAR{month.strftime('%d, %B %Y')}\end{tabular}  \\
                                                                                                                                                      &                  & \multicolumn{1}{c}{}                                                \\
-\begin{tabular}[c]{@{}l@{}}\textcolor{addresscolor}{\interlight 16192 Coastal Highway}\\\textcolor{addresscolor}{\interlight Lewes, Delaware, 19958}\\\textcolor{addresscolor}{\interlight United States}\\\textcolor{addresscolor}{\interlight +1 (415) 688 5345}\\\textcolor{addresscolor}{\interlight business@splight-ae.com}\end{tabular} &                  & \multicolumn{1}{r}{\interlight \textcolor{invoicedatacolor}{Payment due upon receipt}}                                                         
+\begin{tabular}[c]{@{}l@{}}\textcolor{addresscolor}{\mdseries 16192 Coastal Highway}\\\textcolor{addresscolor}{\mdseries Lewes, Delaware, 19958}\\\textcolor{addresscolor}{\mdseries United States}\\\textcolor{addresscolor}{\mdseries +1 (415) 688 5345}\\\textcolor{addresscolor}{\mdseries business@splight-ae.com}\end{tabular} &                  & \multicolumn{1}{r}{\mdseries \textcolor{invoicedatacolor}{Payment due upon receipt}}                                                         
 \end{tabularx}     
 
 \vspace{1 cm}
 
 
 % Deployment fees table
-\justify{\interlight {\Large \VAR{deployment_billing["description"]}}\\}\\
+\justify{\mdseries {\Large \VAR{deployment_billing["description"]}}\\}\\
 \arrayrulecolor{tableseparatorcolor}
 \begin{tabularx}{\textwidth}{Xrrr}
 \rowcolor{tableheadercolor} & & &\\[0.25ex]
-\rowcolor{tableheadercolor} \intersemibold{Description} & \multicolumn{1}{r}{\intersemibold{Computing}} & \multicolumn{1}{r}{\intersemibold{Storage}} & \multicolumn{1}{r}{\intersemibold{Total}}  \\[2.5ex]
+\rowcolor{tableheadercolor} \bfseries Description & \multicolumn{1}{r}{\bfseries Computing} & \multicolumn{1}{r}{\bfseries Storage} & \multicolumn{1}{r}{\bfseries Total}  \\[2.5ex]
 \BLOCK{for billing_item in deployment_billing_items}
 & & &\\
-\interlight \VAR{billing_item["description"]}      & \interlight \$\VAR{billing_item["computing_price"]}                           & \interlight \$\VAR{billing_item["storage_price"]}                         & \interlight \$\VAR{billing_item["total_price"]}                   \\[2.5ex]
+\mdseries \VAR{billing_item["description"]}      & \mdseries \$\VAR{billing_item["computing_price"]}                           & \mdseries \$\VAR{billing_item["storage_price"]}                         & \mdseries \$\VAR{billing_item["total_price"]}                   \\[2.5ex]
 & & &\\\hline
 \BLOCK{endfor}
 \rowcolor{finaltablecolor} & & &\\[0.25ex]
-\rowcolor{finaltablecolor} \intersemibold \VAR{deployment_billing["description"]} subtotal              & \interlight  \$\VAR{deployment_billing["detailed_pricing"]["computing_price"]}    & \interlight  \$\VAR{deployment_billing["detailed_pricing"]["storage_price"]}    &  \textbf{\$\VAR{deployment_billing["total_price"]}}   \\[2.5ex]\hline
+\rowcolor{finaltablecolor} \textbf{\mdseries \VAR{deployment_billing["description"]} subtotal}              & \mdseries  \$\VAR{deployment_billing["detailed_pricing"]["computing_price"]}    & \mdseries  \$\VAR{deployment_billing["detailed_pricing"]["storage_price"]}    &  \textbf{\$\VAR{deployment_billing["total_price"]}}   \\[2.5ex]\hline
 \end{tabularx}
 
 \vspace{1cm}
@@ -74,19 +74,19 @@
 \arrayrulecolor{tableseparatorcolor}
 \begin{tabularx}{\textwidth}{XXr}
 & &\\
-{\large Remarks/Payment} {\large ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~instructions: N/A} & \interlight Subtotal & \$\VAR{total_price_without_discount}\\[2.5ex]\hhline{~--}
+{\large Remarks/Payment} {\large ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~instructions: N/A} & \mdseries Subtotal & \$\VAR{total_price_without_discount}\\[2.5ex]\hhline{~--}
 & &\\
-& \interlight Discount \VAR{discount_detail} & \$\VAR{discount_value}\\[2.5ex]\hhline{~--}
+& \mdseries Discount \VAR{discount_detail} & \$\VAR{discount_value}\\[2.5ex]\hhline{~--}
 & &\\
-& \interlight Subtotal less discount (type) & \$\VAR{total_price}\\[2.5ex]\hhline{~--}
+& \mdseries Subtotal less discount (type) & \$\VAR{total_price}\\[2.5ex]\hhline{~--}
 & &\\
-& \interlight Tax rate & 0\%\\[2.5ex]\hhline{~--}
+& \mdseries Tax rate & 0\%\\[2.5ex]\hhline{~--}
 & &\\
-& \interlight Total tax & \$0.00\\[2.5ex]\hhline{~--}
+& \mdseries Total tax & \$0.00\\[2.5ex]\hhline{~--}
 & &\\
-& \interlight Shipping/handling & \$0.00 \\[2.5ex]\arrayrulecolor{black}\hhline{~--}
+& \mdseries Shipping/handling & \$0.00 \\[2.5ex]\arrayrulecolor{black}\hhline{~--}
 & & \cellcolor{finaltablecolor}  \\[0.25ex]
-& \interlight \textbf{{\large Balance due}} & \cellcolor{finaltablecolor} \textbf{{\large \$\VAR{total_price}}}\\[2.5ex]\hhline{~--}
+& \mdseries \textbf{{\large Balance due}} & \cellcolor{finaltablecolor} \textbf{{\large \$\VAR{total_price}}}\\[2.5ex]\hhline{~--}
 \end{tabularx}
 
 \end{document}
