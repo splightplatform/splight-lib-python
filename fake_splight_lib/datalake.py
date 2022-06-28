@@ -44,10 +44,12 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def _write_to_collection(collection: str, data: List[dict]) -> None:
         os.makedirs(DATALAKE_HOME, exist_ok=True)
         col_file = os.path.join(DATALAKE_HOME, collection)
+        _prev_data = []
         if os.path.exists(col_file):
             with open(col_file, 'r+') as f:
-                _prev_data = json.loads(f.read())
-                data = _prev_data + data
+                content = f.read()
+                _prev_data = json.loads(content) if content else []
+        data = _prev_data + data
         with open(col_file, 'w+') as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
 
@@ -174,10 +176,11 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 asset_id=row.get("asset_id", None),
                 path=row.get("path", None),
                 attribute_id=row.get("attribute_id", None),
-                args={col: value for col, value in row.items() if col not in Variable.__fields__}
+                args={col: value for col, value in row.items() if col not in list(Variable.__fields__) + ['index']}
             ) for index, row in dataframe.iterrows()
         ]
         self.save(Variable, instances=variables, collection=collection)
+        return variables
 
     def create_index(self, collection: str, index: list) -> None:
         pass
