@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
@@ -10,7 +11,7 @@ from collections import defaultdict
 from client import validate_resource_type
 from splight_datalake.settings import setup
 from splight_lib import logging
-from splight_models import Variable, VariableDataFrame, Notification
+from splight_models import Variable, VariableDataFrame, Notification, BillingEvent
 from .abstract import AbstractDatalakeClient
 
 
@@ -29,7 +30,7 @@ def flatten_dict(d, parent_key='', sep='__'):
 
 
 class MongoClient(AbstractDatalakeClient):
-    valid_classes: List[Type] = [Variable, Notification]
+    valid_classes: List[Type] = [Variable, Notification, BillingEvent]
     operation_map: Dict[str, str] = {
         'eq': '$eq',
         'in': '$in',
@@ -246,6 +247,40 @@ class MongoClient(AbstractDatalakeClient):
 
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
+
+    def get_component_storage_size_gb(self, id: str, start: datetime = None, end: datetime = None) -> float:
+        def parse_timestamp(start, end):
+            res = defaultdict(dict)
+            if start:
+                res["timestamp"]["$gte"] = start
+            if end:
+                res["timestamp"]["$lte"] = end
+            return res
+
+        collections = self.db.collection_names()
+        size = 0
+        for collection in collections:
+            result = self._aggregate(
+                collection=collection,
+                pipeline=[
+                    {"$match": {"instance_id": id}},
+                    {"$match": parse_timestamp(start, end)},
+                    { 
+                        "$group": {
+                            "_id": "null",
+                            "size": { "$sum": { "$bsonSize": "$$ROOT" } }
+                        }
+                    }
+                ]
+            )
+            result = list(result)
+            if not result:
+                continue
+            result = list(result)[0]
+            result_size = result["size"]
+            result_size_gb = result_size / (1024 * 1024 * 1024)
+            size += result_size_gb
+        return size
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         _data = self.get(*args, **kwargs)
