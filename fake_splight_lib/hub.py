@@ -11,26 +11,26 @@ logger = logging.getLogger()
 
 class FakeHubClient(AbstractHubClient):
     networks = [
-        Network(id="1", name='Net1', description=None, version='01', parameters=[]),
-        Network(id="2", name='Net2', description=None, version='01', parameters=[]),
-        Network(id="3", name='Net3', description=None, version='01', parameters=[])
+        HubNetwork(id="1", name='Net1', description=None, version='01', parameters=[]),
+        HubNetwork(id="2", name='Net2', description=None, version='01', parameters=[]),
+        HubNetwork(id="3", name='Net3', description=None, version='01', parameters=[])
     ]
     algorithms = [
-        Algorithm(id="4", name='Algo1', description=None, version='01', parameters=[]),
-        Algorithm(id="5", name='Algo2', description=None, version='01', parameters=[])
+        HubAlgorithm(id="4", name='Algo1', description=None, version='01', parameters=[]),
+        HubAlgorithm(id="5", name='Algo2', description=None, version='01', parameters=[])
     ]
     connectors = [
-        Connector(id="6", name='Conn1', description=None, version='01', parameters=[])
+        HubConnector(id="6", name='Conn1', description=None, version='01', parameters=[])
     ]
     database: Dict[Type, List[BaseModel]] = {
-        Network: networks,
-        Algorithm: algorithms,
-        Connector: connectors,
+        HubNetwork: networks,
+        HubAlgorithm: algorithms,
+        HubConnector: connectors,
     }
     valid_classes = [
-        Network,
-        Connector,
-        Algorithm
+        HubNetwork,
+        HubConnector,
+        HubAlgorithm
     ]
 
     def save(self, instance: BaseModel) -> BaseModel:
