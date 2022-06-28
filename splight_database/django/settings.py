@@ -35,3 +35,5 @@ SELECTOR = {
 DATABASES = {
     'default': SELECTOR.get(DATABASE)
 }
+
+USE_TZ=True

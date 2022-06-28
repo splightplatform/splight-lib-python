@@ -10,11 +10,12 @@ dependency_links = [
 
 setup(
     name='splight-lib',
-    version='0.3.41',
+    version='0.3.42',
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
     package_data={
+        'shortcut': ['billing/template.tex', "billing/splight-logo.png"],
         'splight_deployment': ['kubernetes/templates/*.yaml'],
         'splight_database': ['django/db.sqlite3']
     },

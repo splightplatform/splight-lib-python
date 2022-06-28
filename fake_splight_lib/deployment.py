@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import uuid
 from typing import List, Type, Optional
 from splight_deployment.abstract import AbstractDeploymentClient
 from splight_models import Deployment, Namespace
@@ -16,7 +17,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         logger.info("[FAKED] Applying fake deployment")
-        count = str(random.randint(1, 1000))
+        count = str(uuid.uuid4())
         self.deployments[count] = instance
         instance.id = count
         return instance

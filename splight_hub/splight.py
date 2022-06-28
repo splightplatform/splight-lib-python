@@ -2,14 +2,14 @@ import requests
 from client import validate_resource_type
 from pydantic import BaseModel
 from typing import List, Type
-from splight_models.runner import Algorithm, Network, Connector
+from splight_models import HubAlgorithm, HubNetwork, HubConnector
 
 from splight_hub.abstract import AbstractHubClient
 from splight_hub.settings import SPLIGHT_HUB_HOST
 
 
 class SplightHubClient(AbstractHubClient):
-    valid_classes = [Algorithm, Network, Connector]
+    valid_classes = [HubAlgorithm, HubNetwork, HubConnector]
     
     def __init__(self, token=None, *args, **kwargs) -> None:
         super(SplightHubClient, self).__init__(*args, **kwargs)
@@ -23,7 +23,7 @@ class SplightHubClient(AbstractHubClient):
 
     @validate_resource_type
     def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
-        url = "/".join([self.host, resource_type.__name__.lower()])
+        url = "/".join([self.host, resource_type.__name__.lower().replace("hub","")])
         response = requests.get(url, headers=self.headers)
         assert response.status_code == 200, "Unreachable hub host"
         queryset = [
@@ -32,6 +32,9 @@ class SplightHubClient(AbstractHubClient):
         ]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+
+        if first:
+            return queryset[0] if queryset else None
         return queryset
 
     def delete(self, resource_type: Type, id: str) -> None:
