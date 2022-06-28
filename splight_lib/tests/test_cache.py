@@ -9,12 +9,16 @@ class TestCacheFunctions(TestCase):
         self.called_count = 0
 
     @get_cache('cached_dummy', 'param')
-    def cached_dummy(self, param):
+    def cached_dummy(self, param, key='p'):
         self.called_count += 1
-        return {'p': param}
+        return {key: param}
 
     @flush_cache('cached_dummy', 'param')
     def flush_dummy(self, param):
+        pass
+
+    @flush_cache('cached_dummy', prefix_match=True)
+    def flush_dummy_prefix(self):
         pass
 
     def test_get_cache_same_param(self):
@@ -41,3 +45,8 @@ class TestCacheFunctions(TestCase):
         res = self.cached_dummy(1)
         self.assertEqual(self.called_count, 1)
         self.assertEqual(res, EXPECTED_RESULT)
+
+    def test_flush_cache_multiple_values(self):
+        self.cached_dummy(1, 'hola')
+        self.cached_dummy(2, 'manola')
+        self.flush_dummy_prefix()
