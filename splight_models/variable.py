@@ -26,12 +26,13 @@ class VariableDataFrame(pd.DataFrame):
         return _df
 
     @classmethod
-    def unfold(cls, df: pd.DataFrame, asset_id: str, key: str = "value"):
+    def unfold(cls, df: pd.DataFrame, asset_id: str = None, key: str = "value"):
         _df = df.copy()
+        if asset_id:
+            _df['asset_id'] = asset_id
         if _df.empty:
             return cls(_df)
-        _df = pd.melt(_df.reset_index(), id_vars="timestamp").dropna()
+        _df = pd.melt(_df.reset_index(), id_vars=["index", "timestamp", "asset_id"]).dropna()
         _df = _df.rename(columns={"value": key})
-        _df.insert(1, "asset_id", asset_id)
         _df = _df.rename(columns={"variable": "attribute_id"})
         return cls(_df)

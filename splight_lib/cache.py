@@ -55,7 +55,7 @@ def get_cache(cache_key: str, cache_key_args: str or List[str] = None) -> Callab
     return decorator
 
 
-def flush_cache(cache_key: str, cache_key_args: str or List[str] = None) -> Callable:
+def flush_cache(cache_key: str, cache_key_args: str or List[str] = None, prefix_match=False) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Callable:
@@ -67,9 +67,11 @@ def flush_cache(cache_key: str, cache_key_args: str or List[str] = None) -> Call
                     final_cache_key = f'{final_cache_key}:{cache_key_args}-{str(full_args.get(cache_key_args))}'
                 else:
                     for key_arg in cache_key_args:
-                        final_cache_key = f'{final_cache_key}:{key_arg}-{str(full_args.get(key_arg))}'
+                        final_cache_key += f':{key_arg}-{str(full_args.get(key_arg))}'
 
             try:
+                if prefix_match:
+                    final_cache_key += '*'
                 CacheClient.delete(final_cache_key)
                 logger.info(f'Cache flush for {final_cache_key}')
             except Exception:
