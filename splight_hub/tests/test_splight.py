@@ -27,15 +27,15 @@ class TestVariable(TestCase):
     @parameterized.expand([
         (HubNetwork, []),
         (HubNetwork, [
-            dict(id="123", name='Net1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
+            dict(id="123", name='Net1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None, picture_url=None, verification=None, impact=1, last_modified=None)
         ]),
         (HubAlgorithm, []),
         (HubAlgorithm, [
-            dict(id="123", name='Algo1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
+            dict(id="123", name='Algo1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None, picture_url=None, verification=None, impact=1, last_modified=None)
         ]),
         (HubConnector, []),
         (HubConnector, [
-            dict(id="123", name='Conn1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None)
+            dict(id="123", name='Conn1', description=None, version='01', impact=1, parameters=[], readme_url=None, privacy_policy="private", tenant=None, picture_url=None, verification=None, impact=1, last_modified=None)
         ]),
     ])
     def test_get(self, class_, result):
