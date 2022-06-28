@@ -32,7 +32,7 @@ class VariableDataFrame(pd.DataFrame):
             _df['asset_id'] = asset_id
         if _df.empty:
             return cls(_df)
-        _df = pd.melt(_df.reset_index(), id_vars=["index", "timestamp", "asset_id"]).dropna()
+        _df = pd.melt(_df.reset_index(drop=True), id_vars=["timestamp", "asset_id"]).dropna()
         _df = _df.rename(columns={"value": key})
         _df = _df.rename(columns={"variable": "attribute_id"})
         return cls(_df)
