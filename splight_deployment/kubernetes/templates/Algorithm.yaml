@@ -48,10 +48,3 @@ spec:
                   envFrom:
                     - configMapRef:
                         name: {{configmap}}
-                  volumeMounts:
-                    - name: splight-data
-                      mountPath: /data
-            volumes:
-              - name: splight-data
-                hostPath:
-                    path: /data
