@@ -489,7 +489,7 @@ class TestBilling(TestCase):
     ])
     def test_close_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", return_value=hub_component):
-            with patch.object(DatabaseClient, "get", return_value=billing_settings):
+            with patch.object(DatabaseClient, "get", side_effect=[billing_settings, []]):
                 with patch.object(DatalakeClient, "get", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_component_storage_size_gb", return_value=storage_usage_gb):
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
