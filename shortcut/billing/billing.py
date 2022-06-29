@@ -329,6 +329,19 @@ class BillingGenerator:
         )
         return month_billing, billings
 
+    def _delete_monthbilling(self, id: str) -> None:
+        previous_month_billing = self.database_client.get(MonthBilling, id=id, first=True)
+        if previous_month_billing:
+            logger.debug(f"[BILLING] Deleting previous billing for month {previous_month_billing}")
+            previous_billings: List[Billing] = self.database_client.get(Billing, month_billing_id=previous_month_billing.id)
+            previous_billing_items: List[List[BillingItem]] = [self.database_client.get(getattr(models, billing.items_type), billing_id=billing.id) for billing in previous_billings]
+            for billing_items in previous_billing_items:
+                for billing_item in billing_items:
+                    self.database_client.delete(type(billing_item), id=billing_item.id)
+            for billing in previous_billings:
+                self.database_client.delete(Billing, id=billing.id)
+            self.database_client.delete(MonthBilling, id=previous_month_billing.id)
+
     def close_month(self) -> None:
         """
         Executes when closing the month.
@@ -337,6 +350,13 @@ class BillingGenerator:
         logger.debug(f"[BILLING] Closing month {self.date}")
         self.closing_month=True
         month_billing, billings = self.generate()
+
+        # Check if previous billing exists for the month
+        previous_month_billing = self.database_client.get(MonthBilling, month=month_billing.month, first=True)
+        if previous_month_billing:
+            logger.debug(f"[BILLING] Previous billing exists for month {previous_month_billing.month}")
+            self._delete_monthbilling(previous_month_billing.id)
+
         month_billing = self.database_client.save(month_billing)
         for billing, items in billings:
             billing.month_billing_id = month_billing.id
