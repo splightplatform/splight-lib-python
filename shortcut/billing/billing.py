@@ -352,10 +352,10 @@ class BillingGenerator:
         month_billing, billings = self.generate()
 
         # Check if previous billing exists for the month
-        previous_month_billing = self.database_client.get(MonthBilling, month=month_billing.month, first=True)
-        if previous_month_billing:
-            logger.debug(f"[BILLING] Previous billing exists for month {previous_month_billing.month}")
-            self._delete_monthbilling(previous_month_billing.id)
+        previous_month_billings = self.database_client.get(MonthBilling, month=month_billing.month)
+        for prev_month in previous_month_billings:
+            logger.debug(f"[BILLING] Previous billing exists for month {prev_month.month}")
+            self._delete_monthbilling(prev_month.id)
 
         month_billing = self.database_client.save(month_billing)
         for billing, items in billings:
