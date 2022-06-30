@@ -13,17 +13,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='edge',
             name='color',
-            field=models.CharField(default=None, max_length=100),
+            field=models.CharField(default=None, null=True, max_length=100),
         ),
         migrations.AddField(
             model_name='node',
             name='color',
-            field=models.CharField(default=None, max_length=100),
+            field=models.CharField(default=None, null=True, max_length=100),
         ),
         migrations.AddField(
             model_name='node',
             name='handle_orientation',
-            field=models.CharField(default=None, max_length=100),
+            field=models.CharField(default=None, null=True, max_length=100),
         ),
         migrations.AddField(
             model_name='node',
