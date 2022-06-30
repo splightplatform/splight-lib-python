@@ -11,6 +11,10 @@ class Graph(NamespaceAwareModel):
 
 class Node(NamespaceAwareModel):
     type = models.CharField(max_length=100)
+    color = models.CharField(max_length=100)
+    position_y = models.IntegerField()
+    position_x = models.IntegerField()
+    handle_orientation = models.CharField(max_length=100)
 
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, related_name='nodes')
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
@@ -28,6 +32,7 @@ class Edge(NamespaceAwareModel):
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, related_name='edges')
     source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='outgoing_edges')
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='incoming_edges')
+    color = models.CharField(max_length=100)
 
     def save(self, *args, **kwargs):
         if self.graph.locked:
