@@ -43,7 +43,7 @@ class BillingSettings(SplightBaseModel):
     timestamp: datetime = None
     pricing: Pricing = Pricing()
     discounts: List[Discount] = []
-    computing_time_measurement_per_hour: bool = False
+    computing_time_measurement_per_hour: bool = True
 
     @validator('timestamp', pre=True, always=True)
     def set_timestamp_now(cls, v):
