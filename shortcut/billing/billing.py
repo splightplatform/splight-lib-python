@@ -138,6 +138,7 @@ class BillingGenerator:
             resource_type=BillingEvent,
             collection=BillingEvent.__name__,
             type=BillingEventType.COMPONENT_DEPLOYMENT.value,
+            limit_=0,
             timestamp__gte=first_day,
             timestamp__lte=last_day
         )
@@ -390,7 +391,6 @@ class BillingGenerator:
         template_dir = os.path.dirname(__file__)
         env['loader'] = jinja2.FileSystemLoader(template_dir)
         env = jinja2.Environment(**env)
-        print(env)
         template = env.get_template("template.tex")
         if type(month_billing) != dict:
             month_billing = month_billing.dict()
