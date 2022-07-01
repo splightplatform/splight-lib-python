@@ -374,62 +374,62 @@ class TestBilling(TestCase):
     ])
     def test_generate_multiple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", side_effect=hub_component):
-            with patch.object(DatalakeClient, "get", return_value=billing_events):
-                with patch.object(DatalakeClient, "get_component_storage_size_gb", side_effect=storage_usage_gb):
-                    for bs in billing_settings:
-                        self.database_client.save(bs)
-                    billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
-                    billing_month, billings = billing_generator.generate()
-                    self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
+                with patch.object(DatalakeClient, "get", return_value=billing_events):
+                    with patch.object(DatalakeClient, "get_component_storage_size_gb", side_effect=storage_usage_gb):
+                        for bs in billing_settings:
+                            self.database_client.save(bs)
+                        billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
+                        billing_month, billings = billing_generator.generate()
+                        self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
 
-                    #check if get_billing_settings is working ok
-                    self.assertEqual(billing_generator.get_billing_settings(), billing_settings[-1])
-                    billing_settings = billing_settings[-1]
-                    hours_in_january = 744
-                    
-                    
-                    fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[0] 
-                    fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
-                    fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
-                    fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
+                        #check if get_billing_settings is working ok
+                        self.assertEqual(billing_generator.billing_settings, billing_settings[0])
+                        billing_settings = billing_settings[0]
+                        hours_in_january = 744
+                        
+                        
+                        fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[0] 
+                        fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
+                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
+                        fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
 
-                    # fake connector does not have impact, should be the default
-                    fake_connector_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[2] 
-                    fake_connector_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
-                    fake_connector_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(billing_generator.DEFAULT_COMPONENT_IMPACT)]
-                    fake_connector_total_price = (fake_connector_storage_price + fake_connector_computing_price) * fake_connector_impact_multiplier
+                        # fake connector does not have impact, should be the default
+                        fake_connector_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[2] 
+                        fake_connector_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
+                        fake_connector_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(billing_generator.DEFAULT_COMPONENT_IMPACT)]
+                        fake_connector_total_price = (fake_connector_storage_price + fake_connector_computing_price) * fake_connector_impact_multiplier
 
-                    expected_total_price_without_discount = float(Decimal(fake_algorithm_total_price + fake_connector_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
-                    discount_value = 0
-                    # for discount in billing_settings.discounts:
-                    #     if discount.organization_id == self.namespace:
-                    #         if discount.type == DiscountType.FIXED:
-                    #             discount_value += discount.value
-                    #         elif discount.type == DiscountType.PERCENTAGE:
-                    #             discount_value += discount.value * expected_total_price_without_discount / 100
+                        expected_total_price_without_discount = float(Decimal(fake_algorithm_total_price + fake_connector_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        discount_value = 0
+                        for discount in billing_settings.discounts:
+                            if discount.organization_id == self.namespace:
+                                if discount.type == DiscountType.FIXED:
+                                    discount_value += discount.value
+                                elif discount.type == DiscountType.PERCENTAGE:
+                                    discount_value += discount.value * expected_total_price_without_discount / 100
 
-                    expected_total_price = max(0, expected_total_price_without_discount - discount_value)
+                        expected_total_price = max(0, expected_total_price_without_discount - discount_value)
 
-                    # self.assertEqual(billing_month.total_price_without_discount, expected_total_price_without_discount)
-                    # self.assertEqual(billing_month.total_price, expected_total_price)
-                    # self.assertEqual(len(billings), 1)
+                        self.assertEqual(billing_month.total_price_without_discount, expected_total_price_without_discount)
+                        self.assertEqual(billing_month.total_price, expected_total_price)
+                        self.assertEqual(len(billings), 1)
 
-                    # sum = 0
-                    # sum_detailed = 0
-                    # for billing, _ in billings:
-                    #     sum += billing.total_price
-                    #     for detail in billing.detailed_pricing.values():
-                    #         sum_detailed += detail
-                    # sum = max(0, sum - discount_value)
-                    # sum_detailed = max(0, sum_detailed - discount_value)
-                    # self.assertEqual(sum, expected_total_price)
-                    # self.assertEqual(sum_detailed, expected_total_price)
-                    
-                    # # Deployment billing checks
-                    # deployment_billing, billing_items = billings[0]
-                    # self.assertEqual(deployment_billing.description, "Component deployments")
-                    # self.assertEqual(deployment_billing.total_price, expected_total_price_without_discount)
-                    # self.assertEqual(len(billing_items), 2)
+                        sum = 0
+                        sum_detailed = 0
+                        for billing, _ in billings:
+                            sum += billing.total_price
+                            for detail in billing.detailed_pricing.values():
+                                sum_detailed += detail
+                        sum = max(0, sum - discount_value)
+                        sum_detailed = max(0, sum_detailed - discount_value)
+                        self.assertEqual(sum, expected_total_price)
+                        self.assertEqual(sum_detailed, expected_total_price)
+                        
+                        # Deployment billing checks
+                        deployment_billing, billing_items = billings[0]
+                        self.assertEqual(deployment_billing.description, "Component deployments")
+                        self.assertEqual(deployment_billing.total_price, expected_total_price_without_discount)
+                        self.assertEqual(len(billing_items), 2)
 
     @parameterized.expand([
         (

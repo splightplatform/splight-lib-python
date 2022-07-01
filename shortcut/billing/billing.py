@@ -77,7 +77,7 @@ class BillingGenerator:
         self.database_client: DatabaseClient = DatabaseClient(self.organization_id)
         self.hub_client: HubClient = HubClient(token=f"Splight {os.getenv('BOT_HUB_ACCESS_ID')} {os.getenv('BOT_HUB_SECRET_KEY')}", namespace=self.organization_id)
 
-        self.billing_settings: BillingSettings = self.get_billing_settings()
+        self.billing_settings: BillingSettings = BillingGenerator.get_billing_settings(self.date)
 
         # The billing types are defined in the billing_types dictionary.
         # The key is the billing type name and the value is a function that returns a tuple
