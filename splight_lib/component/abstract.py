@@ -26,7 +26,6 @@ logger = logging.getLogger()
 def wait_until_initialized(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        print(self._initialized)
         while not self._initialized:
             time.sleep(0.1)
         return func(self, *args, **kwargs)
