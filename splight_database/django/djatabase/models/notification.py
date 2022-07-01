@@ -1,7 +1,19 @@
 from django.db import models
 from .namespace import NamespaceAwareModel
-from .constants import (SYSTEM, LOW, MEDIUM, HIGH, CRITICAL, INFO, ALGORITHM, NETWORK, CONNECTOR)
 
+
+SYSTEM = 'system'
+INFO = 'info'
+LOW = 'low'
+MEDIUM = 'medium'
+HIGH = 'high'
+CRITICAL = 'critical'
+
+GREATER_THAN = 'gt'
+GREATER_THAN_OR_EQUAL = 'ge'
+LOWER_THAN = 'lt'
+LOWER_THAN_OR_EQUAL = 'le'
+EQUAL = 'eq'
 
 SEVERITIES = (
     (SYSTEM, 'system'),
@@ -12,11 +24,10 @@ SEVERITIES = (
     (CRITICAL, 'critical'),
 )
 
-
 SOURCE_TYPE = (
-    (ALGORITHM, 'Algorithm'),
-    (NETWORK, 'Network'),
-    (CONNECTOR, 'Connector'),
+    ('Algorithm', 'Algorithm'),
+    ('Network', 'Network'),
+    ('Connector', 'Connector'),
 )
 
 

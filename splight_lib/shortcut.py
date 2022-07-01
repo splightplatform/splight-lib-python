@@ -6,6 +6,7 @@ from shortcut import (
     rule_eval,
     notify,
     save_file,
+    OrganizationHandler,
     BillingGenerator,
     MonthBillingNotFoundException,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "rule_eval",
     "save_file",
     "notify",
+    "OrganizationHandler",
     "BillingGenerator",
     "MonthBillingNotFoundException",
 ]

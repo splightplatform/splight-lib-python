@@ -1,7 +1,7 @@
 import builtins
 import operator
 from .base import SplightBaseModel
-from os import stat  # noqa
+
 import re
 import math
 from collections import defaultdict
@@ -9,10 +9,14 @@ from enum import Enum
 from pydoc import locate
 from pydantic import validator
 from typing import Any, Optional, List, Dict
-from .common import SeverityType
-from splight_database.django.djatabase.models.constants import (
-    EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL
-)
+from .severity import SeverityType
+
+
+GREATER_THAN = 'gt'
+GREATER_THAN_OR_EQUAL = 'ge'
+LOWER_THAN = 'lt'
+LOWER_THAN_OR_EQUAL = 'le'
+EQUAL = 'eq'
 
 
 def _safe_eval(expression):

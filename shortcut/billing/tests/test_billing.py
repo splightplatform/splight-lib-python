@@ -383,7 +383,7 @@ class TestBilling(TestCase):
                         self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
 
                         #check if get_billing_settings is working ok
-                        self.assertEqual(billing_generator.get_billing_settings(), billing_settings[0])
+                        self.assertEqual(billing_generator.billing_settings, billing_settings[0])
                         billing_settings = billing_settings[0]
                         hours_in_january = 744
                         

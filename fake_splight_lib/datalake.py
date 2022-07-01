@@ -67,8 +67,11 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def _read_from_collection(collection: str) -> List[dict]:
         os.makedirs(DATALAKE_HOME, exist_ok=True)
         col_file = os.path.join(DATALAKE_HOME, collection)
-        with open(col_file, 'r+') as f:
-            return json.loads(f.read(), object_hook=FakeDatalakeClient._date_hook)
+        content = ''
+        if os.path.exists(col_file):
+            with open(col_file, 'r+') as f:
+                content = f.read()
+        return json.loads(content, object_hook=FakeDatalakeClient._date_hook) if content else []
 
     @staticmethod
     def _resolve_filter(keys: List[str], value: Any, oper: str):

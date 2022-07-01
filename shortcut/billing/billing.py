@@ -77,7 +77,7 @@ class BillingGenerator:
         self.database_client: DatabaseClient = DatabaseClient(self.organization_id)
         self.hub_client: HubClient = HubClient(token=f"Splight {os.getenv('BOT_HUB_ACCESS_ID')} {os.getenv('BOT_HUB_SECRET_KEY')}", namespace=self.organization_id)
 
-        self.billing_settings: BillingSettings = self.get_billing_settings()
+        self.billing_settings: BillingSettings = BillingGenerator.get_billing_settings(self.date)
 
         # The billing types are defined in the billing_types dictionary.
         # The key is the billing type name and the value is a function that returns a tuple
@@ -97,9 +97,11 @@ class BillingGenerator:
         last_day_of_month = last_day_of_month.replace(tzinfo=pytz.UTC)
         return first_day_of_month, last_day_of_month
 
-    def get_billing_settings(self) -> BillingSettings:
+    @staticmethod
+    def get_billing_settings(date = None) -> BillingSettings:
         default_database_client = DatabaseClient()
-        billing_settings: Optional[List[BillingSettings]] = default_database_client.get(resource_type=BillingSettings, timestamp__lte=self.date)
+        date: datetime = date.replace(tzinfo=pytz.UTC) if date else datetime.now(timezone.utc)
+        billing_settings: Optional[List[BillingSettings]] = default_database_client.get(resource_type=BillingSettings, timestamp__lte=date)
         settings: BillingSettings = BillingSettings()
         if billing_settings:
             settings = billing_settings[0]
