@@ -1,7 +1,7 @@
 from django.db import models
 from splight_database.django.djatabase.models.asset import Asset, Attribute
 from .namespace import NamespaceAwareModel
-from .constants import (
+from .notification import (
     SYSTEM, LOW, MEDIUM, HIGH, CRITICAL, GREATER_THAN, GREATER_THAN_OR_EQUAL,
     LOWER_THAN, LOWER_THAN_OR_EQUAL, INFO, EQUAL)
 

@@ -2,15 +2,14 @@ from pydantic import Field
 from .base import SplightBaseModel
 from datetime import datetime, timezone
 from typing import Optional
-from .common import SeverityType
+from .severity import SeverityType
 from enum import Enum
-from splight_database.django.djatabase.models.constants import (ALGORITHM, NETWORK, CONNECTOR)
 
 
 class SourceType(str, Enum):
-    algorithm = ALGORITHM
-    network = NETWORK
-    connector = CONNECTOR
+    algorithm = 'Algorithm'
+    network = 'Network'
+    connector = 'Connector'
 
 
 class Notification(SplightBaseModel):
