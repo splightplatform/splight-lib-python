@@ -14,7 +14,10 @@ class Node(SplightBaseModel):
     type: str
     graph_id: str
     asset_id: str
-
+    color: str
+    position_x: int
+    position_y: int
+    handle_orientation: str
 
 class Edge(SplightBaseModel):
     id: Optional[str]
@@ -22,3 +25,4 @@ class Edge(SplightBaseModel):
     graph_id: str
     source_id: str
     target_id: str
+    color: str
