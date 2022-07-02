@@ -32,11 +32,16 @@ def wait_until_initialized(func):
     return wrapper
 
 
-class InitializedMixin:
-    _initialized = False
+class InitializedMixinMeta(ABCMeta):
+    def __call__(self, *args, **kwargs):
+        obj = super().__call__(*args, **kwargs)
+        obj._initialized = True
+        return obj
 
-    def initialize(self):
-        self._initialized = True
+
+class InitializedMixin(metaclass=InitializedMixinMeta):
+    _initialized = False
+    __slots__ = ()
 
 
 class HealthCheckMixin:
@@ -56,7 +61,7 @@ class HealthCheckMixin:
             time.sleep(self.healthcheck_interval)
 
 
-class AbstractComponent(HealthCheckMixin, InitializedMixin, metaclass=ABCMeta):
+class AbstractComponent(HealthCheckMixin, InitializedMixin):
     collection_name = 'default'
     managed_class: Type = None
 
