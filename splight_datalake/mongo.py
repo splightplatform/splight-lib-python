@@ -248,7 +248,7 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def get_component_storage_size_gb(self, id: str, start: datetime = None, end: datetime = None) -> float:
+    def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         def parse_timestamp(start, end):
             res = defaultdict(dict)
             if start:
@@ -259,16 +259,17 @@ class MongoClient(AbstractDatalakeClient):
 
         collections = self.db.collection_names()
         size = 0
+        component_sizes: Dict[str, float] = defaultdict(lambda: 0)
         for collection in collections:
             result = self._aggregate(
                 collection=collection,
                 pipeline=[
-                    {"$match": {"instance_id": id}},
                     {"$match": parse_timestamp(start, end)},
+                    {"$match": {"instance_id": {"$ne": None}}},
                     { 
                         "$group": {
-                            "_id": "null",
-                            "size": { "$sum": { "$bsonSize": "$$ROOT" } }
+                            "_id": "$instance_id",
+                            "size": { "$sum": { "$bsonSize": "$$ROOT" } } 
                         }
                     }
                 ]
@@ -276,11 +277,12 @@ class MongoClient(AbstractDatalakeClient):
             result = list(result)
             if not result:
                 continue
-            result = list(result)[0]
-            result_size = result["size"]
-            result_size_gb = result_size / (1024 * 1024 * 1024)
-            size += result_size_gb
-        return size
+            for component in result:
+                component_sizes[component["_id"]] += component["size"]
+        result = {}
+        for component_id, size in component_sizes.items():
+            result[component_id] = size / (1024*1024*1024)
+        return result
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         _data = self.get(*args, **kwargs)

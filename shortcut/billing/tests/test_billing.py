@@ -68,7 +68,7 @@ class TestBilling(TestCase):
                     )
                 ]
             ),(
-                    1
+                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1}
             ),
         ),
         (
@@ -150,7 +150,7 @@ class TestBilling(TestCase):
                     )
                 ]
             ),(
-                    2
+                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 2}
             ),
         ),
     ])
@@ -158,7 +158,7 @@ class TestBilling(TestCase):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", return_value=billing_settings):
                 with patch.object(DatalakeClient, "get", return_value=billing_events):
-                    with patch.object(DatalakeClient, "get_component_storage_size_gb", return_value=storage_usage_gb):
+                    with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
                         billing_month, billings = billing_generator.generate()
                         self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
@@ -166,7 +166,7 @@ class TestBilling(TestCase):
                         billing_settings = billing_settings[0]
                         hours_in_january = 744
                         
-                        storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb
+                        storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"]
                         computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
                         impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component.impact)]
                         expected_total_price_without_discount = (computing_price + storage_price) * impact_multiplier
@@ -368,14 +368,14 @@ class TestBilling(TestCase):
                     )
                 ]
             ),(
-                    [2, 2, 4]
+                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1, "9ba830b5-b1b3-440c-94e7-bca80e5c09cc": 2}
             ),
         )  
     ])
     def test_generate_multiple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", side_effect=hub_component):
                 with patch.object(DatalakeClient, "get", return_value=billing_events):
-                    with patch.object(DatalakeClient, "get_component_storage_size_gb", side_effect=storage_usage_gb):
+                    with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         for bs in billing_settings:
                             self.database_client.save(bs)
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
@@ -388,13 +388,13 @@ class TestBilling(TestCase):
                         hours_in_january = 744
                         
                         
-                        fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[0] 
+                        fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"] 
                         fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
                         fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
                         fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
 
                         # fake connector does not have impact, should be the default
-                        fake_connector_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb[2] 
+                        fake_connector_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["9ba830b5-b1b3-440c-94e7-bca80e5c09cc"] 
                         fake_connector_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
                         fake_connector_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(billing_generator.DEFAULT_COMPONENT_IMPACT)]
                         fake_connector_total_price = (fake_connector_storage_price + fake_connector_computing_price) * fake_connector_impact_multiplier
@@ -483,7 +483,7 @@ class TestBilling(TestCase):
                     )
                 ]
             ),(
-                    1
+                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1}
             ),
         ),
     ])
@@ -491,7 +491,7 @@ class TestBilling(TestCase):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", side_effect=[billing_settings, []]):
                 with patch.object(DatalakeClient, "get", return_value=billing_events):
-                    with patch.object(DatalakeClient, "get_component_storage_size_gb", return_value=storage_usage_gb):
+                    with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
                         billing_month, billings = billing_generator.generate()
                         billing_generator.close_month()
