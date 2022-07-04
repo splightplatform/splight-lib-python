@@ -35,8 +35,6 @@ spec:
                   args: ["-r", '{{run_spec}}']
                   imagePullPolicy: "Always"
                   tty: true
-                  securityContext:
-                    privileged: true
                   livenessProbe:
                     exec:
                         command:
