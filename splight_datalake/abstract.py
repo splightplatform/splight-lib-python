@@ -48,7 +48,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get_component_storage_size_gb(self, id: str) -> float:
+    def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
     
     def _validated_kwargs(self, resource_type: Type, **kwargs):

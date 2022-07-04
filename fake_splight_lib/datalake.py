@@ -160,9 +160,9 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         data = [instance.dict() for instance in instances]
         self._write_to_collection(collection, data)
 
-    def get_component_storage_size_gb(self, id: str, start: datetime = None, end: datetime = None) -> float:
+    def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         logger.debug(f"[FAKED] component {id} size in gb retrieve")
-        return 0.8
+        return {"fake_component_id": 0.555555}
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
