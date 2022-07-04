@@ -14,6 +14,7 @@ class AbstractNetworkComponent(AbstractComponent):
         super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
         self.datalake_client.create_index('network', [('timestamp', -1)])
 
+    # @wait_until_initialized
     # def refresh_rules_forever(self) -> None:
     #     time_interval = 10
     #     while True:
