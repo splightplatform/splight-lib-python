@@ -24,7 +24,7 @@ class TestNamespace(TestCase):
     #         asset.save()
 
     def test_cross_namespace_try_fk_raises(self):
-        namespace, _ = Namespace.objects.get_or_create()
+        namespace, _ = Namespace.objects.get_or_create(id="123")
         cross_namespace, _ = Namespace.objects.get_or_create(id="1234")
         connector = Connector.objects.create(name="connector", version="dnp3", parameters=[], namespace=cross_namespace)
         attribute = Attribute.objects.create(name="attribute", namespace=namespace)
