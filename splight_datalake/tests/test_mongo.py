@@ -382,3 +382,14 @@ class TestMongoClient(TestCase):
             {'$sort': {'timestamp': -1}},
             {'$limit': 2},
         ])
+
+    def test_get_components_sizes_gb(self):
+        client = MongoClient()
+        result = [{
+            "_id": "componentid",
+            "size": 20096,
+        }]
+        with patch.object(client.db, "collection_names", return_value=["default"]):
+            with patch.object(MongoClient, "_aggregate", return_value=result):
+                components_sizes = client.get_components_sizes_gb()
+                self.assertEqual(components_sizes, {"componentid": 0.000018715858459472656})

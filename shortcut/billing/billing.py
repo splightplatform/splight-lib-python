@@ -151,6 +151,8 @@ class BillingGenerator:
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
         storage_price_per_gb: Decimal = Decimal(str(self.billing_settings.pricing.STORAGE_PRICE_PER_GB))
 
+        component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
+
         for billing_event in billing_events:
                 deployments[billing_event.data['id']].append(billing_event)
 
@@ -207,7 +209,7 @@ class BillingGenerator:
                 info_event = start
 
             impact_multiplier = component_impact_multiplier(info_event, self.DEFAULT_COMPONENT_IMPACT)
-            storage_used_in_gb: Decimal = Decimal(self.datalake_client.get_component_storage_size_gb(id=info_event.data["external_id"], start=start.timestamp, end=end.timestamp))
+            storage_used_in_gb: Decimal = Decimal(component_storage_sizes.get(info_event.data["external_id"], 0))
             duration: timedelta = end.timestamp - start.timestamp
             duration_in_hours: Decimal = Decimal(str(duration.total_seconds() / 3600))
             
