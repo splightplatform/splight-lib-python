@@ -41,11 +41,11 @@ class SplightHubClient(AbstractHubClient):
         raise NotImplementedError
 
     def set_impact(self, id: str, impact: int) -> None:
-        url = "/".join([self.host, "set-impact"]) + "/"
+        url = "/".join([self.host, "superadmin", "set-impact"]) + "/"
         response = requests.post(url, headers=self.headers, json={"id": id, "impact": impact})
         assert response.status_code == 200, f"Couldn't set impact. {response.status_code}"
 
     def set_verification(self, id: str, verification: int) -> None:
-        url = "/".join([self.host, "set-verification"]) + "/"
+        url = "/".join([self.host, "superadmin", "set-verification"]) + "/"
         response = requests.post(url, headers=self.headers, json={"id": id, "verification": verification})
         assert response.status_code == 200, f"Couldn't set verification. {response.status_code}"
