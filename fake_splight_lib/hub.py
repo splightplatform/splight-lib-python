@@ -47,3 +47,20 @@ class FakeHubClient(AbstractHubClient):
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:
         raise NotImplementedError
+
+    def set_impact(self, id: str, impact: int) -> None:
+        logger.debug(f"[FAKED] Setting impact {impact} for component id {id}")
+        for _, components in self.database.items():
+            for component in components:
+                if component.id == id:
+                    component.impact = impact
+                    return
+
+    def set_verification(self, id: str, verification: int) -> None:
+        logger.debug(f"[FAKED] Setting verification {verification} for component id {id}")
+        for _, components in self.database.items():
+            for component in components:
+                if component.id == id:
+                    component.verification = verification
+                    return
+
