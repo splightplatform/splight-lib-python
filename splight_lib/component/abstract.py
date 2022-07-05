@@ -16,12 +16,32 @@ from splight_lib.communication import (
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.shortcut import save_file as _save_file
 from splight_lib.logging import logging
-import splight_models as models
 from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
 from splight_models.storage import StorageFile
-
+from functools import wraps
 
 logger = logging.getLogger()
+
+
+def wait_until_initialized(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        while not self._initialized:
+            time.sleep(0.1)
+        return func(self, *args, **kwargs)
+    return wrapper
+
+
+class InitializedMixinMeta(ABCMeta):
+    def __call__(self, *args, **kwargs):
+        obj = super().__call__(*args, **kwargs)
+        obj._initialized = True
+        return obj
+
+
+class InitializedMixin(metaclass=InitializedMixinMeta):
+    _initialized = False
+    __slots__ = ()
 
 
 class HealthCheckMixin:
@@ -41,7 +61,7 @@ class HealthCheckMixin:
             time.sleep(self.healthcheck_interval)
 
 
-class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
+class AbstractComponent(HealthCheckMixin, InitializedMixin):
     collection_name = 'default'
     managed_class: Type = None
 
@@ -76,10 +96,9 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
         self._load_parameters()
         self._load_context()
         self.collection_name = str(self.instance_id)
-        
+
         # Hooks
         self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
-
 
     def hook_insert_origin(self, *args, **kwargs):
         """
@@ -114,6 +133,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
             first=True
         )
 
+    @wait_until_initialized
     def listen_commands(self) -> None:
         while True:
             data = self.external_comm_client.receive()
@@ -127,6 +147,7 @@ class AbstractComponent(HealthCheckMixin, metaclass=ABCMeta):
                 continue
             handler(variables)
 
+    @wait_until_initialized
     def listen_internal_commands(self) -> None:
         while True:
             data = self.internal_comm_client.receive()

@@ -12,7 +12,7 @@ from splight_models import (
 from splight_lib import logging
 from splight_lib.shortcut import notify
 from splight_lib.execution import Task
-from .abstract import AbstractComponent
+from .abstract import AbstractComponent, wait_until_initialized
 
 
 logger = logging.getLogger()
@@ -38,7 +38,7 @@ class AbstractIOComponent(AbstractComponent):
         self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
         self.datalake_client.create_index('files', [('timestamp', -1)])
         self.datalake_client.create_index('notification', [('timestamp', -1)])
-        
+
     def hook_rules(self, *args, **kwargs):
         """
         Hook to handle rules and send notifier if a rule applies
@@ -65,7 +65,7 @@ class AbstractIOComponent(AbstractComponent):
                         database_client=self.database_client,
                         notification_client=self.notification_client,
                         datalake_client=self.datalake_client,
-                        )
+                    )
         return args, kwargs
 
     def hook_map_variable(self, *args, **kwargs):
@@ -115,6 +115,7 @@ class AbstractIOComponent(AbstractComponent):
             result.append(var)
         return result
 
+    @wait_until_initialized
     def refresh_config_forever(self) -> None:
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
@@ -167,6 +168,7 @@ class AbstractClientComponent(AbstractIOComponent):
     def handle_unsubscribe(self, variables: List[Variable]):
         pass
 
+    @wait_until_initialized
     def sync_mappings_to_device(self):
         new_status = set(self.mappings)
         if self._mappings_last_sync != new_status:
@@ -207,6 +209,7 @@ class AbstractServerComponent(AbstractIOComponent):
     def handle_update(self, variables: List[Variable]) -> None:
         pass
 
+    @wait_until_initialized
     def sync_from_datalake(self):
         variables = [
             self.datalake_client.get(Variable, first=True, asset_id=mapping.asset_id, attribute_id=mapping.attribute_id)
