@@ -14,6 +14,11 @@ class AbstractCommunication(AbstractClient):
     def _decode(data: ByteString):
         return json.loads(data.decode('utf-8'))
 
+    @staticmethod
+    @abstractmethod
+    def create_topic(topic: str) -> None:
+        pass
+
     @abstractmethod
     def send(self, data: Dict) -> None:
         pass

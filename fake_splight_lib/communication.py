@@ -7,6 +7,7 @@ from queue import Queue
 import json
 
 QUEUE = Queue()
+logger = logging.getLogger()
 
 
 def json_serial(obj):
@@ -17,16 +18,19 @@ def json_serial(obj):
     raise TypeError ("Type %s not serializable" % type(obj))
 
 class FakeQueueCommunication(AbstractCommunication):
-    logger = logging.getLogger()
 
     def __init__(self, *args, **kwargs):
         self.topic = "default"
 
     def send(self, data: dict) -> None:
-        self.logger.debug(f"FakeQueueCommunication Sent data: {data}")
+        logger.debug(f"FakeQueueCommunication Sent data: {data}")
         QUEUE.put(json.dumps(data, default=json_serial))
 
     def receive(self) -> dict:
         data = json.loads(QUEUE.get())
-        self.logger.debug(f"FakeQueueCommunication Read data: {data}")
+        logger.debug(f"FakeQueueCommunication Read data: {data}")
         return data
+
+    @staticmethod
+    def create_topic(topic: str) -> None:
+        logger.debug(f"FakeQueueCommunication Created topic: {topic}")

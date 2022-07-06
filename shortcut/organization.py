@@ -10,6 +10,7 @@ class OrganizationHandler:
     def create(id: str):
         id = str(id)
         # TODO add Auth0 step
+        ExternalCommunicationClient.create_topic(id)
         namespace = Namespace(id=id)
         # TODO add step ExternalCommunicationClient.save(namespace)
         DeploymentClient().save(instance=namespace)
