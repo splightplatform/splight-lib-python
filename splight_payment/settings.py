@@ -1,0 +1,3 @@
+import os
+
+STRIPE_APIKEY = os.getenv('STRIPE_APIKEY', 'sk_test_51LIBRpKllDaJ9m8YqAxNhyFoarUeedYAeGwqh1Eq1ztqmn6Aoqj7vkwHdcGBNSRAcWLb0DCzbBkdGK3r5Pga1Czc007AfVJMxJ')
