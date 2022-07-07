@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Literal
 from .base import SplightBaseModel
 from datetime import datetime, timezone
 from pydantic import Field
@@ -14,8 +14,7 @@ class UserActivityType:
 
 class UserActivity(SplightBaseModel):
     action: str
-    email: str  # is this enough to uniquely identify a user?
-    target_type: str
-    target_id: str
+    user: Dict[str, Any]
+    object: Dict[str, Any]
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     details: Dict[str, Any]
