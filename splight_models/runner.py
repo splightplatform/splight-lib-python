@@ -14,13 +14,14 @@ class Runner(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
-    version: str # Pointer to hub component
+    version: str  # Pointer to hub component
     parameters: List[Parameter] = []
     readme_url: Optional[str]
 
 
 class Algorithm(Runner):
-    pass
+    asset_id: str = None
+    sub_algorithms: List[str] = []
 
 
 class Network(Runner):
