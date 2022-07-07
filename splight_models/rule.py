@@ -119,4 +119,3 @@ class MappingRule(SplightBaseModel):
         rule_value = getattr(builtins, self.type)(self.value)
         value = getattr(builtins, self.type)(value)
         return getattr(operator, self.operator)(rule_value, value)
-

@@ -9,7 +9,7 @@ from .notification import (
 OPERATORS = (
     (GREATER_THAN, 'Greater than'),
     (GREATER_THAN_OR_EQUAL, 'Greater than or equal'),
-    (LOWER_THAN, 'Lower_than'),
+    (LOWER_THAN, 'Lower than'),
     (LOWER_THAN_OR_EQUAL, 'Lower than or equal'),
     (EQUAL, 'Equal'),
 )

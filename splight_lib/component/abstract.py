@@ -162,6 +162,8 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             handler(variables)
 
     def get_history(self, asset_id: str, attribute_ids: List[str], **kwargs) -> VariableDataFrame:
+        if not (self.instance.asset and self.instance.asset.id == asset_id):
+            raise ValueError(f'{asset_id} does not belong to {str(self.managed_class)}:{self.collection_name}')
         return self.datalake_client.get_dataframe(
             resource_type=Variable,
             asset_id=asset_id,
