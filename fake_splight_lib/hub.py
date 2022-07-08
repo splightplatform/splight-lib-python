@@ -33,6 +33,8 @@ class FakeHubClient(AbstractHubClient):
         HubAlgorithm
     ]
 
+    allowed_update_fields = ["impact", "verification"]
+
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
 
@@ -48,19 +50,13 @@ class FakeHubClient(AbstractHubClient):
     def delete(self, resource_type: Type, id: str) -> None:
         raise NotImplementedError
 
-    def set_impact(self, id: str, impact: int) -> None:
-        logger.debug(f"[FAKED] Setting impact {impact} for component id {id}")
-        for _, components in self.database.items():
-            for component in components:
-                if component.id == id:
-                    component.impact = impact
-                    return
-
-    def set_verification(self, id: str, verification: int) -> None:
-        logger.debug(f"[FAKED] Setting verification {verification} for component id {id}")
-        for _, components in self.database.items():
-            for component in components:
-                if component.id == id:
-                    component.verification = verification
-                    return
-
+    @validate_resource_type
+    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
+        instance = self.get(resource_type, id=id, first=True)
+        if not instance:
+            raise ValueError(f"{resource_type} with id {id} not found")
+        for field in self.allowed_update_fields:
+            if field in data:
+                setattr(instance, field, data[field])
+        return instance
+                

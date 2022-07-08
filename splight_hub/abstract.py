@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Type
+from typing import List, Type, Dict
 from client import AbstractClient
 from abc import abstractmethod
 
@@ -18,9 +18,5 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def set_impact(self, id: str, impact: int) -> None:
-        pass
-
-    @abstractmethod
-    def set_verification(self, id: str, verification: int) -> None:
+    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
         pass

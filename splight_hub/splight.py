@@ -1,7 +1,7 @@
 import requests
 from client import validate_resource_type
 from pydantic import BaseModel
-from typing import List, Type
+from typing import List, Type, Dict
 from splight_models import HubAlgorithm, HubNetwork, HubConnector
 
 from splight_hub.abstract import AbstractHubClient
@@ -40,12 +40,9 @@ class SplightHubClient(AbstractHubClient):
     def delete(self, resource_type: Type, id: str) -> None:
         raise NotImplementedError
 
-    def set_impact(self, id: str, impact: int) -> None:
-        url = "/".join([self.host, "superadmin", "set-impact"]) + "/"
-        response = requests.post(url, headers=self.headers, json={"id": id, "impact": impact})
-        assert response.status_code == 200, f"Couldn't set impact. {response.status_code}"
-
-    def set_verification(self, id: str, verification: int) -> None:
-        url = "/".join([self.host, "superadmin", "set-verification"]) + "/"
-        response = requests.post(url, headers=self.headers, json={"id": id, "verification": verification})
-        assert response.status_code == 200, f"Couldn't set verification. {response.status_code}"
+    @validate_resource_type
+    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
+        url = "/".join([self.host, resource_type.__name__.lower().replace("hub",""), id]) + "/"
+        response = requests.patch(url, headers=self.headers, json=data)
+        assert response.status_code == 200, f"Couldn't update hub component. {response.status_code}"
+        return resource_type(**response.json())
