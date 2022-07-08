@@ -21,7 +21,7 @@ class Runner(SplightBaseModel):
 
 class Algorithm(Runner):
     asset_id: str = None
-    sub_algorithms: List[str] = []
+    sub_algorithms: List[Any] = []
 
 
 class Network(Runner):
