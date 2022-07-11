@@ -21,7 +21,9 @@ class FakeStorageClient(AbstractStorageClient):
         os.makedirs(self.base_path, exist_ok=True)
 
     def __copy(self, source, destination):
-        os.makedirs(os.path.join(*os.path.split(destination)[:-1]), exist_ok=True)
+        destination_path = os.path.split(destination)
+        if destination_path[0] != "":
+            os.makedirs(os.path.join(*destination_path[:-1]), exist_ok=True)
         try:
             shutil.copy(source, destination)
         except shutil.SameFileError:
