@@ -78,7 +78,7 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
 
         # Lib clients
         self.database_client = DatabaseClient(namespace)
-        self.storage_client = StorageClient(namespace)
+        self.storage_client = StorageClient(namespace=namespace)
         self.datalake_client = DatalakeClient(namespace)
         self.deployment_client = DeploymentClient(namespace=namespace)
         self.notification_client = NotificationClient(namespace=self.namespace)
