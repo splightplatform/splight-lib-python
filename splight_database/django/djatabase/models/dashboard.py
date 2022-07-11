@@ -27,13 +27,18 @@ class Chart(NamespaceAwareModel):
     relative_window_time = models.CharField(max_length=100, null=True, blank=True)
     aggregate_criteria = models.CharField(max_length=100, null=True, blank=True)
     aggregate_period = models.CharField(max_length=100, null=True, blank=True)
-    image = models.CharField(max_length=200, null=True, blank=True)
+    external_resource = models.CharField(max_length=200, null=True, blank=True)
+    external_resource_type = models.CharField(max_length=200, null=True, blank=True)
 
 
 class ChartItem(NamespaceAwareModel):
     id = models.AutoField(primary_key=True)
     chart = models.ForeignKey(Chart, on_delete=models.CASCADE, related_name="chart_items")
     color = models.CharField(max_length=50, null=True, blank=True)
+    position_x = models.CharField(max_length=50, null=True, blank=True)
+    position_y = models.CharField(max_length=50, null=True, blank=True)
+    width = models.CharField(max_length=50, null=True, blank=True)
+    height = models.CharField(max_length=50, null=True, blank=True)
     source = models.CharField(max_length=100, null=True, blank=True)
     target = models.CharField(max_length=100, null=True, blank=True)
     split_by = models.CharField(max_length=100, null=True, blank=True)
