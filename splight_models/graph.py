@@ -17,6 +17,8 @@ class Node(SplightBaseModel):
     color: str
     position_x: int
     position_y: int
+    width: str
+    height: str
     handle_orientation: str
 
 class Edge(SplightBaseModel):
