@@ -46,6 +46,7 @@ class MongoClient(AbstractDatalakeClient):
             connection = f'{connection}:{setup["PORT"]}'
         client = PyMongoClient(connection)
         self.db = client[self.namespace]
+        self.collection = kwargs.get('collection')
 
     def _find(self, collection: str, filters: Dict = None, tzinfo=timezone(timedelta()), **kwargs) -> List[Dict]:
         codec_options = CodecOptions(
@@ -215,6 +216,10 @@ class MongoClient(AbstractDatalakeClient):
             group_fields: Union[List, str] = [],
             tzinfo: timezone = timezone(timedelta()),
             **kwargs) -> List[BaseModel]:
+        if self.collection and (collection not in ('default', self.collection)):
+            # check if collection has permission.
+            if collection not in self.db['permissions'].find_one({'collection': self.collection})['sub_algorithms']:
+                raise ValueError(f'{collection} is not sub algorithm of {self.collection}')
         instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
         sort = [sort] if isinstance(sort, str) else sort
         group_id = [group_id] if isinstance(group_id, str) else group_id
