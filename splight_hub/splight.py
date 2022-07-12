@@ -1,7 +1,7 @@
 import requests
 from client import validate_resource_type
 from pydantic import BaseModel
-from typing import List, Type
+from typing import List, Type, Dict
 from splight_models import HubAlgorithm, HubNetwork, HubConnector
 
 from splight_hub.abstract import AbstractHubClient
@@ -11,12 +11,14 @@ from splight_hub.settings import SPLIGHT_HUB_HOST
 class SplightHubClient(AbstractHubClient):
     valid_classes = [HubAlgorithm, HubNetwork, HubConnector]
     
-    def __init__(self, token=None, *args, **kwargs) -> None:
+    def __init__(self, token=None, cross_tenant=None, *args, **kwargs) -> None:
         super(SplightHubClient, self).__init__(*args, **kwargs)
         self.host = SPLIGHT_HUB_HOST
         self.headers = {}
         if token:
-            self.headers = {'Authorization': token}
+            self.headers["Authorization"] = token
+        if cross_tenant:
+            self.headers["X-Organization-ID"] = cross_tenant
 
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
@@ -39,3 +41,10 @@ class SplightHubClient(AbstractHubClient):
 
     def delete(self, resource_type: Type, id: str) -> None:
         raise NotImplementedError
+
+    @validate_resource_type
+    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
+        url = "/".join([self.host, resource_type.__name__.lower().replace("hub",""), id]) + "/"
+        response = requests.patch(url, headers=self.headers, json=data)
+        assert response.status_code == 200, f"Couldn't update hub component. {response.status_code}"
+        return resource_type(**response.json())

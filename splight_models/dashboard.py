@@ -26,6 +26,10 @@ class ChartItem(SplightBaseModel):
     id: Optional[str]
     chart_id: str
     color: Optional[str]
+    position_x: Optional[str]
+    position_y: Optional[str]
+    width: Optional[int]
+    height: Optional[int]
     source: Optional[str]
     target: Optional[str]
     split_by: Optional[str]
@@ -45,4 +49,5 @@ class Chart(SplightBaseModel):
     relative_window_time: Optional[str] = None
     aggregate_criteria: Optional[str] = None
     aggregate_period: Optional[str] = None
-    image: Optional[str] = None
+    external_resource: Optional[str] = None
+    external_resource_type: Optional[str] = None

@@ -14,6 +14,8 @@ class Node(NamespaceAwareModel):
     color = models.CharField(max_length=100, default=None, null=True)
     position_y = models.IntegerField(default=0)
     position_x = models.IntegerField(default=0)
+    width = models.CharField(max_length=50, null=True, blank=True)
+    height = models.CharField(max_length=50, null=True, blank=True)
     handle_orientation = models.CharField(max_length=100, default=None, null=True)
 
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, related_name='nodes')
