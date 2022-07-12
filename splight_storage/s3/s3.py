@@ -119,11 +119,12 @@ class S3StorageClient(AbstractStorageClient):
     
     @validate_instance_type
     def get_temporary_link(self, instance: BaseModel) -> str:
+        key = self._namespaced_key(instance.file)
         url = self.s3_client.generate_presigned_url(
             'get_object',
             Params= {
                 'Bucket': self.bucket,
-                'Key': self.namespace + '/' + instance.name,
+                'Key': key,
             },
             ExpiresIn=3600
         )
