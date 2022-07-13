@@ -41,15 +41,17 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         self._default_load()
 
     @staticmethod
-    def _write_to_collection(collection: str, data: List[dict]) -> None:
+    def _write_to_collection(collection: str, data: List[dict], option='add') -> None:
         os.makedirs(DATALAKE_HOME, exist_ok=True)
         col_file = os.path.join(DATALAKE_HOME, collection)
         _prev_data = []
-        if os.path.exists(col_file):
+        if os.path.exists(col_file) and option == 'add':
             with open(col_file, 'r+') as f:
                 content = f.read()
                 _prev_data = json.loads(content) if content else []
+
         data = _prev_data + data
+
         with open(col_file, 'w+') as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
 
@@ -105,6 +107,12 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             }
         ]
         self._write_to_collection('default', data)
+
+    def delete_many(self, collection: str, **kwargs):
+        filters = self._parse_filters(**kwargs)
+        values: List[Dict] = self._read_from_collection(collection)
+        values = [v for v in values if not all(f(v) for f in filters)]
+        self._write_to_collection(collection, values, 'write')
 
     def _find(self, collection: str, filters: List = [], **kwargs) -> List[Dict]:
         values: List[Dict] = self._read_from_collection(collection)
