@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Type, TypeGuard
+from typing import List, Type
 from splight_models import *
 from splight_database.abstract import AbstractDatabaseClient
 from .djatabase.models import (
@@ -7,7 +7,6 @@ from .djatabase.models import (
     Asset as DBAsset,
     Attribute as DBAttribute,
     BillingSettings as DBBillingSettings,
-    MonthBilling as DBMonthBilling,
     Billing as DBBilling,
     DeploymentBillingItem as DBDeploymentBillingItem,
     Chart as DBChart,
@@ -23,6 +22,7 @@ from .djatabase.models import (
     Notification as DBNotification,
     Node as DBNode,
     MappingRule as DBMappingRule,
+    MonthBilling as DBMonthBilling,
     ReferenceMapping as DBReferenceMapping,
     ServerMapping as DBServerMapping,
     Tab as DBTab,
