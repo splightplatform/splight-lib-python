@@ -31,7 +31,7 @@ class QuerySet(UserList):
         if isinstance(i, slice):
             kwargs = {
                 "skip_": i.start,
-                "limit": i.stop - i.start,
+                "limit_": i.stop - i.start,
                 **self._kwargs
             }
             return QuerySet(self._client, *self._args, **kwargs)

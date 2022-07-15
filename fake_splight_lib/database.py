@@ -69,15 +69,19 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     @validate_resource_type
     def _get(self, resource_type: Type,
              first: bool = False,
-             limit: int = -1,
+             limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
         logger.debug(f"[FAKED] Executing get with {resource_type}")
         queryset = self.database[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+        if limit_ != -1:
+            queryset = queryset[skip_:skip_ + limit_]
+
         if first:
             return queryset[0] if queryset else None
+
         return queryset
 
     def get(self, *args, **kwargs):
