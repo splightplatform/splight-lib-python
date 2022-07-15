@@ -12,7 +12,6 @@ def validate_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, resource_type: Type, *args, **kwargs):
         if resource_type not in self.valid_classes:
-            print(self)
             raise NotImplementedError(f"Not a valid resource_type: {resource_type.__name__}")
         return func(self, resource_type, *args, **kwargs)
     return wrapper
