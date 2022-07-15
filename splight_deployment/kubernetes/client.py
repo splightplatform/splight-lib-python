@@ -135,7 +135,7 @@ class KubernetesClient(AbstractDeploymentClient):
     def _get(self, resource_type: Type,
              id: str = '',
              first=False,
-             limit: int = -1,
+             limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
         if resource_type == Deployment:
@@ -144,8 +144,8 @@ class KubernetesClient(AbstractDeploymentClient):
             result: List[Namespace] = self._get_namespace(id=id)
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         result = self._filter(result, **kwargs)
-        if limit != -1:
-            result = result[skip_:skip_ + limit]
+        if limit_ != -1:
+            result = result[skip_:skip_ + limit_]
 
         if first:
             return result[0] if result else None
