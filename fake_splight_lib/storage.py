@@ -1,6 +1,8 @@
 import os
 import shutil
 import pathlib
+import zlib
+from base64 import urlsafe_b64encode as b64e, urlsafe_b64decode as b64d
 from pydantic import BaseModel
 from typing import Optional, Type, List
 from splight_lib import logging
@@ -19,6 +21,20 @@ class FakeStorageClient(AbstractStorageClient):
         self.base_path = os.path.join(STORAGE_HOME, self.namespace)
         os.makedirs(STORAGE_HOME, exist_ok=True)
         os.makedirs(self.base_path, exist_ok=True)
+
+    def _encode_name(self, name):
+        name = name.replace(f"{self.namespace}/", '')
+        return b"fake" + b64e(zlib.compress(name.encode('utf-8'), 9))
+
+    def _decode_name(self, name):
+        name = name.replace("fake", "")
+        decoded_name = zlib.decompress(b64d(name)).decode('utf-8')
+        return f"{self.namespace}/{decoded_name}"
+
+    def _namespaced_key(self, name):
+        if not name.startswith(self.namespace):
+            name = f"{self.namespace}/{name}"
+        return name
 
     def __copy(self, source, destination):
         destination_path = os.path.split(destination)
@@ -42,6 +58,7 @@ class FakeStorageClient(AbstractStorageClient):
             id = os.path.join(prefix, id)
         destination = os.path.join(STORAGE_HOME, self.namespace, id)
         self.__copy(instance.file, destination)
+        id = self._encode_name(id)
         instance.id = id
         return instance
 
@@ -63,7 +80,7 @@ class FakeStorageClient(AbstractStorageClient):
                 for file in files:
                     queryset.append(os.path.join(folder, file))
             queryset = [str(pathlib.Path(f).relative_to(self.base_path)) for f in queryset]
-            queryset = [StorageFile(id=f, file=f) for f in queryset]
+            queryset = [StorageFile(id=self._encode_name(f), file=f) for f in queryset]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
         if limit_ != -1:
@@ -75,11 +92,13 @@ class FakeStorageClient(AbstractStorageClient):
 
     def delete(self, resource_type: Type, id: str) -> List[BaseModel]:
         logger.debug(f"[FAKED] Deleted file {id}")
-        os.remove(os.path.join(STORAGE_HOME, self.namespace, id))
+        id = self._namespaced_key(self._decode_name(id))
+        os.remove(os.path.join(STORAGE_HOME, id))
 
     def download(self, resource_type: Type, id: str, target: str) -> str:
         logger.debug(f"[FAKED] Downloading file {id} to {target}")
-        source = os.path.join(STORAGE_HOME, self.namespace, id)
+        id = self._namespaced_key(self._decode_name(id))
+        source = os.path.join(STORAGE_HOME, id)
         self.__copy(source, target)
         return target
 
