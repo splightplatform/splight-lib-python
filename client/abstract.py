@@ -21,7 +21,7 @@ def validate_instance_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, instance: BaseModel, *args, **kwargs):
         if type(instance) not in self.valid_classes:
-            raise NotImplementedError(f"Not a valid instance type: {type(instance)}")
+            raise NotImplementedError(f"Not a valid instance type: {type(instance).__name__}")
         return func(self, instance, *args, **kwargs)
     return wrapper
 

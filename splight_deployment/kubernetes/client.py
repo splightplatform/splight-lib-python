@@ -108,7 +108,7 @@ class KubernetesClient(AbstractDeploymentClient):
         self._apply_yaml(spec, namespace=instance.id)
         return instance
 
-    def _get_namespace(self, id: str):
+    def _get_namespace(self, id: str = ''):
         cmd = f"kubectl get namespace -o json"
         if id:
             cmd += f" --selector=id={id}"
@@ -138,6 +138,7 @@ class KubernetesClient(AbstractDeploymentClient):
              limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
+
         if resource_type == Deployment:
             result: List[Deployment] = self._get_deployment(id=id)
         elif resource_type == Namespace:

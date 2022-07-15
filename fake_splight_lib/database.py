@@ -69,7 +69,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         return self._create(instance)
 
     @validate_resource_type
-    @validate_resource_type
     def _get(self, resource_type: Type,
              first: bool = False,
              limit_: int = -1,
@@ -87,11 +86,8 @@ class FakeDatabaseClient(AbstractDatabaseClient):
 
         return queryset
 
-    def get(self, *args, **kwargs):
-        return QuerySet(self, *args, **kwargs)
-
     @validate_resource_type
-    def count(self, resource_type: Type, **kwargs) -> List[BaseModel]:
+    def count(self, resource_type: Type, **kwargs) -> int:
         return len(self._get(resource_type, **kwargs))
 
     @validate_resource_type
