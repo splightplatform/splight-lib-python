@@ -13,6 +13,7 @@ from .message import *
 from .namespace import *
 from .notification import *
 from .network import *
+from .query import *
 from .tag import *
 from .rule import *
 from .storage import *

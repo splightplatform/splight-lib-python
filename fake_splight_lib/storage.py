@@ -45,7 +45,7 @@ class FakeStorageClient(AbstractStorageClient):
         instance.id = id
         return instance
 
-    def get(self, resource_type: Type, first=False, prefix: Optional[str]=None, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type, first=False, prefix: Optional[str] = None, **kwargs) -> List[BaseModel]:
         logger.debug(f"[FAKED] Getting files {kwargs}")
         base_path = self.base_path + "/" + prefix if prefix else self.base_path
         queryset = []
