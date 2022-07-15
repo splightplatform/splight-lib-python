@@ -108,7 +108,7 @@ class DjangoClient(AbstractDatabaseClient):
         return result
 
     @validate_resource_type
-    def count(self, resource_type: Type, **kwargs):
+    def count(self, resource_type: Type, **kwargs) -> int:
         obj_class = CLASSMAP[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         if hasattr(obj_class, "namespace"):
