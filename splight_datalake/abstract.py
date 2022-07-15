@@ -1,15 +1,15 @@
-from venv import create
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Dict
 from datetime import datetime
-from splight_models import Variable, VariableDataFrame
+from splight_models import Variable, VariableDataFrame, QuerySet
 
 
 class AbstractDatalakeClient(AbstractClient):
 
     valid_filters = ["in", "contains", "gte", "lte"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -17,14 +17,21 @@ class AbstractDatalakeClient(AbstractClient):
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         pass
 
+    def get(self, *args, **kwargs) -> QuerySet:
+        return QuerySet(self, *args, **kwargs)
+
     @abstractmethod
-    def get(self,
-            resource_type: Type,
-            collection: str = "default",
-            first: bool = False,
-            limit_: int = 50,
-            skip_: int = 0,
-            **kwargs) -> List[BaseModel]:
+    def _get(self,
+             resource_type: Type,
+             collection: str = "default",
+             first: bool = False,
+             limit_: int = 50,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
+        pass
+
+    @abstractmethod
+    def count(self, resource_type: Type, collection: str = "default", **kwargs) -> int:
         pass
 
     @abstractmethod
@@ -50,7 +57,7 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
-    
+
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
 

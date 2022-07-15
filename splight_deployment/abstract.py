@@ -2,6 +2,7 @@ from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Optional
+from splight_models import QuerySet
 
 
 class AbstractDeploymentClient(AbstractClient):
@@ -9,8 +10,11 @@ class AbstractDeploymentClient(AbstractClient):
     def save(self, instance: BaseModel) -> BaseModel:
         pass
 
+    def get(self, *args, **kwargs) -> QuerySet:
+        return QuerySet(self, *args, **kwargs)
+
     @abstractmethod
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
         pass
 
     @abstractmethod

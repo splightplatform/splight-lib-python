@@ -82,12 +82,12 @@ class S3StorageClient(AbstractStorageClient):
         return instance
 
     @validate_resource_type
-    def get(self, resource_type: Type,
-            first=False,
-            prefix: Optional[str] = None,
-            limit: int = -1,
-            skip_: int = 0,
-            **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             first=False,
+             prefix: Optional[str] = None,
+             limit: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
         prefixes = [self.namespace, prefix] if prefix else [self.namespace]
         prefix = '/'.join(prefixes)
         files = self.s3_client.list_objects(

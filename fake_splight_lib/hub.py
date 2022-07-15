@@ -39,7 +39,7 @@ class FakeHubClient(AbstractHubClient):
         raise NotImplementedError
 
     @validate_resource_type
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
         logger.debug(f"[FAKED] Pulling from hub {resource_type}s")
         queryset = self.database[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
@@ -59,4 +59,3 @@ class FakeHubClient(AbstractHubClient):
             if field in data:
                 setattr(instance, field, data[field])
         return instance
-                
