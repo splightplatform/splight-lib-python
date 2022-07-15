@@ -9,7 +9,7 @@ class ProviderConnectionError(Exception):
 
 class TransactionNotAllowed(Exception):
     def __init__(self, transaction_name: str):
-        self._msg = f"Transaction {transaction_name} is not allowed"
+        self._msg = f"Transaction \"{transaction_name}\" is not allowed"
 
     def __str__(self) -> str:
         return self._msg
