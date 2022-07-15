@@ -26,7 +26,7 @@ class SplightHubClient(AbstractHubClient):
     @validate_resource_type
     def _get(self, resource_type: Type,
              first=False,
-             limit: int = -1,
+             limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
         url = "/".join([self.host, resource_type.__name__.lower().replace("hub", "")])
@@ -38,9 +38,8 @@ class SplightHubClient(AbstractHubClient):
         ]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
-        if limit != -1:
-            queryset = queryset[skip_:skip_ + limit]
-
+        if limit_ != -1:
+            result = result[skip_:skip_ + limit_]
         if first:
             return queryset[0] if queryset else None
         return queryset

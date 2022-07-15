@@ -85,7 +85,7 @@ class S3StorageClient(AbstractStorageClient):
     def _get(self, resource_type: Type,
              first=False,
              prefix: Optional[str] = None,
-             limit: int = -1,
+             limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
         prefixes = [self.namespace, prefix] if prefix else [self.namespace]
@@ -102,9 +102,8 @@ class S3StorageClient(AbstractStorageClient):
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         result = self._filter(result, **kwargs)
 
-        if limit != -1:
-            result = result[skip_:skip_ + limit]
-
+        if limit_ != -1:
+            result = result[skip_:skip_ + limit_]
         if first:
             return result[0] if result else None
         return result
