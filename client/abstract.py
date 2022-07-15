@@ -50,6 +50,19 @@ class AbstractClient(ABC, PreHookMixin):
 
         return [obj for obj in queryset if all([f(obj) for f in filters])]
 
+    def _sort(self, queryset: List[BaseModel], sort_by: List = []) -> List[BaseModel]:
+        '''
+        Sort a queryset by the given kwargs.
+        '''
+        sort_by.reverse()
+        for order in sort_by:
+            if order.endswith("__asc"):
+                queryset.sort(key=lambda x: getattr(x, order.replace("__asc", "")))
+            else:
+                queryset.sort(key=lambda x: getattr(x, order.replace("__desc", "")), reverse=True)
+
+        return queryset
+
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         '''
         Validate the given kwargs.

@@ -82,7 +82,8 @@ class S3StorageClient(AbstractStorageClient):
         return instance
 
     @validate_resource_type
-    def _get(self, resource_type: Type,
+    def _get(self,
+             resource_type: Type,
              first=False,
              prefix: Optional[str] = None,
              limit_: int = -1,
