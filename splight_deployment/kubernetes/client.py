@@ -131,9 +131,6 @@ class KubernetesClient(AbstractDeploymentClient):
         if isinstance(instance, Namespace):
             return self._create_namespace(instance)
 
-    def get(self, *args, **kwargs):
-        return QuerySet(self, *args, **kwargs)
-
     @validate_resource_type
     def _get(self, resource_type: Type,
              id: str = '',

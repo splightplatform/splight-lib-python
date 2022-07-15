@@ -158,16 +158,22 @@ class MongoClient(AbstractDatalakeClient):
 
     @staticmethod
     def __get_skip_pipeline_step(skip: int = None, **kwargs):
+        if not skip:
+            return {}
         _skip = skip
         return {"$skip": _skip}
 
     @staticmethod
     def __get_limit_pipeline_step(limit: int = None, **kwargs):
+        if not limit:
+            return {}
         _limit = limit
-        return {"$limit": limit}
+        return {"$limit": _limit}
 
     @staticmethod
     def __get_sort_pipeline_step(sort: List[Tuple] = None, **kwargs):
+        if not sort:
+            return {}
         _sort = {
             k: v
             for k, v in sort
@@ -204,9 +210,6 @@ class MongoClient(AbstractDatalakeClient):
         _key = key.replace('__', '.')
         return self.db[collection].distinct(_key, filter=self.__parse_filters(**kwargs))
 
-    def get(self, *args, **kwargs):
-        return QuerySet(self, *args, **kwargs)
-
     @validate_resource_type
     def _get(self,
              resource_type: Type,
@@ -237,6 +240,34 @@ class MongoClient(AbstractDatalakeClient):
         )
         result = [resource_type(**obj) for obj in result]
         return result
+
+    @validate_resource_type
+    def count(self,
+              resource_type: Type,
+              collection: str = 'default',
+              sort: Union[List, str] = ['timestamp__desc'],
+              group_id: Union[List, str] = [],
+              group_fields: Union[List, str] = [],
+              tzinfo: timezone = timezone(timedelta()),
+              **kwargs) -> List[BaseModel]:
+        instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
+        sort = [sort] if isinstance(sort, str) else sort
+        group_id = [group_id] if isinstance(group_id, str) else group_id
+        group_fields = [group_fields] if isinstance(group_fields, str) else group_fields
+        pipeline = self._get_pipeline(
+            filters=self.__parse_filters(**instance_kwargs),
+            sort=self.__parse_sort(sort=sort),
+            group_id=self.__parse_group_id(group_id=group_id),
+            group_fields=self.__parse_group_fields(group_fields=group_fields),
+        )
+        pipeline.append({"$count": "count"})
+        result = self._aggregate(
+            collection=collection,
+            pipeline=pipeline,
+            tzinfo=tzinfo
+        )
+
+        return result["count"]
 
     @validate_resource_type
     def save(self,

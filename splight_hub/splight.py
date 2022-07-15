@@ -23,9 +23,6 @@ class SplightHubClient(AbstractHubClient):
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
 
-    def get(self, *args, **kwargs):
-        return QuerySet(self, *args, **kwargs)
-
     @validate_resource_type
     def _get(self, resource_type: Type,
              first=False,

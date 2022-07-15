@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any
 from splight_models import Variable, VariableDataFrame
+from splight_models import QuerySet
 from splight_datalake.abstract import AbstractDatalakeClient
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
@@ -137,15 +138,15 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return filters
 
-    def get(self,
-            resource_type: Type,
-            collection: str = "default",
-            limit_: int = 100,
-            skip_: int = 0,
-            group_id: List = [],
-            group_fields: List = [],
-            tzinfo: timezone = None,
-            **kwargs) -> List[BaseModel]:
+    def _get(self,
+             resource_type: Type,
+             collection: str = "default",
+             limit_: int = 100,
+             skip_: int = 0,
+             group_id: List = [],
+             group_fields: List = [],
+             tzinfo: timezone = None,
+             **kwargs) -> List[BaseModel]:
 
         if group_id or group_fields or tzinfo:
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
@@ -155,6 +156,21 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             return result[skip_:]
 
         return result[skip_:skip_ + limit_]
+
+    def count(self,
+              resource_type: Type,
+              collection: str = "default",
+              group_id: List = [],
+              group_fields: List = [],
+              tzinfo: timezone = None,
+              **kwargs) -> List[BaseModel]:
+
+        if group_id or group_fields or tzinfo:
+            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
+
+        result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
+
+        return len(result)
 
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]

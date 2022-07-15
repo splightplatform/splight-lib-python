@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Type
+from typing import List, Type, TypeGuard
 from splight_models import *
 from splight_database.abstract import AbstractDatabaseClient
 from .djatabase.models import (
@@ -82,9 +82,6 @@ class DjangoClient(AbstractDatabaseClient):
         instance.id = str(object.id)
         return instance
 
-    def get(self, *args, **kwargs):
-        return QuerySet(self, *args, **kwargs)
-
     @validate_resource_type
     def _get(self, resource_type: Type,
              first: bool = False,
@@ -108,6 +105,15 @@ class DjangoClient(AbstractDatabaseClient):
             return result[0] if result else None
 
         return result
+
+    @validate_resource_type
+    def count(self, resource_type: Type, **kwargs):
+        obj_class = CLASSMAP[resource_type]
+        kwargs = self._validated_kwargs(resource_type, **kwargs)
+        if hasattr(obj_class, "namespace"):
+            kwargs["namespace"] = self.namespace
+        queryset = obj_class.objects.filter(**kwargs).distinct()
+        return queryset.count()
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:
