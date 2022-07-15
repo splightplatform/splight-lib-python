@@ -138,7 +138,7 @@ class HTTPClient:
         ------
         TransactionNotAllowed thrown when the mint operation is not allowed.
         """
-        if not self._connection:
+        if not self._contract:
             raise TransactionNotAllowed(transaction_name="mint")
         mint = self._contract.functions.mint(account.address, metadata)
         transaction = BlockchainTransacction(
@@ -154,7 +154,7 @@ class HTTPClient:
         self._connection.eth.wait_for_transaction_receipt(trn_hash)
 
     def burn(self, account: BlockchainAccount):
-        if not self._connection:
+        if not self._contract:
             raise TransactionNotAllowed(transaction_name="burn")
         __import__("ipdb").set_trace()
         burn = self._contract.functions.burn(account.address)
