@@ -1,78 +1,24 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, Protocol
+from typing import Optional
 
 from eth_account.datastructures import SignedTransaction
-from pydantic import BaseModel, Field
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
-from .default import DEFAULT_CHAIN_ID, DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE
+from .default import DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE
+from .exceptions import (
+    LoadContractError,
+    ProviderConnectionError,
+    TransactionNotAllowed,
+)
 from .settings import ProviderSchemas, blockchain_config
-
-
-class ProviderConnectionError(Exception):
-    def __init__(self):
-        self._msg = "Unable to connect to provider"
-
-    def __str__(self) -> str:
-        return self._msg
-
-
-class TransactionNotAllowed(Exception):
-    def __init__(self, transaction_name: str):
-        self._msg = f"Transaction {transaction_name} is not allowed"
-
-    def __str__(self) -> str:
-        return self._msg
-
-
-class LoadContractError(Exception):
-    def __init__(self, address: str, contract_json: str):
-        self._msg = (
-            f"An error occurred loading contract {address} from "
-            f"file {contract_json}"
-        )
-
-    def __str__(self) -> str:
-        return self._msg
+from .transaction import TransactionBuilder, BlockchainTransacction
 
 
 @dataclass
 class BlockchainAccount:
     address: str
     private_key: str
-
-
-class BlockchainTransacction(BaseModel):
-    nonce: int
-    from_account: Optional[str] = Field(None, alias="from")
-    to_account: Optional[str] = Field(None, alias="to")
-    gas: int
-    gas_price: int = Field(..., alias="gasPrice")
-    chain_id: int = Field(DEFAULT_CHAIN_ID, alias="chainId")
-    value: Optional[int] = None
-
-    class Config:
-        allow_population_by_field_name = True
-
-
-class TransactionBuilder(Protocol):
-    """Interface for a Blockchain Transaction Builder"""
-
-    def build_transaction(self, transaction: Dict) -> Dict:
-        """Buils a transaction
-
-        Parameters
-        ----------
-        transaction : Dict
-            The dictionary with the transaction
-
-        Returns
-        -------
-        Dict
-            The built transaction with full information of the transaction.
-        """
-        ...
 
 
 class HTTPClient:
@@ -198,20 +144,33 @@ class HTTPClient:
         transaction = BlockchainTransacction(
             from_account=account.address,
             nonce=self._connection.eth.get_transaction_count(account.address),
-            gas=0,
+            gas=210000,
             gas_price=DEFAULT_GAS_PRICE,
         )
         signed = self._sign_transaction(account, transaction, builder=mint)
         trn_hash = self._connection.eth.send_raw_transaction(
             signed.rawTransaction
         )
-        response = self._connection.eth.wait_for_transaction_receipt(trn_hash)
-        print(response)
+        self._connection.eth.wait_for_transaction_receipt(trn_hash)
 
     def burn(self, account: BlockchainAccount):
         if not self._connection:
             raise TransactionNotAllowed(transaction_name="burn")
-        __import__('ipdb').set_trace()
+        __import__("ipdb").set_trace()
+        burn = self._contract.functions.burn(account.address)
+        transaction = BlockchainTransacction(
+            from_account=account.address,
+            nonce=self._connection.eth.get_transaction_count(account.address),
+            gas=0,
+            gas_price=DEFAULT_GAS_PRICE,
+        )
+        __import__("ipdb").set_trace()
+        signed = self._sign_transaction(account, transaction, builder=burn)
+        trn_hash = self._connection.eth.send_raw_transaction(
+            signed.rawTransaction
+        )
+        response = self._connection.eth.wait_for_transaction_receipt(trn_hash)
+        print(response)
 
     def _sign_transaction(
         self,
