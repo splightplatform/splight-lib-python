@@ -15,6 +15,8 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
     valid_classes = [
         Network,
+        Billing,
+        BillingSettings,
         ClientMapping,
         ServerMapping,
         ValueMapping,
@@ -23,6 +25,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Asset,
         Attribute,
         MappingRule,
+        MonthBilling,
         Tag,
         Namespace,
         Algorithm,
