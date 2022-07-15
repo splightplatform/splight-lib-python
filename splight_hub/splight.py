@@ -24,7 +24,8 @@ class SplightHubClient(AbstractHubClient):
         raise NotImplementedError
 
     @validate_resource_type
-    def _get(self, resource_type: Type,
+    def _get(self,
+             resource_type: Type,
              first=False,
              limit_: int = -1,
              skip_: int = 0,

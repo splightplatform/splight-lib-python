@@ -153,6 +153,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
+        result = self._sort(result, sort)
         if limit_ == -1:
             return result[skip_:]
 
