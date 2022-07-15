@@ -85,7 +85,7 @@ class DjangoClient(AbstractDatabaseClient):
     @validate_resource_type
     def _get(self, resource_type: Type,
              first: bool = False,
-             limit: int = -1,
+             limit_: int = -1,
              skip_: int = 0,
              **kwargs) -> List[BaseModel]:
         """
@@ -96,8 +96,9 @@ class DjangoClient(AbstractDatabaseClient):
         if hasattr(obj_class, "namespace"):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()
-        if limit != -1:
-            queryset = queryset[skip_:skip_ + limit]
+
+        if limit_ != -1:
+            queryset = queryset[skip_:skip_ + limit_]
 
         result = [resource_type(**i.to_dict()) for i in queryset]
 

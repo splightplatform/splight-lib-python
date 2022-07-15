@@ -66,7 +66,13 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         raise NotImplementedError
 
     @validate_resource_type
-    def _get(self, resource_type: Type, first: bool = False, id: str = '', **kwargs) -> List[BaseModel]:
+    def _get(self,
+             resource_type: Type,
+             first: bool = False,
+             id: str = '',
+             limit_: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
         if resource_type == Deployment:
             queryset = self._get_deployment(id=id)
         if resource_type == Namespace:
@@ -74,6 +80,9 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+        if limit_ != -1:
+            queryset = queryset[skip_:skip_ + limit_]
+
         if first:
             return queryset[0] if queryset else None
         return queryset
