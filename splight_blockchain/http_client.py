@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from decimal import Decimal
 
 from eth_account.datastructures import SignedTransaction
 from web3 import Web3
@@ -60,6 +61,23 @@ class HTTPClient:
             raise ProviderConnectionError
 
         self._contract = None
+
+    def get_balance(self, account: BlockchainAccount) -> Decimal:
+        """Gets the amount of ether in a given account
+
+        Parameters
+        ----------
+        account : BlockchainAccount
+            The account to be consulted
+
+        Returns
+        -------
+        float
+            The total of ether in the account.
+        """
+        raw_balance = self._connection.eth.get_balance(account.address)
+        balance = self._connection.fromWei(raw_balance, "ether")
+        return float(balance)
 
     def load_contract(self, contract_address: str, contract_abi_path: str):
         """Loads a custom contrat defined in a JSON file and the contract
