@@ -30,7 +30,7 @@ from .djatabase.models import (
     ValueMapping as DBValueMapping,
 )
 from client import validate_instance_type, validate_resource_type
-
+from splight_models.query import QuerySet
 
 CLASSMAP = {
     Algorithm: DBAlgorithm,
@@ -82,8 +82,15 @@ class DjangoClient(AbstractDatabaseClient):
         instance.id = str(object.id)
         return instance
 
+    def get(self, *args, **kwargs):
+        return QuerySet(self, *args, **kwargs)
+
     @validate_resource_type
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             first: bool = False,
+             limit: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
         """
         Valid filtering options fields or fields with __in
         """
@@ -92,7 +99,11 @@ class DjangoClient(AbstractDatabaseClient):
         if hasattr(obj_class, "namespace"):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()
+        if limit != -1:
+            queryset = queryset[skip_:skip_ + limit]
+
         result = [resource_type(**i.to_dict()) for i in queryset]
+
         if first:
             return result[0] if result else None
 
