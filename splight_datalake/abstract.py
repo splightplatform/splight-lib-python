@@ -1,8 +1,8 @@
 from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Type, List, Dict
-from datetime import datetime
+from typing import Type, List, Dict, Union
+from datetime import datetime, timezone, timedelta
 from splight_models import Variable, VariableDataFrame, QuerySet
 
 
@@ -23,10 +23,13 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def _get(self,
              resource_type: Type,
-             collection: str = "default",
-             first: bool = False,
+             collection: str = 'default',
              limit_: int = 50,
              skip_: int = 0,
+             sort: Union[List, str] = ['timestamp__desc'],
+             group_id: Union[List, str] = [],
+             group_fields: Union[List, str] = [],
+             tzinfo: timezone = timezone(timedelta()),
              **kwargs) -> List[BaseModel]:
         pass
 

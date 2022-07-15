@@ -4,9 +4,9 @@ import os
 import json
 from collections import defaultdict
 from collections.abc import MutableMapping
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
-from typing import Dict, List, Type, Any
+from typing import Dict, List, Type, Any, Union
 from splight_models import Variable, VariableDataFrame
 from splight_models import QuerySet
 from splight_datalake.abstract import AbstractDatalakeClient
@@ -140,11 +140,12 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     def _get(self,
              resource_type: Type,
-             collection: str = "default",
-             limit_: int = 100,
+             collection: str = 'default',
+             limit_: int = 50,
              skip_: int = 0,
-             group_id: List = [],
-             group_fields: List = [],
+             sort: Union[List, str] = ['timestamp__desc'],
+             group_id: Union[List, str] = [],
+             group_fields: Union[List, str] = [],
              tzinfo: timezone = None,
              **kwargs) -> List[BaseModel]:
 
@@ -152,7 +153,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-        if limit_ == 0:
+        if limit_ == -1:
             return result[skip_:]
 
         return result[skip_:skip_ + limit_]

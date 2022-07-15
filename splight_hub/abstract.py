@@ -14,7 +14,7 @@ class AbstractHubClient(AbstractClient):
         return QuerySet(self, *args, **kwargs)
 
     @abstractmethod
-    def _get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type, first=False, limit_: int = -1, skip_: int = 0, **kwargs) -> List[BaseModel]:
         pass
 
     @abstractmethod
