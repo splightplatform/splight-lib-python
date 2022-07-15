@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional, Protocol
 
 from eth_account.datastructures import SignedTransaction
 from pydantic import BaseModel, Field
@@ -18,6 +18,25 @@ class ProviderConnectionError(Exception):
         return self._msg
 
 
+class TransactionNotAllowed(Exception):
+    def __init__(self, transaction_name: str):
+        self._msg = f"Transaction {transaction_name} is not allowed"
+
+    def __str__(self) -> str:
+        return self._msg
+
+
+class LoadContractError(Exception):
+    def __init__(self, address: str, contract_json: str):
+        self._msg = (
+            f"An error occurred loading contract {address} from "
+            f"file {contract_json}"
+        )
+
+    def __str__(self) -> str:
+        return self._msg
+
+
 @dataclass
 class BlockchainAccount:
     address: str
@@ -31,10 +50,29 @@ class BlockchainTransacction(BaseModel):
     gas: int
     gas_price: int = Field(..., alias="gasPrice")
     chain_id: int = Field(DEFAULT_CHAIN_ID, alias="chainId")
-    value: int
+    value: Optional[int] = None
 
     class Config:
         allow_population_by_field_name = True
+
+
+class TransactionBuilder(Protocol):
+    """Interface for a Blockchain Transaction Builder"""
+
+    def build_transaction(self, transaction: Dict) -> Dict:
+        """Buils a transaction
+
+        Parameters
+        ----------
+        transaction : Dict
+            The dictionary with the transaction
+
+        Returns
+        -------
+        Dict
+            The built transaction with full information of the transaction.
+        """
+        ...
 
 
 class HTTPClient:
@@ -75,6 +113,40 @@ class HTTPClient:
         if not self._connection.isConnected():
             raise ProviderConnectionError
 
+        self._contract = None
+
+    def load_contract(self, contract_address: str, contract_abi_path: str):
+        """Loads a custom contrat defined in a JSON file and the contract
+        address.
+
+        Parameters
+        ----------
+        contract_address : str
+            The hash for the contract.
+        contract_abi_path : str
+            The path to the JSON file with the contract.
+
+        Raises
+        ------
+        LoadContractError when there is any error loading the contract.
+        """
+        with open(contract_abi_path, "r") as fid:
+            contract_abi = fid.read()
+
+        contract_abi = contract_abi.translate(
+            str.maketrans({"\n": "", "\t": ""})
+        )
+
+        try:
+            self._contract = self._connection.eth.contract(
+                address=contract_address, abi=contract_abi
+            )
+        except Exception as exc:
+            self._contract = None
+            raise LoadContractError(
+                contract_address, contract_abi_path
+            ) from exc
+
     def transfer(
         self,
         from_account: BlockchainAccount,
@@ -106,8 +178,46 @@ class HTTPClient:
         signed = self._sign_transaction(from_account, transaction)
         self._connection.eth.send_raw_transaction(signed.rawTransaction)
 
+    def mint(self, account: BlockchainAccount, metadata: str):
+        """Makes a mint transaction if it's allowed.
+
+        Parameters
+        ----------
+        account : BlockchainAccount
+            The account that is minting.
+        metadata : str
+            The metada for the transaction
+
+        Raises
+        ------
+        TransactionNotAllowed thrown when the mint operation is not allowed.
+        """
+        if not self._connection:
+            raise TransactionNotAllowed(transaction_name="mint")
+        mint = self._contract.functions.mint(account.address, metadata)
+        transaction = BlockchainTransacction(
+            from_account=account.address,
+            nonce=self._connection.eth.get_transaction_count(account.address),
+            gas=0,
+            gas_price=DEFAULT_GAS_PRICE,
+        )
+        signed = self._sign_transaction(account, transaction, builder=mint)
+        trn_hash = self._connection.eth.send_raw_transaction(
+            signed.rawTransaction
+        )
+        response = self._connection.eth.wait_for_transaction_receipt(trn_hash)
+        print(response)
+
+    def burn(self, account: BlockchainAccount):
+        if not self._connection:
+            raise TransactionNotAllowed(transaction_name="burn")
+        __import__('ipdb').set_trace()
+
     def _sign_transaction(
-        self, account: BlockchainAccount, transaction: BlockchainTransacction
+        self,
+        account: BlockchainAccount,
+        transaction: BlockchainTransacction,
+        builder: Optional[TransactionBuilder] = None,
     ) -> SignedTransaction:
         """Signs a blockchain transaction
 
@@ -117,14 +227,21 @@ class HTTPClient:
             The account that signs the transaction
         transaction : BlockchainTransacction
             The transaction to by signed
+        builder : Optional[TransactionBuilder]
+            The transaction builder
 
         Returns
         -------
         SignedTransaction
             The signed transaction
         """
+        built_transaction = transaction.dict(by_alias=True, exclude_none=True)
+        if builder:
+            built_transaction = builder.build_transaction(
+                transaction.dict(by_alias=True, exclude_none=True)
+            )
         signed = self._connection.eth.account.sign_transaction(
-            transaction.dict(by_alias=True, exclude_none=True),
+            built_transaction,
             account.private_key,
         )
         return signed
