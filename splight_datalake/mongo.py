@@ -225,8 +225,8 @@ class MongoClient(AbstractDatalakeClient):
 
         if self.collection and (collection not in ('default', self.collection)):
             # check if collection has permission.
-            if collection not in self.db[ALGORITHM_DAG_COLLECTION].find(
-                {'needed_algorithm': collection, 'collection': self.collection}
+            if not self.db[ALGORITHM_DAG_COLLECTION].find_one(
+                {'dependency': collection, 'algorithm': self.collection}
             ):
                 raise ValueError(f'{collection} is not sub algorithm of {self.collection}')
 
