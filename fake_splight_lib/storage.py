@@ -21,7 +21,9 @@ class FakeStorageClient(AbstractStorageClient):
         os.makedirs(self.base_path, exist_ok=True)
 
     def __copy(self, source, destination):
-        os.makedirs(os.path.join(*os.path.split(destination)[:-1]), exist_ok=True)
+        destination_path = os.path.split(destination)
+        if destination_path[0] != "":
+            os.makedirs(os.path.join(*destination_path[:-1]), exist_ok=True)
         try:
             shutil.copy(source, destination)
         except shutil.SameFileError:
@@ -43,14 +45,19 @@ class FakeStorageClient(AbstractStorageClient):
         instance.id = id
         return instance
 
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def get(self, resource_type: Type, first=False, prefix: Optional[str]=None, **kwargs) -> List[BaseModel]:
         logger.debug(f"[FAKED] Getting files {kwargs}")
+        base_path = self.base_path + "/" + prefix if prefix else self.base_path
         queryset = []
-        for folder, _, files in os.walk(self.base_path):
-            for file in files:
-                queryset.append(os.path.join(folder, file))
-        queryset = [str(pathlib.Path(f).relative_to(self.base_path)) for f in queryset]
-        queryset = [StorageFile(id=f, file=f) for f in queryset]
+        if os.path.isfile(base_path):
+            relative_path = str(pathlib.Path(base_path).relative_to(self.base_path))
+            queryset = [StorageFile(id=relative_path, file=relative_path)]
+        else:
+            for folder, _, files in os.walk(base_path):
+                for file in files:
+                    queryset.append(os.path.join(folder, file))
+            queryset = [str(pathlib.Path(f).relative_to(self.base_path)) for f in queryset]
+            queryset = [StorageFile(id=f, file=f) for f in queryset]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
         if first:
