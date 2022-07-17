@@ -8,7 +8,6 @@ from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
 from splight_models import Variable, VariableDataFrame
-from splight_models import QuerySet
 from splight_datalake.abstract import AbstractDatalakeClient
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
@@ -153,7 +152,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-        result = self._sort(result, sort)
+
         if limit_ == -1:
             return result[skip_:]
 
