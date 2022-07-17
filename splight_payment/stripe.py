@@ -23,10 +23,29 @@ class StripeClient(AbstractPaymentClient):
 
     def close(self, customer_id: str):
         invoice = stripe.Invoice.create(customer=customer_id, collection_method='send_invoice', days_until_due=7)
+        stripe.Invoice.finalize_invoice(invoice['id'])
     
+    def get_invoices(self, customer_id: str):
+        invoice_list = stripe.Invoice.list(customer=customer_id, limit=100)['data']
+        response = []
+        for invoice in invoice_list:
+            filtered_invoice = {
+                "id" : invoice["id"],
+                "total" : invoice["total"],
+                "status" : invoice["status"],
+                "pdf" : invoice["invoice_pdf"]
+            }
+            response.append(filtered_invoice)
+        return response
+
+        
     def add_card_to_customer(self, customer_id: str):
+        # not implementing right now
         pass
     
 
     def modify_invoice_email(self, customer_id: str, email: str):
-        pass
+        stripe.Customer.modify(
+            customer=customer_id,
+            email=email
+        )

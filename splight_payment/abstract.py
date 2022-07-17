@@ -25,3 +25,7 @@ class AbstractPaymentClient(AbstractClient):
     @abstractmethod
     def modify_invoice_email(self, customer_id: str, email: str):
         pass
+    
+    @abstractmethod
+    def get_invoices(self, customer_id: str):
+        pass
