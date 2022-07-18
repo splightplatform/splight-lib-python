@@ -1,10 +1,11 @@
+import re
 import pandas as pd
 from datetime import datetime
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 from pydantic import BaseModel
 from collections.abc import MutableMapping
 from collections import defaultdict
@@ -157,27 +158,23 @@ class MongoClient(AbstractDatalakeClient):
         return {"$replaceRoot": _replaceRoot}
 
     @staticmethod
-    def __get_skip_pipeline_step(skip: int = None, **kwargs):
-        if not skip:
-            return {}
+    def __get_skip_pipeline_step(skip: Optional[int] = None, **kwargs):
         _skip = skip
         return {"$skip": _skip}
 
     @staticmethod
-    def __get_limit_pipeline_step(limit: int = None, **kwargs):
-        if not limit:
-            return {}
+    def __get_limit_pipeline_step(limit: Optional[int] = None, **kwargs):
         _limit = limit
         return {"$limit": _limit}
 
     @staticmethod
-    def __get_sort_pipeline_step(sort: List[Tuple] = None, **kwargs):
-        if not sort:
-            return {}
-        _sort = {
-            k: v
-            for k, v in sort
-        }
+    def __get_sort_pipeline_step(sort: Optional[List[Tuple]] = None, **kwargs):
+        _sort = sort
+        if sort:
+            _sort = {
+                k: v
+                for k, v in sort
+            }
         return {"$sort": _sort}
 
     def _get_pipeline(self, **kwargs):
@@ -250,6 +247,7 @@ class MongoClient(AbstractDatalakeClient):
               group_fields: Union[List, str] = [],
               tzinfo: timezone = timezone(timedelta()),
               **kwargs) -> List[BaseModel]:
+
         instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
         sort = [sort] if isinstance(sort, str) else sort
         group_id = [group_id] if isinstance(group_id, str) else group_id
@@ -266,8 +264,8 @@ class MongoClient(AbstractDatalakeClient):
             pipeline=pipeline,
             tzinfo=tzinfo
         )
-
-        return result["count"]
+        result = list(result)
+        return result[0]['count'] if result else 0
 
     @validate_resource_type
     def save(self,
