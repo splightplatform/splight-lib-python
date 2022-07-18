@@ -25,7 +25,7 @@ class Edge(SplightBaseModel):
     id: Optional[str]
     directed: bool
     graph_id: str
-    asset_id: str
+    asset_id: Optional[str] = None
     source_id: str
     target_id: str
     color: str

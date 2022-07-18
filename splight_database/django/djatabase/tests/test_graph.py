@@ -29,6 +29,12 @@ class TestGraph(TestCase):
         edge = Edge.objects.create(directed=False, graph=self.graph1, source=node1, target=node2, asset=self.asset3)
         self.assertEqual(edge.graph, self.graph1)
 
+    def test_create_edge_without_asset(self):
+        node1 = Node.objects.create(type='test', graph=self.graph1, asset=self.asset1)
+        node2 = Node.objects.create(type='test', graph=self.graph1, asset=self.asset2)
+        edge = Edge.objects.create(directed=False, graph=self.graph1, source=node1, target=node2)
+        self.assertEqual(edge.graph, self.graph1)
+
     def test_fail_create_edge_locked_graph(self):
         node1 = Node.objects.create(type='test', graph=self.graph1, asset=self.asset1)
         node2 = Node.objects.create(type='test', graph=self.graph2, asset=self.asset2)

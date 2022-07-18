@@ -32,7 +32,7 @@ class Edge(NamespaceAwareModel):
     directed = models.BooleanField(default=False)
 
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, related_name='edges')
-    asset = models.ForeignKey('Asset', on_delete=models.CASCADE, default=None)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE, default=None, null=True)
     source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='outgoing_edges')
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='incoming_edges')
     color = models.CharField(max_length=100, default=None, null=True)
