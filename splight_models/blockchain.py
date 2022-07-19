@@ -1,18 +1,32 @@
-from typing import Any, Dict, List, Optional, Union
-
-from pydantic import Field, validator
-
+import re
+import json
+from typing import Optional, Union
+from pydantic import validator, Json, Field, validator
+from hexbytes import HexBytes
 from .base import SplightBaseModel
 
-from hexbytes import HexBytes
+
+class BlockchainContract(SplightBaseModel):
+    id: Optional[str]
+    name: str
+    description: str = ""
+    account_id: str
+    abi_json: Json
+
+    @validator('account_id', pre=True, always=True)
+    def set_account_id_now(cls, v):
+        regex = r"(\b0x[a-fA-F0-9]{40}\b)"
+        assert re.match(regex, v), 'Account value not allowed it should be a hex str.'
+        return v
+
+    @validator('abi_json', pre=True, always=True)
+    def set_abi_json_now(cls, v):
+        if isinstance(v, list):
+            return json.dumps(v)
+        return v
 
 
-class SmartContract(SplightBaseModel):
-    address: str
-    abi: List[Dict[str, Any]]
-
-
-class FunctionResponse(SplightBaseModel):
+class CallResponse(SplightBaseModel):
     name: str
     value: Union[int, float, str]
 

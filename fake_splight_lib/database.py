@@ -38,6 +38,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Graph,
         Node,
         Edge,
+        BlockchainContract,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:

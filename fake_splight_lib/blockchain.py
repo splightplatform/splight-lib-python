@@ -1,10 +1,9 @@
-from typing import Dict
 import random
 from hexbytes import HexBytes
 
-from splight_blockchain.blockchain_client import BlockchainClient
+from splight_blockchain.abstract import BlockchainClient
 from splight_blockchain.exceptions import MethodNotAllowed
-from splight_blockchain.http_client import FunctionResponse
+from splight_models import CallResponse, Transaction
 
 
 def get_random_hex(size: int = 256) -> HexBytes:
@@ -13,13 +12,13 @@ def get_random_hex(size: int = 256) -> HexBytes:
 
 class FakeBlockchainClient(BlockchainClient):
 
-    def call(self, method: str, *args) -> FunctionResponse:
-        return FunctionResponse(
+    def call(self, method: str, *args) -> CallResponse:
+        return CallResponse(
             name=method,
             value=random.randint(0, 10000)
         )
 
-    def transact(self, method: str, *args, **kwargs):
+    def transact(self, method: str, *args, **kwargs) -> Transaction:
         if method not in ["mint", "burn", "transfer"]:
             raise MethodNotAllowed(method)
 
@@ -39,9 +38,9 @@ class FakeBlockchainClient(BlockchainClient):
             "type": "0x0"
         }
 
-    def get_transaction(self, tx_hash: HexBytes) -> Dict:
+    def get_transaction(self, tx_hash: HexBytes) -> Transaction:
 
-        return {
+        return Transaction(**{
             "blockHash": get_random_hex(size=256),
             "blockNumber": 102812,
             "contractAddress": None,
@@ -55,11 +54,11 @@ class FakeBlockchainClient(BlockchainClient):
             "transactionHash": tx_hash,
             "transactionIndex": 0,
             "type": "0x0"
-        }
+        })
 
-    def get_transaction_receipt(self, tx_hash: HexBytes) -> Dict:
+    def get_transaction_receipt(self, tx_hash: HexBytes) -> Transaction:
 
-        return {
+        return Transaction(**{
             "blockHash": get_random_hex(size=256),
             "blockNumber": 102812,
             "contractAddress": None,
@@ -73,4 +72,4 @@ class FakeBlockchainClient(BlockchainClient):
             "transactionHash": tx_hash,
             "transactionIndex": 0,
             "type": "0x0"
-        }
+        })

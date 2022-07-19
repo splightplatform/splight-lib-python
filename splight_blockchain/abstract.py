@@ -4,7 +4,7 @@ from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
 from client import AbstractClient
-from splight_models.blockchain import FunctionResponse
+from splight_models.blockchain import CallResponse
 
 
 class BlockchainClient(AbstractClient):
@@ -14,7 +14,7 @@ class BlockchainClient(AbstractClient):
         pass
 
     @abstractmethod
-    def call(self, method: str, *args) -> FunctionResponse:
+    def call(self, method: str, *args) -> CallResponse:
         pass
 
     @abstractmethod

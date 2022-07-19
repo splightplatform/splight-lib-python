@@ -8,8 +8,8 @@ from web3.contract import ContractFunction
 from web3.middleware import geth_poa_middleware
 
 from splight_models.blockchain import (
-    FunctionResponse,
-    SmartContract,
+    CallResponse,
+    BlockchainContract,
     Transaction,
 )
 
@@ -54,23 +54,23 @@ class HTTPClient(BlockchainClient):
         self._contract = None
 
     @property
-    def contract(self) -> Optional[SmartContract]:
+    def contract(self) -> Optional[BlockchainContract]:
         """Gets the smart contract in use
 
         Returns
         -------
-        Optional[SmartContract]
+        Optional[BlockchainContract]
             The smart contract
         """
         if self._contract:
-            return SmartContract(
+            return BlockchainContract(
                 address=self._contract.address,
                 abi=json.loads(self._contract.abi),
             )
         return None
 
     @contract.setter
-    def contract(self, contract: SmartContract):
+    def contract(self, contract: BlockchainContract):
         self._contract = self._connection.eth.contract(
             address=contract.address, abi=contract.abi
         )
@@ -86,7 +86,7 @@ class HTTPClient(BlockchainClient):
 
     def call(
         self, method: str, *args, use_account: bool = False
-    ) -> FunctionResponse:
+    ) -> CallResponse:
 
         if not self._contract:
             raise ContractNotLoaded()
@@ -103,7 +103,7 @@ class HTTPClient(BlockchainClient):
             output = function_callable(*full_args).call()
         except TypeError as exc:
             raise FunctionCallError(method) from exc
-        return FunctionResponse(name=method, value=output)
+        return CallResponse(name=method, value=output)
 
     def transact(self, method: str, *args, **kwargs) -> Transaction:
         if not self._contract:
