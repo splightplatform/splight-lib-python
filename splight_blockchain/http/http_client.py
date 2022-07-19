@@ -13,9 +13,8 @@ from splight_models.blockchain import (
     Transaction,
 )
 
-from .abstract import BlockchainClient
-from .default import DEFAULT_GAS_PRICE
-from .exceptions import (
+from splight_blockchain.abstract import BlockchainClient
+from splight_blockchain.exceptions import (
     ContractNotLoaded,
     FunctionCallError,
     MethodNotAllowed,
@@ -149,7 +148,7 @@ class HTTPClient(BlockchainClient):
             "from": self._signing_account.address,
             "nonce": nonce,
             "gas": gas,
-            "gasPrice": DEFAULT_GAS_PRICE,
+            "gasPrice": 0,
         }
         transaction = builder.build_transaction(tx)
         signed = self._connection.eth.account.sign_transaction(
