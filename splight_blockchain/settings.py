@@ -14,5 +14,8 @@ class SplightBlockchainConfig(BaseSettings):
     PROVIDER: str = "34.229.23.244"
     PORT: int = 8545
 
+    SPLIGHT_ADDRESS: str
+    SPLIGHT_PRIVATE_KEY: str
+
 
 blockchain_config = SplightBlockchainConfig()
