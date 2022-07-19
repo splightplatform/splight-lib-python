@@ -6,7 +6,7 @@ Django==3.2.8
 django-model-utils==4.2.0
 django-storages==1.12.3
 dnspython==2.1.0
-eth-hash<=0.4.0
+eth-hash==0.3.3
 Jinja2==3.0.2
 jmespath==0.10.0
 MarkupSafe==2.0.1
