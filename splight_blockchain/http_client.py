@@ -1,15 +1,18 @@
 import json
-from typing import Optional
+from dataclasses import dataclass
+from typing import Optional, Union
 
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 
 from .account import Account
+from .blockchain_client import BlockchainClient
 from .contract import SmartContract
 from .default import DEFAULT_GAS_PRICE
 from .exceptions import (
     ContractNotLoaded,
+    FunctionCallError,
     MethodNotAllowed,
     ProviderConnectionError,
     TransactionError,
@@ -18,7 +21,13 @@ from .settings import ProviderSchemas, blockchain_config
 from .transaction import Transaction, TransactionBuilder
 
 
-class HTTPClient:
+@dataclass
+class FunctionResponse:
+    name: str
+    value: Union[str, int, float]
+
+
+class HTTPClient(BlockchainClient):
 
     _POA_MIDDLEWARE_LAYER = 0
 
@@ -71,6 +80,21 @@ class HTTPClient:
             address=contract.address, abi=json.dumps(contract.abi)
         )
 
+    def call(
+        self, method: str, *args, use_account: bool = False
+    ) -> FunctionResponse:
+        try:
+            function_callable = self._contract.get_function_by_name(method)
+        except ValueError as exc:
+            raise MethodNotAllowed(method) from exc
+
+        full_args = (self._account_address, *args)
+        try:
+            output = function_callable(*full_args).call()
+        except TypeError as exc:
+            raise FunctionCallError(method) from exc
+        return FunctionResponse(name=method, value=output)
+
     def transact(self, method: str, *args, **kwargs) -> AttributeDict:
         if not self._contract:
             raise ContractNotLoaded()
@@ -101,9 +125,7 @@ class HTTPClient:
         function = function_callable(
             self._account_address, dst_address, amount
         )
-        return self._sign_and_send_transaction(
-            function, gas=gas
-        )
+        return self._sign_and_send_transaction(function, gas=gas)
 
     def _sign_and_send_transaction(
         self, builder: TransactionBuilder, gas: int = 21000
