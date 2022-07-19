@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import Optional, Union
 
+from hexbytes import HexBytes
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
@@ -191,3 +192,33 @@ class HTTPClient(BlockchainClient):
         if not receipt.status:
             raise TransactionError(tx_hash.hex())
         return receipt
+
+    def get_transaction(self, tx_hash: HexBytes) -> AttributeDict:
+        """Returns a made transaction.
+
+        Parameters
+        ----------
+        tx_hash : HexBytes
+            The hash of the transaction to be recovered.
+
+        Returns
+        -------
+        AttributeDict
+            The transaction information
+        """
+        return self._connection.eth.get_transaction(tx_hash)
+
+    def get_transaction_receipt(self, tx_hash: HexBytes) -> AttributeDict:
+        """Gets the receipt of a transaction
+
+        Parameters
+        ----------
+        tx_hash : HexBytes
+            The hash of the transaction.
+
+        Returns
+        -------
+        AttributeDict
+            The receipt dict of the transaction
+        """
+        return self._connection.eth.get_transaction_receipt(tx_hash)
