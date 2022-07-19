@@ -8,8 +8,9 @@ from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 
+from splight_models.blockchain import SmartContract
+
 from .abstract import BlockchainClient
-from .contract import SmartContract
 from .default import DEFAULT_GAS_PRICE
 from .exceptions import (
     ContractNotLoaded,
@@ -76,7 +77,7 @@ class HTTPClient(BlockchainClient):
     @contract.setter
     def contract(self, contract: SmartContract):
         self._contract = self._connection.eth.contract(
-            address=contract.address, abi=json.dumps(contract.abi)
+            address=contract.address, abi=contract.abi
         )
 
     def to_ether(self, amount: float):
