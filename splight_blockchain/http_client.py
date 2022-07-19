@@ -57,6 +57,7 @@ class HTTPClient(BlockchainClient):
             raise ProviderConnectionError
 
         self._contract = None
+        __import__('ipdb').set_trace()
 
     @property
     def contract(self) -> Optional[SmartContract]:
@@ -79,6 +80,12 @@ class HTTPClient(BlockchainClient):
         self._contract = self._connection.eth.contract(
             address=contract.address, abi=json.dumps(contract.abi)
         )
+
+    def to_ether(self, amount: float):
+        return self._connection.toWei(amount, "ether")
+
+    def from_ether(self, amount: float):
+        return self._connection.fromWei(amount, "ether")
 
     def call(
         self, method: str, *args, use_account: bool = False
