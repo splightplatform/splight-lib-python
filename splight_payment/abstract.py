@@ -4,7 +4,8 @@ from abc import abstractmethod
 class AbstractPaymentClient(AbstractClient):
 
     def __init__(self, namespace="default", customer_id=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.customer_id = customer_id
+        super().__init__(namespace, *args, **kwargs)
     
     @staticmethod
     def create_customer(self, name: str, city: str, country: str, postal_code: str, email: str):
