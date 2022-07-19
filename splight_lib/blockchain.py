@@ -1,0 +1,12 @@
+import os
+
+from fake_splight_lib.blockchain import FakeBlockchainClient
+from splight_blockchain.http_client import HTTPClient
+
+
+REGISTRY = {
+    "fake": FakeBlockchainClient,
+    "http": HTTPClient
+}
+
+SplightBlockchainClient = REGISTRY.get(os.environ.get("BLOCKCHAING", "fake"))
