@@ -12,6 +12,7 @@ class Graph(NamespaceAwareModel):
 class Node(NamespaceAwareModel):
     type = models.CharField(max_length=100)
     color = models.CharField(max_length=100, default=None, null=True)
+    fill_color = models.CharField(max_length=100, default=None, null=True)
     position_y = models.IntegerField(default=0)
     position_x = models.IntegerField(default=0)
     width = models.CharField(max_length=50, null=True, blank=True)

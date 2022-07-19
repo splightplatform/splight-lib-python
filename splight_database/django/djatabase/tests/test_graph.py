@@ -16,7 +16,18 @@ class TestGraph(TestCase):
         return super().setUp()
 
     def test_create_node(self):
-        node = Node.objects.create(type='test', graph=self.graph1, asset=self.asset1)
+        node = Node.objects.create(
+            type='test',
+            graph=self.graph1,
+            asset=self.asset1,
+            color='red',
+            fill_color='blue',
+            position_x=1,
+            position_y=2,
+            width=3,
+            height=4,
+            handle_orientation='vertical'
+        )
         self.assertEqual(node.graph, self.graph1)
 
     def test_faile_create_node_locked_graph(self):
