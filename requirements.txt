@@ -27,3 +27,4 @@ sqlparse==0.4.2
 urllib3==1.26.7
 pydantic==1.8.2
 jsonpath-ng>=1.5.3
+web3==5.30.0
