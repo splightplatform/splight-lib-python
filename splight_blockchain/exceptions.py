@@ -1,3 +1,18 @@
+class TransactionError(Exception):
+    def __init__(self, tx_hash: str):
+        self._msg = f"An error occurred during transaction {tx_hash}"
+
+    def __str__(self) -> str:
+        return self._msg
+
+
+class FunctionCallError(Exception):
+    def __init__(self, name: str):
+        self._msg = f"An error occured calling function {name}"
+
+    def __str__(self) -> str:
+        return self._msg
+
 
 class ProviderConnectionError(Exception):
     def __init__(self):
@@ -7,20 +22,17 @@ class ProviderConnectionError(Exception):
         return self._msg
 
 
-class TransactionNotAllowed(Exception):
-    def __init__(self, transaction_name: str):
-        self._msg = f"Transaction \"{transaction_name}\" is not allowed"
+class ContractNotLoaded(Exception):
+    def __init__(self):
+        self._msg = "Smart Contract not loaded yet"
 
     def __str__(self) -> str:
         return self._msg
 
 
-class LoadContractError(Exception):
-    def __init__(self, address: str, contract_json: str):
-        self._msg = (
-            f"An error occurred loading contract {address} from "
-            f"file {contract_json}"
-        )
+class MethodNotAllowed(Exception):
+    def __init__(self, method: str):
+        self._msg = f"Method {method} not defined in smart contract"
 
     def __str__(self) -> str:
         return self._msg
