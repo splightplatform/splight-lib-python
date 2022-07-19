@@ -4,7 +4,7 @@ import stripe
 
 class StripeClient(AbstractPaymentClient):
 
-    def __init__(self, billing_id: str, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super(StripeClient, self).__init__(*args, **kwargs)
         stripe.api_key = STRIPE_APIKEY
 
