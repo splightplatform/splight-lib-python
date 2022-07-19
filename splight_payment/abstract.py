@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 class AbstractPaymentClient(AbstractClient):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, namespace="default", customer_id=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
     @staticmethod
