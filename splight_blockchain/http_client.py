@@ -2,13 +2,13 @@ import json
 from dataclasses import dataclass
 from typing import Optional, Union
 
+from eth_account import Account
 from hexbytes import HexBytes
 from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 
-from .account import Account
-from .blockchain_client import BlockchainClient
+from .abstract import BlockchainClient
 from .contract import SmartContract
 from .default import DEFAULT_GAS_PRICE
 from .exceptions import (
@@ -48,9 +48,7 @@ class HTTPClient(BlockchainClient):
         self._connection.middleware_onion.inject(
             geth_poa_middleware, layer=self._POA_MIDDLEWARE_LAYER
         )
-        self._signing_account = Account(
-            address=signing_address, private_key=signing_key
-        )
+        self._signing_account = Account.from_key(signing_key)
 
         self._account_address = account
 
@@ -87,21 +85,16 @@ class HTTPClient(BlockchainClient):
     def from_ether(self, amount: float):
         return self._connection.fromWei(amount, "ether")
 
+    def get_balance(self):
+        return self._connection.eth.get_balance(self._account_address)
+
     def call(
         self, method: str, *args, use_account: bool = False
     ) -> FunctionResponse:
 
-        if self._contract:
-            response = self._make_contract_call(
-                method, *args, use_account=use_account
-            )
-        else:
-            response = self._make_call(method, *args, use_account=use_account)
-        return response
+        if not self._contract:
+            raise ContractNotLoaded()
 
-    def _make_contract_call(
-        self, method: str, *args, use_account: bool = False
-    ) -> FunctionResponse:
         try:
             function_callable = self._contract.get_function_by_name(method)
         except ValueError as exc:
@@ -115,23 +108,6 @@ class HTTPClient(BlockchainClient):
         except TypeError as exc:
             raise FunctionCallError(method) from exc
         return FunctionResponse(name=method, value=output)
-
-    def _make_call(
-        self, method: str, *args, use_account: bool = False
-    ) -> FunctionResponse:
-        mapping_functions = {
-            "balance": self._get_account_coin_balance,
-        }
-        function = mapping_functions.get(method)
-        if not function:
-            raise MethodNotAllowed(method)
-
-        full_args = (self._account_address, *args) if use_account else args
-        output = function(*full_args)
-        return FunctionResponse(name=method, value=output)
-
-    def _get_account_coin_balance(self, address: str, *args):
-        return self._connection.eth.get_balance(address)
 
     def transact(self, method: str, *args, **kwargs) -> AttributeDict:
         if not self._contract:
@@ -182,7 +158,7 @@ class HTTPClient(BlockchainClient):
             tx.dict(by_alias=True, exclude_none=True)
         )
         signed = self._connection.eth.account.sign_transaction(
-            transaction, self._signing_account.private_key
+            transaction, self._signing_account.privateKey
         )
         tx_hash = self._connection.eth.send_raw_transaction(
             signed.rawTransaction
