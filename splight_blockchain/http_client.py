@@ -1,6 +1,5 @@
 import json
-from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional
 
 from eth_account import Account
 from hexbytes import HexBytes
@@ -8,7 +7,7 @@ from web3 import Web3
 from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 
-from splight_models.blockchain import SmartContract
+from splight_models.blockchain import FunctionResponse, SmartContract
 
 from .abstract import BlockchainClient
 from .default import DEFAULT_GAS_PRICE
@@ -21,12 +20,6 @@ from .exceptions import (
 )
 from .settings import ProviderSchemas, blockchain_config
 from .transaction import Transaction, TransactionBuilder
-
-
-@dataclass
-class FunctionResponse:
-    name: str
-    value: Union[str, int, float]
 
 
 class HTTPClient(BlockchainClient):
