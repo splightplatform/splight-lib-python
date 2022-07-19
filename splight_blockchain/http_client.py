@@ -4,10 +4,14 @@ from typing import Optional
 from eth_account import Account
 from hexbytes import HexBytes
 from web3 import Web3
-from web3.datastructures import AttributeDict
+from web3.contract import ContractFunction
 from web3.middleware import geth_poa_middleware
 
-from splight_models.blockchain import FunctionResponse, SmartContract
+from splight_models.blockchain import (
+    FunctionResponse,
+    SmartContract,
+    Transaction,
+)
 
 from .abstract import BlockchainClient
 from .default import DEFAULT_GAS_PRICE
@@ -19,7 +23,6 @@ from .exceptions import (
     TransactionError,
 )
 from .settings import ProviderSchemas, blockchain_config
-from .transaction import Transaction, TransactionBuilder
 
 
 class HTTPClient(BlockchainClient):
@@ -103,7 +106,7 @@ class HTTPClient(BlockchainClient):
             raise FunctionCallError(method) from exc
         return FunctionResponse(name=method, value=output)
 
-    def transact(self, method: str, *args, **kwargs) -> AttributeDict:
+    def transact(self, method: str, *args, **kwargs) -> Transaction:
         if not self._contract:
             raise ContractNotLoaded()
         _method = getattr(self, f"_{method}", None)
@@ -114,21 +117,21 @@ class HTTPClient(BlockchainClient):
 
     def _mint(
         self, amount: int = 0, metadata: str = "", gas: int = 21000
-    ) -> AttributeDict:
+    ) -> Transaction:
         function_callable = self._contract.functions.mint
         function = function_callable(self._account_address, amount, metadata)
         return self._sign_and_send_transaction(function, gas=gas)
 
     def _burn(
         self, amount: int = 0, metadata: str = "", gas: int = 21000
-    ) -> AttributeDict:
+    ) -> Transaction:
         function_callable = self._contract.functions.burn
         function = function_callable(self._account_address, amount, metadata)
         return self._sign_and_send_transaction(function, gas=gas)
 
     def _transfer(
         self, dst_address: str, amount: int, gas: int = 21000
-    ) -> AttributeDict:
+    ) -> Transaction:
         function_callable = self._contract.functions.transferFrom
         function = function_callable(
             self._account_address, dst_address, amount
@@ -136,21 +139,19 @@ class HTTPClient(BlockchainClient):
         return self._sign_and_send_transaction(function, gas=gas)
 
     def _sign_and_send_transaction(
-        self, builder: TransactionBuilder, gas: int = 21000
-    ) -> AttributeDict:
+        self, builder: ContractFunction, gas: int = 21000
+    ) -> Transaction:
 
         nonce = self._connection.eth.get_transaction_count(
             self._signing_account.address
         )
-        tx = Transaction(
-            from_account=self._signing_account.address,
-            nonce=nonce,
-            gas=gas,
-            gas_price=DEFAULT_GAS_PRICE,
-        )
-        transaction = builder.build_transaction(
-            tx.dict(by_alias=True, exclude_none=True)
-        )
+        tx = {
+            "from": self._signing_account.address,
+            "nonce": nonce,
+            "gas": gas,
+            "gasPrice": DEFAULT_GAS_PRICE,
+        }
+        transaction = builder.build_transaction(tx)
         signed = self._connection.eth.account.sign_transaction(
             transaction, self._signing_account.privateKey
         )
@@ -161,9 +162,10 @@ class HTTPClient(BlockchainClient):
 
         if not receipt.status:
             raise TransactionError(tx_hash.hex())
-        return receipt
 
-    def get_transaction(self, tx_hash: HexBytes) -> AttributeDict:
+        return Transaction.parse_obj(receipt)
+
+    def get_transaction(self, tx_hash: HexBytes) -> Transaction:
         """Returns a made transaction.
 
         Parameters
@@ -173,12 +175,13 @@ class HTTPClient(BlockchainClient):
 
         Returns
         -------
-        AttributeDict
+        Transaction
             The transaction information
         """
-        return self._connection.eth.get_transaction(tx_hash)
+        tx = self._connection.eth.get_transaction(tx_hash)
+        return Transaction.parse_obj(tx)
 
-    def get_transaction_receipt(self, tx_hash: HexBytes) -> AttributeDict:
+    def get_transaction_receipt(self, tx_hash: HexBytes) -> Transaction:
         """Gets the receipt of a transaction
 
         Parameters
@@ -188,7 +191,8 @@ class HTTPClient(BlockchainClient):
 
         Returns
         -------
-        AttributeDict
+        Transaction
             The receipt dict of the transaction
         """
-        return self._connection.eth.get_transaction_receipt(tx_hash)
+        tx_receipt = self._connection.eth.get_transaction_receipt(tx_hash)
+        return Transaction.parse_obj(tx_receipt)
