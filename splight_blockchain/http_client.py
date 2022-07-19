@@ -1,25 +1,21 @@
-from dataclasses import dataclass
+import json
 from typing import Optional
-from decimal import Decimal
 
-from eth_account.datastructures import SignedTransaction
 from web3 import Web3
+from web3.datastructures import AttributeDict
 from web3.middleware import geth_poa_middleware
 
-from .default import DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE
+from .account import Account
+from .contract import SmartContract
+from .default import DEFAULT_GAS_PRICE
 from .exceptions import (
-    LoadContractError,
+    ContractNotLoaded,
+    MethodNotAllowed,
     ProviderConnectionError,
-    TransactionNotAllowed,
+    TransactionError,
 )
 from .settings import ProviderSchemas, blockchain_config
-from .transaction import TransactionBuilder, BlockchainTransacction
-
-
-@dataclass
-class BlockchainAccount:
-    address: str
-    private_key: str
+from .transaction import Transaction, TransactionBuilder
 
 
 class HTTPClient:
@@ -28,197 +24,111 @@ class HTTPClient:
 
     def __init__(
         self,
-        provider_host: str = blockchain_config.PROVIDER,
-        provider_port: int = blockchain_config.PORT,
+        account: str,
+        host: str = blockchain_config.PROVIDER,
+        port: str = blockchain_config.PORT,
         schema: ProviderSchemas = blockchain_config.SCHEMA,
+        signing_address: str = blockchain_config.SPLIGHT_ADDRESS,
+        signing_key: str = blockchain_config.SPLIGHT_PRIVATE_KEY,
     ):
-        """Class constructor
-
-        Parameters
-        ----------
-        provider_host : str
-            Provider's host
-        provider_port : int
-            Provider's port
-        schema : ProviderSchemas
-            Schema to be used
-
-        Raises
-        ------
-        ProviderConnectionError thrown when there is a problem in the
-            connection
-        """
-        provider = Web3.HTTPProvider(
-            f"{schema}://{provider_host}:{provider_port}"
-        )
+        super().__init__()
+        provider = Web3.HTTPProvider(f"{schema}://{host}:{port}")
         self._connection = Web3(provider)
 
         self._connection.middleware_onion.inject(
             geth_poa_middleware, layer=self._POA_MIDDLEWARE_LAYER
         )
+        self._signing_account = Account(
+            address=signing_address, private_key=signing_key
+        )
+
+        self._account_address = account
 
         if not self._connection.isConnected():
             raise ProviderConnectionError
 
         self._contract = None
 
-    def get_balance(self, account: BlockchainAccount) -> Decimal:
-        """Gets the amount of ether in a given account
-
-        Parameters
-        ----------
-        account : BlockchainAccount
-            The account to be consulted
+    @property
+    def contract(self) -> Optional[SmartContract]:
+        """Gets the smart contract in use
 
         Returns
         -------
-        float
-            The total of ether in the account.
+        Optional[SmartContract]
+            The smart contract
         """
-        raw_balance = self._connection.eth.get_balance(account.address)
-        balance = self._connection.fromWei(raw_balance, "ether")
-        return float(balance)
+        if self._contract:
+            return SmartContract(
+                address=self._contract.address,
+                abi=json.loads(self._contract.abi),
+            )
+        return None
 
-    def load_contract(self, contract_address: str, contract_abi_path: str):
-        """Loads a custom contrat defined in a JSON file and the contract
-        address.
-
-        Parameters
-        ----------
-        contract_address : str
-            The hash for the contract.
-        contract_abi_path : str
-            The path to the JSON file with the contract.
-
-        Raises
-        ------
-        LoadContractError when there is any error loading the contract.
-        """
-        with open(contract_abi_path, "r") as fid:
-            contract_abi = fid.read()
-
-        contract_abi = contract_abi.translate(
-            str.maketrans({"\n": "", "\t": ""})
+    @contract.setter
+    def contract(self, contract: SmartContract):
+        self._contract = self._connection.eth.contract(
+            address=contract.address, abi=json.dumps(contract.abi)
         )
 
-        try:
-            self._contract = self._connection.eth.contract(
-                address=contract_address, abi=contract_abi
-            )
-        except Exception as exc:
-            self._contract = None
-            raise LoadContractError(
-                contract_address, contract_abi_path
-            ) from exc
+    def transact(self, method: str, *args, **kwargs) -> AttributeDict:
+        if not self._contract:
+            raise ContractNotLoaded()
+        _method = getattr(self, f"_{method}", None)
+        if not _method:
+            raise MethodNotAllowed(method)
+        output = _method(*args, **kwargs)
+        return output
 
-    def transfer(
-        self,
-        from_account: BlockchainAccount,
-        to_account: BlockchainAccount,
-        amount: int,
-    ):
-        """Transfer a crypto coin from one account to another.
+    def _mint(
+        self, amount: int = 0, metadata: str = "", gas: int = 21000
+    ) -> AttributeDict:
+        function_callable = self._contract.functions.mint
+        function = function_callable(self._account_address, amount, metadata)
+        return self._sign_and_send_transaction(function, gas=gas)
 
-        Parameters
-        ----------
-        from_account : BlockchainAccount
-            Account that sends the amount of crypto coins
-        to_account : BlockchainAccount
-            The account that receives the crypto coins
-        amount : int
-            The amount of coins that are being transferred.
-        """
+    def _burn(
+        self, amount: int = 0, metadata: str = "", gas: int = 21000
+    ) -> AttributeDict:
+        function_callable = self._contract.functions.burn
+        function = function_callable(self._account_address, amount, metadata)
+        return self._sign_and_send_transaction(function, gas=gas)
+
+    def _transfer(
+        self, dst_address: str, amount: int, gas: int = 21000
+    ) -> AttributeDict:
+        function_callable = self._contract.functions.transferFrom
+        function = function_callable(
+            self._account_address, dst_address, amount
+        )
+        return self._sign_and_send_transaction(
+            function, gas=gas
+        )
+
+    def _sign_and_send_transaction(
+        self, builder: TransactionBuilder, gas: int = 21000
+    ) -> AttributeDict:
+
         nonce = self._connection.eth.get_transaction_count(
-            from_account.address
+            self._signing_account.address
         )
-        transaction = BlockchainTransacction(
+        tx = Transaction(
+            from_account=self._signing_account.address,
             nonce=nonce,
-            to_account=to_account.address,
-            gas=DEFAULT_GAS_LIMIT,
-            gas_price=DEFAULT_GAS_PRICE,
-            value=self._connection.toWei(amount, "ether"),
-        )
-
-        signed = self._sign_transaction(from_account, transaction)
-        self._connection.eth.send_raw_transaction(signed.rawTransaction)
-
-    def mint(self, account: BlockchainAccount, metadata: str):
-        """Makes a mint transaction if it's allowed.
-
-        Parameters
-        ----------
-        account : BlockchainAccount
-            The account that is minting.
-        metadata : str
-            The metada for the transaction
-
-        Raises
-        ------
-        TransactionNotAllowed thrown when the mint operation is not allowed.
-        """
-        if not self._contract:
-            raise TransactionNotAllowed(transaction_name="mint")
-        mint = self._contract.functions.mint(account.address, metadata)
-        transaction = BlockchainTransacction(
-            from_account=account.address,
-            nonce=self._connection.eth.get_transaction_count(account.address),
-            gas=210000,
+            gas=gas,
             gas_price=DEFAULT_GAS_PRICE,
         )
-        signed = self._sign_transaction(account, transaction, builder=mint)
-        trn_hash = self._connection.eth.send_raw_transaction(
-            signed.rawTransaction
+        transaction = builder.build_transaction(
+            tx.dict(by_alias=True, exclude_none=True)
         )
-        self._connection.eth.wait_for_transaction_receipt(trn_hash)
-
-    def burn(self, account: BlockchainAccount):
-        if not self._contract:
-            raise TransactionNotAllowed(transaction_name="burn")
-        __import__("ipdb").set_trace()
-        burn = self._contract.functions.burn(account.address)
-        transaction = BlockchainTransacction(
-            from_account=account.address,
-            nonce=self._connection.eth.get_transaction_count(account.address),
-            gas=0,
-            gas_price=DEFAULT_GAS_PRICE,
-        )
-        __import__("ipdb").set_trace()
-        signed = self._sign_transaction(account, transaction, builder=burn)
-        trn_hash = self._connection.eth.send_raw_transaction(
-            signed.rawTransaction
-        )
-        response = self._connection.eth.wait_for_transaction_receipt(trn_hash)
-        print(response)
-
-    def _sign_transaction(
-        self,
-        account: BlockchainAccount,
-        transaction: BlockchainTransacction,
-        builder: Optional[TransactionBuilder] = None,
-    ) -> SignedTransaction:
-        """Signs a blockchain transaction
-
-        Parameters
-        ----------
-        account : BlockchainAccount
-            The account that signs the transaction
-        transaction : BlockchainTransacction
-            The transaction to by signed
-        builder : Optional[TransactionBuilder]
-            The transaction builder
-
-        Returns
-        -------
-        SignedTransaction
-            The signed transaction
-        """
-        built_transaction = transaction.dict(by_alias=True, exclude_none=True)
-        if builder:
-            built_transaction = builder.build_transaction(
-                transaction.dict(by_alias=True, exclude_none=True)
-            )
         signed = self._connection.eth.account.sign_transaction(
-            built_transaction,
-            account.private_key,
+            transaction, self._signing_account.private_key
         )
-        return signed
+        tx_hash = self._connection.eth.send_raw_transaction(
+            signed.rawTransaction
+        )
+        receipt = self._connection.eth.wait_for_transaction_receipt(tx_hash)
+
+        if not receipt.status:
+            raise TransactionError(tx_hash.hex())
+        return receipt
