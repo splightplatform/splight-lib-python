@@ -57,7 +57,6 @@ class HTTPClient(BlockchainClient):
             raise ProviderConnectionError
 
         self._contract = None
-        __import__('ipdb').set_trace()
 
     @property
     def contract(self) -> Optional[SmartContract]:
@@ -90,17 +89,48 @@ class HTTPClient(BlockchainClient):
     def call(
         self, method: str, *args, use_account: bool = False
     ) -> FunctionResponse:
+
+        if self._contract:
+            response = self._make_contract_call(
+                method, *args, use_account=use_account
+            )
+        else:
+            response = self._make_call(method, *args, use_account=use_account)
+        return response
+
+    def _make_contract_call(
+        self, method: str, *args, use_account: bool = False
+    ) -> FunctionResponse:
         try:
             function_callable = self._contract.get_function_by_name(method)
         except ValueError as exc:
             raise MethodNotAllowed(method) from exc
 
-        full_args = (self._account_address, *args)
+        full_args = args
+        if use_account:
+            full_args = (self._account_address, *full_args)
         try:
             output = function_callable(*full_args).call()
         except TypeError as exc:
             raise FunctionCallError(method) from exc
         return FunctionResponse(name=method, value=output)
+
+    def _make_call(
+        self, method: str, *args, use_account: bool = False
+    ) -> FunctionResponse:
+        mapping_functions = {
+            "balance": self._get_account_coin_balance,
+        }
+        function = mapping_functions.get(method)
+        if not function:
+            raise MethodNotAllowed(method)
+
+        full_args = (self._account_address, *args) if use_account else args
+        output = function(*full_args)
+        return FunctionResponse(name=method, value=output)
+
+    def _get_account_coin_balance(self, address: str, *args):
+        return self._connection.eth.get_balance(address)
 
     def transact(self, method: str, *args, **kwargs) -> AttributeDict:
         if not self._contract:
