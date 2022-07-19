@@ -15,6 +15,8 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
     valid_classes = [
         Network,
+        Billing,
+        BillingSettings,
         ClientMapping,
         ServerMapping,
         ValueMapping,
@@ -23,6 +25,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Asset,
         Attribute,
         MappingRule,
+        MonthBilling,
         Tag,
         Namespace,
         Algorithm,
@@ -66,14 +69,26 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         return self._create(instance)
 
     @validate_resource_type
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             first: bool = False,
+             limit_: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
         logger.debug(f"[FAKED] Executing get with {resource_type}")
         queryset = self.database[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
+        if limit_ != -1:
+            queryset = queryset[skip_:skip_ + limit_]
+
         if first:
             return queryset[0] if queryset else None
+
         return queryset
+
+    @validate_resource_type
+    def count(self, resource_type: Type, **kwargs) -> int:
+        return len(self._get(resource_type, **kwargs))
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:

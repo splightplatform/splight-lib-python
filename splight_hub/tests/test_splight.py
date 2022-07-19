@@ -22,7 +22,7 @@ class TestVariable(TestCase):
 
     def test_get_validate_resource_type(self):
         with self.assertRaises(NotImplementedError):
-            self.client.get(resource_type=MappingRule)
+            self.client.get(resource_type=MappingRule, first=True)
 
     @parameterized.expand([
         (HubNetwork, []),

@@ -7,7 +7,6 @@ from .djatabase.models import (
     Asset as DBAsset,
     Attribute as DBAttribute,
     BillingSettings as DBBillingSettings,
-    MonthBilling as DBMonthBilling,
     Billing as DBBilling,
     DeploymentBillingItem as DBDeploymentBillingItem,
     Chart as DBChart,
@@ -23,6 +22,7 @@ from .djatabase.models import (
     Notification as DBNotification,
     Node as DBNode,
     MappingRule as DBMappingRule,
+    MonthBilling as DBMonthBilling,
     ReferenceMapping as DBReferenceMapping,
     ServerMapping as DBServerMapping,
     Tab as DBTab,
@@ -30,7 +30,7 @@ from .djatabase.models import (
     ValueMapping as DBValueMapping,
 )
 from client import validate_instance_type, validate_resource_type
-
+from splight_models.query import QuerySet
 
 CLASSMAP = {
     Algorithm: DBAlgorithm,
@@ -83,7 +83,11 @@ class DjangoClient(AbstractDatabaseClient):
         return instance
 
     @validate_resource_type
-    def get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             first: bool = False,
+             limit_: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
         """
         Valid filtering options fields or fields with __in
         """
@@ -92,11 +96,25 @@ class DjangoClient(AbstractDatabaseClient):
         if hasattr(obj_class, "namespace"):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()
+
+        if limit_ != -1:
+            queryset = queryset[skip_:skip_ + limit_]
+
         result = [resource_type(**i.to_dict()) for i in queryset]
+
         if first:
             return result[0] if result else None
 
         return result
+
+    @validate_resource_type
+    def count(self, resource_type: Type, **kwargs) -> int:
+        obj_class = CLASSMAP[resource_type]
+        kwargs = self._validated_kwargs(resource_type, **kwargs)
+        if hasattr(obj_class, "namespace"):
+            kwargs["namespace"] = self.namespace
+        queryset = obj_class.objects.filter(**kwargs).distinct()
+        return queryset.count()
 
     @validate_resource_type
     def delete(self, resource_type: Type, id: str) -> None:

@@ -1,10 +1,11 @@
+import re
 import pandas as pd
 from datetime import datetime
 from bson.codec_options import CodecOptions
 from client import validate_resource_type
 from datetime import timezone, timedelta
 from pymongo import MongoClient as PyMongoClient
-from typing import Dict, List, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 from pydantic import BaseModel
 from collections.abc import MutableMapping
 from collections import defaultdict
@@ -13,7 +14,7 @@ from splight_datalake.settings import setup
 from splight_lib import logging
 from splight_models import Variable, VariableDataFrame, Notification, BillingEvent
 from .abstract import AbstractDatalakeClient
-
+from splight_models.query import QuerySet
 
 logger = logging.getLogger()
 
@@ -96,7 +97,7 @@ class MongoClient(AbstractDatalakeClient):
     @staticmethod
     def __parse_sort(sort: List = []):
         _sort = [item.rsplit('__', 1) for item in sort]
-        _sort = [(k, -1) if v == 'desc' else (k, 1) if v == 'asc' else None for k,v in _sort]
+        _sort = [(k, -1) if v == 'desc' else (k, 1) if v == 'asc' else None for k, v in _sort]
         _sort = [k for k in _sort if k is not None]
         return _sort
 
@@ -146,32 +147,34 @@ class MongoClient(AbstractDatalakeClient):
                 f"_root.{field.replace('__', '.')}": f"$agg_{field.replace('.', '__')}"
                 for field, _ in group_fields
             }
-        return  {"$set": _set}
+        return {"$set": _set}
 
     @staticmethod
     def __get_replaceRoot_pipeline_step(group_id: Union[List[Tuple], None] = [], **kwargs):
         _replaceRoot = None
         if group_id:
-            # Only want to replace root if we did a group in the past 
+            # Only want to replace root if we did a group in the past
             _replaceRoot = {"newRoot": "$_root"}
         return {"$replaceRoot": _replaceRoot}
-        
+
     @staticmethod
-    def __get_skip_pipeline_step(skip: int = None, **kwargs):
+    def __get_skip_pipeline_step(skip: Optional[int] = None, **kwargs):
         _skip = skip
         return {"$skip": _skip}
 
     @staticmethod
-    def __get_limit_pipeline_step(limit: int = None, **kwargs):
+    def __get_limit_pipeline_step(limit: Optional[int] = None, **kwargs):
         _limit = limit
-        return {"$limit": limit}
+        return {"$limit": _limit}
 
     @staticmethod
-    def __get_sort_pipeline_step(sort: List[Tuple] = None, **kwargs):
-        _sort = {
-            k:v
-            for k,v in sort
-        }
+    def __get_sort_pipeline_step(sort: Optional[List[Tuple]] = None, **kwargs):
+        _sort = sort
+        if sort:
+            _sort = {
+                k: v
+                for k, v in sort
+            }
         return {"$sort": _sort}
 
     def _get_pipeline(self, **kwargs):
@@ -205,16 +208,16 @@ class MongoClient(AbstractDatalakeClient):
         return self.db[collection].distinct(_key, filter=self.__parse_filters(**kwargs))
 
     @validate_resource_type
-    def get(self,
-            resource_type: Type,
-            collection: str = 'default',
-            limit_: int = 50,
-            skip_: int = 0,
-            sort: Union[List, str] = ['timestamp__desc'],
-            group_id: Union[List, str] = [],
-            group_fields: Union[List, str] = [],
-            tzinfo: timezone = timezone(timedelta()),
-            **kwargs) -> List[BaseModel]:
+    def _get(self,
+             resource_type: Type,
+             collection: str = 'default',
+             limit_: int = 50,
+             skip_: int = 0,
+             sort: Union[List, str] = ['timestamp__desc'],
+             group_id: Union[List, str] = [],
+             group_fields: Union[List, str] = [],
+             tzinfo: timezone = timezone(timedelta()),
+             **kwargs) -> List[BaseModel]:
         instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
         sort = [sort] if isinstance(sort, str) else sort
         group_id = [group_id] if isinstance(group_id, str) else group_id
@@ -234,6 +237,35 @@ class MongoClient(AbstractDatalakeClient):
         )
         result = [resource_type(**obj) for obj in result]
         return result
+
+    @validate_resource_type
+    def count(self,
+              resource_type: Type,
+              collection: str = 'default',
+              sort: Union[List, str] = ['timestamp__desc'],
+              group_id: Union[List, str] = [],
+              group_fields: Union[List, str] = [],
+              tzinfo: timezone = timezone(timedelta()),
+              **kwargs) -> List[BaseModel]:
+
+        instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
+        sort = [sort] if isinstance(sort, str) else sort
+        group_id = [group_id] if isinstance(group_id, str) else group_id
+        group_fields = [group_fields] if isinstance(group_fields, str) else group_fields
+        pipeline = self._get_pipeline(
+            filters=self.__parse_filters(**instance_kwargs),
+            sort=self.__parse_sort(sort=sort),
+            group_id=self.__parse_group_id(group_id=group_id),
+            group_fields=self.__parse_group_fields(group_fields=group_fields),
+        )
+        pipeline.append({"$count": "count"})
+        result = self._aggregate(
+            collection=collection,
+            pipeline=pipeline,
+            tzinfo=tzinfo
+        )
+        result = list(result)
+        return result[0]['count'] if result else 0
 
     @validate_resource_type
     def save(self,
@@ -266,10 +298,10 @@ class MongoClient(AbstractDatalakeClient):
                 pipeline=[
                     {"$match": parse_timestamp(start, end)},
                     {"$match": {"instance_id": {"$ne": None}}},
-                    { 
+                    {
                         "$group": {
                             "_id": "$instance_id",
-                            "size": { "$sum": { "$bsonSize": "$$ROOT" } } 
+                            "size": {"$sum": {"$bsonSize": "$$ROOT"}}
                         }
                     }
                 ]
@@ -281,7 +313,7 @@ class MongoClient(AbstractDatalakeClient):
                 component_sizes[component["_id"]] += component["size"]
         result = {}
         for component_id, size in component_sizes.items():
-            result[component_id] = size / (1024*1024*1024)
+            result[component_id] = size / (1024 * 1024 * 1024)
         return result
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
