@@ -24,14 +24,19 @@ class TransactionBuilder(Protocol):
         ...
 
 
-class BlockchainTransacction(BaseModel):
-    nonce: int
+class Transaction(BaseModel):
     from_account: Optional[str] = Field(None, alias="from")
     to_account: Optional[str] = Field(None, alias="to")
     gas: int
+    max_fee_per_gas: Optional[int] = Field(None, alias="maxFeePerGas")
+    max_priority_fee_per_gas: Optional[int] = Field(
+        None, alias="maxPriorityFeePerGas"
+    )
     gas_price: int = Field(..., alias="gasPrice")
-    chain_id: int = Field(DEFAULT_CHAIN_ID, alias="chainId")
     value: Optional[int] = None
+    data: Optional[str] = None
+    nonce: int
+    chain_id: int = Field(DEFAULT_CHAIN_ID, alias="chainId")
 
     class Config:
         allow_population_by_field_name = True
