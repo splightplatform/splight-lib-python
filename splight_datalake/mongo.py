@@ -183,8 +183,8 @@ class MongoClient(AbstractDatalakeClient):
         pipeline.append(self.__get_group_pipeline_step(**kwargs))
         pipeline.append(self.__get_set_pipeline_step(**kwargs))
         pipeline.append(self.__get_replaceRoot_pipeline_step(**kwargs))
-        pipeline.append(self.__get_skip_pipeline_step(**kwargs))
         pipeline.append(self.__get_sort_pipeline_step(**kwargs))
+        pipeline.append(self.__get_skip_pipeline_step(**kwargs))
         pipeline.append(self.__get_limit_pipeline_step(**kwargs))
         # Omit those steps not completed
         pipeline = [step for step in pipeline if all(step.values())]
