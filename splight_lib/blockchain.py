@@ -9,4 +9,4 @@ REGISTRY = {
     "http": HTTPClient
 }
 
-SplightBlockchainClient = REGISTRY.get(os.environ.get("BLOCKCHAIN", "fake"))
+BlockchainClient = REGISTRY.get(os.environ.get("BLOCKCHAIN", "fake"))

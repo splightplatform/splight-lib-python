@@ -10,10 +10,10 @@ class BlockchainContract(SplightBaseModel):
     id: Optional[str]
     name: str
     description: str = ""
-    account_id: str
+    address: str
     abi_json: Json
 
-    @validator('account_id', pre=True, always=True)
+    @validator('address', pre=True, always=True)
     def set_account_id_now(cls, v):
         regex = r"(\b0x[a-fA-F0-9]{40}\b)"
         assert re.match(regex, v), 'Account value not allowed it should be a hex str.'
