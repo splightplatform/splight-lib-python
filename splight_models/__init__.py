@@ -4,6 +4,7 @@ from .attribute import *
 from .billing import *
 from .runner import *
 from .channel import *
+from .credential import *
 from .hub import *
 from .deployment import *
 from .graph import *
