@@ -11,7 +11,7 @@ class TestBlockchainContract(TestCase):
         contract = BlockchainContract.objects.create(
             name="NFT",
             description="NFT Description",
-            account_id="0x1234567894567894567812345678945678945678",
+            address="0x1234567894567894567812345678945678945678",
             abi_json=json.dumps({})
         )
         self.assertIsInstance(contract, BlockchainContract)
