@@ -23,7 +23,7 @@ from .settings import blockchain_config
 
 class HTTPClient(AbstractBlockchainClient):
     _POA_MIDDLEWARE_LAYER = 0
-    _GAS = 21000
+    _GAS = 210000
     _contract = None
 
     def __init__(self, account: str):
