@@ -1,21 +1,11 @@
-from enum import Enum
-
+import os
 from pydantic import BaseSettings
-
-
-class ProviderSchemas(str, Enum):
-    HTTP = "http"
-    HTTPS = "https"
 
 
 class SplightBlockchainConfig(BaseSettings):
     """Configuration for the Splight Blockchai module."""
-    SCHEMA: ProviderSchemas = ProviderSchemas.HTTP
-    PROVIDER: str = "34.229.23.244"
-    PORT: int = 8545
-
-    SPLIGHT_ADDRESS: str
-    SPLIGHT_PRIVATE_KEY: str
-
+    BLOCKCHAIN_RPC_URL: str = os.getenv("BLOCKCHAIN_RPC_URL", "http://34.229.23.244:8545")
+    BLOCKCHAIN_CHAIN_ID: int = os.getenv("BLOCKCHAIN_CHAIN_ID", 1337)
+    BLOCKCHAIN_PRIVATE_KEY: str = os.getenv("BLOCKCHAIN_PRIVATE_KEY")
 
 blockchain_config = SplightBlockchainConfig()

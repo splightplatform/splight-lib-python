@@ -1,30 +1,22 @@
-from abc import abstractmethod
-
+from abc import abstractmethod, ABC
 from hexbytes import HexBytes
-from web3.datastructures import AttributeDict
-
-from client import AbstractClient
-from splight_models.blockchain import FunctionResponse
+from splight_models.blockchain import CallResponse, Transaction
 
 
-class BlockchainClient(AbstractClient):
+class AbstractBlockchainClient(ABC):
 
     @abstractmethod
-    def get_balance(self):
+    def get_balance(self) -> int:
         pass
 
     @abstractmethod
-    def call(self, method: str, *args) -> FunctionResponse:
+    def call(self, method: str, *args) -> CallResponse:
         pass
 
     @abstractmethod
-    def transact(self, method: str, *args, **kwargs) -> AttributeDict:
+    def transact(self, method: str, *args, **kwargs) -> Transaction:
         pass
 
     @abstractmethod
-    def get_transaction(self, tx_hast: HexBytes) -> AttributeDict:
-        pass
-
-    @abstractmethod
-    def get_transaction_receipt(self, tx_hast: HexBytes) -> AttributeDict:
+    def get_transaction(self, tx_hast: HexBytes) -> Transaction:
         pass
