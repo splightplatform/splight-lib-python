@@ -15,6 +15,9 @@ class FakeBlockchainClient(AbstractBlockchainClient):
     def __init__(self, *args, **kwargs):
         pass
 
+    def get_balance(self) -> int:
+        return 111111111111111111
+
     def call(self, method: str, *args) -> CallResponse:
         return CallResponse(
             name=method,
@@ -25,7 +28,7 @@ class FakeBlockchainClient(AbstractBlockchainClient):
         if method not in ["mint", "burn", "transfer"]:
             raise FunctionTransactError(method)
 
-        return {
+        return Transaction.parse_obj({
             "blockHash": get_random_hex(size=256),
             "blockNumber": 102812,
             "contractAddress": None,
@@ -39,11 +42,11 @@ class FakeBlockchainClient(AbstractBlockchainClient):
             "transactionHash": get_random_hex(size=256),
             "transactionIndex": 0,
             "type": "0x0"
-        }
+        })
 
     def get_transaction(self, tx_hash: HexBytes) -> Transaction:
 
-        return Transaction(**{
+        return Transaction.parse_obj({
             "blockHash": get_random_hex(size=256),
             "blockNumber": 102812,
             "contractAddress": None,

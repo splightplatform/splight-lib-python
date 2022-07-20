@@ -35,12 +35,12 @@ class Transaction(SplightBaseModel):
     from_account: str = Field(..., alias="from")
     to_account: Optional[str] = Field(None, alias="to")
     status: Optional[int] = 0
-    contract_address: Optional[str] = Field(..., alias="contractAddress")
-    block_hash: bytes = Field(..., alias="blockHash")
+    contract_address: Optional[str] = Field(None, alias="contractAddress")
+    block_hash: str = Field(..., alias="blockHash")
     block_number: int = Field(..., alias="blockNumber")
     transaction_hash: str = Field(..., alias="transactionHash")
     transaction_index: int = Field(..., alias="transactionIndex")
 
-    @validator("block_hash", "transaction_hash", "contract_address", pre=True)
+    @validator("from_account", "to_account", "block_hash", "transaction_hash", "contract_address", pre=True)
     def cast_to_str(cls, value):
         return value.hex() if isinstance(value, HexBytes) else value
