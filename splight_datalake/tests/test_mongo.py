@@ -29,7 +29,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value2"},
                 "timestamp": datetime(2012, 1, 1, 8, 0),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             }
         ]
         expected_result = [
@@ -75,7 +75,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value2"},
                 "timestamp": datetime(2012, 1, 1, 17, 1),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             },
             {
                 "asset_id": "1",
@@ -83,7 +83,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value3"},
                 "timestamp": datetime(2012, 1, 1, 17, 2),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             },
         ]
 
@@ -94,7 +94,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value1"},
                 "timestamp": datetime(2012, 1, 1, 17, 0),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             },
             {
                 "asset_id": "2",
@@ -102,7 +102,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value2"},
                 "timestamp": datetime(2012, 1, 1, 17, 1),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             },
             {
                 "asset_id": "2",
@@ -110,7 +110,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value3"},
                 "timestamp": datetime(2012, 1, 1, 17, 2),
                 "instance_id": "1",
-                "instance_type": "testtype" 
+                "instance_type": "testtype"
             }
         ]
         expected_result_first_call = [
@@ -217,7 +217,7 @@ class TestMongoClient(TestCase):
                 "args": {"value": "value1"},
                 "timestamp": datetime(2012, 1, 1, 8, 0),
                 "instance_type": "testtype",
-                "instance_id" : "1"
+                "instance_id": "1"
             }
         ]
         expected_result = [
@@ -243,7 +243,9 @@ class TestMongoClient(TestCase):
             )
 
     def test_add_pre_hook(self):
-        class ParticularException(Exception): pass
+        class ParticularException(Exception):
+            pass
+
         def foo(*args, **kwargs): raise ParticularException
         client = MongoClient()
         client.add_pre_hook("save", foo)
@@ -253,9 +255,9 @@ class TestMongoClient(TestCase):
     def test_get_pipelines_group_id_without_group_fields(self):
         client = MongoClient()
         pipeline = client._get_pipeline(
-            filters = {"key": 2},
-            limit = 2,
-            skip = 3,
+            filters={"key": 2},
+            limit=2,
+            skip=3,
             sort=[('timestamp', -1)],
             group_id=[
                 ('timestamp', 'year'),
@@ -275,13 +277,13 @@ class TestMongoClient(TestCase):
                     'hour-timestamp': {'$hour': '$timestamp'},
                     'minute-timestamp': {'$minute': '$timestamp'},
                     'second-timestamp': {'$second': '$timestamp'},
-                }, 
+                },
                 '_root': {'$last': '$$ROOT'}
-                }
+            }
             },
             {'$replaceRoot': {'newRoot': '$_root'}},
-            {'$skip': 3},
             {'$sort': {'timestamp': -1}},
+            {'$skip': 3},
             {'$limit': 2},
         ])
 
@@ -299,9 +301,9 @@ class TestMongoClient(TestCase):
     def test_get_pipelines_group_id_None(self, group_id):
         client = MongoClient()
         pipeline = client._get_pipeline(
-            filters = {"key": 2},
-            limit = 2,
-            skip = 3,
+            filters={"key": 2},
+            limit=2,
+            skip=3,
             sort=[('timestamp', -1)],
             group_id=group_id,
             group_fields=[]
@@ -309,22 +311,22 @@ class TestMongoClient(TestCase):
         self.assertEqual(pipeline, [
             {'$match': {'key': 2}},
             {'$group': {
-                '_id': None, 
+                '_id': None,
                 '_root': {'$last': '$$ROOT'}
-                }
+            }
             },
             {'$replaceRoot': {'newRoot': '$_root'}},
-            {'$skip': 3},
             {'$sort': {'timestamp': -1}},
+            {'$skip': 3},
             {'$limit': 2},
         ])
 
     def test_get_pipelines_group_fields_without_group_id(self):
         client = MongoClient()
         pipeline = client._get_pipeline(
-            filters = {"key": 2},
-            limit = 2,
-            skip = 3,
+            filters={"key": 2},
+            limit=2,
+            skip=3,
             sort=[('timestamp', -1)],
             group_id=[],
             group_fields=[
@@ -334,17 +336,17 @@ class TestMongoClient(TestCase):
         )
         self.assertEqual(pipeline, [
             {'$match': {'key': 2}},
-            {'$skip': 3},
             {'$sort': {'timestamp': -1}},
+            {'$skip': 3},
             {'$limit': 2},
         ])
 
     def test_get_pipelines_group_id_with_group_fields(self):
         client = MongoClient()
         pipeline = client._get_pipeline(
-            filters = {"key": 2},
-            limit = 2,
-            skip = 3,
+            filters={"key": 2},
+            limit=2,
+            skip=3,
             sort=[('timestamp', -1)],
             group_id=[
                 ('timestamp', 'year'),
@@ -367,19 +369,19 @@ class TestMongoClient(TestCase):
                     'hour-timestamp': {'$hour': '$timestamp'},
                     'minute-timestamp': {'$minute': '$timestamp'},
                     'second-timestamp': {'$second': '$timestamp'},
-                }, 
+                },
                 '_root': {'$last': '$$ROOT'},
                 'agg_args__value': {'$avg': '$args.value'},
                 'agg_timestamp': {'$last': '$timestamp'}
-                }
+            }
             },
             {'$set': {
                 '_root.args.value': '$agg_args__value',
                 '_root.timestamp': '$agg_timestamp'
             }},
             {'$replaceRoot': {'newRoot': '$_root'}},
-            {'$skip': 3},
             {'$sort': {'timestamp': -1}},
+            {'$skip': 3},
             {'$limit': 2},
         ])
 
