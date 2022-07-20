@@ -1,6 +1,3 @@
-import json
-from typing import Optional
-
 from eth_account import Account
 from hexbytes import HexBytes
 from web3 import Web3
@@ -8,71 +5,58 @@ from web3.contract import ContractFunction
 from web3.middleware import geth_poa_middleware
 
 from splight_models.blockchain import (
-    FunctionResponse,
-    SmartContract,
+    CallResponse,
+    BlockchainContract,
     Transaction,
 )
 
-from splight_blockchain.abstract import BlockchainClient
+from splight_blockchain.abstract import AbstractBlockchainClient
 from splight_blockchain.exceptions import (
     ContractNotLoaded,
     FunctionCallError,
-    MethodNotAllowed,
+    FunctionTransactError,
     ProviderConnectionError,
     TransactionError,
 )
-from .settings import ProviderSchemas, blockchain_config
+from .settings import blockchain_config
 
 
-class HTTPClient(BlockchainClient):
-
+class HTTPClient(AbstractBlockchainClient):
     _POA_MIDDLEWARE_LAYER = 0
+    _GAS = 210000
+    _contract = None
 
-    def __init__(
-        self,
-        account: str,
-        host: str = blockchain_config.PROVIDER,
-        port: str = blockchain_config.PORT,
-        schema: ProviderSchemas = blockchain_config.SCHEMA,
-        signing_address: str = blockchain_config.SPLIGHT_ADDRESS,
-        signing_key: str = blockchain_config.SPLIGHT_PRIVATE_KEY,
-    ):
+    def __init__(self, account: str):
         super().__init__()
-        provider = Web3.HTTPProvider(f"{schema}://{host}:{port}")
+        provider = Web3.HTTPProvider(blockchain_config.BLOCKCHAIN_RPC_URL)
+        
         self._connection = Web3(provider)
-
         self._connection.middleware_onion.inject(
             geth_poa_middleware, layer=self._POA_MIDDLEWARE_LAYER
         )
-        self._signing_account = Account.from_key(signing_key)
-
-        self._account_address = account
-
         if not self._connection.isConnected():
             raise ProviderConnectionError
 
-        self._contract = None
+        self._account_address = account
+        self._signing_account = Account.from_key(
+            blockchain_config.BLOCKCHAIN_PRIVATE_KEY
+        )
 
     @property
-    def contract(self) -> Optional[SmartContract]:
-        """Gets the smart contract in use
-
-        Returns
-        -------
-        Optional[SmartContract]
-            The smart contract
-        """
-        if self._contract:
-            return SmartContract(
-                address=self._contract.address,
-                abi=json.loads(self._contract.abi),
-            )
-        return None
+    def contract(self):
+        return self._contract
 
     @contract.setter
-    def contract(self, contract: SmartContract):
+    def contract(self, contract: BlockchainContract):
         self._contract = self._connection.eth.contract(
-            address=contract.address, abi=contract.abi
+            address=contract.address,
+            abi=contract.abi_json
+        )
+
+    @property
+    def _nonce(self):
+        return self._connection.eth.get_transaction_count(
+            self._signing_account.address
         )
 
     def to_ether(self, amount: float):
@@ -84,103 +68,73 @@ class HTTPClient(BlockchainClient):
     def get_balance(self):
         return self._connection.eth.get_balance(self._account_address)
 
-    def call(
-        self, method: str, *args, use_account: bool = False
-    ) -> FunctionResponse:
+    def call(self, method: str, *args) -> CallResponse:
 
         if not self._contract:
             raise ContractNotLoaded()
 
         try:
-            function_callable = self._contract.get_function_by_name(method)
-        except ValueError as exc:
-            raise MethodNotAllowed(method) from exc
-
-        full_args = args
-        if use_account:
-            full_args = (self._account_address, *full_args)
-        try:
-            output = function_callable(*full_args).call()
-        except TypeError as exc:
+            _call = self._contract.get_function_by_name(method)
+            output = _call(*args).call()
+        except (ValueError, TypeError) as exc:
             raise FunctionCallError(method) from exc
-        return FunctionResponse(name=method, value=output)
+    
+        return CallResponse(name=method, value=output)
 
     def transact(self, method: str, *args, **kwargs) -> Transaction:
         if not self._contract:
             raise ContractNotLoaded()
-        _method = getattr(self, f"_{method}", None)
-        if not _method:
-            raise MethodNotAllowed(method)
-        output = _method(*args, **kwargs)
+
+        _transact = getattr(self, f"_{method}", None)
+        if not _transact:
+            raise FunctionTransactError(method)
+
+        output = _transact(*args, **kwargs)
         return output
 
-    def _mint(
-        self, amount: int = 0, metadata: str = "", gas: int = 21000
-    ) -> Transaction:
-        function_callable = self._contract.functions.mint
-        function = function_callable(self._account_address, amount, metadata)
-        return self._sign_and_send_transaction(function, gas=gas)
-
-    def _burn(
-        self, amount: int = 0, metadata: str = "", gas: int = 21000
-    ) -> Transaction:
-        function_callable = self._contract.functions.burn
-        function = function_callable(self._account_address, amount, metadata)
-        return self._sign_and_send_transaction(function, gas=gas)
-
-    def _transfer(
-        self, dst_address: str, amount: int, gas: int = 21000
-    ) -> Transaction:
-        function_callable = self._contract.functions.transferFrom
-        function = function_callable(
-            self._account_address, dst_address, amount
+    def _mint(self, amount: int, metadata: str = "") -> Transaction:
+        function = self._contract.functions.mintFrom(
+            self._account_address,
+            amount,
+            metadata
         )
-        return self._sign_and_send_transaction(function, gas=gas)
+        return self._sign_and_send_transaction(function)
 
-    def _sign_and_send_transaction(
-        self, builder: ContractFunction, gas: int = 21000
-    ) -> Transaction:
-
-        nonce = self._connection.eth.get_transaction_count(
-            self._signing_account.address
+    def _burn(self, amount: int, metadata: str = "") -> Transaction:
+        function = self._contract.functions.burnFrom(
+            self._account_address,
+            amount,
+            metadata
         )
-        tx = {
+        return self._sign_and_send_transaction(function)
+
+    def _transfer(self, dst_address: str, amount: int) -> Transaction:
+        function = self._contract.functions.transferFrom(
+            self._account_address,
+            dst_address,
+            amount
+        )
+        return self._sign_and_send_transaction(function)
+
+    def _sign_and_send_transaction(self, function: ContractFunction) -> Transaction:
+        tx = function.build_transaction({
             "from": self._signing_account.address,
-            "nonce": nonce,
-            "gas": gas,
+            "nonce": self._nonce,
+            "gas": self._GAS,
             "gasPrice": 0,
-        }
-        transaction = builder.build_transaction(tx)
-        signed = self._connection.eth.account.sign_transaction(
-            transaction, self._signing_account.privateKey
+        })
+        tx_signed = self._connection.eth.account.sign_transaction(
+            tx, self._signing_account.privateKey
         )
         tx_hash = self._connection.eth.send_raw_transaction(
-            signed.rawTransaction
+            tx_signed.rawTransaction
         )
-        receipt = self._connection.eth.wait_for_transaction_receipt(tx_hash)
-
-        if not receipt.status:
+        tx_receipt = self._connection.eth.wait_for_transaction_receipt(tx_hash)
+        if not tx_receipt.status:
             raise TransactionError(tx_hash.hex())
-
-        return Transaction.parse_obj(receipt)
+        return Transaction.parse_obj(tx_receipt)
 
     def get_transaction(self, tx_hash: HexBytes) -> Transaction:
-        """Returns a made transaction.
-
-        Parameters
-        ----------
-        tx_hash : HexBytes
-            The hash of the transaction to be recovered.
-
-        Returns
-        -------
-        Transaction
-            The transaction information
-        """
-        tx = self._connection.eth.get_transaction(tx_hash)
-        return Transaction.parse_obj(tx)
-
-    def get_transaction_receipt(self, tx_hash: HexBytes) -> Transaction:
         """Gets the receipt of a transaction
 
         Parameters

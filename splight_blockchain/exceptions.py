@@ -30,7 +30,7 @@ class ContractNotLoaded(Exception):
         return self._msg
 
 
-class MethodNotAllowed(Exception):
+class FunctionTransactError(Exception):
     def __init__(self, method: str):
         self._msg = f"Method {method} not defined in smart contract"
 

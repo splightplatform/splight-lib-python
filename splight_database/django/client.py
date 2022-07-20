@@ -28,6 +28,7 @@ from .djatabase.models import (
     Tab as DBTab,
     Tag as DBTag,
     ValueMapping as DBValueMapping,
+    BlockchainContract as DBBlockchainContract,
 )
 from client import validate_instance_type, validate_resource_type
 from splight_models.query import QuerySet
@@ -58,6 +59,7 @@ CLASSMAP = {
     Tab: DBTab,
     Tag: DBTag,
     ValueMapping: DBValueMapping,
+    BlockchainContract: DBBlockchainContract,
 }
 
 
