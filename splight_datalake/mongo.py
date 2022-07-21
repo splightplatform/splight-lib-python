@@ -318,17 +318,11 @@ class MongoClient(AbstractDatalakeClient):
             collection=collection,
             pipeline=[
             {
-                '$match': {
-                    'timestamp': {
-                        '$lte': end
-                    }
-                }
+                '$match': {'timestamp': {'$lte': end}}
             }, {
                 '$group': {
                     '_id': '$data.id', 
-                    'events': {
-                        '$push': '$$ROOT'
-                    }
+                    'events': {'$push': '$$ROOT'}
                 }
             }, {
                 '$match': {
@@ -336,9 +330,7 @@ class MongoClient(AbstractDatalakeClient):
                         {
                             '$and': [
                                 {
-                                    'events': {
-                                        '$size': 1
-                                    }
+                                    'events': {'$size': 1}
                                 }, {
                                     'events.0.event': 'create'
                                 }
@@ -346,21 +338,15 @@ class MongoClient(AbstractDatalakeClient):
                         }, {
                             '$and': [
                                 {
-                                    'events': {
-                                        '$size': 2
-                                    }
+                                    'events': {'$size': 2}
                                 }, {
                                     'events.0.event': 'create'
                                 }, {
                                     'events.1.event': 'destroy'
                                 }, {
-                                    'events.1.timestamp': {
-                                        '$gte': start
-                                    }
+                                    'events.1.timestamp': {'$gte': start}
                                 }, {
-                                    'events.1.timestamp': {
-                                        '$lte': end
-                                    }
+                                    'events.1.timestamp': {'$lte': end}
                                 }
                             ]
                         }
