@@ -19,6 +19,10 @@ class AbstractStorageClient(AbstractClient):
         pass
 
     @abstractmethod
+    def copy(self, old_name: str, new_name: str):
+        pass
+
+    @abstractmethod
     def delete(self, resource_type: Type, id: str) -> None:
         pass
 
