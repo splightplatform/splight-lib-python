@@ -142,7 +142,6 @@ class BillingGenerator:
             end=last_day
         )
 
-        #deployments: defaultdict = defaultdict(lambda: [])
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
 
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
@@ -158,6 +157,7 @@ class BillingGenerator:
             if len(events) == 1:
                 # The event hasn't stopped yet
                 start: BillingEvent = events[0]
+                # If event started in previous month, set the first day of month as start date
                 start.timestamp = max(first_day, start.timestamp)
                 end: BillingEvent = BillingEvent(
                     type=BillingEventType.COMPONENT_DEPLOYMENT,
