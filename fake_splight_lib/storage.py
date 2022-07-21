@@ -28,7 +28,6 @@ class FakeStorageClient(AbstractStorageClient):
 
     def _decode_name(self, name):
         name = name.replace("fake", "")
-        print("asdasdasdasd", name)
         decoded_name = zlib.decompress(b64d(name)).decode('utf-8')
         return f"{self.namespace}/{decoded_name}"
 
