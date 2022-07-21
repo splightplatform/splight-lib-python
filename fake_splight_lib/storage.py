@@ -28,6 +28,7 @@ class FakeStorageClient(AbstractStorageClient):
 
     def _decode_name(self, name):
         name = name.replace("fake", "")
+        print("asdasdasdasd", name)
         decoded_name = zlib.decompress(b64d(name)).decode('utf-8')
         return f"{self.namespace}/{decoded_name}"
 
@@ -36,12 +37,12 @@ class FakeStorageClient(AbstractStorageClient):
             name = f"{self.namespace}/{name}"
         return name
 
-    def __copy(self, source, destination):
-        destination_path = os.path.split(destination)
-        if destination_path[0] != "":
-            os.makedirs(os.path.join(*destination_path[:-1]), exist_ok=True)
+    def copy(self, old_name, new_name):
+        new_name_path = os.path.split(new_name)
+        if new_name_path[0] != "":
+            os.makedirs(os.path.join(*new_name_path[:-1]), exist_ok=True)
         try:
-            shutil.copy(source, destination)
+            shutil.copy(old_name, new_name)
         except shutil.SameFileError:
             logger.exception("Source and destination represents the same file.")
         except PermissionError:
@@ -57,7 +58,7 @@ class FakeStorageClient(AbstractStorageClient):
                 prefix = pathlib.Path(prefix).relative_to('/')
             id = os.path.join(prefix, id)
         destination = os.path.join(STORAGE_HOME, self.namespace, id)
-        self.__copy(instance.file, destination)
+        self.copy(instance.file, destination)
         id = self._encode_name(id)
         instance.id = id
         return instance
@@ -74,7 +75,7 @@ class FakeStorageClient(AbstractStorageClient):
         queryset = []
         if os.path.isfile(base_path):
             relative_path = str(pathlib.Path(base_path).relative_to(self.base_path))
-            queryset = [StorageFile(id=relative_path, file=relative_path)]
+            queryset = [StorageFile(id=self._encode_name(relative_path), file=relative_path)]
         else:
             for folder, _, files in os.walk(base_path):
                 for file in files:
@@ -99,7 +100,7 @@ class FakeStorageClient(AbstractStorageClient):
         logger.debug(f"[FAKED] Downloading file {id} to {target}")
         id = self._namespaced_key(self._decode_name(id))
         source = os.path.join(STORAGE_HOME, id)
-        self.__copy(source, target)
+        self.copy(source, target)
         return target
 
     def upload(self, id: str):
