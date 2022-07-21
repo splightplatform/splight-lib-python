@@ -61,6 +61,10 @@ class AbstractDatalakeClient(AbstractClient):
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
 
+    @abstractmethod
+    def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
+        pass
+
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
 

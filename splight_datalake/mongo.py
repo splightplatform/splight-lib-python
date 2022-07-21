@@ -280,6 +280,96 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
+    def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
+        """
+        Get billing data from the datalake
+        :param collection: collection from where the billing data will be retrieved
+        :param start: billing start date
+        :param end: billing end date
+        :return: List of dicts with one of the following patterns:
+            {
+                "_id": deployment id,
+                events: [{
+                    data: dict,
+                    type: "component_deployment",
+                    event: "create",
+                    timestamp: datetime
+                },{
+                    data: dict,
+                    type: "component_deployment",
+                    event: "destroy",
+                    timestamp: datetime
+                }]
+            }
+            in the case that the billing event stopped in the current billing period (between start,end)
+            or
+            {
+                "_id": deployment id,
+                events: [{
+                    data: dict,
+                    type: "component_deployment",
+                    event: "create",
+                    timestamp: datetime
+                }]
+            }
+            in the case that the billing event hasn't stopped so far
+        """
+        return list(self._aggregate(
+            collection=collection,
+            pipeline=[
+            {
+                '$match': {
+                    'timestamp': {
+                        '$lte': end
+                    }
+                }
+            }, {
+                '$group': {
+                    '_id': '$data.id', 
+                    'events': {
+                        '$push': '$$ROOT'
+                    }
+                }
+            }, {
+                '$match': {
+                    '$or': [
+                        {
+                            '$and': [
+                                {
+                                    'events': {
+                                        '$size': 1
+                                    }
+                                }, {
+                                    'events.0.event': 'create'
+                                }
+                            ]
+                        }, {
+                            '$and': [
+                                {
+                                    'events': {
+                                        '$size': 2
+                                    }
+                                }, {
+                                    'events.0.event': 'create'
+                                }, {
+                                    'events.1.event': 'destroy'
+                                }, {
+                                    'events.1.timestamp': {
+                                        '$gte': start
+                                    }
+                                }, {
+                                    'events.1.timestamp': {
+                                        '$lte': end
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            ]
+        ))
+
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         def parse_timestamp(start, end):
             res = defaultdict(dict)

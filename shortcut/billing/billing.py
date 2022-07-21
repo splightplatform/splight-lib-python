@@ -136,16 +136,13 @@ class BillingGenerator:
         first_day, last_day = self._month_first_last_day(self.date)
         if not self.closing_month:
             last_day = self.date
-        billing_events: List[BillingEvent] = self.datalake_client.get(
-            resource_type=BillingEvent,
+        billing_events: List[Dict] = self.datalake_client.get_billing_data(
             collection=BillingEvent.__name__,
-            type=BillingEventType.COMPONENT_DEPLOYMENT.value,
-            limit_=0,
-            timestamp__gte=first_day,
-            timestamp__lte=last_day
+            start=first_day,
+            end=last_day
         )
 
-        deployments: defaultdict = defaultdict(lambda: [])
+        #deployments: defaultdict = defaultdict(lambda: [])
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
 
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
@@ -153,40 +150,30 @@ class BillingGenerator:
 
         component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
 
-        for billing_event in billing_events:
-                deployments[billing_event.data['id']].append(billing_event)
-
-        for deployment_id, events in deployments.items():
-            # deployment started and ended in current month
-            if len(events) == 2:
+        for billing_data in billing_events:
+            events = billing_data["events"]
+            deployment_id = billing_data["_id"]
+            events = [BillingEvent(**event) for event in events]
+            info_event = None
+            if len(events) == 1:
+                # The event hasn't stopped yet
+                start: BillingEvent = events[0]
+                start.timestamp = max(first_day, start.timestamp)
+                end: BillingEvent = BillingEvent(
+                    type=BillingEventType.COMPONENT_DEPLOYMENT,
+                    event="destroy",
+                    timestamp=last_day
+                )
+                info_event = start
+            elif len(events) == 2:
+                # The event has stopped in current billing period
                 start: BillingEvent = events[0]
                 end: BillingEvent = events[1]
                 if start.timestamp > end.timestamp:
                     start, end = end, start
+                # If event started in previous month, set the first day of month as start date
+                start.timestamp = max(first_day, start.timestamp)
                 info_event = start
-                
-            elif len(events) == 1:
-                event: BillingEvent = events[0]
-                # deployment started in current month but not ended
-                if event.event == "create":
-                    start: BillingEvent = event
-                    end: BillingEvent = BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=last_day
-                    )
-                    info_event = start
-
-                # deployment ended in current month but started in previous month
-                elif event.event == "destroy":
-                    end: BillingEvent = event
-                    start: BillingEvent = BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=first_day
-                    )
-                    info_event = end
-            
             else:
                 logger.warning(f"[WARNING] Found deployment with more than 2 BillingEvents: {events}. Unexpected behavior. Billing dates may not be accurate.")
                 data = {
