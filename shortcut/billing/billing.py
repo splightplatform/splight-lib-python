@@ -110,8 +110,6 @@ class BillingGenerator:
                     settings = settings_item
         return settings
 
-
-
     def billing_component_deployment(self) -> Tuple[Billing, List[BillingItem]]:
         """
         Generates the billing for the component deployments
