@@ -113,7 +113,7 @@ class TestBilling(TestCase):
     def test_generate_simple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", return_value=billing_settings):
-                with patch.object(DatalakeClient, "get_billing_data", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         begin_of_january, end_of_january = datetime(2022, 1, 1), datetime(2022, 1, 31)
                         billing_generator = BillingGenerator(self.namespace, date=end_of_january)
@@ -351,7 +351,7 @@ class TestBilling(TestCase):
     ])
     def test_generate_multiple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", side_effect=hub_component):
-                with patch.object(DatalakeClient, "get_billing_data", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         for bs in billing_settings:
                             self.database_client.save(bs)
@@ -498,7 +498,7 @@ class TestBilling(TestCase):
     ])
     def test_generate_component_runned_all_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", side_effect=hub_component):
-                with patch.object(DatalakeClient, "get_billing_data", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         for bs in billing_settings:
                             self.database_client.save(bs)
@@ -619,7 +619,7 @@ class TestBilling(TestCase):
     def test_close_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", side_effect=[billing_settings, []]):
-                with patch.object(DatalakeClient, "get_billing_data", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
                         billing_month, billings = billing_generator.generate()

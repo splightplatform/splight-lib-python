@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timezone
 from collections import defaultdict
 from datetime import timedelta
@@ -31,7 +32,6 @@ class PDFGenerationException(Exception):
 
 class MonthBillingNotFoundException(Exception):
     pass
-
 
 class BillingGenerator:
     DEFAULT_COMPONENT_IMPACT: int = os.getenv("DEFAULT_COMPONENT_IMPACT", 1)
@@ -110,6 +110,8 @@ class BillingGenerator:
                     settings = settings_item
         return settings
 
+
+
     def billing_component_deployment(self) -> Tuple[Billing, List[BillingItem]]:
         """
         Generates the billing for the component deployments
@@ -136,11 +138,48 @@ class BillingGenerator:
         first_day, last_day = self._month_first_last_day(self.date)
         if not self.closing_month:
             last_day = self.date
-        billing_events: List[Dict] = self.datalake_client.get_billing_data(
-            collection=BillingEvent.__name__,
-            start=first_day,
-            end=last_day
-        )
+
+        billing_events: List[Dict] = list(self.datalake_client.raw_aggregate(
+            collection = BillingEvent.__name__,
+            raw = json.dumps([
+            {
+                '$match': {'timestamp': {'$lte': last_day}}
+            }, {
+                '$group': {
+                    '_id': '$data.id', 
+                    'events': {'$push': '$$ROOT'}
+                }
+            }, {
+                '$match': {
+                    '$or': [
+                        {
+                            '$and': [
+                                {
+                                    'events': {'$size': 1}
+                                }, {
+                                    'events.0.event': 'create'
+                                }
+                            ]
+                        }, {
+                            '$and': [
+                                {
+                                    'events': {'$size': 2}
+                                }, {
+                                    'events.0.event': 'create'
+                                }, {
+                                    'events.1.event': 'destroy'
+                                }, {
+                                    'events.1.timestamp': {'$gte': first_day}
+                                }, {
+                                    'events.1.timestamp': {'$lte': last_day}
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            ], default = DatalakeClient.json_serial)
+        ))
 
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
 
@@ -149,6 +188,7 @@ class BillingGenerator:
 
         component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
 
+        print(billing_events)
         for billing_data in billing_events:
             events = billing_data["events"]
             deployment_id = billing_data["_id"]

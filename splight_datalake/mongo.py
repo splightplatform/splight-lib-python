@@ -1,4 +1,5 @@
 import re
+import json
 import pandas as pd
 from datetime import datetime
 from bson.codec_options import CodecOptions
@@ -75,6 +76,7 @@ class MongoClient(AbstractDatalakeClient):
             pipeline
         )
         return documents
+
 
     def _delete_many(self, collection: str, filters: Dict = {}) -> None:
         self.db[collection].delete_many(filters)
@@ -280,81 +282,19 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
-        """
-        Get billing data from the datalake
-        :param collection: collection from where the billing data will be retrieved
-        :param start: billing start date
-        :param end: billing end date
-        :return: List of dicts with one of the following patterns:
-            {
-                "_id": deployment id,
-                events: [{
-                    data: dict,
-                    type: "component_deployment",
-                    event: "create",
-                    timestamp: datetime
-                },{
-                    data: dict,
-                    type: "component_deployment",
-                    event: "destroy",
-                    timestamp: datetime
-                }]
-            }
-            in the case that the billing event stopped in the current billing period (between start,end)
-            or
-            {
-                "_id": deployment id,
-                events: [{
-                    data: dict,
-                    type: "component_deployment",
-                    event: "create",
-                    timestamp: datetime
-                }]
-            }
-            in the case that the billing event hasn't stopped so far
-        """
-        return list(self._aggregate(
-            collection=collection,
-            pipeline=[
-            {
-                '$match': {'timestamp': {'$lte': end}}
-            }, {
-                '$group': {
-                    '_id': '$data.id', 
-                    'events': {'$push': '$$ROOT'}
-                }
-            }, {
-                '$match': {
-                    '$or': [
-                        {
-                            '$and': [
-                                {
-                                    'events': {'$size': 1}
-                                }, {
-                                    'events.0.event': 'create'
-                                }
-                            ]
-                        }, {
-                            '$and': [
-                                {
-                                    'events': {'$size': 2}
-                                }, {
-                                    'events.0.event': 'create'
-                                }, {
-                                    'events.1.event': 'destroy'
-                                }, {
-                                    'events.1.timestamp': {'$gte': start}
-                                }, {
-                                    'events.1.timestamp': {'$lte': end}
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-            ]
-        ))
+    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+        def date_hook(json_dict):
+            for (key, value) in json_dict.items():
+                try:
+                    json_dict[key] = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+                except:
+                    pass
+            return json_dict
+        try:
+            pipeline = json.loads(raw, object_hook=date_hook)
+        except json.JSONDecodeError:
+            raise ValueError("Invalid raw pipeline, must be a JSON string")
+        return self._aggregate(collection, pipeline)
 
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         def parse_timestamp(start, end):

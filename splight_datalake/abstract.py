@@ -2,7 +2,7 @@ from client import AbstractClient
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Dict, Union
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 from splight_models import Variable, VariableDataFrame, QuerySet
 
 
@@ -57,6 +57,11 @@ class AbstractDatalakeClient(AbstractClient):
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         pass
 
+    # Subject to incompatibility by implementation
+    @abstractmethod
+    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+        pass
+
     @abstractmethod
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
@@ -64,6 +69,14 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
         pass
+
+    @staticmethod
+    def json_serial(obj):
+        """JSON serializer for objects not serializable by default json code"""
+
+        if isinstance(obj, (datetime, date)):
+            return obj.strftime("%Y-%m-%dT%H:%M:%S")
+        raise TypeError ("Type %s not serializable" % type(obj))
 
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
