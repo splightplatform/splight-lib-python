@@ -23,6 +23,10 @@ class Algorithm(Runner):
     asset_id: str = None
     sub_algorithms: List[Any] = []
 
+    @property
+    def collection(self):
+        return str(self.id)
+
 
 class Network(Runner):
     pass
