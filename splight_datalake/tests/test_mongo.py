@@ -47,7 +47,7 @@ class TestMongoClient(TestCase):
             group_id=[],
             group_fields=[]
         )
-        with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
+        with patch("splight_datalake.mongo.MongoClient.raw_aggregate", return_value=return_value) as find_call:
             self.assertEqual(client.get(Variable, asset_id="1", attribute_id="1"), expected_result)
             find_call.assert_called_once_with(
                 collection='default',
@@ -155,7 +155,7 @@ class TestMongoClient(TestCase):
             group_id=[],
             group_fields=[]
         )
-        with patch("splight_datalake.mongo.MongoClient._aggregate", side_effect=[first_call, second_call]) as find_call:
+        with patch("splight_datalake.mongo.MongoClient.raw_aggregate", side_effect=[first_call, second_call]) as find_call:
             self.assertEqual(client.get(resource_type=Variable, asset_id="1", attribute_id="1", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_first_call)
             self.assertEqual(client.get(resource_type=Variable, asset_id__in=["2"], attribute_id__contains="2", limit_=3, timestamp__gte=datetime(2012, 1, 1, 17, 0), timestamp__lte=datetime(2012, 1, 1, 18, 0)), expected_result_second_call)
             find_call.assert_has_calls([
@@ -234,7 +234,7 @@ class TestMongoClient(TestCase):
             group_id=[],
             group_fields=[]
         )
-        with patch("splight_datalake.mongo.MongoClient._aggregate", return_value=return_value) as find_call:
+        with patch("splight_datalake.mongo.MongoClient.raw_aggregate", return_value=return_value) as find_call:
             self.assertEqual(client.get(Variable, args__value="value1"), expected_result)
             find_call.assert_called_once_with(
                 collection='default',
@@ -390,6 +390,6 @@ class TestMongoClient(TestCase):
             "size": 20096,
         }]
         with patch.object(client.db, "collection_names", return_value=["default"]):
-            with patch.object(MongoClient, "_aggregate", return_value=result):
+            with patch.object(MongoClient, "raw_aggregate", return_value=result):
                 components_sizes = client.get_components_sizes_gb()
                 self.assertEqual(components_sizes, {"componentid": 0.000018715858459472656})
