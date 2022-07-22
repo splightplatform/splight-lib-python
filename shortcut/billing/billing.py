@@ -139,7 +139,7 @@ class BillingGenerator:
 
         billing_events: List[Dict] = list(self.datalake_client.raw_aggregate(
             collection = BillingEvent.__name__,
-            raw = json.dumps([
+            pipeline = [
             {
                 '$match': {'timestamp': {'$lte': last_day}}
             }, {
@@ -176,7 +176,7 @@ class BillingGenerator:
                     ]
                 }
             }
-            ], default = DatalakeClient.json_serial)
+            ]
         ))
 
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
