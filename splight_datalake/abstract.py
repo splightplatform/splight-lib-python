@@ -59,20 +59,12 @@ class AbstractDatalakeClient(AbstractClient):
 
     # Subject to incompatibility by implementation
     @abstractmethod
-    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         pass
 
     @abstractmethod
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
-
-    @staticmethod
-    def json_serial(obj):
-        """JSON serializer for objects not serializable by default json code"""
-
-        if isinstance(obj, (datetime, date)):
-            return obj.strftime("%Y-%m-%dT%H:%M:%S")
-        raise TypeError ("Type %s not serializable" % type(obj))
 
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
