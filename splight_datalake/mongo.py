@@ -281,18 +281,7 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
-        def date_hook(json_dict):
-            for (key, value) in json_dict.items():
-                try:
-                    json_dict[key] = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
-                except:
-                    pass
-            return json_dict
-        try:
-            pipeline = json.loads(raw, object_hook=date_hook)
-        except json.JSONDecodeError:
-            raise ValueError("Invalid raw pipeline, must be a JSON string")
+    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         return self._aggregate(collection, pipeline)
 
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:

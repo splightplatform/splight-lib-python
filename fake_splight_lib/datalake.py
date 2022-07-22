@@ -192,7 +192,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             _data.columns = [col.replace("args.", "") for col in _data.columns]
         return _data
 
-    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         raise NotImplementedError
         
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
