@@ -188,7 +188,6 @@ class BillingGenerator:
 
         component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
 
-        print(billing_events)
         for billing_data in billing_events:
             events = billing_data["events"]
             deployment_id = billing_data["_id"]
