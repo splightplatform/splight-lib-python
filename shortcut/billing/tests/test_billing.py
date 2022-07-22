@@ -20,60 +20,6 @@ class TestBilling(TestCase):
         (
             (
                 HubComponent(
-                    name="FakeComponent",
-                    version="0_1",
-                    impact=1
-                )
-            ),(
-                [
-                    BillingSettings(
-                        pricing = Pricing(
-                            COMPUTING_PRICE_PER_HOUR=0.04,
-                            STORAGE_PRICE_PER_GB=2,
-                            IMPACT_MULTIPLIER={
-                                "1": 10.0,
-                                "2": 25.0,
-                                "3": 63.0,
-                                "4": 156.0,
-                                "5": 391.0
-                            }
-                        ),
-                        discounts=[],
-                        computing_time_measurement_per_hour=False
-                    )
-                ]  
-            ),(
-                [
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 1),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 2),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    )
-                ]
-            ),(
-                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1}
-            ),
-        ),
-        (
-            (
-                HubComponent(
                     name="FakeComponentAlgorithm",
                     version="0_1",
                     impact=3
@@ -99,55 +45,65 @@ class TestBilling(TestCase):
                                 value=10
                             )
                         ],
-                        computing_time_measurement_per_hour=False
+                        computing_time_measurement_per_hour=True
                     )
                 ]  
             ),(
                 [
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 1),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 2),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 1),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id2",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 2),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id2",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    )
+                    {
+                        "_id": "deployment_id",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2022, 1, 1),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 2),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "_id": "deployment_id2",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2022, 1, 1),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id2",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 2),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id2",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    },
                 ]
             ),(
                     {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 2}
@@ -157,17 +113,23 @@ class TestBilling(TestCase):
     def test_generate_simple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", return_value=billing_settings):
-                with patch.object(DatalakeClient, "get", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
-                        billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
+                        begin_of_january, end_of_january = datetime(2022, 1, 1), datetime(2022, 1, 31)
+                        billing_generator = BillingGenerator(self.namespace, date=end_of_january)
                         billing_month, billings = billing_generator.generate()
                         self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
-                        #the correct billing settings among all
-                        billing_settings = billing_settings[0]
-                        hours_in_january = 744
                         
+                        #the correct billing settings among all
+                        expected_bs_index = 0
+                        self.assertEqual(billing_generator.billing_settings, billing_settings[expected_bs_index])
+                        billing_settings = billing_settings[expected_bs_index]
+
+                        fake_algorithm_running_hs = (min(end_of_january, billing_events[0]["events"][1]["timestamp"])-max(begin_of_january, billing_events[0]["events"][0]["timestamp"])).total_seconds()/3600
+                        fake_algorithm_running_hs = fake_algorithm_running_hs + (min(end_of_january, billing_events[1]["events"][1]["timestamp"])-max(begin_of_january, billing_events[1]["events"][0]["timestamp"])).total_seconds()/3600
+
                         storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"]
-                        computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
+                        computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
                         impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component.impact)]
                         expected_total_price_without_discount = (computing_price + storage_price) * impact_multiplier
 
@@ -251,7 +213,7 @@ class TestBilling(TestCase):
                                 value=25
                             )
                         ],
-                        computing_time_measurement_per_hour=False
+                        computing_time_measurement_per_hour=True
                     ),
                     BillingSettings(
                         timestamp=datetime(2022, 1, 2),
@@ -273,7 +235,7 @@ class TestBilling(TestCase):
                                 value=45
                             )
                         ],
-                        computing_time_measurement_per_hour=False
+                        computing_time_measurement_per_hour=True
                     ),
                     BillingSettings(
                         timestamp=datetime(2022, 1, 5),
@@ -295,77 +257,92 @@ class TestBilling(TestCase):
                                 value=85
                             )
                         ],
-                        computing_time_measurement_per_hour=False
+                        computing_time_measurement_per_hour=True
                     ),
                 ]  
             ),(
                 [
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 1),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 2),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 3),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id2",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 4),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id2",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 5),
-                        data={
-                            "version": "FakeComponentConnector-0_1",
-                            "type": "Connector",
-                            "id": "deployment_id3",
-                            "external_id": "9ba830b5-b1b3-440c-94e7-bca80e5c09cc"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 6),
-                        data={
-                            "version": "FakeComponentConnector-0_1",
-                            "type": "Connector",
-                            "id": "deployment_id3",
-                            "external_id": "9ba830b5-b1b3-440c-94e7-bca80e5c09cc"
-                        }
-                    )
+                    {
+                        "_id": "deployment_id",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2022, 1, 15),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 20),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "_id": "deployment_id2",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2021, 12, 1),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id2",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 15),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id2",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "_id": "deployment_id3",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2022, 1, 5),
+                                "data": {
+                                    "version": "FakeComponentConnector-0_1",
+                                    "type": "Connector",
+                                    "id": "deployment_id3",
+                                    "external_id": "9ba830b5-b1b3-440c-94e7-bca80e5c09cc"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 6),
+                                "data": {
+                                    "version": "FakeComponentConnector-0_1",
+                                    "type": "Connector",
+                                    "id": "deployment_id3",
+                                    "external_id": "9ba830b5-b1b3-440c-94e7-bca80e5c09cc"
+                                }
+                            }
+                        ]
+                    }
                 ]
             ),(
                     {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1, "9ba830b5-b1b3-440c-94e7-bca80e5c09cc": 2}
@@ -374,28 +351,32 @@ class TestBilling(TestCase):
     ])
     def test_generate_multiple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", side_effect=hub_component):
-                with patch.object(DatalakeClient, "get", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         for bs in billing_settings:
                             self.database_client.save(bs)
-                        billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
+                        begin_of_january, end_of_january = datetime(2022, 1, 1), datetime(2022, 1, 31)
+                        billing_generator = BillingGenerator(self.namespace, date=end_of_january)
                         billing_month, billings = billing_generator.generate()
                         self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
 
                         #check if get_billing_settings is working ok
-                        self.assertEqual(billing_generator.billing_settings, billing_settings[0])
-                        billing_settings = billing_settings[0]
-                        hours_in_january = 744
+                        expected_bs_index = 2
+                        self.assertEqual(billing_generator.billing_settings, billing_settings[expected_bs_index])
+                        billing_settings = billing_settings[expected_bs_index]
                         
-                        
+                        fake_algorithm_running_hs = (min(end_of_january, billing_events[0]["events"][1]["timestamp"])-max(begin_of_january, billing_events[0]["events"][0]["timestamp"])).total_seconds()/3600
+                        fake_algorithm_running_hs = fake_algorithm_running_hs + (min(end_of_january, billing_events[1]["events"][1]["timestamp"])-max(begin_of_january, billing_events[1]["events"][0]["timestamp"])).total_seconds()/3600
+                        fake_connector_running_hs = (min(end_of_january, billing_events[2]["events"][1]["timestamp"])-max(begin_of_january, billing_events[2]["events"][0]["timestamp"])).total_seconds()/3600
+
                         fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"] 
-                        fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
+                        fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
                         fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
                         fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
 
                         # fake connector does not have impact, should be the default
                         fake_connector_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["9ba830b5-b1b3-440c-94e7-bca80e5c09cc"] 
-                        fake_connector_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * hours_in_january
+                        fake_connector_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_connector_running_hs
                         fake_connector_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(billing_generator.DEFAULT_COMPONENT_IMPACT)]
                         fake_connector_total_price = (fake_connector_storage_price + fake_connector_computing_price) * fake_connector_impact_multiplier
 
@@ -409,6 +390,7 @@ class TestBilling(TestCase):
                                     discount_value += discount.value * expected_total_price_without_discount / 100
 
                         expected_total_price = max(0, expected_total_price_without_discount - discount_value)
+                        expected_total_price = float(Decimal(expected_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
                         self.assertEqual(billing_month.total_price_without_discount, expected_total_price_without_discount)
                         self.assertEqual(billing_month.total_price, expected_total_price)
@@ -422,6 +404,8 @@ class TestBilling(TestCase):
                                 sum_detailed += detail
                         sum = max(0, sum - discount_value)
                         sum_detailed = max(0, sum_detailed - discount_value)
+                        sum = float(Decimal(sum).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        sum_detailed = float(Decimal(sum_detailed).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
                         self.assertEqual(sum, expected_total_price)
                         self.assertEqual(sum_detailed, expected_total_price)
                         
@@ -430,6 +414,146 @@ class TestBilling(TestCase):
                         self.assertEqual(deployment_billing.description, "Component deployments")
                         self.assertEqual(deployment_billing.total_price, expected_total_price_without_discount)
                         self.assertEqual(len(billing_items), 2)
+
+    @parameterized.expand([
+        (
+            (
+                [
+                    HubComponent(
+                        name="FakeComponentAlgorithm",
+                        version="0_1",
+                        impact=5
+                    )
+                ]
+            ),(
+                [
+                    BillingSettings(
+                        timestamp=datetime(2021, 12, 31),
+                        pricing = Pricing(
+                            COMPUTING_PRICE_PER_HOUR=0.04,
+                            STORAGE_PRICE_PER_GB=2,
+                            IMPACT_MULTIPLIER={
+                                "1": 10.0,
+                                "2": 25.0,
+                                "3": 63.0,
+                                "4": 156.0,
+                                "5": 391.0
+                            }
+                        ),
+                        discounts=[
+                            Discount(
+                                organization_id="default",
+                                type=DiscountType.PERCENTAGE,
+                                value=25
+                            )
+                        ],
+                        computing_time_measurement_per_hour=True
+                    ),
+                    BillingSettings(
+                        timestamp=datetime(2022, 1, 2),
+                        pricing = Pricing(
+                            COMPUTING_PRICE_PER_HOUR=1,
+                            STORAGE_PRICE_PER_GB=1,
+                            IMPACT_MULTIPLIER={
+                                "1": 1.0,
+                                "2": 1.0,
+                                "3": 1.0,
+                                "4": 1.0,
+                                "5": 1.0
+                            }
+                        ),
+                        discounts=[
+                            Discount(
+                                organization_id="default",
+                                type=DiscountType.PERCENTAGE,
+                                value=45
+                            )
+                        ],
+                        computing_time_measurement_per_hour=True
+                    ),
+                ]  
+            ),(
+                [
+                    {
+                        "_id": "deployment_id",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2021, 12, 1),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            ),(
+                    {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1}
+            ),
+        )  
+    ])
+    def test_generate_component_runned_all_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
+        with patch.object(HubClient, "get", side_effect=hub_component):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
+                    with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
+                        for bs in billing_settings:
+                            self.database_client.save(bs)
+                        begin_of_january, end_of_january = datetime(2022, 1, 1), datetime(2022, 1, 31)
+                        billing_generator = BillingGenerator(self.namespace, date=end_of_january)
+                        billing_month, billings = billing_generator.generate()
+                        self.assertEqual(billing_month.month, datetime(2022, 1, 1, tzinfo=pytz.UTC))
+
+                        #check if get_billing_settings is working ok
+                        expected_bs_index = 1
+                        self.assertEqual(billing_generator.billing_settings, billing_settings[expected_bs_index])
+                        billing_settings = billing_settings[expected_bs_index]
+                        
+                        fake_algorithm_running_hs = (end_of_january-max(begin_of_january, billing_events[0]["events"][0]["timestamp"])).total_seconds()/3600
+
+                        fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"] 
+                        fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
+                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
+                        fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
+
+                        expected_total_price_without_discount = float(Decimal(fake_algorithm_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        discount_value = 0
+                        for discount in billing_settings.discounts:
+                            if discount.organization_id == self.namespace:
+                                if discount.type == DiscountType.FIXED:
+                                    discount_value += discount.value
+                                elif discount.type == DiscountType.PERCENTAGE:
+                                    discount_value += discount.value * expected_total_price_without_discount / 100
+
+                        expected_total_price = max(0, expected_total_price_without_discount - discount_value)
+                        expected_total_price = float(Decimal(expected_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+                        self.assertEqual(billing_month.total_price_without_discount, expected_total_price_without_discount)
+                        self.assertEqual(billing_month.total_price, expected_total_price)
+                        self.assertEqual(len(billings), 1)
+
+                        sum = 0
+                        sum_detailed = 0
+                        for billing, _ in billings:
+                            sum += billing.total_price
+                            for detail in billing.detailed_pricing.values():
+                                sum_detailed += detail
+                        sum = max(0, sum - discount_value)
+                        sum_detailed = max(0, sum_detailed - discount_value)
+                        sum = float(Decimal(sum).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        sum_detailed = float(Decimal(sum_detailed).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        self.assertEqual(sum, expected_total_price)
+                        self.assertEqual(sum_detailed, expected_total_price)
+                        
+                        # Deployment billing checks
+                        deployment_billing, billing_items = billings[0]
+                        self.assertEqual(deployment_billing.description, "Component deployments")
+                        self.assertEqual(deployment_billing.total_price, expected_total_price_without_discount)
+                        self.assertEqual(len(billing_items), 1)
+
 
     @parameterized.expand([
         (
@@ -454,33 +578,38 @@ class TestBilling(TestCase):
                             }
                         ),
                         discounts=[],
-                        computing_time_measurement_per_hour=False
+                        computing_time_measurement_per_hour=True
                     )
                 ]  
             ),(
                 [
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="create",
-                        timestamp=datetime(2022, 1, 1),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    ),
-                    BillingEvent(
-                        type=BillingEventType.COMPONENT_DEPLOYMENT,
-                        event="destroy",
-                        timestamp=datetime(2022, 1, 2),
-                        data={
-                            "version": "FakeComponentAlgorithm-0_1",
-                            "type": "Algorithm",
-                            "id": "deployment_id",
-                            "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
-                        }
-                    )
+                    {
+                        "_id": "deployment_id",
+                        "events": [
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "create",
+                                "timestamp": datetime(2022, 1, 1),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            },
+                            {
+                                "type": BillingEventType.COMPONENT_DEPLOYMENT,
+                                "event": "destroy",
+                                "timestamp": datetime(2022, 1, 2),
+                                "data": {
+                                    "version": "FakeComponentAlgorithm-0_1",
+                                    "type": "Algorithm",
+                                    "id": "deployment_id",
+                                    "external_id": "f6c55a58-aa6d-4518-9961-70d30d0cd74c"
+                                }
+                            }
+                        ]
+                    },
                 ]
             ),(
                     {"f6c55a58-aa6d-4518-9961-70d30d0cd74c": 1}
@@ -490,7 +619,7 @@ class TestBilling(TestCase):
     def test_close_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
         with patch.object(HubClient, "get", return_value=hub_component):
             with patch.object(DatabaseClient, "get", side_effect=[billing_settings, []]):
-                with patch.object(DatalakeClient, "get", return_value=billing_events):
+                with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
                         billing_generator = BillingGenerator(self.namespace, date=datetime(2022, 1, 1))
                         billing_month, billings = billing_generator.generate()
