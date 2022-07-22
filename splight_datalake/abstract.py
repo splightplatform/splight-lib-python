@@ -57,6 +57,11 @@ class AbstractDatalakeClient(AbstractClient):
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         pass
 
+    # Subject to incompatibility by implementation
+    @abstractmethod
+    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+        pass
+
     @abstractmethod
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass

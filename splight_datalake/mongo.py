@@ -1,4 +1,5 @@
 import re
+import json
 import pandas as pd
 from datetime import datetime
 from bson.codec_options import CodecOptions
@@ -75,6 +76,7 @@ class MongoClient(AbstractDatalakeClient):
             pipeline
         )
         return documents
+
 
     def _delete_many(self, collection: str, filters: Dict = {}) -> None:
         self.db[collection].delete_many(filters)
@@ -279,6 +281,13 @@ class MongoClient(AbstractDatalakeClient):
 
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
+
+    def raw_aggregate(self, collection: str, raw: str) -> List[Dict]:
+        try:
+            pipeline = json.loads(raw)
+        except json.JSONDecodeError:
+            raise ValueError("Invalid raw pipeline, must be a JSON string")
+        return self._aggregate(collection, pipeline)
 
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         def parse_timestamp(start, end):
