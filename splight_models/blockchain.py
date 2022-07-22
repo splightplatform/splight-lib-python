@@ -1,5 +1,6 @@
 import re
 import json
+from datetime import datetime, timezone
 from typing import Optional, Union
 from pydantic import validator, Json, Field, validator
 from hexbytes import HexBytes
@@ -11,6 +12,7 @@ class BlockchainContractSubscription(SplightBaseModel):
     asset_id: str
     attribute_id: str
     contract_id: str
+    last_checkpoint: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class BlockchainContract(SplightBaseModel):
