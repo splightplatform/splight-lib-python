@@ -66,10 +66,6 @@ class AbstractDatalakeClient(AbstractClient):
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
 
-    @abstractmethod
-    def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
-        pass
-
     @staticmethod
     def json_serial(obj):
         """JSON serializer for objects not serializable by default json code"""

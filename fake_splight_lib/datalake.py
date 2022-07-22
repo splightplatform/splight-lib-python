@@ -181,23 +181,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         logger.debug(f"[FAKED] component {id} size in gb retrieve")
         return {"fake_component_id": 0.555555}
 
-    def get_billing_data(self, collection: str, start: datetime, end: datetime) -> List[Dict]:
-        return [
-            {
-                "_id": "deployment_id",
-                "events": [{
-                    "data": {},
-                    "type": "component_deployment",
-                    "event": "create",
-                    "timestamp": datetime(2020, 1, 1)
-                },{
-                    "data": {},
-                    "type": "component_deployment",
-                    "event": "destroy",
-                    "timestamp": datetime(2020, 1, 2)
-                }]
-            }]
-
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
         _data = self.get(*args, **kwargs)
