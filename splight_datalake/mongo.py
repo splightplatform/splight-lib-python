@@ -64,7 +64,7 @@ class MongoClient(AbstractDatalakeClient):
         )
         return documents
 
-    def _aggregate(self, collection: str, pipeline: List[Dict], tzinfo=timezone(timedelta())) -> List[Dict]:
+    def raw_aggregate(self, collection: str, pipeline: List[Dict], tzinfo=timezone(timedelta())) -> List[Dict]:
         codec_options = CodecOptions(
             tz_aware=True,
             tzinfo=tzinfo
@@ -231,7 +231,7 @@ class MongoClient(AbstractDatalakeClient):
             limit=limit_,
             skip=skip_,
         )
-        result = self._aggregate(
+        result = self.raw_aggregate(
             collection=collection,
             pipeline=pipeline,
             tzinfo=tzinfo
@@ -260,7 +260,7 @@ class MongoClient(AbstractDatalakeClient):
             group_fields=self.__parse_group_fields(group_fields=group_fields),
         )
         pipeline.append({"$count": "count"})
-        result = self._aggregate(
+        result = self.raw_aggregate(
             collection=collection,
             pipeline=pipeline,
             tzinfo=tzinfo
@@ -281,9 +281,6 @@ class MongoClient(AbstractDatalakeClient):
         self._insert_many(collection, data=[d.dict() for d in instances])
         return instances
 
-    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-        return self._aggregate(collection, pipeline)
-
     def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         def parse_timestamp(start, end):
             res = defaultdict(dict)
@@ -297,7 +294,7 @@ class MongoClient(AbstractDatalakeClient):
         size = 0
         component_sizes: Dict[str, float] = defaultdict(lambda: 0)
         for collection in collections:
-            result = self._aggregate(
+            result = self.raw_aggregate(
                 collection=collection,
                 pipeline=[
                     {"$match": parse_timestamp(start, end)},
