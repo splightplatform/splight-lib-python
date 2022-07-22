@@ -1,6 +1,6 @@
 import json
 from django.test import TestCase
-from splight_database.django.djatabase.models.blockchain import BlockchainContract
+from splight_database.django.djatabase.models.blockchain import BlockchainContract, BlockchainContractSubscription
 
 
 class TestBlockchainContract(TestCase):
@@ -15,4 +15,12 @@ class TestBlockchainContract(TestCase):
             abi_json=json.dumps({})
         )
         self.assertIsInstance(contract, BlockchainContract)
+ 
+    def test_create_subscription(self):
+        contract = BlockchainContractSubscription.objects.create(
+            asset_id = "0x1234567894567894567812345678945678945678",
+            attribute_id = "0x1234567894567894567812345678945678945678",
+            contract_id = "0x1234567894567894567812345678945678945678",
+        )
+        self.assertIsInstance(contract, BlockchainContractSubscription)
  

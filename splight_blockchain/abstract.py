@@ -6,7 +6,7 @@ from splight_models.blockchain import CallResponse, Transaction
 class AbstractBlockchainClient(ABC):
 
     @abstractmethod
-    def get_balance(self) -> int:
+    def get_balance(self) -> int: 
         pass
 
     @abstractmethod

@@ -6,6 +6,13 @@ from hexbytes import HexBytes
 from .base import SplightBaseModel
 
 
+class BlockchainContractSubscription(SplightBaseModel):
+    id: Optional[str]
+    asset_id: str
+    attribute_id: str
+    contract_id: str
+
+
 class BlockchainContract(SplightBaseModel):
     id: Optional[str]
     name: str
