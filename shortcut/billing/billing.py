@@ -322,7 +322,8 @@ class BillingGenerator:
         Generates the billing for the month
         Returns the MonthBilling and a list of tuples containing the Billing and the BillingItems
         """
-        logger.debug(f"[BILLING] Generating billing for date {self.date} with billing_settings={self.billing_settings.dict()}")
+        logger.info(f"[BILLING] Generating billing {self.organization_id} with date {self.date}")
+        start_time = time.time()
         billings: List[Tuple[Billing, List[BillingItem]]] = []
         for _, billing_function in self.billing_types.items():
             billings.append(billing_function())
@@ -359,6 +360,8 @@ class BillingGenerator:
             discount_value=float(discount),
             total_price=float(total_price),
         )
+        
+        logger.info(f"[BILLING] Billing generated in {time.time() - start_time} seconds for {self.organization_id}")
         return month_billing, billings
 
     def _delete_monthbilling(self, id: str) -> None:
