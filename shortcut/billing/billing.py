@@ -7,8 +7,9 @@ from typing import Dict
 from decimal import Decimal, ROUND_HALF_UP
 import subprocess
 import pytz
-import logging
+import time
 import jinja2
+from splight_lib.logging import getLogger
 from typing import Optional, List, Tuple
 from splight_models import (
     BillingEvent,
@@ -25,7 +26,7 @@ from splight_lib.datalake import DatalakeClient
 from splight_lib.database import DatabaseClient
 from splight_lib.hub import HubClient
 
-logger = logging.getLogger()
+logger = getLogger()
 
 class PDFGenerationException(Exception):
     pass
@@ -137,6 +138,8 @@ class BillingGenerator:
         if not self.closing_month:
             last_day = self.date
 
+        start = time.time()
+        logger.info(f"Starting billing events query for {self.organization_id} ")
         billing_events: List[Dict] = list(self.datalake_client.raw_aggregate(
             collection = BillingEvent.__name__,
             pipeline = [
@@ -178,7 +181,7 @@ class BillingGenerator:
             }
             ]
         ))
-
+        logger.info(f"Billing events query for {self.organization_id} finished in {time.time() - start} seconds")
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
 
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
