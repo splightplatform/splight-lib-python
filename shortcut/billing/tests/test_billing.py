@@ -19,11 +19,15 @@ class TestBilling(TestCase):
     @parameterized.expand([
         (
             (
-                HubComponent(
-                    name="FakeComponentAlgorithm",
-                    version="0_1",
-                    impact=3
-                )
+                [
+                    [HubComponent(
+                        name="FakeComponentAlgorithm",
+                        version="0_1",
+                        impact=5
+                    )],
+                    [],
+                    [],
+                ]
             ),(
                 [
                     BillingSettings(
@@ -111,7 +115,7 @@ class TestBilling(TestCase):
         ),
     ])
     def test_generate_simple(self, hub_component, billing_settings, billing_events, storage_usage_gb):
-        with patch.object(HubClient, "get", return_value=hub_component):
+        with patch.object(HubClient, "get", side_effect=hub_component):
             with patch.object(DatabaseClient, "get", return_value=billing_settings):
                 with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
@@ -130,7 +134,7 @@ class TestBilling(TestCase):
 
                         storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"]
                         computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
-                        impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component.impact)]
+                        impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0][0].impact)]
                         expected_total_price_without_discount = (computing_price + storage_price) * impact_multiplier
 
                         discount_value = 0
@@ -142,6 +146,8 @@ class TestBilling(TestCase):
                                     discount_value += discount.value * expected_total_price_without_discount / 100
 
                         expected_total_price = max(0, expected_total_price_without_discount - discount_value)
+                        expected_total_price = float(Decimal(expected_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
 
                         self.assertEqual(billing_month.total_price_without_discount, expected_total_price_without_discount)
                         self.assertEqual(billing_month.total_price, expected_total_price)
@@ -155,6 +161,8 @@ class TestBilling(TestCase):
                                 sum_detailed += detail
                         sum = max(0, sum - discount_value)
                         sum_detailed = max(0, sum_detailed - discount_value)
+                        sum = float(Decimal(sum).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+                        sum_detailed = float(Decimal(sum_detailed).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
                         self.assertEqual(sum, expected_total_price)
                         self.assertEqual(sum_detailed, expected_total_price)
                         
@@ -175,21 +183,17 @@ class TestBilling(TestCase):
         (
             (
                 [
-                    HubComponent(
+                    [HubComponent(
                         name="FakeComponentAlgorithm",
                         version="0_1",
                         impact=5
-                    ),
-                    HubComponent(
-                        name="FakeComponentAlgorithm",
-                        version="0_1",
-                        impact=5
-                    ),
-                    HubComponent(
+                    )],
+                    [HubComponent(
                         name="FakeComponentConnector",
                         version="0_1",
                         # no impact, should be treated as default
-                    )
+                    )],
+                    [],
                 ]
             ),(
                 [
@@ -371,7 +375,7 @@ class TestBilling(TestCase):
 
                         fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"] 
                         fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
-                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
+                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0][0].impact)]
                         fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
 
                         # fake connector does not have impact, should be the default
@@ -419,11 +423,13 @@ class TestBilling(TestCase):
         (
             (
                 [
-                    HubComponent(
+                    [HubComponent(
                         name="FakeComponentAlgorithm",
                         version="0_1",
                         impact=5
-                    )
+                    )],
+                    [],
+                    [],
                 ]
             ),(
                 [
@@ -516,7 +522,7 @@ class TestBilling(TestCase):
 
                         fake_algorithm_storage_price = billing_settings.pricing.STORAGE_PRICE_PER_GB * storage_usage_gb["f6c55a58-aa6d-4518-9961-70d30d0cd74c"] 
                         fake_algorithm_computing_price = billing_settings.pricing.COMPUTING_PRICE_PER_HOUR * fake_algorithm_running_hs
-                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0].impact)]
+                        fake_algorithm_impact_multiplier = billing_settings.pricing.IMPACT_MULTIPLIER[str(hub_component[0][0].impact)]
                         fake_algorithm_total_price = (fake_algorithm_storage_price + fake_algorithm_computing_price) * fake_algorithm_impact_multiplier
 
                         expected_total_price_without_discount = float(Decimal(fake_algorithm_total_price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
@@ -558,11 +564,22 @@ class TestBilling(TestCase):
     @parameterized.expand([
         (
             (
-                HubComponent(
-                    name="FakeComponent",
-                    version="0_1",
-                    impact=1
-                )
+                [
+                    [HubComponent(
+                        name="FakeComponentAlgorithm",
+                        version="0_1",
+                        impact=1
+                        )],
+                    [],
+                    [],
+                    [HubComponent(
+                        name="FakeComponentAlgorithm",
+                        version="0_1",
+                        impact=1
+                        )],
+                    [],
+                    []
+                ]
             ),(
                 [
                     BillingSettings(
@@ -617,7 +634,7 @@ class TestBilling(TestCase):
         ),
     ])
     def test_close_month(self, hub_component, billing_settings, billing_events, storage_usage_gb):
-        with patch.object(HubClient, "get", return_value=hub_component):
+        with patch.object(HubClient, "get", side_effect=hub_component):
             with patch.object(DatabaseClient, "get", side_effect=[billing_settings, []]):
                 with patch.object(DatalakeClient, "raw_aggregate", return_value=billing_events):
                     with patch.object(DatalakeClient, "get_components_sizes_gb", return_value=storage_usage_gb):
