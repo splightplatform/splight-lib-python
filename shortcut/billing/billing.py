@@ -179,8 +179,15 @@ class BillingGenerator:
             }
             ]
         ))
-        logger.info(f"Billing events query for {self.organization_id} finished in {time.time() - start} seconds. {len(billing_events)} billing events found.")
-        component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
+        logger.info(f"[BILLING] Billing events query for {self.organization_id} finished in {time.time() - start} seconds. {len(billing_events)} billing events found.")
+        component_billing_dict: defaultdict[str, Dict] = defaultdict(
+            lambda: {
+                "description": "Default description",
+                "computing_price": Decimal(0),
+                "storage_price": Decimal(0),
+                "total_price": Decimal(0),
+            }
+        )
 
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
         storage_price_per_gb: Decimal = Decimal(str(self.billing_settings.pricing.STORAGE_PRICE_PER_GB))
@@ -188,7 +195,7 @@ class BillingGenerator:
         start = time.time()
         logger.info(f"[BILLING] Starting components sizes query for {self.organization_id}")
         component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
-        logger.info(f"Components sizes query for {self.organization_id} finished in {time.time() - start} seconds. {len(component_storage_sizes)} components found.")
+        logger.info(f"[BILLING] Components sizes query for {self.organization_id} finished in {time.time() - start} seconds. {len(component_storage_sizes)} components found.")
 
         impact_multipliers = component_impact_multiplier(self.DEFAULT_COMPONENT_IMPACT)
 
@@ -256,43 +263,31 @@ class BillingGenerator:
             computing_price: Decimal = computing_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
             storage_price: Decimal = storage_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
             underscore_latex_render = "\\_"
-            component_billing_dict[info_event.data['external_id']].append(
-                DeploymentBillingItem(
-                    description=f"{info_event.data['type']} component named {' version '.join(info_event.data['version'].replace('_', underscore_latex_render).split('-'))} with id {info_event.data['external_id']}",
-                    type="deployment",
-                    computing_price=computing_price,
-                    storage_price=storage_price
-                )
-            )
+            component_dict = component_billing_dict[info_event.data['external_id']]
+            component_dict["description"] = f"{info_event.data['type']} component named {' version '.join(info_event.data['version'].replace('_', underscore_latex_render).split('-'))} with id {info_event.data['external_id']}"
+            
+            if self.billing_settings.computing_time_measurement_per_hour:
+                component_dict["computing_price"] += computing_price
+            else:
+                component_dict["computing_price"] = max(component_dict["computing_price"], computing_price)
+            
+            component_dict["storage_price"] = max(component_dict["storage_price"], storage_price)
+            component_dict["total_price"] = Decimal(component_dict["computing_price"] + component_dict["storage_price"])
 
-        # Make all components with the same external_id belong to the same billing item
+            component_dict["computing_price"] = component_dict["computing_price"].quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+            component_dict["storage_price"] = component_dict["storage_price"].quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+            component_dict["total_price"] = component_dict["total_price"].quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+
+            
         billing_items_result: List[DeploymentBillingItem] = []
-        for component_id, billing_items in component_billing_dict.items():
-            total_computing_price: Decimal = Decimal(0)
-            total_storage_price: Decimal = Decimal(0)
-            description = ""
-            for item in billing_items:
-                if self.billing_settings.computing_time_measurement_per_hour:
-                    total_computing_price += Decimal(item.computing_price)
-                else:
-                    total_computing_price = max(total_computing_price, Decimal(item.computing_price))
-
-                total_storage_price = max(total_storage_price, Decimal(item.storage_price)) # Take the highest storage price, should be all the same though
-                description = item.description
-
-            total_price = total_computing_price + total_storage_price
-
-            total_computing_price = total_computing_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
-            total_storage_price = total_storage_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
-            total_price = total_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
-
+        for component_id, billing_item in component_billing_dict.items():
             billing_items_result.append(
                 DeploymentBillingItem(
-                    description=description,
+                    description=billing_item["description"],
                     type="deployment",
-                    computing_price=total_computing_price,
-                    storage_price=total_storage_price,
-                    total_price = total_price
+                    computing_price=billing_item["computing_price"],
+                    storage_price=billing_item["storage_price"],
+                    total_price= billing_item["total_price"],
                 )
             )
 
