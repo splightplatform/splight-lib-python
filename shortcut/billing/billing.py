@@ -20,7 +20,10 @@ from splight_models import (
     MonthBilling,
     DiscountType,
     HubComponent,
-    BillingItem)
+    BillingItem,
+    HubAlgorithm,
+    HubConnector,
+    HubNetwork)
 import splight_models as models
 from splight_lib.datalake import DatalakeClient
 from splight_lib.database import DatabaseClient
@@ -116,30 +119,25 @@ class BillingGenerator:
         Generates the billing for the component deployments
         Returns the Billing and the list of BillingItems
         """
-        def component_impact_multiplier(event: BillingEvent, default_impact: int) -> Decimal:
-            hub_component: Optional[HubComponent] = self.hub_client.get(
-                resource_type=getattr(models, f"Hub{event.data['type']}"),
-                name=event.data["version"].split("-")[0],
-                version=event.data["version"].split("-")[1],
-                first=True
-            )
-            impact: int = default_impact
 
-            # If component still exists in hub
-            if hub_component:
-                # If component has impact defined
-                if hub_component.impact:
-                    impact = hub_component.impact
-
-            impact_multiplier: Decimal = Decimal(str(self.billing_settings.pricing.IMPACT_MULTIPLIER[str(impact)]))
-            return impact_multiplier
+        def component_impact_multiplier(default_impact: int) -> List[Dict]:
+            component_types = [HubAlgorithm, HubConnector, HubNetwork]
+            hub_components = []
+            for type in component_types:
+                hub_components.extend(self.hub_client.get(resource_type=type))
+            default_impact_multiplier = Decimal(str(self.billing_settings.pricing.IMPACT_MULTIPLIER[str(default_impact)]))
+            components = defaultdict(lambda: default_impact_multiplier)
+            for component in hub_components:
+                if component.impact:
+                    components[f"{component.name}-{component.version}"] = Decimal(str(self.billing_settings.pricing.IMPACT_MULTIPLIER[str(component.impact)]))
+            return components
 
         first_day, last_day = self._month_first_last_day(self.date)
         if not self.closing_month:
             last_day = self.date
 
         start = time.time()
-        logger.info(f"Starting billing events query for {self.organization_id} ")
+        logger.info(f"[BILLING] Starting billing events query for {self.organization_id} ")
         billing_events: List[Dict] = list(self.datalake_client.raw_aggregate(
             collection = BillingEvent.__name__,
             pipeline = [
@@ -181,13 +179,18 @@ class BillingGenerator:
             }
             ]
         ))
-        logger.info(f"Billing events query for {self.organization_id} finished in {time.time() - start} seconds")
+        logger.info(f"Billing events query for {self.organization_id} finished in {time.time() - start} seconds. {len(billing_events)} billing events found.")
         component_billing_dict: defaultdict[str, List[DeploymentBillingItem]] = defaultdict(lambda: [])
 
         computing_price_per_hour: Decimal = Decimal(str(self.billing_settings.pricing.COMPUTING_PRICE_PER_HOUR))
         storage_price_per_gb: Decimal = Decimal(str(self.billing_settings.pricing.STORAGE_PRICE_PER_GB))
 
+        start = time.time()
+        logger.info(f"[BILLING] Starting components sizes query for {self.organization_id}")
         component_storage_sizes: Dict[str, float] = self.datalake_client.get_components_sizes_gb(start=first_day, end=last_day)
+        logger.info(f"Components sizes query for {self.organization_id} finished in {time.time() - start} seconds. {len(component_storage_sizes)} components found.")
+
+        impact_multipliers = component_impact_multiplier(self.DEFAULT_COMPONENT_IMPACT)
 
         for billing_data in billing_events:
             events = billing_data["events"]
@@ -215,6 +218,7 @@ class BillingGenerator:
                 start.timestamp = max(first_day, start.timestamp)
                 info_event = start
             else:
+                # Should never get in here because of the DL query
                 logger.warning(f"[WARNING] Found deployment with more than 2 BillingEvents: {events}. Unexpected behavior. Billing dates may not be accurate.")
                 data = {
                     "id": deployment_id,
@@ -235,7 +239,7 @@ class BillingGenerator:
                 )
                 info_event = start
 
-            impact_multiplier = component_impact_multiplier(info_event, self.DEFAULT_COMPONENT_IMPACT)
+            impact_multiplier = impact_multipliers[info_event.data["version"]]
             storage_used_in_gb: Decimal = Decimal(component_storage_sizes.get(info_event.data["external_id"], 0))
             duration: timedelta = end.timestamp - start.timestamp
             duration_in_hours: Decimal = Decimal(str(duration.total_seconds() / 3600))
@@ -360,8 +364,8 @@ class BillingGenerator:
             discount_value=float(discount),
             total_price=float(total_price),
         )
-        
-        logger.info(f"[BILLING] Billing generated in {time.time() - start_time} seconds for {self.organization_id}")
+
+        logger.info(f"[BILLING] Billing generated in {time.time() - start_time} seconds for {self.organization_id}. Total price: {month_billing.total_price}")
         return month_billing, billings
 
     def _delete_monthbilling(self, id: str) -> None:
