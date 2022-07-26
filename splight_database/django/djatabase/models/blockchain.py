@@ -1,6 +1,8 @@
+from datetime import datetime
 import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from .namespace import NamespaceAwareModel
 
 
 class BlockchainContract(models.Model):
@@ -16,3 +18,13 @@ class BlockchainContract(models.Model):
             if isinstance(value, uuid.UUID):
                 data[key] = str(value)
         return data
+
+
+class BlockchainContractSubscription(NamespaceAwareModel):
+    asset_id = models.CharField(null=True, max_length=100)
+    attribute_id = models.CharField(null=True, max_length=100)
+    contract_id = models.CharField(null=True, max_length=100)
+    last_checkpoint = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("attribute_id", "asset_id", "contract_id")

@@ -29,9 +29,10 @@ from .djatabase.models import (
     Tag as DBTag,
     ValueMapping as DBValueMapping,
     BlockchainContract as DBBlockchainContract,
+    BlockchainContractSubscription as DBBlockchainContractSubscription,
 )
 from client import validate_instance_type, validate_resource_type
-from splight_models.query import QuerySet
+
 
 CLASSMAP = {
     Algorithm: DBAlgorithm,
@@ -60,6 +61,7 @@ CLASSMAP = {
     Tag: DBTag,
     ValueMapping: DBValueMapping,
     BlockchainContract: DBBlockchainContract,
+    BlockchainContractSubscription: DBBlockchainContractSubscription,
 }
 
 
