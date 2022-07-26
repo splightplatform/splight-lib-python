@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from .base import SplightBaseModel
 
 
@@ -20,7 +20,6 @@ class Node(SplightBaseModel):
     position_y: int
     width: str
     height: str
-    handle_orientation: str
 
 class Edge(SplightBaseModel):
     id: Optional[str]
@@ -30,3 +29,5 @@ class Edge(SplightBaseModel):
     source_id: str
     target_id: str
     color: str
+    source_handle: str
+    target_handle: str
