@@ -1,11 +1,11 @@
-from datetime import datetime
-import uuid
-from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.db import models
 from .namespace import NamespaceAwareModel
+from .delete import LogicalDeleteModel
+import uuid
 
 
-class BlockchainContract(models.Model):
+class BlockchainContract(LogicalDeleteModel):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100, null=True, blank=True)

@@ -12,7 +12,12 @@ class AbstractDatabaseClient(AbstractClient):
         pass
 
     @abstractmethod
-    def _get(self, resource_type: Type, first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             first: bool = False,
+             limit_: int = -1,
+             skip_: int = 0,
+             deleted: bool = False,
+             **kwargs) -> List[BaseModel]:
         pass
 
     def get(self, *args, **kwargs) -> QuerySet:
