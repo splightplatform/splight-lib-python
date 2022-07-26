@@ -17,7 +17,6 @@ class Node(NamespaceAwareModel):
     position_x = models.IntegerField(default=0)
     width = models.CharField(max_length=50, null=True, blank=True)
     height = models.CharField(max_length=50, null=True, blank=True)
-    handle_orientation = models.CharField(max_length=100, default=None, null=True)
 
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, related_name='nodes')
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
@@ -37,6 +36,8 @@ class Edge(NamespaceAwareModel):
     source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='outgoing_edges')
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='incoming_edges')
     color = models.CharField(max_length=100, default=None, null=True)
+    source_handle = models.CharField(max_length=50, default=None, null=True)
+    target_handle = models.CharField(max_length=50, default=None, null=True)
 
     def save(self, *args, **kwargs):
         if self.graph.locked:
