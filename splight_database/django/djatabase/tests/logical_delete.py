@@ -2,7 +2,7 @@ from django.test import TestCase
 from splight_database.django.djatabase.models import Asset
 
 
-class TestAlgorithm(TestCase):
+class TestLogicalDelete(TestCase):
     def setUp(self) -> None:
         return super().setUp()
 
