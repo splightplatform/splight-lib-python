@@ -91,12 +91,14 @@ class DjangoClient(AbstractDatabaseClient):
              first: bool = False,
              limit_: int = -1,
              skip_: int = 0,
+             deleted: bool = False,
              **kwargs) -> List[BaseModel]:
         """
         Valid filtering options fields or fields with __in
         """
         obj_class = CLASSMAP[resource_type]
         kwargs = self._validated_kwargs(resource_type, **kwargs)
+        kwargs['deleted'] = deleted
         if hasattr(obj_class, "namespace"):
             kwargs["namespace"] = self.namespace
         queryset = obj_class.objects.filter(**kwargs).distinct()
@@ -126,4 +128,5 @@ class DjangoClient(AbstractDatabaseClient):
         filters = {"id": id}
         if hasattr(obj_class, "namespace"):
             filters["namespace"] = self.namespace
-        obj_class.objects.filter(**filters).delete()
+        for obj in obj_class.objects.filter(**filters):
+            obj.delete()
