@@ -1,5 +1,6 @@
-import uuid
 from django.db import models
+from .delete import LogicalDeleteModel
+import uuid
 
 
 class CrossNamespaceTryException(Exception):
@@ -10,7 +11,7 @@ class CrossNamespaceTryException(Exception):
         super().__init__(message, *args, **kwargs)
 
 
-class Namespace(models.Model):
+class Namespace(LogicalDeleteModel):
     id = models.CharField(max_length=255, primary_key=True, default="default")
     environment = models.JSONField(default=dict)
 
@@ -18,7 +19,7 @@ class Namespace(models.Model):
         return self.__dict__
 
 
-class NamespaceAwareModel(models.Model):
+class NamespaceAwareModel(LogicalDeleteModel):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     namespace = models.ForeignKey(Namespace, on_delete=models.CASCADE, default=None, null=True, blank=True)
 

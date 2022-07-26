@@ -1,10 +1,12 @@
 from django.db import models
 from model_utils.managers import InheritanceManager
+from requests import delete
 from .exception import CyclicReference, InvalidReference
 from ..connector import Connector
 from ..namespace import NamespaceAwareModel
 from ..asset import Asset, Attribute
 from django.db.models import Q
+from django.db.utils import IntegrityError
 
 
 class Mapping(NamespaceAwareModel):
@@ -18,10 +20,14 @@ class ValueMapping(Mapping):
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="value_mappings")
     value = models.CharField(max_length=40)
 
-    class Meta:
-        unique_together = ("attribute", "asset",)
-
     def save(self, *args, **kwargs):
+        if ValueMapping.objects.filter(
+            asset=self.asset,
+            attribute=self.attribute,
+            deleted=False
+        ).exclude(id=self.id).exists():
+            raise IntegrityError
+
         validate_unique_mapping(self, *args, **kwargs)
         super(ValueMapping, self).save(*args, **kwargs)
 
@@ -32,10 +38,13 @@ class ReferenceMapping(Mapping):
     ref_asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="references")
     ref_attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="references")
 
-    class Meta:
-        unique_together = ("attribute", "asset",)
-
     def save(self, *args, **kwargs):
+        if ReferenceMapping.objects.filter(
+            asset=self.asset,
+            attribute=self.attribute,
+            deleted=False
+        ).exclude(id=self.id).exists():
+            raise IntegrityError
         # Prevent to create cyclic
         if ReferenceMapping.objects.filter(
             asset=self.ref_asset,
@@ -55,10 +64,14 @@ class ClientMapping(Mapping):
     path = models.CharField(max_length=300, null=True)
     period = models.IntegerField(default=5000)
 
-    class Meta:
-        unique_together = ("attribute", "asset",)
-
     def save(self, *args, **kwargs):
+        if ClientMapping.objects.filter(
+            asset=self.asset,
+            attribute=self.attribute,
+            deleted=False
+        ).exclude(id=self.id).exists():
+            raise IntegrityError
+
         validate_unique_mapping(self, *args, **kwargs)
         super(ClientMapping, self).save(*args, **kwargs)
 
@@ -69,14 +82,15 @@ class ServerMapping(Mapping):
     connector = models.ForeignKey(Connector, on_delete=models.CASCADE, related_name='smappings', null=True)
     path = models.CharField(max_length=300, null=True)
 
+
 def validate_unique_mapping(self, *args, **kwargs):
     mapping_types = [ClientMapping, ValueMapping, ReferenceMapping]
     mappings = []
     for mapping_type in mapping_types:
         if self.__class__ == mapping_type:
-            mappings.append(mapping_type.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute).exists())
+            mappings.append(mapping_type.objects.filter(~Q(id=self.id), asset=self.asset, attribute=self.attribute, deleted=False).exists())
         else:
-            mappings.append(mapping_type.objects.filter(asset=self.asset, attribute=self.attribute).exists())
+            mappings.append(mapping_type.objects.filter(asset=self.asset, attribute=self.attribute, deleted=False).exists())
     if any(mappings):
         raise ValueError("A mapping already exists for this asset and attribute")
 
