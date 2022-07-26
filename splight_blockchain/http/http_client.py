@@ -1,5 +1,6 @@
 from eth_account import Account
 from hexbytes import HexBytes
+from retry import retry
 from web3 import Web3
 from web3.contract import ContractFunction
 from web3.middleware import geth_poa_middleware
@@ -34,8 +35,6 @@ class HTTPClient(AbstractBlockchainClient):
         self._connection.middleware_onion.inject(
             geth_poa_middleware, layer=self._POA_MIDDLEWARE_LAYER
         )
-        if not self._connection.isConnected():
-            raise ProviderConnectionError
 
         self._account_address = account
         self._signing_account = Account.from_key(
@@ -54,6 +53,7 @@ class HTTPClient(AbstractBlockchainClient):
         )
 
     @property
+    @retry(tries=3, delay=1, jitter=1)
     def _nonce(self):
         return self._connection.eth.get_transaction_count(
             self._signing_account.address
@@ -65,9 +65,11 @@ class HTTPClient(AbstractBlockchainClient):
     def from_ether(self, amount: float):
         return self._connection.fromWei(amount, "ether")
 
+    @retry(tries=3, delay=1, jitter=1)
     def get_balance(self):
         return self._connection.eth.get_balance(self._account_address)
 
+    @retry(tries=3, delay=1, jitter=1)
     def call(self, method: str, *args) -> CallResponse:
 
         if not self._contract:
@@ -81,6 +83,7 @@ class HTTPClient(AbstractBlockchainClient):
     
         return CallResponse(name=method, value=output)
 
+    @retry(tries=3, delay=1, jitter=1)
     def transact(self, method: str, *args, **kwargs) -> Transaction:
         if not self._contract:
             raise ContractNotLoaded()
@@ -134,6 +137,7 @@ class HTTPClient(AbstractBlockchainClient):
             raise TransactionError(tx_hash.hex())
         return Transaction.parse_obj(tx_receipt)
 
+    @retry(tries=3, delay=1, jitter=1)
     def get_transaction(self, tx_hash: HexBytes) -> Transaction:
         """Gets the receipt of a transaction
 
