@@ -21,13 +21,6 @@ class ValueMapping(Mapping):
     value = models.CharField(max_length=40)
 
     def save(self, *args, **kwargs):
-        if ValueMapping.objects.filter(
-            asset=self.asset,
-            attribute=self.attribute,
-            deleted=False
-        ).exclude(id=self.id).exists():
-            raise IntegrityError
-
         validate_unique_mapping(self, *args, **kwargs)
         super(ValueMapping, self).save(*args, **kwargs)
 
@@ -38,14 +31,7 @@ class ReferenceMapping(Mapping):
     ref_asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="references")
     ref_attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="references")
 
-    def save(self, *args, **kwargs):
-        if ReferenceMapping.objects.filter(
-            asset=self.asset,
-            attribute=self.attribute,
-            deleted=False
-        ).exclude(id=self.id).exists():
-            raise IntegrityError
-        # Prevent to create cyclic
+    def save(self, *args, **kwargs):        # Prevent to create cyclic
         if ReferenceMapping.objects.filter(
             asset=self.ref_asset,
             attribute=self.ref_attribute,
@@ -65,13 +51,6 @@ class ClientMapping(Mapping):
     period = models.IntegerField(default=5000)
 
     def save(self, *args, **kwargs):
-        if ClientMapping.objects.filter(
-            asset=self.asset,
-            attribute=self.attribute,
-            deleted=False
-        ).exclude(id=self.id).exists():
-            raise IntegrityError
-
         validate_unique_mapping(self, *args, **kwargs)
         super(ClientMapping, self).save(*args, **kwargs)
 
@@ -92,7 +71,7 @@ def validate_unique_mapping(self, *args, **kwargs):
         else:
             mappings.append(mapping_type.objects.filter(asset=self.asset, attribute=self.attribute, deleted=False).exists())
     if any(mappings):
-        raise ValueError("A mapping already exists for this asset and attribute")
+        raise IntegrityError("A mapping already exists for this asset and attribute")
 
 
 __all__ = ["Mapping",
