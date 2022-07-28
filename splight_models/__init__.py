@@ -5,6 +5,7 @@ from .billing import *
 from .blockchain import *
 from .runner import *
 from .channel import *
+from .credential import *
 from .hub import *
 from .deployment import *
 from .graph import *
@@ -19,5 +20,6 @@ from .tag import *
 from .rule import *
 from .storage import *
 from .dashboard import *
+from .user_activity import *
 from .variable import *
 from .value import *
