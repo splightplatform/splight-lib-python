@@ -5,7 +5,6 @@ from .billing import *
 from .blockchain import *
 from .runner import *
 from .channel import *
-from .credential import *
 from .hub import *
 from .deployment import *
 from .graph import *
