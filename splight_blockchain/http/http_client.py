@@ -95,27 +95,27 @@ class HTTPClient(AbstractBlockchainClient):
         output = _transact(*args, **kwargs)
         return output
 
-    def _mint(self, amount: int, metadata: str = "") -> Transaction:
+    def _mint(self, amount: str, metadata: str = "") -> Transaction:
         function = self._contract.functions.mintFrom(
             self._account_address,
-            amount,
+            int(amount),
             metadata
         )
         return self._sign_and_send_transaction(function)
 
-    def _burn(self, amount: int, metadata: str = "") -> Transaction:
+    def _burn(self, amount: str, metadata: str = "") -> Transaction:
         function = self._contract.functions.burnFrom(
             self._account_address,
-            amount,
+            int(amount),
             metadata
         )
         return self._sign_and_send_transaction(function)
 
-    def _transfer(self, dst_address: str, amount: int) -> Transaction:
+    def _transfer(self, dst_address: str, amount: str) -> Transaction:
         function = self._contract.functions.transferFrom(
             self._account_address,
             dst_address,
-            amount
+            int(amount)
         )
         return self._sign_and_send_transaction(function)
 
