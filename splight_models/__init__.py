@@ -19,5 +19,6 @@ from .tag import *
 from .rule import *
 from .storage import *
 from .dashboard import *
+from .user_activity import *
 from .variable import *
 from .value import *
