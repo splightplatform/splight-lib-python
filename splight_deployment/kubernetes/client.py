@@ -14,8 +14,7 @@ from splight_models import Deployment, Namespace
 from splight_deployment.abstract import AbstractDeploymentClient
 from .exceptions import MissingTemplate
 from client import validate_instance_type, validate_resource_type
-from pprint import pprint as print
-
+from splight_models.query import QuerySet
 logger = logging.getLogger(__name__)
 
 
@@ -133,13 +132,22 @@ class KubernetesClient(AbstractDeploymentClient):
             return self._create_namespace(instance)
 
     @validate_resource_type
-    def get(self, resource_type: Type, id: str = '', first=False, **kwargs) -> List[BaseModel]:
+    def _get(self, resource_type: Type,
+             id: str = '',
+             first=False,
+             limit_: int = -1,
+             skip_: int = 0,
+             **kwargs) -> List[BaseModel]:
+
         if resource_type == Deployment:
             result: List[Deployment] = self._get_deployment(id=id)
         elif resource_type == Namespace:
             result: List[Namespace] = self._get_namespace(id=id)
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         result = self._filter(result, **kwargs)
+        if limit_ != -1:
+            result = result[skip_:skip_ + limit_]
+
         if first:
             return result[0] if result else None
         return result

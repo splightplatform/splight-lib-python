@@ -4,9 +4,9 @@ import os
 import json
 from collections import defaultdict
 from collections.abc import MutableMapping
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
-from typing import Dict, List, Type, Any
+from typing import Dict, List, Type, Any, Union
 from splight_models import Variable, VariableDataFrame
 from splight_datalake.abstract import AbstractDatalakeClient
 from splight_lib import logging
@@ -145,24 +145,41 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return filters
 
-    def get(self,
-            resource_type: Type,
-            collection: str = "default",
-            limit_: int = 100,
-            skip_: int = 0,
-            group_id: List = [],
-            group_fields: List = [],
-            tzinfo: timezone = None,
-            **kwargs) -> List[BaseModel]:
+    def _get(self,
+             resource_type: Type,
+             collection: str = 'default',
+             limit_: int = 50,
+             skip_: int = 0,
+             sort: Union[List, str] = ['timestamp__desc'],
+             group_id: Union[List, str] = [],
+             group_fields: Union[List, str] = [],
+             tzinfo: timezone = None,
+             **kwargs) -> List[BaseModel]:
 
         if group_id or group_fields or tzinfo:
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
         result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-        if limit_ == 0:
+
+        if limit_ == -1:
             return result[skip_:]
 
         return result[skip_:skip_ + limit_]
+
+    def count(self,
+              resource_type: Type,
+              collection: str = "default",
+              group_id: List = [],
+              group_fields: List = [],
+              tzinfo: timezone = None,
+              **kwargs) -> List[BaseModel]:
+
+        if group_id or group_fields or tzinfo:
+            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
+
+        result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
+
+        return len(result)
 
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
@@ -183,6 +200,9 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             _data.columns = [col.replace("args.", "") for col in _data.columns]
         return _data
 
+    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
+        raise NotImplementedError
+        
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
         logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
         variables = [
