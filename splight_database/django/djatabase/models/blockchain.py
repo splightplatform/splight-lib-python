@@ -31,7 +31,7 @@ class BlockchainContractSubscription(NamespaceAwareModel):
         if BlockchainContractSubscription.objects.filter(asset_id=self.asset_id,
                                                          attribute_id=self.attribute_id,
                                                          contract_id=self.contract_id,
-                                                         deleted=False):
+                                                         deleted=False).exclude(id=self.id):
             raise IntegrityError
 
         return super().save(*args, **kwargs)
