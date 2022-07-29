@@ -1,6 +1,5 @@
 from django.db import models
 from model_utils.managers import InheritanceManager
-from requests import delete
 from .exception import CyclicReference, InvalidReference
 from ..connector import Connector
 from ..namespace import NamespaceAwareModel
