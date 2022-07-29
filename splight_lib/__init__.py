@@ -1,12 +1,14 @@
 from .settings import (
-    setup,
+    splight_settings,
+    splight_configure,
     SplightSettings,
     DEFAULTS,
     IMPORT_STRINGS,
 )
 
 __all__ = [
-    'setup',
+    'splight_settings',
+    'splight_configure',
     'SplightSettings',
     'DEFAULTS',
     'IMPORT_STRINGS',

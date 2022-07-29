@@ -16,19 +16,19 @@ from splight_lib.shortcut import (
     save_file as _save_file,
     notify as _notify
 )
-from splight_lib.settings import setup
+from splight_lib.settings import splight_settings
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.logging import logging
 from splight_models.notification import Notification
 
 
-DatabaseClient = setup.DATABASE_CLIENT
-DatalakeClient = setup.DATALAKE_CLIENT
-DeploymentClient = setup.DEPLOYMENT_CLIENT
-NotificationClient = setup.NOTIFICATION_CLIENT
-StorageClient = setup.STORAGE_CLIENT
-InternalCommunicationClient = setup.INTERNAL_COMMUNICATION_CLIENT
-ExternalCommunicationClient = setup.EXTERNAL_COMMUNICATION_CLIENT
+DatabaseClient = splight_settings.DATABASE_CLIENT
+DatalakeClient = splight_settings.DATALAKE_CLIENT
+DeploymentClient = splight_settings.DEPLOYMENT_CLIENT
+NotificationClient = splight_settings.NOTIFICATION_CLIENT
+StorageClient = splight_settings.STORAGE_CLIENT
+InternalCommunicationClient = splight_settings.INTERNAL_COMMUNICATION_CLIENT
+ExternalCommunicationClient = splight_settings.EXTERNAL_COMMUNICATION_CLIENT
 
 
 logger = logging.getLogger()

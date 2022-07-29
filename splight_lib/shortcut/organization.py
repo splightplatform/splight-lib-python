@@ -1,10 +1,10 @@
 from splight_models.namespace import Namespace
 from splight_lib import logging
-from splight_lib.settings import setup
+from splight_lib.settings import splight_settings
 
 
-DatabaseClient = setup.DATABASE_CLIENT
-DeploymentClient = setup.DEPLOYMENT_CLIENT
+DatabaseClient = splight_settings.DATABASE_CLIENT
+DeploymentClient = splight_settings.DEPLOYMENT_CLIENT
 logger = logging.getLogger()
 
 

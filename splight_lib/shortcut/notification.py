@@ -1,11 +1,11 @@
 from splight_models import *
 from splight_lib import logging
-from splight_lib.settings import setup
+from splight_lib.settings import splight_settings
 
 
-NotificationClient = setup.NOTIFICATION_CLIENT
-DatalakeClient = setup.DATALAKE_CLIENT
-DatabaseClient = setup.DATABASE_CLIENT
+NotificationClient = splight_settings.NOTIFICATION_CLIENT
+DatalakeClient = splight_settings.DATALAKE_CLIENT
+DatabaseClient = splight_settings.DATABASE_CLIENT
 logger = logging.getLogger()
 
 

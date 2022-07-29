@@ -3,7 +3,6 @@ import os, sys
 TESTING = "test" in sys.argv or "pytest" in sys.argv
 SPLIGHT_HOME = os.path.join(os.getenv('HOME'), '.splight')
 USE_TZ = True
-## EOTODO
 
 """
 Settings for SPLIGHT framework are all namespaced in the SPLIGHT_FRAMEWORK setting.
@@ -13,7 +12,7 @@ SPLIGHT_FRAMEWORK = {
     'DEFAULT_DATABASE_CLIENT': 'splight_lib.database.FakeDatabaseClient'
 }
 
-This module provides the `setup` object, that is used to access
+This module provides the `splight_settings` object, that is used to access
 SPLIGHT framework settings, checking for user settings first, then falling
 back to the defaults.
 """
@@ -23,7 +22,6 @@ import sys
 
 
 DEFAULTS = {
-    'AUTH_CLIENT': 'fake_splight_lib.auth.FakeAuthClient',
     'BLOCKCHAIN_CLIENT': 'fake_splight_lib.blockchain.FakeBlockchainClient',
     'DATABASE_CLIENT': 'fake_splight_lib.database.FakeDatabaseClient',
     'DATALAKE_CLIENT': 'fake_splight_lib.datalake.FakeDatalakeClient',
@@ -34,13 +32,12 @@ DEFAULTS = {
     'HUB_CLIENT': 'fake_splight_lib.hub.FakeHubClient',
     'INTERNAL_COMMUNICATION_CLIENT': 'fake_splight_lib.communication.FakeCommunicationClient',
     'EXTERNAL_COMMUNICATION_CLIENT': 'fake_splight_lib.communication.FakeCommunicationClient',
-    'DATABASE_CLASSMAP': None
+    'DATABASE_CLASSMAP': 'algo'
 }
 
 
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = [
-    'AUTH_CLIENT',
     'BLOCKCHAIN_CLIENT',
     'DATABASE_CLIENT',
     'DATALAKE_CLIENT',
@@ -101,24 +98,20 @@ def import_from_string(val, setting_name):
 class SplightSettings:
     def __init__(self, user_settings=None, defaults=None, import_strings=None):
         if user_settings:
-            self._user_settings = user_settings
+            self._user_settings = self.__check_user_settings(user_settings)
         self.defaults = defaults or DEFAULTS
         self.import_strings = import_strings or IMPORT_STRINGS
         self._cached_attrs = set()
         self._user_settings = {}
-        self._configured = False
 
     @property
     def user_settings(self):
         return self._user_settings
-    
-    @property
-    def configured(self):
-        return self._configured
 
     def __getattr__(self, attr):
         if attr not in self.defaults:
             raise AttributeError("Invalid API setting: '%s'" % attr)
+
         try:
             # Check if present in user settings
             val = self.user_settings[attr]
@@ -135,13 +128,18 @@ class SplightSettings:
         setattr(self, attr, val)
         return val
 
-    def configure(self, user_setttings={}):
+    def __check_user_settings(self, user_settings):
+        return user_settings
+
+    def reload(self, user_setttings={}):
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
         if user_setttings:
             self._user_settings = user_setttings
-        self._configured = True
 
 
-setup = SplightSettings(None, DEFAULTS, IMPORT_STRINGS)
+splight_settings = SplightSettings(None, DEFAULTS, IMPORT_STRINGS)
+
+def splight_configure(settings_dict):
+    splight_settings.reload(user_setttings=settings_dict)

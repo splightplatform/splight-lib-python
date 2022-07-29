@@ -2,13 +2,13 @@ from typing import List, Any, Union, Optional
 from pydantic import BaseModel
 from splight_models import *
 from splight_lib import logging
-from splight_lib.settings import setup
+from splight_lib.settings import splight_settings
 from .exceptions import ShortcutException
 
 
-ExternalCommunicationClient = setup.EXTERNAL_COMMUNICATION_CLIENT
-DatalakeClient = setup.DATALAKE_CLIENT
-DatabaseClient = setup.DATABASE_CLIENT
+ExternalCommunicationClient = splight_settings.EXTERNAL_COMMUNICATION_CLIENT
+DatalakeClient = splight_settings.DATALAKE_CLIENT
+DatabaseClient = splight_settings.DATABASE_CLIENT
 
 logger = logging.getLogger()
 
