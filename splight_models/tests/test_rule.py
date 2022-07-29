@@ -1,8 +1,13 @@
 from parameterized import parameterized
 from unittest import TestCase
 from splight_models.rule import AlgorithmRule, RuleVariable, MappingRule
-from splight_database.django.djatabase.models.notification import (
-    INFO, GREATER_THAN, GREATER_THAN_OR_EQUAL, LOWER_THAN, LOWER_THAN_OR_EQUAL, EQUAL)
+from splight_models.notification import (
+    INFO, GREATER_THAN,
+    GREATER_THAN_OR_EQUAL,
+    LOWER_THAN,
+    LOWER_THAN_OR_EQUAL,
+    EQUAL
+)
 
 
 class TestAlgorithmRule(TestCase):

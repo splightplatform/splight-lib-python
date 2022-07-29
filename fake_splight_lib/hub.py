@@ -1,9 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Type
-from splight_hub.abstract import AbstractHubClient
 from splight_lib import logging
 from splight_models import *
-from client import validate_resource_type
+from splight_abstract import AbstractHubClient, validate_resource_type
 
 
 logger = logging.getLogger()

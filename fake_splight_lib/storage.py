@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, Type, List
 from splight_lib import logging
 from splight_models.storage import StorageFile
-from splight_storage.abstract import AbstractStorageClient
+from splight_abstract import AbstractStorageClient
 from splight_lib.settings import SPLIGHT_HOME
 
 

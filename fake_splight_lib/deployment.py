@@ -1,11 +1,13 @@
 from pydantic import BaseModel
 import uuid
 from typing import List, Type, Optional
-from splight_deployment.abstract import AbstractDeploymentClient
 from splight_models import Deployment, Namespace
 from splight_lib import logging
-from client import validate_instance_type, validate_resource_type
-import random
+from splight_abstract import (
+    AbstractDeploymentClient,
+    validate_instance_type,
+    validate_resource_type
+)
 logger = logging.getLogger()
 
 
