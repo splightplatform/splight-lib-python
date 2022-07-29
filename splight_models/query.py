@@ -32,9 +32,6 @@ class QuerySet(UserList):
                 old_limit_ = self._kwargs["limit_"]
                 limit_ = min(limit_, old_limit_)
 
-            print("skip", skip_)
-            print("limit", limit_)
-
             kwargs = {
                 **self._kwargs
             }
