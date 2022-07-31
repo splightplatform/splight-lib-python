@@ -13,7 +13,7 @@ from collections import defaultdict
 from client import validate_resource_type
 from splight_datalake.settings import setup
 from splight_lib import logging
-from splight_models import Variable, VariableDataFrame, Notification, BillingEvent
+from splight_models import Variable, VariableDataFrame, Notification, BillingEvent, UserActivity
 from .abstract import AbstractDatalakeClient
 from splight_models.query import QuerySet
 
@@ -35,7 +35,7 @@ ALGORITHM_DAG_COLLECTION = 'algorithm_dag'
 
 
 class MongoClient(AbstractDatalakeClient):
-    valid_classes: List[Type] = [Variable, Notification, BillingEvent]
+    valid_classes: List[Type] = [Variable, Notification, BillingEvent, UserActivity]
     operation_map: Dict[str, str] = {
         'eq': '$eq',
         'in': '$in',
