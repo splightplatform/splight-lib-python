@@ -272,4 +272,4 @@ class FakeAuthClient(AbstractClient):
         self.profile = FakeProfile()
         self.role = FakeRoles()
         self.user = FakeUsers()
-        self.organization = FakeOrganizations()
+        self.organization = FakeOrganization()
