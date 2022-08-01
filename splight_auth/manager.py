@@ -1,5 +1,7 @@
 from requests import Session
 
+from client import AbstractClient
+
 from .endpoints.endpoint import (
     Credentials,
     Organizations,
@@ -17,8 +19,9 @@ class MethodNotAllowed(Exception):
         return self._msg
 
 
-class AuthClient:
+class AuthClient(AbstractClient):
     def __init__(self, url: str, headers):
+        super().__init__()
         self._url = url
 
         session = Session()
