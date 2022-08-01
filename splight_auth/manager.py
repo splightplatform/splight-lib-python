@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from requests import Session
 
 from client import AbstractClient
@@ -20,12 +22,33 @@ class MethodNotAllowed(Exception):
 
 
 class AuthClient(AbstractClient):
-    def __init__(self, url: str, headers):
+    """Class responsible for interacting with a Auth API.
+
+    Attributes
+    ----------
+    credentials
+    profile
+    role
+    user
+    organization
+    """
+
+    def __init__(self, url: str, headers: Optional[Dict[str, str]] = None):
+        """Class constructor
+
+        Parameters
+        ----------
+        url : str
+            The URL for the Auth API.
+        headers : Optional[Dict[str, str]]
+            A dict with the headers to be used in the requests to the Auth API
+        """
         super().__init__()
         self._url = url
 
         session = Session()
-        session.headers.update(headers)
+        if headers:
+            session.headers.update(headers)
         self.credentials = Credentials(base_url=self._url, session=session)
         self.profile = Profile(base_url=self._url, session=session)
         self.role = Roles(base_url=self._url, session=session)
