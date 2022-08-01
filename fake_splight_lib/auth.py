@@ -197,10 +197,10 @@ class FakeUsers:
         )
 
     def retrieve(self, resource_id: str):
-        return self.FAKE_USER_0
+        return (self.FAKE_USER_0, 200)
 
     def users_update(self, resource_id: str, data: Dict[str, Any]):
-        return self.FAKE_USER_1
+        return (self.FAKE_USER_1, 200)
 
     def users_create(self, data: Dict[str, Any]):
         return (
@@ -261,6 +261,20 @@ class FakeOrganization:
                 ],
             },
             200,
+        )
+
+    def retrieve(self, resource_id: str):
+        return (
+            {
+                "id": "org_HhMefMw2ioFGDJqw",
+                "name": "integration_splight",
+                "display_name": "Integration_splight",
+                "metadata": {
+                    "billing_id": None,
+                    "blockchain_id": None,
+                },
+            },
+            200
         )
 
 

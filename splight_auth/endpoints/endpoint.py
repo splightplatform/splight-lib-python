@@ -90,7 +90,7 @@ class Profile(BaseEndpoint, ListMixin, UpdateMixin):
         return self._put(url=url, data=data)
 
 
-class Organizations(BaseEndpoint, ListMixin):
+class Organizations(BaseEndpoint, ListMixin, RetrieveMixin):
     PATH = "/organizations/"
 
 
