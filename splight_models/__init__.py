@@ -24,4 +24,4 @@ from .user import Organization, OrganizationMetadata, User
 from .value import *
 from .variable import *
 
-__all__ = [User, Organization, OrganizationMetadata]
+__all__ = ["User", "Organization", "OrganizationMetadata"]
