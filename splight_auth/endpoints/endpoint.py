@@ -13,31 +13,26 @@ class BaseEndpoint:
 
     def _get(self, url: str):
         response = self._session.get(url)
-        response.raise_for_status()
         content = response.json() if response.content else None
         return content, response.status_code
 
     def _post(self, url: str, data: Dict):
         response = self._session.post(url, json=data)
-        response.raise_for_status()
         content = response.json() if response.content else None
         return content, response.status_code
 
     def _put(self, url: str, data: Dict):
         response = self._session.put(url, json=data)
-        response.raise_for_status()
         content = response.json() if response.content else None
         return content, response.status_code
 
     def _patch(self, url: str, data: Dict):
         response = self._session.patch(url, json=data)
-        response.raise_for_status()
         content = response.json() if response.content else None
         return content, response.status_code
 
     def _delete(self, url: str):
         response = self._session.delete(url)
-        response.raise_for_status()
         content = response.json() if response.content else None
         return content, response.status_code
 
