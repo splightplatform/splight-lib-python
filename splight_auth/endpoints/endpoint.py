@@ -97,7 +97,7 @@ class Users(BaseEndpoint, ListMixin, RetrieveMixin, CreateMixin, UpdateMixin):
     PATH = "users/"
 
 
-class SuperAdmin(BaseEndpoint, UpdateMixin):
+class SuperAdmin(BaseEndpoint):
     PATH = "superadmin/"
 
     def update_superset_organization(
