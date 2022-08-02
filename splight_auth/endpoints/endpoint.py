@@ -6,7 +6,7 @@ from requests import Session
 class BaseEndpoint:
     def __init__(self, base_url: str, session: Session):
         # Making sure url endswith /
-        self._base_url = base_url if base_url.endswith("/") else base_url
+        self._base_url = base_url if base_url.endswith("/") else f"{base_url}/"
         self._session = session
 
         self._url = f"{self._base_url}{self.PATH}"
