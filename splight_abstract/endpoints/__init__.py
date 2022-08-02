@@ -1,5 +1,4 @@
 from typing import Any, Dict
-
 from requests import Session
 
 
@@ -63,45 +62,3 @@ class DestroyMixin:
     def destroy(self, resource_id: str):
         url = f"{self._url}{resource_id}/"
         return self._delete(url=url)
-
-
-class Credentials(BaseEndpoint, ListMixin, CreateMixin, DestroyMixin):
-    PATH = "credentials/"
-
-
-class Profile(BaseEndpoint, ListMixin, UpdateMixin):
-    PATH = "me/"
-
-    def organization(self):
-        url = f"{self._url}get_organization/"
-        return self._get(url)
-
-    def update_profile(self, data: Dict[str, Any]):
-        url = f"{self._url}set_profile/"
-        return self._put(url=url, data=data)
-
-    def update_organization(self, data: Dict[str, Any]):
-        url = f"{self._url}set_organization_metadata/"
-        return self._put(url=url, data=data)
-
-
-class Organizations(BaseEndpoint, ListMixin, RetrieveMixin):
-    PATH = "organizations/"
-
-
-class Roles(BaseEndpoint, ListMixin, RetrieveMixin):
-    PATH = "roles/"
-
-
-class Users(BaseEndpoint, ListMixin, RetrieveMixin, CreateMixin, UpdateMixin):
-    PATH = "users/"
-
-
-class SuperAdmin(BaseEndpoint):
-    PATH = "superadmin/"
-
-    def update_superset_organization(
-        self, data: Dict[str, Any]
-    ):
-        url = f"{self._url}superset_organization_metadata/"
-        return self._patch(url=url, data=data)

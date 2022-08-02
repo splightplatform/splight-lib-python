@@ -22,6 +22,7 @@ import sys
 
 
 DEFAULTS = {
+    'AUTH_CLIENT': 'fake_splight_lib.auth.FakeAuthClient',
     'BLOCKCHAIN_CLIENT': 'fake_splight_lib.blockchain.FakeBlockchainClient',
     'DATABASE_CLIENT': 'fake_splight_lib.database.FakeDatabaseClient',
     'DATALAKE_CLIENT': 'fake_splight_lib.datalake.FakeDatalakeClient',
@@ -38,6 +39,7 @@ DEFAULTS = {
 
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = [
+    'AUTH_CLIENT',
     'BLOCKCHAIN_CLIENT',
     'DATABASE_CLIENT',
     'DATALAKE_CLIENT',
