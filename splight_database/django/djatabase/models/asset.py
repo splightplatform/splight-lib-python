@@ -29,7 +29,7 @@ class Attribute(NamespaceAwareModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if Attribute.objects.filter(name=self.name, namespace=self.namespace):
+        if Attribute.objects.filter(name=self.name, namespace=self.namespace, deleted=False).exclude(id=self.id):
             raise DuplicatedAttribute
         if self.name in [field.name for field in Asset._meta.fields]:
             raise AttributeError(f'Attribute name "{self.name}" is reserved')

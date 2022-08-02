@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from django.db.utils import IntegrityError
 from django.db import models
 from .namespace import NamespaceAwareModel
 from .delete import LogicalDeleteModel
@@ -26,5 +27,11 @@ class BlockchainContractSubscription(NamespaceAwareModel):
     contract_id = models.CharField(null=True, max_length=100)
     last_checkpoint = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("attribute_id", "asset_id", "contract_id")
+    def save(self, *args, **kwargs):
+        if BlockchainContractSubscription.objects.filter(asset_id=self.asset_id,
+                                                         attribute_id=self.attribute_id,
+                                                         contract_id=self.contract_id,
+                                                         deleted=False).exclude(id=self.id):
+            raise IntegrityError
+
+        return super().save(*args, **kwargs)
