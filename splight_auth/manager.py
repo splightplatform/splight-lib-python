@@ -9,6 +9,7 @@ from .endpoints.endpoint import (
     Organizations,
     Profile,
     Roles,
+    SuperAdmin,
     Users,
 )
 
@@ -54,3 +55,4 @@ class AuthClient(AbstractClient):
         self.role = Roles(base_url=self._url, session=session)
         self.user = Users(base_url=self._url, session=session)
         self.organization = Organizations(base_url=self._url, session=session)
+        self.superadmin = SuperAdmin(base_url=self._url, session=session)
