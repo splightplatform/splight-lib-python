@@ -278,6 +278,24 @@ class FakeOrganization:
         )
 
 
+class FakeSuperAdmin:
+    def update_superset_organization(
+        self, data: Dict[str, Any]
+    ):
+        return (
+            {
+                "id": "org_fGMkta1hcU4NWkp1",
+                "name": "splight",
+                "display_name": "Splight",
+                "metadata": {
+                    "billing_id": "123",
+                    "blockchain_id": "0xcCd6872568009c5669fc699098a4373171C905B6"
+                }
+            },
+            200
+        )
+
+
 class FakeAuthClient(AbstractClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -287,3 +305,4 @@ class FakeAuthClient(AbstractClient):
         self.role = FakeRoles()
         self.user = FakeUsers()
         self.organization = FakeOrganization()
+        self.superadmin = FakeSuperAdmin()
