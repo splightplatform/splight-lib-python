@@ -66,11 +66,11 @@ class DestroyMixin:
 
 
 class Credentials(BaseEndpoint, ListMixin, CreateMixin, DestroyMixin):
-    PATH = "/credentials/"
+    PATH = "credentials/"
 
 
 class Profile(BaseEndpoint, ListMixin, UpdateMixin):
-    PATH = "/me/"
+    PATH = "me/"
 
     def organization(self):
         url = f"{self._url}get_organization/"
@@ -86,12 +86,22 @@ class Profile(BaseEndpoint, ListMixin, UpdateMixin):
 
 
 class Organizations(BaseEndpoint, ListMixin, RetrieveMixin):
-    PATH = "/organizations/"
+    PATH = "organizations/"
 
 
 class Roles(BaseEndpoint, ListMixin, RetrieveMixin):
-    PATH = "/roles/"
+    PATH = "roles/"
 
 
 class Users(BaseEndpoint, ListMixin, RetrieveMixin, CreateMixin, UpdateMixin):
-    PATH = "/users/"
+    PATH = "users/"
+
+
+class SuperAdmin(BaseEndpoint, UpdateMixin):
+    PATH = "superadmin/"
+
+    def update_superset_organization(
+        self, data: Dict[str, Any]
+    ):
+        url = f"{self._url}superset_organization_metadata/"
+        return self._patch(url=url, data=data)
