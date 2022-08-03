@@ -22,15 +22,15 @@ class FakeBillingClient(AbstractBillingClient):
     def save(self, instance: BaseModel) -> BaseModel:
         logger.debug(f"[FAKED] Executing save with {type(instance)}")
         if type(instance) == MonthBilling:
-            fake_id = "in_" + uuid.uuid4()
+            fake_id = "in_" + str(uuid.uuid4())
             fake_invoice_pdf = "https://fakeurl.com/abc.pdf"
-            fake_invoice_hosted_url = "https://fakehost.com/pay"
+            fake_hosted_invoice_url = "https://fakehost.com/pay"
             instance.id = fake_id
             instance.invoice_pdf = fake_invoice_pdf
-            instance.invoice_hosted_url = fake_invoice_hosted_url
+            instance.hosted_invoice_url = fake_hosted_invoice_url
             self.database[MonthBilling].append(instance)
         elif type(instance) == DeploymentBillingItem:
-            fake_id = "ii_" + uuid.uuid4()
+            fake_id = "ii_" + str(uuid.uuid4())
             instance.id = fake_id
         return instance
 

@@ -27,6 +27,7 @@ from splight_models import (
 import splight_models as models
 from splight_lib.datalake import DatalakeClient
 from splight_lib.database import DatabaseClient
+from splight_lib.billing import BillingClient
 from splight_lib.hub import HubClient
 
 logger = getLogger()
@@ -40,7 +41,7 @@ class MonthBillingNotFoundException(Exception):
 class BillingGenerator:
     DEFAULT_COMPONENT_IMPACT: int = os.getenv("DEFAULT_COMPONENT_IMPACT", 1)
 
-    def __init__(self, organization_id: str, date: datetime = None):
+    def __init__(self, organization_id: str, date: datetime = None, billing_id: str = "default"):
         """
         Initializes the billing generator.
         args:
@@ -79,6 +80,7 @@ class BillingGenerator:
 
         self.datalake_client: DatalakeClient = DatalakeClient(self.organization_id)
         self.database_client: DatabaseClient = DatabaseClient(self.organization_id)
+        self.billing_client: BillingClient = BillingClient(self.organization_id, billing_id)
         self.hub_client: HubClient = HubClient(token=f"Splight {os.getenv('BOT_HUB_ACCESS_ID')} {os.getenv('BOT_HUB_SECRET_KEY')}", namespace=self.organization_id)
 
         self.billing_settings: BillingSettings = BillingGenerator.get_billing_settings(self.date)
@@ -381,23 +383,29 @@ class BillingGenerator:
         Generates and saves the month billing and regarding data to the database.
         """
         logger.debug(f"[BILLING] Closing month {self.date}")
-        self.closing_month=True
-        month_billing, billings = self.generate()
+        pending_items = self.billing_client.get(DeploymentBillingItem, pending_=True)
+        if pending_items:
+            logger.error(f"There are pending items. Aborting for {self.organization_id}.")
+            return
 
-        # Check if previous billing exists for the month
-        previous_month_billings = self.database_client.get(MonthBilling, month=month_billing.month)
-        for prev_month in previous_month_billings:
-            logger.debug(f"[BILLING] Previous billing exists for month {prev_month.month}")
-            self._delete_monthbilling(prev_month.id)
+        self.closing_month = True
+        billing_month, billings = self.generate()
+        self.closing_month = False
 
-        month_billing = self.database_client.save(month_billing)
-        for billing, items in billings:
-            billing.month_billing_id = month_billing.id
-            saved_billing = self.database_client.save(billing)
-            for item in items:
-                item.billing_id = saved_billing.id
-                self.database_client.save(item)
-        self.closing_month=False
+        try:
+            logger.info(f"Saving invoice month for organization: {self.organization_id}...")
+            billing_month = self.billing_client.save(billing_month)
+
+            logger.info(f"Saving invoice items for organization: {self.organization_id}...")
+            for billing, billing_items in billings:
+                for billing_item in billing_items:
+                    billing_item.month_billing_id = billing_month.id
+                    self.billing_client.save(billing_item)
+        except Exception as e:
+            logger.error(f"Error while saving invoice for organization: {self.organization_id}")
+            logger.exception(e)
+            if billing_month.id:
+                self.billing_client.delete(MonthBilling, billing_month.id)
 
     def generate_pdf(self, month_billing_id: str) -> bytes:
         month_billing: MonthBilling = self.database_client.get(resource_type=MonthBilling, id=month_billing_id, first=True)
