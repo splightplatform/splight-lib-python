@@ -18,18 +18,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='algorithm',
-            name='privacy_policy',
-            field=models.CharField(blank=True, max_length=100, null=True),
-        ),
-        migrations.AddField(
-            model_name='algorithm',
             name='sub_algorithms',
             field=models.ManyToManyField(blank=True, to='djatabase.Algorithm'),
-        ),
-        migrations.AddField(
-            model_name='algorithm',
-            name='tenant',
-            field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='mappingrule',

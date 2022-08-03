@@ -18,6 +18,10 @@ class Runner(SplightBaseModel):
     parameters: List[Parameter] = []
     readme_url: Optional[str]
 
+    @property
+    def collection(self):
+        return 'default'
+
 
 class Algorithm(Runner):
     asset_id: Optional[str] = None

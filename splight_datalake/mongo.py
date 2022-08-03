@@ -78,9 +78,6 @@ class MongoClient(AbstractDatalakeClient):
         )
         return documents
 
-    def delete_many(self, collection: str, **kwargs):
-        self._delete_many(collection, self.__parse_filters(**kwargs))
-
     def _delete_many(self, collection: str, filters: Dict = {}) -> None:
         self.db[collection].delete_many(filters)
 

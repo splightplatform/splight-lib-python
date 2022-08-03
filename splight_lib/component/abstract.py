@@ -161,21 +161,18 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
                 continue
             handler(variables)
 
-    def get_history(self, asset_id: str, attribute_ids: List[str], **kwargs) -> VariableDataFrame:
-        if not (self.instance.asset and self.instance.asset.id == asset_id):
-            raise ValueError(f'{asset_id} does not belong to {str(self.managed_class)}:{self.collection_name}')
-        return self.datalake_client.get_dataframe(
-            resource_type=Variable,
-            asset_id=asset_id,
-            attribute_id__in=attribute_ids,
-            **kwargs)
+    def get_history(self, asset_id: Optional[str] = None, algorithm_id: Optional[str] = None,
+                    attribute_ids: Optional[List[str]] = None, **kwargs) -> VariableDataFrame:
 
-    def get_result_history(self, algorithm_id: str, **kwargs) -> VariableDataFrame:
+        if asset_id:
+            kwargs["asset_id"] = asset_id
+        if algorithm_id:
+            # todo, change this when the cli upload object instead of basic types.
+            kwargs["collection"] = algorithm_id
+        if attribute_ids:
+            kwargs["attribute_ids"] = attribute_ids
 
-        return self.datalake_client.get_dataframe(
-            resource_type=Variable,
-            collection=algorithm_id,
-            **kwargs)
+        return self.datalake_client.get_dataframe(resource_type=Variable, **kwargs)
 
     def save_results(self, data: VariableDataFrame) -> None:
         self.datalake_client.save_dataframe(data, collection=self.collection_name)

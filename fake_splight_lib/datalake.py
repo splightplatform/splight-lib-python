@@ -108,12 +108,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         ]
         self._write_to_collection('default', data)
 
-    def delete_many(self, collection: str, **kwargs):
-        filters = self._parse_filters(**kwargs)
-        values: List[Dict] = self._read_from_collection(collection)
-        values = [v for v in values if not all(f(v) for f in filters)]
-        self._write_to_collection(collection, values, 'write')
-
     def _find(self, collection: str, filters: List = [], **kwargs) -> List[Dict]:
         values: List[Dict] = self._read_from_collection(collection)
         values = [v for v in values if all(f(v) for f in filters)]

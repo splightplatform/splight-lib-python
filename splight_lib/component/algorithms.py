@@ -1,7 +1,6 @@
 
 from .abstract import AbstractComponent
 from splight_models import Algorithm
-from splight_models import VariableDataFrame, Variable
 
 
 class AbstractAlgorithmComponent(AbstractComponent):
