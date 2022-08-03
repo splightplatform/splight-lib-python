@@ -34,8 +34,3 @@ class Network(Runner):
 
 class Connector(Runner):
     pass
-
-
-class A2ADepencies(SplightBaseModel):
-    algorithm: str
-    dependency: str

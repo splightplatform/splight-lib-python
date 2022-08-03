@@ -122,10 +122,7 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
         _parameters = self._spec.parameters
         for p in _parameters:
             name = p.name
-            if p.type == 'Algorithm':
-                value = self.database_client.get(resource_type=Algorithm, id=p.value, first=True)
-            else:
-                value = p.value
+            value = p.value
             setattr(self, name, value)
 
     @property
@@ -171,6 +168,13 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             resource_type=Variable,
             asset_id=asset_id,
             attribute_id__in=attribute_ids,
+            **kwargs)
+
+    def get_result_history(self, algorithm_id: str, **kwargs) -> VariableDataFrame:
+
+        return self.datalake_client.get_dataframe(
+            resource_type=Variable,
+            collection=algorithm_id,
             **kwargs)
 
     def save_results(self, data: VariableDataFrame) -> None:

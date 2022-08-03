@@ -31,9 +31,6 @@ def flatten_dict(d, parent_key='', sep='__'):
     return dict(items)
 
 
-ALGORITHM_DAG_COLLECTION = 'algorithm_dag'
-
-
 class MongoClient(AbstractDatalakeClient):
     valid_classes: List[Type] = [Variable, Notification, BillingEvent, UserActivity]
     operation_map: Dict[str, str] = {
@@ -226,13 +223,6 @@ class MongoClient(AbstractDatalakeClient):
              group_fields: Union[List, str] = [],
              tzinfo: timezone = timezone(timedelta()),
              **kwargs) -> List[BaseModel]:
-
-        if self.collection and (collection not in ('default', self.collection)):
-            # check if collection has permission.
-            if not self.db[ALGORITHM_DAG_COLLECTION].find_one(
-                {'dependency': collection, 'algorithm': self.collection}
-            ):
-                raise ValueError(f'{collection} is not sub algorithm of {self.collection}')
 
         instance_kwargs = self._validated_kwargs(resource_type, **kwargs)
         sort = [sort] if isinstance(sort, str) else sort
