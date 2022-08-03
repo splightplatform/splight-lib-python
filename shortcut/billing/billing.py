@@ -262,9 +262,8 @@ class BillingGenerator:
 
             computing_price: Decimal = computing_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
             storage_price: Decimal = storage_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
-            underscore_latex_render = "\\_"
             component_dict = component_billing_dict[info_event.data['external_id']]
-            component_dict["description"] = f"{info_event.data['type']} component named {' version '.join(info_event.data['version'].replace('_', underscore_latex_render).split('-'))} with id {info_event.data['external_id']}"
+            component_dict["description"] = f"{info_event.data['type']} component named {' version '.join(info_event.data['version'].split('-'))} with id {info_event.data['external_id']}"
             
             if self.billing_settings.computing_time_measurement_per_hour:
                 component_dict["computing_price"] += computing_price

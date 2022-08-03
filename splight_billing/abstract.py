@@ -14,8 +14,11 @@ class AbstractBillingClient(AbstractClient):
              first: bool = False,
              limit_: int = -1,
              skip_: int = 0,
+             pending_: bool = False,
              **kwargs) -> List[BaseModel]:
         pass
 
     def get(self, *args, **kwargs) -> QuerySet:
         return QuerySet(self, *args, **kwargs)
+
+    

@@ -9,6 +9,7 @@ class BillingItem(SplightBaseModel):
     Eg. DeploymentBillingItems
     """
     id: Optional[str]
+    month_billing_id: Optional[str]
     billing_id: Optional[str]
     description: str = "Default description"
     total_price: float = 0.0
