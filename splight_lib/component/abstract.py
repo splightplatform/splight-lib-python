@@ -1,24 +1,35 @@
 import sys
 import time
+import json
+from abc import ABCMeta
 from typing import Optional, Type, List, Dict
 from tempfile import NamedTemporaryFile
-from abc import ABCMeta
-import json
-from splight_lib.database import DatabaseClient
-from splight_lib.datalake import DatalakeClient
-from splight_lib.deployment import DeploymentClient
-from splight_lib.notification import NotificationClient
-from splight_lib.storage import StorageClient
-from splight_lib.communication import (
-    InternalCommunicationClient,
-    ExternalCommunicationClient,
-)
-from splight_lib.execution import Thread, ExecutionClient
-from splight_lib.shortcut import save_file as _save_file
-from splight_lib.logging import logging
-from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
-from splight_models.storage import StorageFile
 from functools import wraps
+from splight_models import (
+    Message,
+    VariableDataFrame,
+    Variable,
+    Deployment,
+    StorageFile,
+)
+from splight_lib.shortcut import (
+    save_file as _save_file,
+    notify as _notify
+)
+from splight_lib.settings import setup
+from splight_lib.execution import Thread, ExecutionClient
+from splight_lib.logging import logging
+from splight_models.notification import Notification
+
+
+DatabaseClient = setup.DATABASE_CLIENT
+DatalakeClient = setup.DATALAKE_CLIENT
+DeploymentClient = setup.DEPLOYMENT_CLIENT
+NotificationClient = setup.NOTIFICATION_CLIENT
+StorageClient = setup.STORAGE_CLIENT
+InternalCommunicationClient = setup.INTERNAL_COMMUNICATION_CLIENT
+ExternalCommunicationClient = setup.EXTERNAL_COMMUNICATION_CLIENT
+
 
 logger = logging.getLogger()
 
@@ -171,6 +182,28 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
     def save_results(self, data: VariableDataFrame) -> None:
         self.datalake_client.save_dataframe(data, collection=self.collection_name)
 
-    def save_file(self, filename: str, prefix: Optional[str],
-                  asset_id: Optional[str], attribute_id: Optional[str], path: str, args: Dict) -> StorageFile:
-        return _save_file(self.storage_client, self.datalake_client, filename, prefix, asset_id, attribute_id, path, args)
+    def save_file(self,
+                  filename: str,
+                  prefix: Optional[str],
+                  asset_id: Optional[str],
+                  attribute_id: Optional[str],
+                  path: str,
+                  args: Dict) -> StorageFile:
+        return _save_file(
+            self.storage_client,
+            self.datalake_client,
+            filename,
+            prefix,
+            asset_id,
+            attribute_id,
+            path,
+            args
+        )
+
+    def notify(self, notification: Notification):
+        return _notify(
+            notification=notification,
+            database_client=self.database_client,
+            notification_client=self.notification_client,
+            datalake_client=self.datalake_client,
+        )

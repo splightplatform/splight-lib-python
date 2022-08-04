@@ -1,4 +1,4 @@
-from splight_notification.abstract import AbstractNotificationClient
+from splight_abstract import AbstractNotificationClient
 from splight_models import Notification
 from splight_lib import logging
 

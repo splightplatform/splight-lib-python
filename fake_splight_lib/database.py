@@ -1,12 +1,16 @@
 import uuid
 from pydantic import BaseModel
 from typing import List, Type
-from splight_database.abstract import AbstractDatabaseClient
+from splight_abstract import (
+    AbstractDatabaseClient,
+    validate_instance_type,
+    validate_resource_type
+)
 from splight_lib import logging
 from typing import Dict
 from splight_models import *
 from collections import defaultdict
-from client import validate_instance_type, validate_resource_type
+
 
 logger = logging.getLogger()
 
@@ -40,6 +44,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Edge,
         BlockchainContract,
         BlockchainContractSubscription,
+        DeploymentBillingItem,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
