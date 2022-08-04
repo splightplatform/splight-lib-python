@@ -11,16 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='algorithm',
-            name='asset',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='asset_algorithms', to='djatabase.asset'),
-        ),
-        migrations.AddField(
-            model_name='algorithm',
-            name='sub_algorithms',
-            field=models.ManyToManyField(blank=True, to='djatabase.Algorithm'),
-        ),
         migrations.AlterField(
             model_name='mappingrule',
             name='operator',

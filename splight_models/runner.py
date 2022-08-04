@@ -24,8 +24,6 @@ class Runner(SplightBaseModel):
 
 
 class Algorithm(Runner):
-    asset_id: Optional[str] = None
-    sub_algorithms: List[Any] = []
 
     @property
     def collection(self):

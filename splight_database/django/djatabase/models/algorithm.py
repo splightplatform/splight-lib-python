@@ -9,5 +9,4 @@ class Algorithm(NamespaceAwareModel):
     description = models.CharField(max_length=100, null=True, blank=True)
     version = models.CharField(max_length=100, null=True, blank=True)
     parameters = models.JSONField()
-    sub_algorithms = models.ManyToManyField('Algorithm', blank=True)
-    asset = models.ForeignKey(Asset, on_delete=models.SET_NULL, null=True, related_name="asset_algorithms")
+    readme_url = models.URLField(max_length=200, null=True, blank=True)
