@@ -101,7 +101,7 @@ def import_from_string(val, setting_name):
 class SplightSettings:
     def __init__(self, user_settings=None, defaults=None, import_strings=None):
         if user_settings:
-            self._user_settings = self.__check_user_settings(user_settings)
+            self._user_settings = user_settings
         self.defaults = defaults or DEFAULTS
         self.import_strings = import_strings or IMPORT_STRINGS
         self._cached_attrs = set()
@@ -111,6 +111,10 @@ class SplightSettings:
     @property
     def user_settings(self):
         return self._user_settings
+    
+    @property
+    def configured(self):
+        return self._configured
 
     def __getattr__(self, attr):
         if attr not in self.defaults:
@@ -131,12 +135,7 @@ class SplightSettings:
         setattr(self, attr, val)
         return val
 
-    def __check_user_settings(self, user_settings):
-        return user_settings
-
     def configure(self, user_setttings={}):
-        if self._configured:
-            raise RuntimeError('Splight settings already configured.')
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
