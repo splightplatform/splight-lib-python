@@ -5,10 +5,8 @@ from requests import Session
 class BaseEndpoint:
     def __init__(self, base_url: str, session: Session):
         self._session = session
-        # TODO fix this with something more appropiate
-        # Making sure url endswith /
-        self._base_url = base_url if base_url.endswith("/") else f"{base_url}/"
-        self._url = f"{self._base_url}{self.PATH.strip('/')}"
+        self._base_url = base_url
+        self._url = f"{self._base_url.strip('/')}/{self.PATH.strip('/')}/"
 
     def _get(self, url: str):
         response = self._session.get(url)
