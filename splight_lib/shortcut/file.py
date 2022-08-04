@@ -2,12 +2,12 @@ import os
 from typing import Optional
 from splight_models import *
 from splight_lib import logging
-from splight_lib.settings import splight_settings
+from splight_lib.settings import setup
 
 
 COLLECTION = 'files'
-DatalakeClient = splight_settings.DATALAKE_CLIENT
-StorageClient = splight_settings.STORAGE_CLIENT
+DatalakeClient = setup.DATALAKE_CLIENT
+StorageClient = setup.STORAGE_CLIENT
 logger = logging.getLogger()
 
 
