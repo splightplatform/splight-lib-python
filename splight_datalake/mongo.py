@@ -48,7 +48,6 @@ class MongoClient(AbstractDatalakeClient):
             connection = f'{connection}:{setup["PORT"]}'
         client = PyMongoClient(connection)
         self.db = client[self.namespace]
-        self.collection = kwargs.get('collection')
 
     def _find(self, collection: str, filters: Dict = None, tzinfo=timezone(timedelta()), **kwargs) -> List[Dict]:
         codec_options = CodecOptions(
