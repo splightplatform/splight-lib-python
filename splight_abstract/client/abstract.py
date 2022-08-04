@@ -95,13 +95,19 @@ class QuerySet(UserList):
     def __getitem__(self, i):
         if self._cached_results:
             return self._cached_results[i]
-
         if isinstance(i, slice):
+            skip_ = self._kwargs.get("skip_", 0) + i.start
+
+            limit_ = i.stop - i.start
+            if "limit_" in self._kwargs:
+                old_limit_ = self._kwargs["limit_"]
+                limit_ = min(limit_, old_limit_)
+
             kwargs = {
-                "skip_": i.start,
-                "limit_": i.stop - i.start,
                 **self._kwargs
             }
+            kwargs["skip_"] = skip_
+            kwargs["limit_"] = limit_
             return QuerySet(self._client, *self._args, **kwargs)
         else:
             return self.data[i]

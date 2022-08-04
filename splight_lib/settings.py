@@ -3,6 +3,7 @@ import os, sys
 TESTING = "test" in sys.argv or "pytest" in sys.argv
 SPLIGHT_HOME = os.path.join(os.getenv('HOME'), '.splight')
 USE_TZ = True
+## EOTODO
 
 """
 Settings for SPLIGHT framework are all namespaced in the SPLIGHT_FRAMEWORK setting.
@@ -33,7 +34,7 @@ DEFAULTS = {
     'HUB_CLIENT': 'fake_splight_lib.hub.FakeHubClient',
     'INTERNAL_COMMUNICATION_CLIENT': 'fake_splight_lib.communication.FakeCommunicationClient',
     'EXTERNAL_COMMUNICATION_CLIENT': 'fake_splight_lib.communication.FakeCommunicationClient',
-    'DATABASE_CLASSMAP': 'algo'
+    'DATABASE_CLASSMAP': None
 }
 
 
