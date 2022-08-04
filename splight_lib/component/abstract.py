@@ -16,7 +16,7 @@ from splight_lib.communication import (
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.shortcut import save_file as _save_file
 from splight_lib.logging import logging
-from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner, Algorithm
+from splight_models import Message, VariableDataFrame, Variable, Deployment, Runner
 from splight_models.storage import StorageFile
 from functools import wraps
 
