@@ -9,6 +9,7 @@ from pathlib import Path
 from jinja2 import Template
 from typing import List, Type, Optional
 
+
 from pyparsing import Opt
 from splight_models import Deployment, Namespace
 from splight_deployment.abstract import AbstractDeploymentClient
@@ -16,6 +17,33 @@ from .exceptions import MissingTemplate
 from client import validate_instance_type, validate_resource_type
 from splight_models.query import QuerySet
 logger = logging.getLogger(__name__)
+
+
+CONTAINER_CAPACITIES = [{
+        "cpu_limit": 1,
+        "memory_limit": "750Mi",
+        "cpu_requested": 0.5,
+        "memory_requested": "500Mi",
+    },
+    {
+        "cpu_limit": 3,
+        "memory_limit": "6000Mi",
+        "cpu_requested": 2,
+        "memory_requested": "4000Mi",
+    },
+    {
+        "cpu_limit": 5,
+        "memory_limit": "10000Mi",
+        "cpu_requested": 4,
+        "memory_requested": "8000Mi",
+    },
+    {
+        "cpu_limit": 5,
+        "memory_limit": "20000Mi",
+        "cpu_requested": 4,
+        "memory_requested": "16000Mi",
+    }
+]
 
 
 class KubernetesClient(AbstractDeploymentClient):
@@ -51,6 +79,9 @@ class KubernetesClient(AbstractDeploymentClient):
     def _get_run_spec(self, instance: Deployment):
         return instance.json()
 
+    def _get_run_capacity(self, instance: Deployment):
+        return CONTAINER_CAPACITIES[instance.component_capacity]
+
     def _get_template(self, name) -> Template:
         template_path = os.path.join(self.TEMPLATES_FOLDER, f"{name}.yaml")
         if not os.path.exists(template_path):
@@ -79,6 +110,7 @@ class KubernetesClient(AbstractDeploymentClient):
             service=self._get_service_name(instance),
             dockerimg=self._get_docker_image(instance),
             run_spec=self._get_run_spec(instance),
+            **self._get_run_capacity(instance),
             **instance.dict()
         )
         self._apply_yaml(spec)
