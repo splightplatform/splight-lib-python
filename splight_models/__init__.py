@@ -14,7 +14,6 @@ from .message import *
 from .namespace import *
 from .network import *
 from .notification import *
-from .query import *
 from .tag import *
 from .rule import *
 from .runner import *
