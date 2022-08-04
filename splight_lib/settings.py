@@ -13,7 +13,7 @@ SPLIGHT_FRAMEWORK = {
     'DEFAULT_DATABASE_CLIENT': 'splight_lib.database.FakeDatabaseClient'
 }
 
-This module provides the `splight_settings` object, that is used to access
+This module provides the `setup` object, that is used to access
 SPLIGHT framework settings, checking for user settings first, then falling
 back to the defaults.
 """
@@ -106,6 +106,7 @@ class SplightSettings:
         self.import_strings = import_strings or IMPORT_STRINGS
         self._cached_attrs = set()
         self._user_settings = {}
+        self._configured = False
 
     @property
     def user_settings(self):
@@ -114,7 +115,6 @@ class SplightSettings:
     def __getattr__(self, attr):
         if attr not in self.defaults:
             raise AttributeError("Invalid API setting: '%s'" % attr)
-
         try:
             # Check if present in user settings
             val = self.user_settings[attr]
@@ -134,15 +134,15 @@ class SplightSettings:
     def __check_user_settings(self, user_settings):
         return user_settings
 
-    def reload(self, user_setttings={}):
+    def configure(self, user_setttings={}):
+        if self._configured:
+            raise RuntimeError('Splight settings already configured.')
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
         if user_setttings:
             self._user_settings = user_setttings
+        self._configured = True
 
 
-splight_settings = SplightSettings(None, DEFAULTS, IMPORT_STRINGS)
-
-def splight_configure(settings_dict):
-    splight_settings.reload(user_setttings=settings_dict)
+setup = SplightSettings(None, DEFAULTS, IMPORT_STRINGS)

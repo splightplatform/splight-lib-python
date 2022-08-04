@@ -1,10 +1,10 @@
 from splight_models import *
 from splight_lib import logging
-from splight_lib.settings import splight_settings
+from splight_lib.settings import setup
 
 
-DatalakeClient = splight_settings.DATALAKE_CLIENT
-DatabaseClient = splight_settings.DATABASE_CLIENT
+DatalakeClient = setup.DATALAKE_CLIENT
+DatabaseClient = setup.DATABASE_CLIENT
 logger = logging.getLogger()
 
 

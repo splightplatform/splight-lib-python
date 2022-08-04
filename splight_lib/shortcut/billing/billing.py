@@ -23,12 +23,12 @@ from splight_models import (
     HubConnector,
     HubNetwork)
 from splight_lib import logging
-from splight_lib.settings import splight_settings
+from splight_lib.settings import setup
 
 
-HubClient = splight_settings.HUB_CLIENT
-DatalakeClient = splight_settings.DATALAKE_CLIENT
-DatabaseClient = splight_settings.DATABASE_CLIENT
+HubClient = setup.HUB_CLIENT
+DatalakeClient = setup.DATALAKE_CLIENT
+DatabaseClient = setup.DATABASE_CLIENT
 
 logger = logging.getLogger()
 
