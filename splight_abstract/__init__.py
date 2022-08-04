@@ -1,3 +1,4 @@
+from .auth import AbstractAuthClient
 from .notification import *
 from .blockchain import *
 from .cache import *
