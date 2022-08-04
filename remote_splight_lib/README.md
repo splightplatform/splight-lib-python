@@ -12,6 +12,6 @@ token = SplightAPIToken(access_key, secret_key)
 client = SplightAPIClient(url, auth_token=token)
 
 # list algorithms
-response = client.algorithm.list()
-print(response.json())
+algorithms = client.algorithm.list()
+print(algorithms)
 ```
