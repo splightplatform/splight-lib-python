@@ -8,7 +8,7 @@ from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
 from splight_models import Variable, VariableDataFrame
-from splight_datalake.abstract import AbstractDatalakeClient
+from splight_abstract import AbstractDatalakeClient
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
 

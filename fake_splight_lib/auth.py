@@ -1,6 +1,5 @@
 from typing import Any, Dict
-
-from client import AbstractClient
+from splight_abstract.client import AbstractClient
 
 
 class FakeCredentials:

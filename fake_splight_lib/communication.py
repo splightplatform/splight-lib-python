@@ -1,5 +1,5 @@
 import logging
-from splight_communication.abstract import AbstractCommunication
+from splight_abstract import AbstractCommunication
 from datetime import date, datetime
 
 
@@ -16,17 +16,17 @@ def json_serial(obj):
         return obj.isoformat()
     raise TypeError ("Type %s not serializable" % type(obj))
 
-class FakeQueueCommunication(AbstractCommunication):
+class FakeCommunicationClient(AbstractCommunication):
     logger = logging.getLogger()
 
     def __init__(self, *args, **kwargs):
         self.topic = "default"
 
     def send(self, data: dict) -> None:
-        self.logger.debug(f"FakeQueueCommunication Sent data: {data}")
+        self.logger.debug(f"FakeCommunicationClient Sent data: {data}")
         QUEUE.put(json.dumps(data, default=json_serial))
 
     def receive(self) -> dict:
         data = json.loads(QUEUE.get())
-        self.logger.debug(f"FakeQueueCommunication Read data: {data}")
+        self.logger.debug(f"FakeCommunicationClient Read data: {data}")
         return data

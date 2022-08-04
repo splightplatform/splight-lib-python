@@ -11,7 +11,7 @@ from threading import (
 )
 from subprocess import Popen as DefaultPopen
 from functools import wraps
-from client.abstract import AbstractClient
+from splight_abstract.client.abstract import AbstractClient
 from splight_lib import logging
 
 

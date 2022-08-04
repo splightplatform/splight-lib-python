@@ -1,6 +1,6 @@
 import re
 from typing import Dict, Optional
-from splight_cache.abstract import AbstractCacheClient
+from splight_abstract import AbstractCacheClient
 
 
 class FakeCacheClient(AbstractCacheClient):

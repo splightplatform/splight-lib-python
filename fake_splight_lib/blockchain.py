@@ -1,8 +1,7 @@
 import random
 from hexbytes import HexBytes
 
-from splight_blockchain.abstract import AbstractBlockchainClient
-from splight_blockchain.exceptions import FunctionTransactError
+from splight_abstract import AbstractBlockchainClient, FunctionTransactError
 from splight_models import CallResponse, Transaction
 
 

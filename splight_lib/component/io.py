@@ -1,4 +1,3 @@
-import builtins
 from abc import abstractmethod
 from typing import List, Optional, Type, Dict
 from splight_models import (
@@ -10,7 +9,6 @@ from splight_models import (
     Notification,
 )
 from splight_lib import logging
-from splight_lib.shortcut import notify
 from splight_lib.execution import Task
 from .abstract import AbstractComponent, wait_until_initialized
 
@@ -50,7 +48,7 @@ class AbstractIOComponent(AbstractComponent):
             if 'value' in variable.args and rule:  # None could be utilized as a value.
                 value = variable.args['value']
                 if rule.is_satisfied(value):
-                    notify(
+                    self.notify(
                         notification=Notification(
                             title=rule.message,
                             message=rule.message,
@@ -61,10 +59,7 @@ class AbstractIOComponent(AbstractComponent):
                             source_id=self.instance_id,
                             source_type=str(self.managed_class)
 
-                        ),
-                        database_client=self.database_client,
-                        notification_client=self.notification_client,
-                        datalake_client=self.datalake_client,
+                        )
                     )
         return args, kwargs
 
