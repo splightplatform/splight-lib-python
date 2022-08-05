@@ -18,9 +18,17 @@ class Runner(SplightBaseModel):
     parameters: List[Parameter] = []
     readme_url: Optional[str]
 
+    @property
+    def collection(self):
+        return 'default'
+
 
 class Algorithm(Runner):
     pass
+
+    @property
+    def collection(self):
+        return str(self.id)
 
 
 class Network(Runner):
