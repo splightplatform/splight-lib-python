@@ -10,3 +10,4 @@ class Deployment(SplightBaseModel):
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
     namespace: Optional[str] = None
+    component_capacity: int
