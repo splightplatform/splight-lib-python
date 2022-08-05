@@ -35,11 +35,11 @@ spec:
                   args: ["-r", '{{run_spec}}']
                   imagePullPolicy: "Always"
                   limits:
-                    cpu: {{cpu_limit}}
-                    memory: {{memory_limit}}
+                    cpu: "{{cpu_limit}}"
+                    memory: "{{memory_limit}}"
                   requests:
-                    cpu: {{cpu_requested}}
-                    memory: {{memory_requested}}
+                    cpu: "{{cpu_requested}}"
+                    memory: "{{memory_requested}}"
                   tty: true
                   livenessProbe:
                     exec:
