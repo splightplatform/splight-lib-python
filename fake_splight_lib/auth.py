@@ -1,5 +1,7 @@
 from typing import Any, Dict
-from splight_abstract.client import AbstractClient
+
+from splight_abstract import AbstractAuthClient
+from splight_models import User
 
 
 class FakeCredentials:
@@ -236,7 +238,7 @@ class FakeOrganization:
                             "billing_id": "123",
                             "blockchain_id": (
                                 "0xad087302625aD69609248554B507dBE22B129F96"
-                            )
+                            ),
                         },
                     },
                     {
@@ -273,14 +275,12 @@ class FakeOrganization:
                     "blockchain_id": None,
                 },
             },
-            200
+            200,
         )
 
 
 class FakeSuperAdmin:
-    def update_superset_organization(
-        self, data: Dict[str, Any]
-    ):
+    def update_superset_organization(self, data: Dict[str, Any]):
         return (
             {
                 "id": "org_fGMkta1hcU4NWkp1",
@@ -288,20 +288,66 @@ class FakeSuperAdmin:
                 "display_name": "Splight",
                 "metadata": {
                     "billing_id": "123",
-                    "blockchain_id": "0xcCd6872568009c5669fc699098a4373171C905B6"
-                }
+                    "blockchain_id": (
+                        "0xcCd6872568009c5669fc699098a4373171C905B6"
+                    ),
+                },
             },
-            200
+            200,
         )
 
 
-class FakeAuthClient(AbstractClient):
+class FakeAuthClient(AbstractAuthClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.credentials = FakeCredentials()
-        self.profile = FakeProfile()
-        self.role = FakeRoles()
-        self.user = FakeUsers()
-        self.organization = FakeOrganization()
-        self.superadmin = FakeSuperAdmin()
+        self._credentials = FakeCredentials()
+        self._profile = FakeProfile()
+        self._role = FakeRoles()
+        self._user = FakeUsers()
+        self._organization = FakeOrganization()
+        self._superadmin = FakeSuperAdmin()
+
+    @property
+    def credentials(self):
+        return self._credentials
+
+    @property
+    def profile(self):
+        return self._profile
+
+    @property
+    def role(self):
+        return self._role
+
+    @property
+    def user(self):
+        return self._user
+
+    @property
+    def organization(self):
+        return self._organization
+
+    @property
+    def superadmin(self):
+        return self._superadmin
+
+    def authenticate(self):
+        user_complete_info: Dict = {
+            "user_id": "auth0|628f9e023211690069ccc193",
+            "organization_id": "org_gxUvmxKLxSZPtHH8",
+            "username": "fake.user",
+            "name": "fake.user@splight-ae.com",
+            "email": "fake.user@splight-ae.com",
+            "picture": "https://s.gravatar.com/avatar/a7b54dab1cd2b75ec1b1a8f6ed31efdc?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fma.png",
+            "permissions": ["admin", "splightadmin"],
+            "role": "viewer",
+            "language": "es",
+            "picture_color": "green-blue",
+            "theme": "dark",
+        }
+        user: User = User.parse_obj(user_complete_info)
+        return (user, None)
+
+    def authenticate_header(self):
+        return "Bearer"
