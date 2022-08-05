@@ -299,7 +299,7 @@ class FakeSuperAdmin:
 
 class FakeAuthClient(AbstractAuthClient):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         self._credentials = FakeCredentials()
         self._profile = FakeProfile()
