@@ -6,3 +6,4 @@ pandas==1.4.0
 parameterized==0.8.1
 Jinja2==3.0.2 # TODO remove this
 mock==4.0.3
+uplink==0.9.7
