@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union, List
+from typing import Any, Dict, List, Optional, Union
 
 from furl import furl
 from requests import Session
@@ -20,7 +20,7 @@ RESOURCES_MAPP = [
 ]
 
 
-class DatabaseClient():
+class DatabaseClient:
     """Splight API Database Client.
     Responsible for interacting with database resources using HTTP requests
     to the Splight API.
@@ -174,6 +174,36 @@ class DatabaseClient():
         url = self._base_url / f"{model_name}/{resource_id}/"
         response = self._session.delete(url)
         response.raise_for_status()
+
+    def request(
+        self,
+        method: str,
+        path: str,
+        path_params: Dict[str, Any],
+        data: Optional[SplightBaseModel] = None,
+    ):
+        """Makes a request to the Splight API
+
+        Parameters
+        ----------
+        method : str
+            HTTP method
+        path : str
+            Endpoint path with parameters
+        path_params : Dict[str, Any]
+            Dict of key, values pair for each parameter in the path
+        data : Optional[SplightBaseModel]
+            Pydantic model for the request body
+
+        Returns
+        -------
+        Union[Dict, str]
+        """
+        url = self._base_url / path.format(**path_params)
+        body = data.dict() if data else None
+        response = self._session.request(method, url=url, json=body)
+        response.raise_for_status()
+        return response.json() if response.content else response.txt
 
     def _create(self, model_name: str, data: SplightBaseModel) -> Dict:
         url = self._base_url / f"{model_name}/"
