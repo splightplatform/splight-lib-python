@@ -53,8 +53,8 @@ class AbstractIOComponent(AbstractComponent):
                             title=rule.message,
                             message=rule.message,
                             severity=rule.severity,
-                            asset_id=rule.asset.id,
-                            attribute_id=rule.attribute.id,
+                            asset_id=rule.asset_id,
+                            attribute_id=rule.attribute_id,
                             rule_id=rule.id,
                             source_id=self.instance_id,
                             source_type=str(self.managed_class)
