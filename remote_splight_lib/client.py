@@ -1,7 +1,7 @@
 from uplink.auth import ApiTokenHeader
 
 from .abstract import SplightAPIClientAbstract
-from .api import AlgorithmEndpoint
+from .api import AlgorithmEndpoint, DatalakeEndpoint
 
 
 class SplightAPIClient(SplightAPIClientAbstract):
@@ -27,6 +27,7 @@ class SplightAPIClient(SplightAPIClientAbstract):
 
     def __init__(self, base_url: str, auth_token: ApiTokenHeader):
         self._algorithm = AlgorithmEndpoint(base_url=base_url, auth=auth_token)
+        self._datalake = DatalakeEndpoint(base_url=base_url, auth=auth_token)
 
     @property
     def algorithm(self):
@@ -50,7 +51,7 @@ class SplightAPIClient(SplightAPIClientAbstract):
 
     @property
     def datalake(self):
-        pass
+        return self._datalake
 
     @property
     def deployment(self):
