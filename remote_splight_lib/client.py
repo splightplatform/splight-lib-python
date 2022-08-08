@@ -24,12 +24,13 @@ class SplightAPIClient(SplightAPIClientAbstract):
     common_storage
     tag
     """
+
     def __init__(self, base_url: str, auth_token: ApiTokenHeader):
         self._algorithm = AlgorithmEndpoint(base_url=base_url, auth=auth_token)
 
     @property
     def algorithm(self):
-        pass
+        return self._algorithm
 
     @property
     def asset(self):
