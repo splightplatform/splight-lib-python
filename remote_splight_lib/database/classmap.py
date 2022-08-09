@@ -45,9 +45,9 @@ CLASSMAP = {
     # MonthBilling: {
     #     "path": "asset"
     # },
-    # Billing: {
-    #     "path": "asset"
-    # },
+    Billing: {
+        "path": "billing"
+    },
     # DeploymentBillingItem: {
     #     "path": "asset"
     # },
