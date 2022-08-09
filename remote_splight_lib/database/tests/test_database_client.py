@@ -41,10 +41,7 @@ class MockPaginatedResponse:
 class TestDatabaseClient(TestCase):
 
     def get_client(self):
-        token = SplightAuthToken(
-            access_key="access_key", secret_key="secret_key"
-        )
-        client = DatabaseClient(base_url="http://localhost/", token=token)
+        client = DatabaseClient()
         return client
 
     @patch.object(

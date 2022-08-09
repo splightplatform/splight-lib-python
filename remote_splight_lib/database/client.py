@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Type
 
 from furl import furl
 from pydantic import BaseModel
@@ -6,6 +6,7 @@ from requests import Session
 
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.exceptions import InvalidModel
+from remote_splight_lib.settings import settings
 from splight_abstract.database import AbstractDatabaseClient
 
 from .classmap import CLASSMAP
@@ -19,8 +20,7 @@ class DatabaseClient(AbstractDatabaseClient):
 
     def __init__(
         self,
-        base_url: Union[str, furl],
-        token: Optional[SplightAuthToken] = None,
+        namespace: str = "default"
     ):
         """Class constructor
 
@@ -31,12 +31,14 @@ class DatabaseClient(AbstractDatabaseClient):
         token : Optional[SplightAuthToken]
             Instance of SplightAuthToken
         """
-        self._base_url = (
-            base_url if isinstance(base_url, furl) else furl(base_url)
+        super(DatabaseClient, self).__init__(namespace=namespace)
+        self._base_url = furl(settings.SPLIGHT_API_HOST)
+        token = SplightAuthToken(
+            access_key=settings.SPLIGHT_ACCESS_KEY,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
         )
         self._session = Session()
-        if token:
-            self._session.headers.update(token.header)
+        self._session.headers.update(token.header)
 
     def save(self, instance: BaseModel) -> BaseModel:
         """Creates or updates a new resource depending on the model if
