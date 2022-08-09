@@ -39,9 +39,9 @@ CLASSMAP = {
     Attribute: {
         "path": "attribute"
     },
-    # BillingSettings: {
-    #     "path": "asset"
-    # },
+    BillingSettings: {
+        "path": "setup/billing-settings"
+    },
     # MonthBilling: {
     #     "path": "asset"
     # },
