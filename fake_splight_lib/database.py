@@ -19,7 +19,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
     valid_classes = [
         Network,
-        Billing,
         BillingSettings,
         ClientMapping,
         ServerMapping,
@@ -29,7 +28,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Asset,
         Attribute,
         MappingRule,
-        MonthBilling,
         Tag,
         Namespace,
         Algorithm,
@@ -44,7 +42,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Edge,
         BlockchainContract,
         BlockchainContractSubscription,
-        DeploymentBillingItem,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
