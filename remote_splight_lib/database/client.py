@@ -115,7 +115,7 @@ class DatabaseClient(AbstractDatabaseClient):
 
         Parameters
         ----------
-        model_name : str
+        resource_type : str
             The model name
 
         Returns
