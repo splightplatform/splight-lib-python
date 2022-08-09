@@ -4,11 +4,11 @@ from furl import furl
 from pydantic import BaseModel
 from requests import Session
 
+from remote_splight_lib.auth import SplightAuthToken
+from remote_splight_lib.exceptions import InvalidModel
 from splight_abstract.database import AbstractDatabaseClient
 
-from .auth import SplightAuthToken
 from .classmap import CLASSMAP
-from .exceptions import InvalidModel
 
 
 class DatabaseClient(AbstractDatabaseClient):
