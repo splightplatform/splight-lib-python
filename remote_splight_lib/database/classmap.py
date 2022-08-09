@@ -3,9 +3,6 @@ from splight_models import (
     Asset,
     Attribute,
     BillingSettings,
-    MonthBilling,
-    Billing,
-    DeploymentBillingItem,
     Chart,
     ChartItem,
     Connector,
@@ -42,15 +39,6 @@ CLASSMAP = {
     BillingSettings: {
         "path": "setup/billing-settings"
     },
-    # MonthBilling: {
-    #     "path": "asset"
-    # },
-    Billing: {
-        "path": "billing"
-    },
-    # DeploymentBillingItem: {
-    #     "path": "asset"
-    # },
     Chart: {
         "path": "dashboard/chart"
     },
