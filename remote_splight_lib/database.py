@@ -1,39 +1,20 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Type, Union
 
 from furl import furl
+from pydantic import BaseModel
 from requests import Session
 
-from splight_models.base import SplightBaseModel
+from splight_abstract.database import AbstractDatabaseClient
 
 from .auth import SplightAuthToken
+from .classmap import CLASSMAP
 from .exceptions import InvalidModel
 
-RESOURCES_MAPP = [
-    "algorithm",
-    "asset",
-    "attribute",
-    "connector",
-    "deployment",
-    "network",
-    "rule",
-    "storage",
-]
 
-
-class DatabaseClient:
+class DatabaseClient(AbstractDatabaseClient):
     """Splight API Database Client.
     Responsible for interacting with database resources using HTTP requests
     to the Splight API.
-
-    Methods
-    -------
-    save(model_name: str, data: SplightBaseModel)
-
-    list(model_name):
-
-    count(model_name):
-
-    delete(model_name: str, resource_id: str)
     """
 
     def __init__(
@@ -57,58 +38,79 @@ class DatabaseClient:
         if token:
             self._session.headers.update(token.header)
 
-    def save(self, model_name: str, data: SplightBaseModel) -> Dict:
+    def save(self, instance: BaseModel) -> BaseModel:
         """Creates or updates a new resource depending on the model if
         it contains the id or not.
 
         Parameters
         ----------
-        model_name : str
-            The name of the model to be created or updated.
-        data : SplightBaseModel
-            The instance of the pydantic model.
+        instance : BaseModel
+            The instance of the model to be created or updated
 
         Returns
         -------
-        Dict with the created or updated resource.
+        BaseModel with the created or updated resource.
 
         Raises
         ------
         InvalidModel thrown when the model name is not correct.
         """
-        if model_name not in RESOURCES_MAPP:
-            raise InvalidModel(model_name)
+        constructor = type(instance)
+        model_data = self._get_model_data(constructor)
 
-        if data.id:
-            output = self._update(model_name, data.id, data)
+        path = model_data["path"]
+        if instance.id:
+            output = self._update(path, instance.id, instance)
         else:
-            output = self._create(model_name, data)
-        return output
+            output = self._create(path, instance)
+        return constructor.parse_obj(output)
 
-    def list(self, model_name: str) -> List[Dict]:
-        """Lists all the resources for a given model
+    def delete(self, resource_type: Type, id: str):
+        """Deletes a resource from the database
 
         Parameters
         ----------
-        model_name : str
-            The name of the resources to be listed
-
-        Returns
-        -------
-        List[Dict] the list with the resources.
+        resource_type : Type
+            The resource type to be deleted
+        id : str
+            The resource's id.
 
         Raises
         ------
         InvalidModel thrown when the model name is not correct.
         """
-        if model_name not in RESOURCES_MAPP:
-            raise InvalidModel(model_name)
-        url = self._base_url / f"{model_name}/"
-        response = self._session.get(url)
+        model_data = self._get_model_data(resource_type)
+        path = model_data["path"]
+        url = self._base_url / f"{path}/{id}/"
+        response = self._session.delete(url)
         response.raise_for_status()
-        return response.json()["results"]
 
-    def count(self, model_name: str) -> int:
+    def _get(
+        self,
+        resource_type: Type,
+        first: bool = False,
+        limit_: int = -1,
+        skip_: int = 0,
+        deleted: bool = False,
+        **kwargs,
+    ) -> List[BaseModel]:
+        model_data = self._get_model_data(resource_type)
+        path = model_data["path"]
+        response = self._list(
+            path,
+            first=first,
+            limit_=limit_,
+            skip_=skip_,
+            deleted=deleted,
+            **kwargs,
+        )
+        parsed = [
+            resource_type.parse_obj(resource)
+            for resource in response["results"]
+        ]
+        return parsed
+
+    def count(self, resource_type: Type, **kwargs) -> int:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -124,97 +126,48 @@ class DatabaseClient:
         ------
         InvalidModel thrown when the model name is not correct.
         """
-        if model_name not in RESOURCES_MAPP:
-            raise InvalidModel(model_name)
-        url = self._base_url / f"{model_name}/"
-        response = self._session.get(url)
-        response.raise_for_status()
-        return response.json()["count"]
+        model_data = self._get_model_data(resource_type)
+        path = model_data["path"]
+        kwargs["page"] = 1  # Always start from the first page
 
-    def retrieve(self, model_name: str, resource_id: str) -> Dict:
-        """Gets the resource defined by its id
+        count = 0
+        for page in self._pages(path, **kwargs):
+            count += len(page["results"])
+        return count
 
-        Parameters
-        ----------
-        model_name : str
-            The model's name of the resource to be retrieved
-        resource_id : str
-            The resource's ID
+    def _pages(self, path: str, **kwargs):
+        next_page = kwargs["page"]
+        while next_page:
+            response = self._list(path, **kwargs)
+            yield response
+            next_page = (
+                response["next"].split("page=")[1]
+                if response["next"]
+                else None
+            )
+            kwargs["page"] = next_page
 
-        Returns
-        -------
-        Dict the resource's information.
-
-        Raises
-        ------
-        InvalidModel thrown when the model name is not correct.
-        """
-        if model_name not in RESOURCES_MAPP:
-            raise InvalidModel(model_name)
-        url = self._base_url / f"{model_name}/{resource_id}/"
-        response = self._session.get(url)
+    def _list(self, path: str, **kwargs):
+        url = self._base_url / f"{path}/"
+        response = self._session.get(url, params=kwargs)
         response.raise_for_status()
         return response.json()
 
-    def delete(self, model_name: str, resource_id: str):
-        """Deletes a resource from the database
+    @staticmethod
+    def _get_model_data(constructor: Type):
+        model_data = CLASSMAP.get(constructor)
+        if not model_data:
+            raise InvalidModel(constructor.schema()["title"])
+        return model_data
 
-        Parameters
-        ----------
-        model_name : str
-
-        resource_id : str
-
-        Raises
-        ------
-        InvalidModel thrown when the model name is not correct.
-        """
-        if model_name not in RESOURCES_MAPP:
-            raise InvalidModel(model_name)
-        url = self._base_url / f"{model_name}/{resource_id}/"
-        response = self._session.delete(url)
-        response.raise_for_status()
-
-    def request(
-        self,
-        method: str,
-        path: str,
-        path_params: Dict[str, Any],
-        data: Optional[SplightBaseModel] = None,
-    ):
-        """Makes a request to the Splight API
-
-        Parameters
-        ----------
-        method : str
-            HTTP method
-        path : str
-            Endpoint path with parameters
-        path_params : Dict[str, Any]
-            Dict of key, values pair for each parameter in the path
-        data : Optional[SplightBaseModel]
-            Pydantic model for the request body
-
-        Returns
-        -------
-        Union[Dict, str]
-        """
-        url = self._base_url / path.format(**path_params)
-        body = data.dict() if data else None
-        response = self._session.request(method, url=url, json=body)
-        response.raise_for_status()
-        return response.json() if response.content else response.txt
-
-    def _create(self, model_name: str, data: SplightBaseModel) -> Dict:
-        url = self._base_url / f"{model_name}/"
+    def _create(self, path: str, data: BaseModel) -> Dict:
+        url = self._base_url / f"{path}/"
         response = self._session.post(url, json=data.dict())
         response.raise_for_status()
         return response.json()
 
-    def _update(
-        self, model_name: str, resource_id: str, data: SplightBaseModel
-    ):
-        url = self._base_url / f"{model_name}/{resource_id}/"
+    def _update(self, path: str, resource_id: str, data: BaseModel) -> Dict:
+        url = self._base_url / f"{path}/{resource_id}/"
         response = self._session.put(url, json=data.dict())
         response.raise_for_status()
         return response.json()
