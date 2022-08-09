@@ -32,7 +32,7 @@ class DatabaseClient(AbstractDatabaseClient):
             Instance of SplightAuthToken
         """
         super(DatabaseClient, self).__init__(namespace=namespace)
-        self._base_url = furl(settings.SPLIGHT_API_HOST)
+        self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
             access_key=settings.SPLIGHT_ACCESS_KEY,
             secret_key=settings.SPLIGHT_SECRET_KEY,
