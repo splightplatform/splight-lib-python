@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Type, Union
 from tempfile import NamedTemporaryFile
+from typing import Dict, List, Type, Union
 
 from furl import furl
 from pydantic import BaseModel
@@ -91,14 +91,14 @@ class DatalakeClient(AbstractDatalakeClient):
         # POST /datalake/loaddata/
         url = self._base_url / f"{self._PREFIX}/loaddata/"
 
-        with NamedTemporaryFile as tmp_file:
-            dataframe.to_csv(tmp_file.name)
-            body = {
-                "source": collection,
-                "file": tmp_file
-            }
-            response = self._session.post(url, data=body)
-            response.raise_for_status()
+        tmp_file = NamedTemporaryFile("w")
+        with open(tmp_file.name, "wb") as fid:
+            dataframe.to_csv(fid)
+
+        response = self._session.post(
+            url, data={"source": collection}, files={"file": open(tmp_file.name)}
+        )
+        response.raise_for_status()
 
     def list_collection_names(self) -> List[str]:
         # GET /datalake/source
