@@ -122,11 +122,9 @@ class DatabaseClient(AbstractDatabaseClient):
         model_data = self._get_model_data(resource_type)
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
+        response = self._list(path, **kwargs)
+        return response['count']
 
-        count = 0
-        for page in self._pages(path, **kwargs):
-            count += len(page["results"])
-        return count
 
     def _pages(self, path: str, **kwargs):
         next_page = kwargs["page"]
