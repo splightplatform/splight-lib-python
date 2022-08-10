@@ -4,7 +4,7 @@ from splight_models.runner import Parameter
 from enum import Enum
 
 
-class ComponentSize(str, Enum):
+class ComponentSize(Enum):
     small = 'small'
     medium = 'medium'
     large = 'large'
