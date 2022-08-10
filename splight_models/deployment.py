@@ -5,10 +5,10 @@ from enum import Enum
 
 
 class ComponentSize(str, Enum):
-    small_component_size = 'small'
-    medium_component_size = 'medium'
-    large_component_size = 'large'
-    very_large_component_size = 'very_large'
+    small = 'small'
+    medium = 'medium'
+    large = 'large'
+    very_large = 'very_large'
 
 
 class Deployment(SplightBaseModel):
@@ -18,4 +18,4 @@ class Deployment(SplightBaseModel):
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
     namespace: Optional[str] = None
-    component_capacity: ComponentSize = ComponentSize.medium_component_size
+    component_capacity: ComponentSize = ComponentSize.medium
