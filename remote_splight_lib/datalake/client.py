@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type, Union
 
+import pandas as pd
 from furl import furl
 from pydantic import BaseModel
 from requests import Session
@@ -9,7 +10,7 @@ from requests import Session
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import Variable, VariableDataFrame
+from splight_models import VariableDataFrame
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -73,9 +74,9 @@ class DatalakeClient(AbstractDatalakeClient):
     ) -> int:
         raise NotImplementedError
 
-    def get_dataframe(
-        self, variable: Variable, freq: str = "H", collection: str = "default"
-    ) -> VariableDataFrame:
+    def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
+        """
+        NOTE: The following can be used as an alternative implementation
         # GET /datalake/dumpdata/
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
         response = self._session.get(url, params={"source": collection})
@@ -84,6 +85,10 @@ class DatalakeClient(AbstractDatalakeClient):
         return VariableDataFrame(
             [line.split(";") for line in string_df.split("\n")]
         )
+        """
+        data = self.get(*args, **kwargs)
+        parsed_data = pd.json_normalize([d.dict() for d in data])
+        return VariableDataFrame(parsed_data)
 
     def save_dataframe(
         self, dataframe: VariableDataFrame, collection: str = "default"
@@ -96,7 +101,9 @@ class DatalakeClient(AbstractDatalakeClient):
             dataframe.to_csv(fid)
 
         response = self._session.post(
-            url, data={"source": collection}, files={"file": open(tmp_file.name)}
+            url,
+            data={"source": collection},
+            files={"file": open(tmp_file.name)},
         )
         response.raise_for_status()
 
