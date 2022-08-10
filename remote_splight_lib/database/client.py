@@ -22,19 +22,10 @@ class DatabaseClient(AbstractDatabaseClient):
         self,
         namespace: str = "default"
     ):
-        """Class constructor
-
-        Parameters
-        ----------
-        base_url : Union[str, furl]
-            The URL for the Slight API
-        token : Optional[SplightAuthToken]
-            Instance of SplightAuthToken
-        """
         super(DatabaseClient, self).__init__(namespace=namespace)
         self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_KEY,
+            access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
         self._session = Session()
