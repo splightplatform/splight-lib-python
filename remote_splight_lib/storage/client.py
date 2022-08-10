@@ -5,7 +5,7 @@ from requests import Session
 from splight_abstract.storage import AbstractStorageClient
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
-from remote_splight_lib.exceptions import InvalidModel, NotAllowedAction
+from remote_splight_lib.exceptions import InvalidModel
 from .classmap import CLASSMAP
 
 
