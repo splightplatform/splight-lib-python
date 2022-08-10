@@ -33,7 +33,18 @@ class DatalakeClient(AbstractDatalakeClient):
         instances: List[BaseModel],
         collection: str = "default",
     ) -> List[BaseModel]:
-        raise NotImplementedError
+        # POST /datalake/save/
+        url = self._base_url / f"{self._PREFIX}/save/"
+        data = [model.dict() for model in instances]
+        response = self._session.post(
+            url,
+            params={"source": collection},
+            data=data
+        )
+        response.raise_for_status()
+        return [
+            resource_type.parse_obj(d) for d in response.json()
+        ]
 
     def _get(
         self,
