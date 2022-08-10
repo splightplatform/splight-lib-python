@@ -95,7 +95,7 @@ class DatalakeClient(AbstractDatalakeClient):
             dataframe.to_csv(tmp_file.name)
             body = {
                 "source": collection,
-                "fiel": tmp_file
+                "file": tmp_file
             }
             response = self._session.post(url, data=body)
             response.raise_for_status()
