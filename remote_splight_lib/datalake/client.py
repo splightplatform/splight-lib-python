@@ -175,4 +175,12 @@ class DatalakeClient(AbstractDatalakeClient):
     def get_components_sizes_gb(
         self, start: datetime = None, end: datetime = None
     ) -> Dict:
-        raise NotImplementedError
+        # GET /datalake/component-sizes/
+        url = self._base_url / f"{self._PREFIX}/component-sizes/"
+        params = {
+            "start": start,
+            "end": end
+        }
+        response = self._session.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
