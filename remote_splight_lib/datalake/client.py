@@ -147,7 +147,13 @@ class DatalakeClient(AbstractDatalakeClient):
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
-        raise NotImplementedError
+        # POST /datalake/aggregate/?source=collection
+        url = self._base_url / f"{self._PREFIX}/aggregate/"
+        params = {"source": collection}
+        data = {"pipeline": pipeline}
+        response = self._session.post(url, params=params, data=data)
+        response.raise_for_status()
+        return response.json()
 
     def get_components_sizes_gb(
         self, start: datetime = None, end: datetime = None
