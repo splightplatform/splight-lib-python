@@ -12,12 +12,6 @@ class ComponentSize(str, Enum):
     very_large = 'very_large'
 
 
-class RestartPolicy(str, Enum):
-    never = 'Never'
-    on_failure = 'OnFailure'
-    always = 'Always'
-
-
 class LogginLevel(str, Enum):
     critical = logging.CRITICAL
     error = logging.ERROR
@@ -36,4 +30,3 @@ class Deployment(SplightBaseModel):
     namespace: Optional[str] = None
     component_capacity: str = ComponentSize.medium.value
     log_level: int = LogginLevel.debug.value
-    restart_policy: str = RestartPolicy.always.value
