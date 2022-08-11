@@ -21,7 +21,7 @@ class DatalakeClient(AbstractDatalakeClient):
         super(DatalakeClient, self).__init__(namespace=namespace)
         self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_KEY,
+            access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
         self._session = Session()
@@ -37,14 +37,10 @@ class DatalakeClient(AbstractDatalakeClient):
         url = self._base_url / f"{self._PREFIX}/save/"
         data = [model.dict() for model in instances]
         response = self._session.post(
-            url,
-            params={"source": collection},
-            data=data
+            url, params={"source": collection}, data=data
         )
         response.raise_for_status()
-        return [
-            resource_type.parse_obj(d) for d in response.json()
-        ]
+        return [resource_type.parse_obj(d) for d in response.json()]
 
     def _get(
         self,
@@ -81,9 +77,30 @@ class DatalakeClient(AbstractDatalakeClient):
         return output
 
     def count(
-        self, resource_type: Type, collection: str = "default", **kwargs
+        self,
+        resource_type: Type,
+        collection: str = "default",
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Union[List, str] = [],
+        group_fields: Union[List, str] = [],
+        tzinfo: timezone = timezone(timedelta()),
+        **kwargs,
     ) -> int:
-        raise NotImplementedError
+        # GET /datalake/count/
+        url = self._base_url / f"{self._PREFIX}/count/"
+        valid_kwargs = self._validated_kwargs(resource_type, **kwargs)
+        valid_kwargs.update(
+            {
+                "source": collection,
+                "sort": sort,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                # "tzinfo": tzinfo
+            }
+        )
+        response = self._session.get(url, params=valid_kwargs)
+        response.raise_for_status()
+        return response.json()
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         """
