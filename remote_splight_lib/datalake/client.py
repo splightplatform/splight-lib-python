@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from io import StringIO
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type, Union
 
@@ -10,7 +11,7 @@ from requests import Session
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import VariableDataFrame
+from splight_models import VariableDataFrame, Variable
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -102,21 +103,16 @@ class DatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
         return response.json()
 
-    def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
-        """
-        NOTE: The following can be used as an alternative implementation
-        # GET /datalake/dumpdata/
+    def get_dataframe(
+        self, variable: Variable, freq: str = "H", collection: str = "default"
+    ) -> VariableDataFrame:
+        # GET /datalake/dumpdata/?source=collection
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
-        response = self._session.get(url, params={"source": collection})
-        response.raise_for_status()
-        string_df = response.text
-        return VariableDataFrame(
-            [line.split(";") for line in string_df.split("\n")]
+        response = self._session.get(
+            url, params={"source": collection, "freq": freq}
         )
-        """
-        data = self.get(*args, **kwargs)
-        parsed_data = pd.json_normalize([d.dict() for d in data])
-        return VariableDataFrame(parsed_data)
+        response.raise_for_status()
+        return VariableDataFrame(pd.read_csv(StringIO(response.text)))
 
     def save_dataframe(
         self, dataframe: VariableDataFrame, collection: str = "default"
@@ -177,10 +173,7 @@ class DatalakeClient(AbstractDatalakeClient):
     ) -> Dict:
         # GET /datalake/component-sizes/
         url = self._base_url / f"{self._PREFIX}/component-sizes/"
-        params = {
-            "start": start,
-            "end": end
-        }
+        params = {"start": start, "end": end}
         response = self._session.get(url, params=params)
         response.raise_for_status()
         return response.json()
