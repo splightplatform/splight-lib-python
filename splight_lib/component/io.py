@@ -1,16 +1,15 @@
 from abc import abstractmethod
-from typing import List, Optional, Type, Dict
+from typing import List, Type, Dict
 from splight_models import (
     Connector,
     ClientMapping,
-    ServerMapping,
     Variable,
     MappingRule,
     Notification,
 )
 from splight_lib import logging
 from splight_lib.execution import Task
-from .abstract import AbstractComponent, wait_until_initialized
+from splight_lib.component.abstract import AbstractComponent, wait_until_initialized
 
 
 logger = logging.getLogger()
@@ -20,22 +19,27 @@ class AbstractIOComponent(AbstractComponent):
     managed_class = Connector
     mapping_class: Type = None
     mappings: List = []
+    rules: List = []
     _hashed_mappings: Dict = {}
     _hashed_mappings_by_path: Dict = {}
-    rules: List = []
     _hashed_rules: Dict = {}
 
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
         self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=10))
-        self.datalake_client.add_pre_hook('save', self.hook_rules)
-        self.datalake_client.add_pre_hook('save', self.hook_map_variable)
 
         # TODO: move this to create index on organization creation
         self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
         self.datalake_client.create_index('files', [('timestamp', -1)])
         self.datalake_client.create_index('notification', [('timestamp', -1)])
+        self.datalake_client.create_index('BillingEvent', [('timestamp', -1)])
+        self.datalake_client.create_index('useractivity', [('timestamp', -1)])
+
+    def _load_hooks(self):
+        super()._load_hooks()
+        self.datalake_client.add_pre_hook('save', self.hook_rules)
+        self.datalake_client.add_pre_hook('save', self.hook_map_variable)
 
     def hook_rules(self, *args, **kwargs):
         """
@@ -189,32 +193,3 @@ class AbstractClientComponent(AbstractIOComponent):
             ]
             self.handle_unsubscribe(variables_to_unsubscribe)
         self._mappings_last_sync = new_status
-
-
-class AbstractServerComponent(AbstractIOComponent):
-    mapping_class = ServerMapping
-
-    def __init__(self,
-                 instance_id: str,
-                 namespace: Optional[str] = 'default'):
-        super(AbstractServerComponent, self).__init__(instance_id, namespace)
-        self.execution_client.start(Task(handler=self.sync_from_datalake, args=tuple(), period=10))
-
-    @abstractmethod
-    def handle_update(self, variables: List[Variable]) -> None:
-        pass
-
-    @wait_until_initialized
-    def sync_from_datalake(self):
-        variables = [
-            self.datalake_client.get(Variable, first=True, asset_id=mapping.asset_id, attribute_id=mapping.attribute_id)
-            for mapping in self.mappings
-        ]
-        variables = [
-            variable for variable in variables if variable is not None
-        ]
-        variables = [
-            v for v_list in variables for v in v_list
-        ]
-        logger.debug(f"Fetched from datalake {len(variables)} variables")
-        self.handle_update(variables)

@@ -104,12 +104,16 @@ class DatalakeClient(AbstractDatalakeClient):
         return response.json()
 
     def get_dataframe(
-        self, variable: Variable, freq: str = "H", collection: str = "default"
+        self,
+        resource_type: Variable,
+        collection: str = "default",
+        **kwargs
     ) -> VariableDataFrame:
         # GET /datalake/dumpdata/?source=collection
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
+        kwargs.update({"source": collection})
         response = self._session.get(
-            url, params={"source": collection, "freq": freq}
+            url, params=kwargs
         )
         response.raise_for_status()
         return VariableDataFrame(pd.read_csv(StringIO(response.text)))

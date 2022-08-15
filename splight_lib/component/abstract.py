@@ -1,12 +1,11 @@
 import sys
 import time
 import json
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from typing import Optional, Type, List, Dict
 from tempfile import NamedTemporaryFile
 from functools import wraps
 from splight_models import (
-    Message,
     VariableDataFrame,
     Variable,
     Deployment,
@@ -20,15 +19,6 @@ from splight_lib.settings import setup
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.logging import logging
 from splight_models.notification import Notification
-
-
-DatabaseClient = setup.DATABASE_CLIENT
-DatalakeClient = setup.DATALAKE_CLIENT
-DeploymentClient = setup.DEPLOYMENT_CLIENT
-NotificationClient = setup.NOTIFICATION_CLIENT
-StorageClient = setup.STORAGE_CLIENT
-InternalCommunicationClient = setup.INTERNAL_COMMUNICATION_CLIENT
-ExternalCommunicationClient = setup.EXTERNAL_COMMUNICATION_CLIENT
 
 
 logger = logging.getLogger()
@@ -82,34 +72,19 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
                  namespace: Optional[str] = 'default',
                  *args, **kwargs):
 
-        # Params to start Lib clients
-        # TODO https://splight.atlassian.net/browse/FAC-343
         self.namespace = namespace
         self.instance_id = instance_id
-
-        # Lib clients
-        self.database_client = DatabaseClient(namespace)
-        self.storage_client = StorageClient(namespace=namespace)
-        self.datalake_client = DatalakeClient(namespace)
-        self.deployment_client = DeploymentClient(namespace=namespace)
-        self.notification_client = NotificationClient(namespace=self.namespace)
-        self.internal_comm_client = InternalCommunicationClient(namespace)
-        self.external_comm_client = ExternalCommunicationClient(namespace)
-        self.execution_client = ExecutionClient(namespace)
-
-        # Main execution
-        self.execution_client.start(Thread(target=self.listen_commands))
-        self.execution_client.start(Thread(target=self.listen_internal_commands))
+        self.collection_name = str(self.instance_id)
+        self._setup = setup
+        self._load_clients()
+        self._load_hooks()
 
         super().__init__(*args, **kwargs)
+
         self._spec = Deployment(**json.loads(run_spec))
         self._load_metadata()
         self._load_parameters()
         self._load_context()
-        self.collection_name = str(self.instance_id)
-
-        # Hooks
-        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
 
     def hook_insert_origin(self, *args, **kwargs):
         """
@@ -136,6 +111,26 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             value = p.value
             setattr(self, name, value)
 
+    def _load_hooks(self):
+        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
+
+    def _load_clients(self):
+        self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
+        self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
+        self.notification_client = self.setup.NOTIFICATION_CLIENT(namespace=self.namespace)
+        self.execution_client = ExecutionClient(self.namespace)
+
+    @property
+    def setup(self):
+        return self._setup
+
+    @setup.setter
+    def setup(self, new_setup):
+        self._setup.configure(new_setup)
+        self._load_clients()
+        self._load_hooks()
+
     @property
     def instance(self):
         return self.database_client.get(
@@ -143,34 +138,6 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             id=self.instance_id,
             first=True
         )
-
-    @wait_until_initialized
-    def listen_commands(self) -> None:
-        while True:
-            data = self.external_comm_client.receive()
-            logger.debug(f"Message received from queue {data}")
-            msg = Message(**data)
-            action, variables = msg.action, msg.variables
-            handler = getattr(self, f'handle_{action}', None)
-            if handler is None:
-                logger.error(f"Handler not defined in class for action {action}. "
-                             f"Please provide a function with name handle_{action}")
-                continue
-            handler(variables)
-
-    @wait_until_initialized
-    def listen_internal_commands(self) -> None:
-        while True:
-            data = self.internal_comm_client.receive()
-            logger.debug(f"Message received from internal queue {data}")
-            msg = Message(**data)
-            action, variables = msg.action, msg.variables
-            handler = getattr(self, f'_handle_{action}', None)
-            if handler is None:
-                logger.error(f"Handler not defined in class for action {action}. "
-                             f"Please provide a function with name _handle_{action}")
-                continue
-            handler(variables)
 
     def get_history(self,
                     asset_id: Optional[str] = None,
@@ -213,3 +180,7 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             notification_client=self.notification_client,
             datalake_client=self.datalake_client,
         )
+
+    @abstractmethod
+    def start(self):
+        pass

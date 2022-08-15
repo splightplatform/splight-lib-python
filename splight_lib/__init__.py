@@ -1,13 +1,11 @@
-from .settings import (
+from splight_lib.settings import (
     setup,
     SplightSettings,
-    DEFAULTS,
-    IMPORT_STRINGS,
+    SplightBaseSettings,
 )
 
 __all__ = [
     'setup',
     'SplightSettings',
-    'DEFAULTS',
-    'IMPORT_STRINGS',
+    'SplightBaseSettings'
 ]

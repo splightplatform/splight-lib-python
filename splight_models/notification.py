@@ -1,9 +1,9 @@
 from pydantic import Field
-from .base import SplightBaseModel
 from datetime import datetime, timezone
 from typing import Optional
-from .severity import SeverityType
 from enum import Enum
+from splight_models.base import SplightBaseModel
+from splight_models.severity import SeverityType
 
 
 SYSTEM = 'system'
