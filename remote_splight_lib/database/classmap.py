@@ -70,7 +70,7 @@ CLASSMAP = {
         "path": "network"
     },
     Notification: {
-        "path": "asset"
+        "path": "notification"
     },
     Node: {
         "path": "graph/node"
