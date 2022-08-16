@@ -20,6 +20,7 @@ back to the defaults.
 """
 from importlib import import_module
 from pydantic import BaseSettings
+from typing import Type
 import os
 import sys
 
@@ -101,14 +102,14 @@ def import_from_string(val, setting_name):
 
 class SplightSettings:
 
-    def __init__(self, user_settings = {}, base_settings_model: SplightBaseSettings = SplightBaseSettings):
+    def __init__(self, user_settings = {}, base_settings_model: Type[SplightBaseSettings] = SplightBaseSettings):
         self._cached_attrs = set()
         self._base_settings_model = base_settings_model
         self._base_settings = self._base_settings_model()
         self.configure(user_settings)
 
     def __getattr__(self, attr):
-        if attr not in self._base_settings.dict():
+        if not hasattr(self._base_settings, attr):
             raise AttributeError("Invalid API setting: '%s'" % attr)
         val = getattr(self._base_settings, attr)
 
@@ -126,8 +127,6 @@ class SplightSettings:
             delattr(self, attr)
         self._cached_attrs.clear()
         for key, value in user_settings.items():
-            os.environ[key] = value
-        # Reload settings
-        self._base_settings = self._base_settings_model()
+            setattr(self._base_settings, key, value)
 
 setup = SplightSettings()

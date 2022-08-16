@@ -38,7 +38,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get_dataframe(self, resource_type: Variable, freq="H", collection: str = "default") -> VariableDataFrame:
+    def get_dataframe(self, resource_type: Type, freq="H", collection: str = "default") -> VariableDataFrame:
         pass
 
     @abstractmethod

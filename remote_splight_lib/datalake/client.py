@@ -11,7 +11,7 @@ from requests import Session
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import VariableDataFrame, Variable
+from splight_models import VariableDataFrame
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -105,7 +105,7 @@ class DatalakeClient(AbstractDatalakeClient):
 
     def get_dataframe(
         self,
-        resource_type: Variable,
+        resource_type: Type,
         collection: str = "default",
         **kwargs
     ) -> VariableDataFrame:
