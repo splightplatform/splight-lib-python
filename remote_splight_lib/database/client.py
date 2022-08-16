@@ -125,7 +125,6 @@ class DatabaseClient(AbstractDatabaseClient):
         response = self._list(path, **kwargs)
         return response['count']
 
-
     def _pages(self, path: str, **kwargs):
         next_page = kwargs["page"]
         while next_page:
@@ -153,12 +152,12 @@ class DatabaseClient(AbstractDatabaseClient):
 
     def _create(self, path: str, data: BaseModel) -> Dict:
         url = self._base_url / f"{path}/"
-        response = self._session.post(url, json=data.dict())
+        response = self._session.post(url, data=data.dict())
         response.raise_for_status()
         return response.json()
 
     def _update(self, path: str, resource_id: str, data: BaseModel) -> Dict:
         url = self._base_url / f"{path}/{resource_id}/"
-        response = self._session.put(url, json=data.dict())
+        response = self._session.put(url, data=data.dict())
         response.raise_for_status()
         return response.json()
