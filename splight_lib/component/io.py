@@ -1,3 +1,4 @@
+# TODO simplify this class
 from abc import abstractmethod
 from typing import List, Type, Dict
 from splight_models import (
@@ -9,7 +10,7 @@ from splight_models import (
 )
 from splight_lib import logging
 from splight_lib.execution import Task
-from splight_lib.component.abstract import AbstractComponent, wait_until_initialized
+from splight_lib.component.abstract import AbstractComponent
 
 
 logger = logging.getLogger()
@@ -114,7 +115,6 @@ class AbstractIOComponent(AbstractComponent):
             result.append(var)
         return result
 
-    @wait_until_initialized
     def refresh_config_forever(self) -> None:
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
@@ -167,7 +167,6 @@ class AbstractClientComponent(AbstractIOComponent):
     def handle_unsubscribe(self, variables: List[Variable]):
         pass
 
-    @wait_until_initialized
     def sync_mappings_to_device(self):
         new_status = set(self.mappings)
         if self._mappings_last_sync != new_status:

@@ -1,10 +1,9 @@
 import sys
 import time
 import json
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import Optional, Type, List, Dict
 from tempfile import NamedTemporaryFile
-from functools import wraps
 from splight_models import (
     VariableDataFrame,
     Variable,
@@ -12,8 +11,7 @@ from splight_models import (
     StorageFile,
 )
 from splight_lib.shortcut import (
-    save_file as _save_file,
-    notify as _notify
+    save_file as _save_file
 )
 from splight_lib.settings import setup
 from splight_lib.execution import Thread, ExecutionClient
@@ -24,27 +22,6 @@ from splight_models.notification import Notification
 logger = logging.getLogger()
 
 
-def wait_until_initialized(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        while not self._initialized:
-            time.sleep(0.1)
-        return func(self, *args, **kwargs)
-    return wrapper
-
-
-class InitializedMixinMeta(ABCMeta):
-    def __call__(self, *args, **kwargs):
-        obj = super().__call__(*args, **kwargs)
-        obj._initialized = True
-        return obj
-
-
-class InitializedMixin(metaclass=InitializedMixinMeta):
-    _initialized = False
-    __slots__ = ()
-
-
 class HealthCheckMixin:
     healthcheck_interval = 5
 
@@ -53,7 +30,8 @@ class HealthCheckMixin:
         self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
-        while True:
+        self.terminated = False
+        while not self.terminated:
             if not self.execution_client.healthcheck():
                 logger.error("A task has failed")
                 self.health_file.close()
@@ -61,8 +39,11 @@ class HealthCheckMixin:
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
+    def terminate(self):
+        self.terminated = True
 
-class AbstractComponent(HealthCheckMixin, InitializedMixin):
+
+class AbstractComponent(HealthCheckMixin):
     collection_name = 'default'
     managed_class: Type = None
 
@@ -75,9 +56,9 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
         self.namespace = namespace
         self.instance_id = instance_id
         self.collection_name = str(self.instance_id)
+
         self._setup = setup
         self._load_clients()
-        self._load_hooks()
 
         super().__init__(*args, **kwargs)
 
@@ -85,17 +66,18 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
         self._load_metadata()
         self._load_parameters()
         self._load_context()
+        self._load_hooks()
 
     def hook_insert_origin(self, *args, **kwargs):
-        """
-        Hook to insert instance_id on save
-        """
         instances = kwargs.get("instances", [])
         variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
             variable.instance_id = self.instance_id
             variable.instance_type = self.managed_class.__name__
         return args, kwargs
+
+    def _load_hooks(self):
+        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
 
     def _load_metadata(self):
         self._version = self._spec.version
@@ -111,14 +93,10 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
             value = p.value
             setattr(self, name, value)
 
-    def _load_hooks(self):
-        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
-
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
         self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
-        self.notification_client = self.setup.NOTIFICATION_CLIENT(namespace=self.namespace)
         self.execution_client = ExecutionClient(self.namespace)
 
     @property
@@ -129,7 +107,6 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
     def setup(self, new_setup):
         self._setup.configure(new_setup)
         self._load_clients()
-        self._load_hooks()
 
     @property
     def instance(self):
@@ -174,12 +151,7 @@ class AbstractComponent(HealthCheckMixin, InitializedMixin):
         )
 
     def notify(self, notification: Notification):
-        return _notify(
-            notification=notification,
-            database_client=self.database_client,
-            notification_client=self.notification_client,
-            datalake_client=self.datalake_client,
-        )
+        return self.database_client.save(notification)
 
     @abstractmethod
     def start(self):
