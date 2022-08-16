@@ -1,7 +1,7 @@
+from abc import abstractmethod
 import sys
 import time
 import json
-from abc import abstractmethod
 from typing import Optional, Type, List, Dict
 from tempfile import NamedTemporaryFile
 from splight_models import (
@@ -22,7 +22,7 @@ from splight_models.notification import Notification
 logger = logging.getLogger()
 
 
-class HealthCheckMixin:
+class RunnableMixin:
     healthcheck_interval = 5
 
     def __init__(self):
@@ -39,34 +39,17 @@ class HealthCheckMixin:
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
+    @abstractmethod
+    def start(self):
+        pass
+
     def terminate(self):
         self.terminated = True
 
 
-class AbstractComponent(HealthCheckMixin):
-    collection_name = 'default'
-    managed_class: Type = None
-
-    def __init__(self,
-                 instance_id: str,
-                 run_spec: str,
-                 namespace: Optional[str] = 'default',
-                 *args, **kwargs):
-
-        self.namespace = namespace
-        self.instance_id = instance_id
-        self.collection_name = str(self.instance_id)
-
-        self._setup = setup
-        self._load_clients()
-
-        super().__init__(*args, **kwargs)
-
-        self._spec = Deployment(**json.loads(run_spec))
-        self._load_metadata()
-        self._load_parameters()
-        self._load_context()
-        self._load_hooks()
+class HooksMixin:
+    def _load_hooks(self):
+        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
 
     def hook_insert_origin(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -76,46 +59,8 @@ class AbstractComponent(HealthCheckMixin):
             variable.instance_type = self.managed_class.__name__
         return args, kwargs
 
-    def _load_hooks(self):
-        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
 
-    def _load_metadata(self):
-        self._version = self._spec.version
-
-    def _load_context(self):
-        self.namespace = self._spec.namespace
-        self.instance_id = self._spec.external_id
-
-    def _load_parameters(self):
-        _parameters = self._spec.parameters
-        for p in _parameters:
-            name = p.name
-            value = p.value
-            setattr(self, name, value)
-
-    def _load_clients(self):
-        self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
-        self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
-        self.execution_client = ExecutionClient(self.namespace)
-
-    @property
-    def setup(self):
-        return self._setup
-
-    @setup.setter
-    def setup(self, new_setup):
-        self._setup.configure(new_setup)
-        self._load_clients()
-
-    @property
-    def instance(self):
-        return self.database_client.get(
-            resource_type=self.managed_class,
-            id=self.instance_id,
-            first=True
-        )
-
+class UtilsMixin:
     def get_history(self,
                     asset_id: Optional[str] = None,
                     attribute_ids: Optional[List[str]] = None,
@@ -153,6 +98,65 @@ class AbstractComponent(HealthCheckMixin):
     def notify(self, notification: Notification):
         return self.database_client.save(notification)
 
-    @abstractmethod
-    def start(self):
-        pass
+
+class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
+    collection_name = 'default'
+    managed_class: Type = None
+
+    def __init__(self,
+                 instance_id: str,
+                 run_spec: str,
+                 namespace: Optional[str] = 'default',
+                 *args, **kwargs):
+
+        self.namespace = namespace
+        self.instance_id = instance_id
+
+        self._setup = setup
+        self._load_clients()
+        self._load_hooks()
+
+        super().__init__(*args, **kwargs)
+
+        self._spec = Deployment(**json.loads(run_spec))
+        self._load_metadata()
+        self._load_parameters()
+        self._load_context()
+
+    def _load_metadata(self):
+        self._version = self._spec.version
+
+    def _load_context(self):
+        self.namespace = self._spec.namespace
+        self.instance_id = self._spec.external_id
+
+    def _load_parameters(self):
+        _parameters = self._spec.parameters
+        for p in _parameters:
+            name = p.name
+            value = p.value
+            setattr(self, name, value)
+
+    def _load_clients(self):
+        self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
+        self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
+        self.execution_client = ExecutionClient(self.namespace)
+
+    @property
+    def setup(self):
+        return self._setup
+
+    @setup.setter
+    def setup(self, new_setup):
+        self._setup.configure(new_setup)
+        self._load_clients()
+        self._load_hooks()
+
+    @property
+    def instance(self):
+        return self.database_client.get(
+            resource_type=self.managed_class,
+            id=self.instance_id,
+            first=True
+        )
