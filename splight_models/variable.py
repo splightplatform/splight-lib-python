@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime, timezone
 from pydantic import Field
 from typing import Dict, Optional
-from .base import SplightBaseModel
+from splight_models.base import SplightBaseModel
 
 
 class Variable(SplightBaseModel):

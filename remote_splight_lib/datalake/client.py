@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type, Union
 
 import pandas as pd
+import json
 from furl import furl
 from pydantic import BaseModel
 from requests import Session
@@ -11,7 +12,7 @@ from requests import Session
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import VariableDataFrame, Variable
+from splight_models import VariableDataFrame
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -36,10 +37,11 @@ class DatalakeClient(AbstractDatalakeClient):
     ) -> List[BaseModel]:
         # POST /datalake/save/
         url = self._base_url / f"{self._PREFIX}/save/"
-        data = [model.dict() for model in instances]
+        data = [json.loads(model.json()) for model in instances]
         response = self._session.post(
-            url, params={"source": collection}, data=data
+            url, params={"source": collection}, json=data
         )
+
         response.raise_for_status()
         return [resource_type.parse_obj(d) for d in response.json()]
 
@@ -104,12 +106,16 @@ class DatalakeClient(AbstractDatalakeClient):
         return response.json()
 
     def get_dataframe(
-        self, variable: Variable, freq: str = "H", collection: str = "default"
+        self,
+        resource_type: Type,
+        collection: str = "default",
+        **kwargs
     ) -> VariableDataFrame:
         # GET /datalake/dumpdata/?source=collection
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
+        kwargs.update({"source": collection})
         response = self._session.get(
-            url, params={"source": collection, "freq": freq}
+            url, params=kwargs
         )
         response.raise_for_status()
         return VariableDataFrame(pd.read_csv(StringIO(response.text)))
