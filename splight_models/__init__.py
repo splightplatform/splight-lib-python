@@ -5,6 +5,7 @@ from splight_models.billing import *
 from splight_models.blockchain import *
 from splight_models.channel import *
 from splight_models.dashboard import *
+from splight_models.datalake import *
 from splight_models.deployment import *
 from splight_models.email import *
 from splight_models.geopoint import *

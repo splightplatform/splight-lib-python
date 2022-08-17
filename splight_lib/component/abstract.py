@@ -3,6 +3,7 @@ import sys
 import time
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
+<<<<<<< HEAD
 from typing import Dict, List, Optional, Type
 
 from splight_lib.execution import ExecutionClient, Thread
@@ -11,6 +12,27 @@ from splight_lib.settings import setup
 from splight_lib.shortcut import save_file as _save_file
 from splight_models import Deployment, StorageFile, Variable, VariableDataFrame
 from splight_models.notification import Notification
+=======
+from splight_models import (
+    Deployment,
+    Notification,
+    Message,
+    ModeledRunner,
+    Parameter,
+    StorageFile,
+    VariableDataFrame,
+    Variable,
+)
+from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
+from splight_lib.shortcut import (
+    save_file as _save_file
+)
+from splight_lib.settings import setup
+from splight_lib.execution import Thread, ExecutionClient
+from splight_lib.logging import logging
+from collections import defaultdict
+from pydantic import BaseModel
+>>>>>>> e4eb44d (Change load spec in abstract component)
 
 logger = logging.getLogger()
 
@@ -171,3 +193,71 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         return self.database_client.get(
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
+
+    def _retrive_objects_in_input(self, parameters: List):
+        ids = {
+            "database": defaultdict(list),
+            "storage": defaultdict(list),
+        }
+        self._get_ids(parameters, ids)
+        objects = self._retrieve_objects(ids)
+        objects[None] = None
+        self._complete_input_with_objects(parameters, objects)
+        return parameters
+
+    def _get_ids(self, parameters: List[Parameter], ids: Dict) -> None:
+        for parameter in parameters:
+            values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
+
+            if parameter["type"] in DATABASE_TYPES:
+                for value in values:
+                    ids["database"][parameter["type"]].append(value)
+            elif parameter["type"] in STORAGE_TYPES:
+                for value in values:
+                    ids["storage"][parameter["type"]].append(value)
+            elif parameter["type"] not in SIMPLE_TYPES:
+                for value in values:
+                    self._get_ids(value, ids)
+
+    def _retrieve_objects(self, ids: Dict) -> Dict[str, BaseModel]:
+        res: Dict = {}
+        for type, ids_ in ids["database"].items():
+            objs = self.database_client.get(DATABASE_TYPES[type], id__in=ids_)
+            res.update({obj.id: obj for obj in objs})
+
+        for type, ids_ in ids["storage"].items():
+            objs = self.storage_client.get(STORAGE_TYPES[type], id__in=ids_)
+            res.update({obj.id: obj for obj in objs})
+
+        return res
+
+    def _complete_input_with_objects(self, parameters: List[Parameter], objects: Dict) -> None:
+        for parameter in parameters:
+            if parameter["type"] in DATABASE_TYPES or parameter["type"] in STORAGE_TYPES:
+                if parameter["multiple"]:
+                    parameter["value"] = [objects[val] for val in parameter["value"]]
+                else:
+                    parameter["value"] = objects[parameter["value"]]
+
+            elif parameter["type"] not in SIMPLE_TYPES:
+                values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
+                for value in values:
+                    self._complete_input_with_objects(value, objects)
+
+    def _parse_input(self, parameters: List) -> Dict:
+        parameters_dict: Dict = {}
+
+        for parameter in parameters:
+            type = parameter["type"]
+            name = parameter["name"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+
+            if type in SIMPLE_TYPES:
+                parameters_dict[name] = value
+            elif multiple:
+                parameters_dict[name] = [self._parse_input(val) for val in value]
+            else:
+                parameters_dict[name] = self._parse_input(value)
+
+        return parameters_dict
