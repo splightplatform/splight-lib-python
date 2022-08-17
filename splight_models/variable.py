@@ -1,40 +1,14 @@
 import pandas as pd
-from datetime import datetime, timezone
-from pydantic import Field
 from typing import Dict, Optional
-from splight_models.base import SplightBaseModel
+from .datalake import DatalakeModel
 
 
-class Variable(SplightBaseModel):
+class Variable(DatalakeModel):
     args: Optional[Dict] = None
     path: Optional[str] = None
     asset_id: Optional[str] = None
     attribute_id: Optional[str] = None
-    instance_id: Optional[str] = None
-    instance_type: Optional[str] = None
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class VariableDataFrame(pd.DataFrame):
-    def fold(self, asset_id: str, key: str, freq: str = "H", aggregation: str = "mean") -> pd.DataFrame:
-        _df = self.copy()
-        if _df.empty:
-            return _df
-        _df = _df[_df["asset_id"] == asset_id]
-        _df.timestamp = _df.timestamp.dt.round(freq=freq)
-        _df = _df.pivot_table(values=key, index=_df.timestamp, columns='attribute_id', aggfunc=aggregation)
-        return _df
-
-    @classmethod
-    def unfold(cls, df: pd.DataFrame, asset_id: str = None, key: str = "value"):
-        _df = df.copy()
-        if asset_id:
-            _df['asset_id'] = asset_id
-        if _df.empty:
-            return cls(_df)
-        if _df.index.name == 'timestamp':
-            _df = _df.reset_index()
-        _df = pd.melt(_df, id_vars=["timestamp", "asset_id"]).dropna()
-        _df = _df.rename(columns={"value": key})
-        _df = _df.rename(columns={"variable": "attribute_id"})
-        return cls(_df)
+    pass

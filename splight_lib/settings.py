@@ -1,10 +1,15 @@
-# TODO MOVE THIS STUFF 
-import os, sys
+# TODO MOVE THIS STUFF
+from typing import Type
+from pydantic import BaseSettings
+from importlib import import_module
+import os
+import sys
 from typing import Dict
 TESTING = "test" in sys.argv or "pytest" in sys.argv
 SPLIGHT_HOME = os.path.join(os.getenv('HOME'), '.splight')
 USE_TZ = True
-## EOTODO
+# EOTODO
+
 
 """
 Settings for SPLIGHT framework are all namespaced in the SPLIGHT_FRAMEWORK setting.
@@ -18,11 +23,6 @@ This module provides the `setup` object, that is used to access
 SPLIGHT framework settings, checking for user settings first, then falling
 back to the defaults.
 """
-from importlib import import_module
-from pydantic import BaseSettings
-from typing import Type
-import os
-import sys
 
 
 class SplightBaseSettings(BaseSettings):
@@ -105,7 +105,7 @@ def import_from_string(val, setting_name):
 
 class SplightSettings:
 
-    def __init__(self, user_settings = {}, base_settings_model: Type[SplightBaseSettings] = SplightBaseSettings):
+    def __init__(self, user_settings={}, base_settings_model: Type[SplightBaseSettings] = SplightBaseSettings):
         self._cached_attrs = set()
         self._base_settings_model = base_settings_model
         self._base_settings = self._base_settings_model()
@@ -135,5 +135,6 @@ class SplightSettings:
             os.environ[key] = value
         # Reload settings
         self._base_settings = self._base_settings_model()
+
 
 setup = SplightSettings()

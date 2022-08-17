@@ -1,25 +1,23 @@
-
 from typing import Dict, List, Optional
-
 from splight_models.base import SplightBaseModel
 from splight_models.constants import ComponentSize, ComponentType, DeploymentStatus, LogginLevel, RestartPolicy
-from splight_models.runner import Parameter
+from splight_models.runner import BaseRunner
 
 
-class Deployment(SplightBaseModel):
+class Deployment(BaseRunner):
     # run-spec
     id: Optional[str] = None
     type: ComponentType
     external_id: Optional[str] = None
-    version: str
-    parameters: List[Parameter] = []
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
+
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
     log_level: LogginLevel = LogginLevel.debug
     restart_policy: RestartPolicy = RestartPolicy.ALWAYS
+
     # CLI pre setup
     access_id: Optional[str] = None
     secret_key: Optional[str] = None
