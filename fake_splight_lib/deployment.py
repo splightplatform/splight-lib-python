@@ -19,6 +19,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def _create_deployment(self, instance: Deployment) -> Deployment:
         logger.info("[FAKED] Applying fake deployment")
+        logger.info(instance.dict())
         count = str(uuid.uuid4())
         self.deployments[count] = instance
         instance.id = count

@@ -4,7 +4,7 @@ import os
 import json
 from collections import defaultdict
 from collections.abc import MutableMapping
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
 from splight_models import Variable, VariableDataFrame

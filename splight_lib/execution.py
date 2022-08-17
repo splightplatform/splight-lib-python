@@ -290,7 +290,6 @@ class ExecutionClient(AbstractClient):
 
     def __del__(self) -> None:
         self.terminate_all()
-        super(ExecutionClient).__del__()
 
     def terminate_all(self) -> None:
         for p in self.processes:
