@@ -139,8 +139,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
+        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.execution_client = ExecutionClient(self.namespace)
 
     @property

@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type, Union
 
 import pandas as pd
+import json
 from furl import furl
 from pydantic import BaseModel
 from requests import Session
@@ -36,10 +37,11 @@ class DatalakeClient(AbstractDatalakeClient):
     ) -> List[BaseModel]:
         # POST /datalake/save/
         url = self._base_url / f"{self._PREFIX}/save/"
-        data = [model.dict() for model in instances]
+        data = [json.loads(model.json()) for model in instances]
         response = self._session.post(
-            url, params={"source": collection}, data=data
+            url, params={"source": collection}, json=data
         )
+
         response.raise_for_status()
         return [resource_type.parse_obj(d) for d in response.json()]
 

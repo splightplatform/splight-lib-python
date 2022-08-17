@@ -179,7 +179,12 @@ class AbstractClientComponent(AbstractIOComponent):
                     attribute_id=m.attribute_id)
                 for m in mappings_to_subscribe
             ]
-            self.handle_subscribe(variables_to_subscribe)
+            try:
+                self.handle_subscribe(variables_to_subscribe)
+            except Exception as e:
+                logger.exception(e)
+                logger.error("Not possible to handle_subscribe. Will retry later")
+                return
 
             mappings_to_unsubscribe = self._mappings_last_sync - new_status
             variables_to_unsubscribe = [
@@ -190,5 +195,10 @@ class AbstractClientComponent(AbstractIOComponent):
                     attribute_id=m.attribute_id)
                 for m in mappings_to_unsubscribe
             ]
-            self.handle_unsubscribe(variables_to_unsubscribe)
+            try:
+                self.handle_unsubscribe(variables_to_unsubscribe)
+            except Exception as e:
+                logger.exception(e)
+                logger.error("Not possible to handle_subscribe. Will retry later")
+                return
         self._mappings_last_sync = new_status

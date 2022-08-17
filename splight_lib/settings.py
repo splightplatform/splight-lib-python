@@ -126,7 +126,11 @@ class SplightSettings:
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
+        # This is setting the environment and
+        # each model reloads the respective setup from there
         for key, value in user_settings.items():
-            setattr(self._base_settings, key, value)
+            os.environ[key] = value
+        # Reload settings
+        self._base_settings = self._base_settings_model()
 
 setup = SplightSettings()
