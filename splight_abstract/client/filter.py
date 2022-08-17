@@ -23,7 +23,6 @@ class FilterMixin:
     def _check_in(self, x: Any, field: str, value: Any):
         field = self._get_field_value(x,field)
         try:
-            print(field, value)
             return field in value
         except:
             return False
