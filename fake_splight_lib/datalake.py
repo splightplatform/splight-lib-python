@@ -137,6 +137,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return filters
 
+    @AbstractDatalakeClient.validate_resource_type
     def _get(self,
              resource_type: Type,
              collection: str = 'default',
@@ -158,6 +159,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return result[skip_:skip_ + limit_]
 
+    @AbstractDatalakeClient.validate_resource_type
     def count(self,
               resource_type: Type,
               collection: str = "default",
@@ -173,6 +175,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return len(result)
 
+    @AbstractDatalakeClient.validate_resource_type
     def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
         self._write_to_collection(collection, data)
@@ -193,7 +196,8 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         raise NotImplementedError
-        
+
+    @AbstractDatalakeClient.validate_resource_type
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
         logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
         variables = [
