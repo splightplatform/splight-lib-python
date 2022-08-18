@@ -54,6 +54,56 @@ class FakeCredentials:
         return ({}, 204)
 
 
+class FakeDeployment:
+    def list(self):
+        return (
+            {
+                "count": 3,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "access_id": "6f5c1652-c52d-4aea-bd9c-5bf72d63c5b6",
+                        "created_date": "2022-07-05T18:02:32.692815Z",
+                        "last_used": "2022-07-05T18:02:32.692824Z",
+                        "user": 1,
+                    },
+                    {
+                        "access_id": "01c5bc01-d0c6-43b1-91d2-698f80545c82",
+                        "created_date": "2022-07-05T18:02:35.630840Z",
+                        "last_used": "2022-07-05T18:02:35.630856Z",
+                        "user": 1,
+                    },
+                    {
+                        "access_id": "13e9294c-4810-4a8d-8452-61961c7e8ecd",
+                        "created_date": "2022-07-05T18:02:36.916698Z",
+                        "last_used": "2022-07-05T18:02:36.916708Z",
+                        "user": 1,
+                    },
+                ],
+            },
+            200,
+        )
+
+    def create(self, data: Dict[str, Any]):
+        secret_key = (
+            "addffg5b024dbc7f6b6760012ea493e738e350fad0b19e02405342f6666fd513"
+        )
+        return (
+            {
+                "access_id": "57e45010-ad7a-4dce-b759-98ec4f77a079",
+                "created_date": "2022-07-05T19:29:16.061270Z",
+                "last_used": "2022-07-05T19:29:16.061282Z",
+                "user": 1,
+                "secret_key": secret_key,
+            },
+            201,
+        )
+
+    def delete(self, resource_id: str):
+        return ({}, 204)
+
+
 class FakeProfile:
     def list(self):
         return (
@@ -302,6 +352,7 @@ class FakeAuthClient(AbstractAuthClient):
         super().__init__()
 
         self._credentials = FakeCredentials()
+        self._deployment = FakeDeployment()
         self._profile = FakeProfile()
         self._role = FakeRoles()
         self._user = FakeUsers()
