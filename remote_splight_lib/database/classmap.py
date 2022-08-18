@@ -11,8 +11,6 @@ from splight_models import (
     Edge,
     Filter,
     Graph,
-    Namespace,
-    Network,
     Notification,
     Node,
     MappingRule,
