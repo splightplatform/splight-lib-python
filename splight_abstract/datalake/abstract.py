@@ -62,10 +62,6 @@ class AbstractDatalakeClient(AbstractClient):
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         pass
 
-    @abstractmethod
-    def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
-        pass
-
     def _validated_kwargs(self, resource_type: Type, **kwargs):
         valid_fields: List[str] = list(resource_type.__fields__.keys())
 
