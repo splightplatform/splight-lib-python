@@ -25,7 +25,7 @@ class AbstractStorageClient(AbstractClient):
         pass
 
     @abstractmethod
-    def download(self, filename: str, target: str) -> str:
+    def download(self, resource_type: Type, id: str, target: str) -> str:
         pass
 
     @abstractmethod
