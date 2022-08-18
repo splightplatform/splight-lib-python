@@ -174,12 +174,9 @@ class DatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
         return response.json()
 
-    def get_components_sizes_gb(
-        self, start: datetime = None, end: datetime = None
-    ) -> Dict:
-        # GET /datalake/component-sizes/
-        url = self._base_url / f"{self._PREFIX}/component-sizes/"
-        params = {"start": start, "end": end}
-        response = self._session.get(url, params=params)
+    def get_db_size_gb(self) -> float:
+        # GET /datalake/db-size/
+        url = self._base_url / f"{self._PREFIX}/db-size/"
+        response = self._session.get(url)
         response.raise_for_status()
         return response.json()
