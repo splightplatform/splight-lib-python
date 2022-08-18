@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List, Type
 
 from furl import furl
@@ -18,10 +19,7 @@ class DatabaseClient(AbstractDatabaseClient):
     to the Splight API.
     """
 
-    def __init__(
-        self,
-        namespace: str = "default"
-    ):
+    def __init__(self, namespace: str = "default"):
         super(DatabaseClient, self).__init__(namespace=namespace)
         self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
@@ -123,7 +121,7 @@ class DatabaseClient(AbstractDatabaseClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
-        return response['count']
+        return response["count"]
 
     def _pages(self, path: str, **kwargs):
         next_page = kwargs["page"]
@@ -152,12 +150,16 @@ class DatabaseClient(AbstractDatabaseClient):
 
     def _create(self, path: str, data: BaseModel) -> Dict:
         url = self._base_url / f"{path}/"
-        response = self._session.post(url, data=data.dict())
+        response = self._session.post(
+            url, json=json.loads(data.json(exclude_none=True))
+        )
         response.raise_for_status()
         return response.json()
 
     def _update(self, path: str, resource_id: str, data: BaseModel) -> Dict:
         url = self._base_url / f"{path}/{resource_id}/"
-        response = self._session.put(url, data=data.dict())
+        response = self._session.put(
+            url, json=json.loads(data.json(exclude_none=True))
+        )
         response.raise_for_status()
         return response.json()
