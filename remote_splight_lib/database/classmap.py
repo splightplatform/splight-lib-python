@@ -10,6 +10,7 @@ from splight_models import (
     Edge,
     Filter,
     Graph,
+    Network,
     Notification,
     Node,
     MappingRule,
