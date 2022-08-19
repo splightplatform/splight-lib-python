@@ -1,7 +1,7 @@
 from unittest import TestCase
 from splight_models.base import SplightBaseModel
 from datetime import datetime
-from .. import *
+from splight_models import *
 
 class AbstractBaseHash(object):
     class_model = SplightBaseModel
@@ -44,7 +44,7 @@ class TestTabHash(AbstractBaseHash, TestCase):
 
 class TestFilterHash(AbstractBaseHash, TestCase):
     class_model = Filter
-    args = {'chart_item_id': 'id', 'key' : 'key', 'value': 'value'}
+    args = {'chart_item_id': 'id', 'key' : 'key', 'value': 'value', 'label': 'label'}
     rand_str_arg = 'key'
 
 class TestChartItemHash(AbstractBaseHash, TestCase):
@@ -54,7 +54,16 @@ class TestChartItemHash(AbstractBaseHash, TestCase):
 
 class TestChartHash(AbstractBaseHash, TestCase):
     class_model = Chart
-    args = {'tab_id': 'id', 'type': 'type'}
+    args = {
+        'tab_id': 'id',
+        'type': 'type',     
+        'position_x': 0,
+        'position_y': 0,
+        'height': 0,
+        'width': 0,
+        'min_height': 0,
+        'min_width': 0
+    }
     rand_str_arg = 'tab_id'
 
 class TestDeploymentHash(AbstractBaseHash, TestCase):
