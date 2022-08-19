@@ -2,7 +2,7 @@ import logging
 from splight_models.base import SplightBaseModel
 from typing import Optional, List
 from splight_models.runner import Parameter
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class ComponentSize(str, Enum):
@@ -11,14 +11,24 @@ class ComponentSize(str, Enum):
     large = 'large'
     very_large = 'very_large'
 
+    def __str__(self):
+        return self.value
 
-class LogginLevel(str, Enum):
+
+class LogginLevel(IntEnum):
     critical = logging.CRITICAL
     error = logging.ERROR
     warning = logging.WARNING
     info = logging.INFO
     debug = logging.DEBUG
     notset = logging.NOTSET
+
+    def __str__(self):
+        return str(self.value)
+
+    @classmethod
+    def _missing_(cls, value):
+        return super()._missing_(int(value))
 
 
 class Deployment(SplightBaseModel):
@@ -30,8 +40,8 @@ class Deployment(SplightBaseModel):
     parameters: List[Parameter] = []
     # Template vars for deployment
     namespace: Optional[str] = None
-    component_capacity: str = ComponentSize.medium.value
-    log_level: int = LogginLevel.debug.value
+    component_capacity: ComponentSize = ComponentSize.medium
+    log_level: LogginLevel = LogginLevel.debug
     # CLI pre setup
     access_id: str = None
     secret_key: str = None
