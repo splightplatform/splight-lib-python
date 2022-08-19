@@ -1,5 +1,5 @@
-from .base import SplightBaseModel
-from typing import Optional, List
+from splight_models.base import SplightBaseModel
+from typing import Optional
 
 
 class Dashboard(SplightBaseModel):
@@ -20,6 +20,7 @@ class Filter(SplightBaseModel):
     operator: str = "eq"  # eg. eq, gt, gte, lt
     key: str              # asset_id
     value: str            # 5
+    label: str            # Asset ID
 
 
 class ChartItem(SplightBaseModel):
@@ -31,8 +32,11 @@ class ChartItem(SplightBaseModel):
     width: Optional[int]
     height: Optional[int]
     source: Optional[str]
+    source_label: Optional[str]
     target: Optional[str]
     split_by: Optional[str]
+    aggregate_period: Optional[str]
+    aggregate_criteria: Optional[str]
     label: Optional[str]
 
 
@@ -42,12 +46,15 @@ class Chart(SplightBaseModel):
     description: Optional[str] = None
     tab_id: str
     type: str
-    position: Optional[str]
+    position_x: int
+    position_y: int
+    height: int
+    width: int
+    min_height: int
+    min_width: int
     timestamp_gte: Optional[str] = None
     timestamp_lte: Optional[str] = None
     refresh_interval: Optional[str] = None
     relative_window_time: Optional[str] = None
-    aggregate_criteria: Optional[str] = None
-    aggregate_period: Optional[str] = None
     external_resource: Optional[str] = None
     external_resource_type: Optional[str] = None
