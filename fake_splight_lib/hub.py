@@ -32,7 +32,7 @@ class FakeHubClient(AbstractHubClient):
         HubAlgorithm
     ]
 
-    allowed_update_fields = ["impact", "verification"]
+    allowed_update_fields = ["verification"]
 
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
