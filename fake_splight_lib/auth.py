@@ -360,6 +360,10 @@ class FakeAuthClient(AbstractAuthClient):
         return self._credentials
 
     @property
+    def deployment(self):
+        return self._deployment
+
+    @property
     def profile(self):
         return self._profile
 
