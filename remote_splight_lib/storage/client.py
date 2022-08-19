@@ -6,7 +6,7 @@ from splight_abstract.storage import AbstractStorageClient
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
-from .classmap import CLASSMAP
+from remote_splight_lib.storage.classmap import CLASSMAP
 
 
 class StorageClient(AbstractStorageClient):
@@ -87,8 +87,15 @@ class StorageClient(AbstractStorageClient):
     def delete(self, resource_type: Type, id: str):
         raise NotImplementedError
 
-    def download(self, filename: str, target: str) -> str:
-        raise NotImplementedError
+    def download(self, resource_type: Type, id: str, target: str) -> str:
+        model_data = self._get_model_data(resource_type)
+        path = model_data["path"]
+        url = self._base_url / f"{path}/{id}/download"
+        response = self._session.get(url)
+        response.raise_for_status()
+        with open(target, "wb") as f:
+            f.write(response.content)
+        return response.content
 
     def get_temporary_link(self, filename: str, target: str) -> str:
         raise NotImplementedError

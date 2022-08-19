@@ -38,7 +38,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get_dataframe(self, variable: Variable, freq="H", collection: str = "default") -> VariableDataFrame:
+    def get_dataframe(self, resource_type: Type, freq="H", collection: str = "default") -> VariableDataFrame:
         pass
 
     @abstractmethod
@@ -60,10 +60,6 @@ class AbstractDatalakeClient(AbstractClient):
     # Subject to incompatibility by implementation
     @abstractmethod
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-        pass
-
-    @abstractmethod
-    def get_components_sizes_gb(self, start: datetime = None, end: datetime = None) -> Dict:
         pass
 
     def _validated_kwargs(self, resource_type: Type, **kwargs):
