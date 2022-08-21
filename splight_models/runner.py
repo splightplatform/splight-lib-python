@@ -31,14 +31,15 @@ class CustomType(SplightBaseModel):
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
     custom_types: List[CustomType] = []
-    input: List[Parameter]
-    output: List[Parameter]
-    filters: List[Parameter]
+    input: List[Parameter] = []
+    output: List[Parameter] = []
+    filters: List[Parameter] = []
 
 
 class Runner(BaseRunner):
     id: Optional[str]
     name: str
+    type: str
     description: Optional[str]
     log_level: LogginLevel = LogginLevel.info
     component_capacity: ComponentSize = ComponentSize.small
@@ -83,7 +84,7 @@ NATIVE_TYPES = {
     "bool": bool,
     "str": str,
     "float": float,
-    "date": datetime,
+    "Date": datetime,
 }
 
 DATABASE_TYPES = {
