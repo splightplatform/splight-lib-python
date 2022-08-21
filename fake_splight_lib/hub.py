@@ -10,16 +10,16 @@ logger = logging.getLogger()
 
 class FakeHubClient(AbstractHubClient):
     networks = [
-        HubNetwork(id="1", name='Net1', description=None, version='01', parameters=[]),
-        HubNetwork(id="2", name='Net2', description=None, version='01', parameters=[]),
-        HubNetwork(id="3", name='Net3', description=None, version='01', parameters=[])
+        HubNetwork(id="1", name='Net1', description=None, version='01', input=[]),
+        HubNetwork(id="2", name='Net2', description=None, version='01', input=[]),
+        HubNetwork(id="3", name='Net3', description=None, version='01', input=[])
     ]
     algorithms = [
-        HubAlgorithm(id="4", name='Algo1', description=None, version='01', parameters=[]),
-        HubAlgorithm(id="5", name='Algo2', description=None, version='01', parameters=[])
+        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[]),
+        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[])
     ]
     connectors = [
-        HubConnector(id="6", name='Conn1', description=None, version='01', parameters=[])
+        HubConnector(id="6", name='Conn1', description=None, version='01', input=[])
     ]
     database: Dict[Type, List[BaseModel]] = {
         HubNetwork: networks,

@@ -197,7 +197,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         raise NotImplementedError
 
-    @AbstractDatalakeClient.validate_resource_type
     def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
         logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
         variables = [

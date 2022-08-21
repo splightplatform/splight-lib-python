@@ -3,21 +3,16 @@ import sys
 import time
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-<<<<<<< HEAD
 from typing import Dict, List, Optional, Type
-
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup
 from splight_lib.shortcut import save_file as _save_file
 from splight_models import Deployment, StorageFile, Variable, VariableDataFrame
 from splight_models.notification import Notification
-=======
 from splight_models import (
     Deployment,
     Notification,
-    Message,
-    ModeledRunner,
     Parameter,
     StorageFile,
     VariableDataFrame,
@@ -27,12 +22,10 @@ from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from splight_lib.shortcut import (
     save_file as _save_file
 )
-from splight_lib.settings import setup
 from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.logging import logging
 from collections import defaultdict
 from pydantic import BaseModel
->>>>>>> e4eb44d (Change load spec in abstract component)
 
 logger = logging.getLogger()
 
