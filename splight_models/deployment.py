@@ -31,10 +31,22 @@ class LogginLevel(IntEnum):
         return super()._missing_(int(value))
 
 
+class RestartPolicy(str, Enum):
+    ALWAYS = "Always"
+    ON_FAILURE = "OnFailure"
+    NEVER = "Never"
+
+
+class ComponentType(str, Enum):
+    ALGORITHM = "Algorithm"
+    NETWORK = "Network"
+    CONNECTOR = "Connector"
+
+
 class Deployment(SplightBaseModel):
     # run-spec
     id: Optional[str] = None
-    type: str  # eg. Connector, Network, Algorithm
+    type: ComponentType  # eg. Connector, Network, Algorithm
     external_id: str = None  # eg. 1
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
@@ -42,6 +54,7 @@ class Deployment(SplightBaseModel):
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
     log_level: LogginLevel = LogginLevel.debug
+    restart_policy: RestartPolicy = RestartPolicy.ALWAYS
     # CLI pre setup
     access_id: str = None
     secret_key: str = None
