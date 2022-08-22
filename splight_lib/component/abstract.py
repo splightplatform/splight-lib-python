@@ -1,9 +1,8 @@
-import json
 import sys
 import time
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Optional, Type
+from typing import Optional, Type, List, Dict
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup
@@ -13,6 +12,7 @@ from splight_models.notification import Notification
 from splight_models import (
     Deployment,
     Notification,
+    ModeledRunner,
     Parameter,
     StorageFile,
     VariableDataFrame,
@@ -26,6 +26,8 @@ from splight_lib.execution import Thread, ExecutionClient
 from splight_lib.logging import logging
 from collections import defaultdict
 from pydantic import BaseModel
+from functools import cached_property
+from pprint import pprint
 
 logger = logging.getLogger()
 
@@ -125,51 +127,41 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
     collection_name = "default"
     managed_class: Type = None
 
-    def __init__(
-        self,
-        instance_id: str,
-        run_spec: str,
-        namespace: Optional[str] = "default",
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
+        self._raw_spec = run_spec
+        self._spec = Deployment(**run_spec)
 
-        self.namespace = namespace
-        self.instance_id = instance_id
-
-        self._setup = setup
-        self._load_clients()
-        self._load_hooks()
-
-        super().__init__(*args, **kwargs)
-
-        self._spec = Deployment(**json.loads(run_spec))
-        self._load_metadata()
-        self._load_parameters()
-        self._load_context()
-
-    def _load_metadata(self):
-        self._version = self._spec.version
-
-    def _load_context(self):
         self.namespace = self._spec.namespace
         self.instance_id = self._spec.external_id
 
-    def _load_parameters(self):
-        _parameters = self._spec.parameters
-        for p in _parameters:
-            name = p.name
-            value = p.value
-            setattr(self, name, value)
+        self._init_setup(initial_setup)
+        self._load_metadata()
+        self._load_models()
+
+        super().__init__(*args, **kwargs)
+
+    def _init_setup(self, initial_setup: Optional[dict] = None):
+        self._setup = setup
+        if initial_setup:
+            self.setup = initial_setup
+
+    def _load_metadata(self):
+        self._version: str = self._spec.version
+
+    def _load_models(self):
+        mr: ModeledRunner = self._spec.get_modeled_instance()
+        self._retrive_objects_in_input(self._raw_spec["input"])
+        parsed_input = self._parse_input(self._raw_spec["input"])
+        self.input = mr.input(**parsed_input)
+        self.Output = mr.output
+        self.custom_types = mr.custom_types
 
     def _load_clients(self):
-        self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
-        self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
-        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(
-            namespace=self.namespace
-        )
-        self.execution_client = ExecutionClient(self.namespace)
+        self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
+        self.datalake_client = self.setup.DATALAKE_CLIENT(namespace=self.namespace)
+        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
+        self.execution_client = ExecutionClient(namespace=self.namespace)
 
     @property
     def setup(self):
@@ -181,7 +173,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self._load_clients()
         self._load_hooks()
 
-    @property
+    @cached_property
     def instance(self):
         return self.database_client.get(
             resource_type=self.managed_class, id=self.instance_id, first=True
@@ -194,7 +186,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         }
         self._get_ids(parameters, ids)
         objects = self._retrieve_objects(ids)
-        objects[None] = None
         self._complete_input_with_objects(parameters, objects)
         return parameters
 
