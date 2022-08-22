@@ -341,6 +341,11 @@ class FakeOrganizations:
             200,
         )
 
+    def invite_new_admin(self, organization_id: str, data: Dict[str, Any]):
+        return (
+            {},
+            200,
+        )
 
 class FakeAuthClient(AbstractAuthClient):
     def __init__(self, *args, **kwargs):
