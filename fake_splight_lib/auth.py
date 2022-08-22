@@ -126,7 +126,10 @@ class FakeProfile:
     def update_profile(self, data: Dict[str, Any]):
         return self.list()
 
-    def organization(self):
+
+class FakeOrganization:
+
+    def list(self):
         return (
             {
                 "id": "org_fGMkta1hcU4NWkp1",
@@ -142,8 +145,8 @@ class FakeProfile:
             200,
         )
 
-    def update_organization(self, data: Dict[str, Any]):
-        return self.organization()
+    def update_organization_metadata(self, data: Dict[str, Any]):
+        return self.list()
 
 
 class FakeRoles:
@@ -268,7 +271,7 @@ class FakeUsers:
         )
 
 
-class FakeOrganization:
+class FakeOrganizations:
     def list(self):
         return (
             {
@@ -324,19 +327,15 @@ class FakeOrganization:
             200,
         )
 
-
-class FakeSuperAdmin:
-    def update_superset_organization(self, data: Dict[str, Any]):
+    def update(self, resource_id: str, data: Dict[str, Any]):
         return (
             {
-                "id": "org_fGMkta1hcU4NWkp1",
-                "name": "splight",
-                "display_name": "Splight",
+                "id": "org_HhMefMw2ioFGDJqw",
+                "name": "integration_splight",
+                "display_name": "Integration_splight",
                 "metadata": {
-                    "billing_id": "123",
-                    "blockchain_id": (
-                        "0xcCd6872568009c5669fc699098a4373171C905B6"
-                    ),
+                    "billing_id": None,
+                    "blockchain_id": None,
                 },
             },
             200,
@@ -353,7 +352,7 @@ class FakeAuthClient(AbstractAuthClient):
         self._role = FakeRoles()
         self._user = FakeUsers()
         self._organization = FakeOrganization()
-        self._superadmin = FakeSuperAdmin()
+        self._organizations = FakeOrganizations()
 
     @property
     def credentials(self):
@@ -380,8 +379,8 @@ class FakeAuthClient(AbstractAuthClient):
         return self._organization
 
     @property
-    def superadmin(self):
-        return self._superadmin
+    def organizations(self):
+        return self._organizations
 
     def authenticate(self):
         user_complete_info: Dict = {
