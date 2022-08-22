@@ -61,6 +61,9 @@ class Deployment(SplightBaseModel):
     hub_api_host: str = None
     api_host: str = None
 
+    class Config:
+        use_enum_values = True
+
     @property
     def service_name(self):
         id = str(self.id).lower()
