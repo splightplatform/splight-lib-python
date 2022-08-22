@@ -28,7 +28,7 @@ back to the defaults.
 class SplightBaseSettings(BaseSettings):
     AUTH_CLIENT: str = 'fake_splight_lib.auth.FakeAuthClient'
     BLOCKCHAIN_CLIENT: str = 'fake_splight_lib.blockchain.FakeBlockchainClient'
-    DATABASE_CLIENT: str = 'fake_splight_lib.database.FakeDatabaseClient'
+    DATABASE_CLIENT: str = 'private_splight_lib.database.DjangoClient'
     DATALAKE_CLIENT: str = 'fake_splight_lib.datalake.FakeDatalakeClient'
     DEPLOYMENT_CLIENT: str = 'fake_splight_lib.deployment.FakeDeploymentClient'
     EMAIL_CLIENT: str = 'fake_splight_lib.email.FakeEmailClient'
