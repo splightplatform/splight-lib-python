@@ -35,6 +35,15 @@ class BaseRunner(SplightBaseModel):
     output: List[Parameter] = []
     filters: List[Parameter] = []
 
+    def get_modeled_instance(self) -> 'ModeledRunner':
+        return ModeledRunnerFactory(self).get_modeled_runner()
+
+
+class ModeledRunner(BaseRunner):
+    custom_types: Type
+    input: Type
+    output: Type
+
 
 class Runner(BaseRunner):
     id: Optional[str]
@@ -46,18 +55,9 @@ class Runner(BaseRunner):
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
     status: RunnerStatus = RunnerStatus.STOPPED
 
-    def get_modeled_instance(self) -> 'ModeledRunner':
-        return ModeledRunnerFactory(self).get_modeled_runner()
-
     @property
     def collection(self):
         return 'default'
-
-
-class ModeledRunner(Runner):
-    custom_types: Type
-    input: Type
-    output: Type
 
 
 class Algorithm(Runner):
@@ -153,7 +153,7 @@ class ModeledRunnerFactory:
             if not field.required:
                 type = Optional[type]
 
-            value = field.value if field.value is not None else ...
+            value = None
             fields_dict[field.name] = (type, value)
 
         return create_model(name, **fields_dict, __base__=base)
