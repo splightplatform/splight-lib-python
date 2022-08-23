@@ -60,7 +60,6 @@ class Runner(BaseRunner):
 
 
 class Algorithm(Runner):
-
     @property
     def collection(self):
         return str(self.id)
