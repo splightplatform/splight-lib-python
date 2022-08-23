@@ -1,7 +1,5 @@
 from typing import Dict, Any
-from splight_models.base import SplightBaseModel
-from datetime import datetime, timezone
-from pydantic import Field
+from datalake import DatalakeModel
 
 
 class UserActivityType:
@@ -11,9 +9,8 @@ class UserActivityType:
     READ = "READ"
 
 
-class UserActivity(SplightBaseModel):
+class UserActivity(DatalakeModel):
     action: str
     user: Dict[str, Any]
     object: Dict[str, Any]
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     details: Dict[str, Any]

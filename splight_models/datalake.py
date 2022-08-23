@@ -7,9 +7,11 @@ from datetime import datetime
 
 
 class DatalakeModel(SplightBaseModel):
-    instance_id: Optional[str] = None
-    instance_type: Optional[str] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+
+class RunnerDatalakeModel(DatalakeModel):
+    instance_id: Optional[str] = None
+    instance_type: Optional[str] = None
 
 # TODO: Add DatalakeDataFrame class
