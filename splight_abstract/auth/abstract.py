@@ -29,7 +29,7 @@ class AbstractAuthClient(ABC):
 
     @property
     @abstractmethod
-    def superadmin(self):
+    def organizations(self):
         pass
 
     @abstractmethod
