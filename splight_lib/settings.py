@@ -31,6 +31,7 @@ class SplightBaseSettings(BaseSettings):
     DATABASE_CLIENT: str = 'fake_splight_lib.database.FakeDatabaseClient'
     DATALAKE_CLIENT: str = 'fake_splight_lib.datalake.FakeDatalakeClient'
     DEPLOYMENT_CLIENT: str = 'fake_splight_lib.deployment.FakeDeploymentClient'
+    EMAIL_CLIENT: str = 'fake_splight_lib.email.FakeEmailClient'
     CACHE_CLIENT: str = 'fake_splight_lib.cache.FakeCacheClient'
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
@@ -46,6 +47,7 @@ class SplightBaseSettings(BaseSettings):
             'DATABASE_CLIENT',
             'DATALAKE_CLIENT',
             'DEPLOYMENT_CLIENT',
+            'EMAIL_CLIENT',
             'CACHE_CLIENT',
             'NOTIFICATION_CLIENT',
             'STORAGE_CLIENT',

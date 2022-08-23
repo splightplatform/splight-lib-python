@@ -6,6 +6,7 @@ from .blockchain import *
 from .channel import *
 from .dashboard import *
 from .deployment import *
+from .email import *
 from .geopoint import *
 from .graph import *
 from .hub import *
