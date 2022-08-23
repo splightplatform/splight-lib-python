@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from datalake import DatalakeModel
+from .datalake import DatalakeModel
 
 
 class UserActivityType:
