@@ -252,24 +252,6 @@ class FakeUsers:
     def users_update(self, resource_id: str, data: Dict[str, Any]):
         return (self.FAKE_USER_1, 200)
 
-    def users_create(self, data: Dict[str, Any]):
-        return (
-            {
-                "id": "asd",
-                "client_id": "asd",
-                "inviter": {"name": "fake.user@splight-ae.com"},
-                "invitee": {"email": "fake.user+15@splight-ae.com"},
-                "app_metadata": {},
-                "user_metadata": {},
-                "invitation_url": "https://integrationapp.splight-ae.com/",
-                "ticket_id": "5qGQxSZJs9sQGDzmG1xAWhzTo0eabKVA",
-                "created_at": "2022-07-05T19:37:48.367Z",
-                "expires_at": "2022-07-12T19:37:48.367Z",
-                "organization_id": "orgsUvmxKLxSZPtHH8",
-            },
-            201,
-        )
-
 class FakeInvitations:
     def list(self):
         return ({
@@ -314,6 +296,24 @@ class FakeInvitations:
         },
         200
     )
+
+    def invitations_create(self, data: Dict[str, Any]):
+        return (
+            {
+                "id": "asd",
+                "client_id": "asd",
+                "inviter": {"name": "fake.user@splight-ae.com"},
+                "invitee": {"email": "fake.user+15@splight-ae.com"},
+                "app_metadata": {},
+                "user_metadata": {},
+                "invitation_url": "https://integrationapp.splight-ae.com/",
+                "ticket_id": "5qGQxSZJs9sQGDzmG1xAWhzTo0eabKVA",
+                "created_at": "2022-07-05T19:37:48.367Z",
+                "expires_at": "2022-07-12T19:37:48.367Z",
+                "organization_id": "orgsUvmxKLxSZPtHH8",
+            },
+            201,
+        )
 
 
 class FakeOrganizations:
