@@ -48,7 +48,6 @@ class ModeledRunner(BaseRunner):
 class Runner(BaseRunner):
     id: Optional[str]
     name: str
-    type: str
     description: Optional[str]
     log_level: LogginLevel = LogginLevel.info
     component_capacity: ComponentSize = ComponentSize.small
