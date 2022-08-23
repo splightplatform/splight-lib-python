@@ -145,7 +145,7 @@ class FakeOrganization:
             200,
         )
 
-    def update_organization_metadata(self, data: Dict[str, Any]):
+    def update_metadata(self, data: Dict[str, Any]):
         return self.list()
 
 
