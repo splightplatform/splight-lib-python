@@ -47,7 +47,7 @@ class Deployment(SplightBaseModel):
     # run-spec
     id: Optional[str] = None
     type: ComponentType  # eg. Connector, Network, Algorithm
-    external_id: str = None  # eg. 1
+    external_id: Optional[str] = None  # eg. 1
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
     # Template vars for deployment
@@ -56,10 +56,10 @@ class Deployment(SplightBaseModel):
     log_level: LogginLevel = LogginLevel.debug
     restart_policy: RestartPolicy = RestartPolicy.ALWAYS
     # CLI pre setup
-    access_id: str = None
-    secret_key: str = None
-    hub_api_host: str = None
-    api_host: str = None
+    access_id: Optional[str] = None
+    secret_key: Optional[str] = None
+    hub_api_host: Optional[str] = None
+    api_host: Optional[str] = None
 
     class Config:
         use_enum_values = True
