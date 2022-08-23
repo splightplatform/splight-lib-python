@@ -2,7 +2,7 @@ from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, 
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
-from splight_models.datalake import DatalakeModel
+from splight_models.datalake import RunnerDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.rule import MappingRule
@@ -135,7 +135,7 @@ class ModeledRunnerFactory:
         return self._create_model("Input", self.runner.input)
 
     def _get_output_model(self) -> BaseModel:
-        return self._create_model("Output", self.runner.output + self.runner.filters, base=DatalakeModel)
+        return self._create_model("Output", self.runner.output + self.runner.filters, base=RunnerDatalakeModel)
 
     def _create_model(self, name: str, fields: List, base: Type = SplightBaseModel) -> Type:
         fields_dict: Dict[str, Tuple] = {}
