@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - feature/improve-spec
 jobs:
   upload:
     runs-on: ubuntu-latest
