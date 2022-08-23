@@ -252,7 +252,52 @@ class FakeUsers:
     def users_update(self, resource_id: str, data: Dict[str, Any]):
         return (self.FAKE_USER_1, 200)
 
-    def users_create(self, data: Dict[str, Any]):
+class FakeInvitations:
+    def list(self):
+        return ({
+            "count": 2,
+            "next": None,
+            "previous": None,
+            "results": [{
+                'id': 'uinv_4SfR3ucBxOj3wpqG',
+                'client_id': '1IsJjtPUv1DgHqsfZX4YsEjEStRRu1SG',
+                'inviter': {
+                    'name': 'matias.silva@splight-ae.com'
+                },
+                'invitee': {
+                    'email': 'matias.silva+1234@splight-ae.com'
+                },
+                'app_metadata': {},
+                'user_metadata': {},
+                'invitation_url': 'https://integrationapp.splight-ae.com/auth-redirect?orgInvitation=true&invitation=kyWlQxQdZrX4RegzIFKhqHBwUcCGEZAj&organization=org_gxUvmxKLxSZPtHH8&organization_name=splight',
+                'ticket_id': 'kyWlQxQdZrX4RegzIFKhqHBwUcCGEZAj',
+                'created_at': '2022-08-04T19:34:59.300Z',
+                'expires_at': '2022-08-11T19:34:59.300Z',
+                'organization_id': 'org_gxUvmxKLxSZPtHH8',
+                'roles': ['rol_xYsOLG4Kni9I9EJF']
+            }, {
+                'id': 'uinv_0mKqsA8TqAZi2hCU',
+                'client_id': '1IsJjtPUv1DgHqsfZX4YsEjEStRRu1SG',
+                'inviter': {
+                    'name': 'matias.silva@splight-ae.com'
+                },
+                'invitee': {
+                    'email': 'matias.silva+5@splight-ae.com'
+                },
+                'app_metadata': {},
+                'user_metadata': {},
+                'invitation_url': 'https://integrationapp.splight-ae.com/auth-redirect?orgInvitation=true&invitation=oq54fST3OQt3rxX7DI5wIDQbfudzKD9J&organization=org_gxUvmxKLxSZPtHH8&organization_name=splight',
+                'ticket_id': 'oq54fST3OQt3rxX7DI5wIDQbfudzKD9J',
+                'created_at': '2022-08-04T17:47:48.639Z',
+                'expires_at': '2022-08-11T17:47:48.639Z',
+                'organization_id': 'org_gxUvmxKLxSZPtHH8',
+                'roles': ['rol_xYsOLG4Kni9I9EJF']
+            }]
+        },
+        200
+    )
+
+    def invitations_create(self, data: Dict[str, Any]):
         return (
             {
                 "id": "asd",
@@ -356,6 +401,7 @@ class FakeAuthClient(AbstractAuthClient):
         self._profile = FakeProfile()
         self._role = FakeRoles()
         self._user = FakeUsers()
+        self._invitation = FakeInvitations()
         self._organization = FakeOrganization()
         self._organizations = FakeOrganizations()
 
@@ -378,6 +424,10 @@ class FakeAuthClient(AbstractAuthClient):
     @property
     def user(self):
         return self._user
+
+    @property
+    def invitation(self):
+        return self._invitation
 
     @property
     def organization(self):
