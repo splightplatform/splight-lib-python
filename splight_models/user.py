@@ -1,6 +1,15 @@
 from typing import List, Optional
+from splight_models.base import SplightBaseModel
 
-from .base import SplightBaseModel
+
+class UserMetadata(SplightBaseModel):
+    language: str = "en"
+    theme: str = "dark"
+    picture_color: str = 'light-green'
+
+
+class AppMetadata(SplightBaseModel):
+    is_manager: bool = False
 
 
 class User(SplightBaseModel):
@@ -12,9 +21,8 @@ class User(SplightBaseModel):
     picture: str
     permissions: List[str]
     role: Optional[str] = None
-    language: str
-    theme: str
-    picture_color: str
+    user_metadata: UserMetadata = UserMetadata()
+    app_metadata: AppMetadata = AppMetadata()
     is_authenticated: bool = True
 
     def has_any_permission(self, permissions: List[str]) -> bool:
