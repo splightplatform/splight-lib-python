@@ -50,6 +50,7 @@ class Deployment(SplightBaseModel):
     external_id: Optional[str] = None  # eg. 1
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
+    status: Optional[str] = None
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
