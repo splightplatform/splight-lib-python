@@ -1,33 +1,35 @@
-from abc import abstractmethod
+import json
 import sys
 import time
-import json
-from typing import Optional, Type, List, Dict
+from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from splight_models import (
-    VariableDataFrame,
-    Variable,
-    Deployment,
-    StorageFile,
-)
-from splight_lib.shortcut import (
-    save_file as _save_file
-)
-from splight_lib.settings import setup
-from splight_lib.execution import Thread, ExecutionClient
-from splight_lib.logging import logging
-from splight_models.notification import Notification
+from typing import Dict, List, Optional, Type
 
+from splight_lib.execution import ExecutionClient, Thread
+from splight_lib.logging import logging
+from splight_lib.settings import setup
+from splight_lib.shortcut import save_file as _save_file
+from splight_models import Deployment, StorageFile, Variable, VariableDataFrame
+from splight_models.notification import Notification
 
 logger = logging.getLogger()
 
 
 class RunnableMixin:
+
     healthcheck_interval = 5
+    _STARTUP_FILEPAHT = "/tmp/ready_"
 
     def __init__(self):
         self.health_file = NamedTemporaryFile(prefix="healthy_")
         self.execution_client.start(Thread(self.healthcheck))
+        self._create_startup_file(self._STARTUP_FILEPAHT)
+
+    @staticmethod
+    def _create_startup_file(file_path: str):
+        logger.debug("Creating startup file")
+        with open(file_path, "w") as fid:
+            fid.write("Component is starting")
 
     def healthcheck(self) -> None:
         self.terminated = False
@@ -49,7 +51,7 @@ class RunnableMixin:
 
 class HooksMixin:
     def _load_hooks(self):
-        self.datalake_client.add_pre_hook('save', self.hook_insert_origin)
+        self.datalake_client.add_pre_hook("save", self.hook_insert_origin)
 
     def hook_insert_origin(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -61,29 +63,37 @@ class HooksMixin:
 
 
 class UtilsMixin:
-    def get_history(self,
-                    asset_id: Optional[str] = None,
-                    attribute_ids: Optional[List[str]] = None,
-                    algorithm_id: Optional[str] = None,
-                    **kwargs) -> VariableDataFrame:
+    def get_history(
+        self,
+        asset_id: Optional[str] = None,
+        attribute_ids: Optional[List[str]] = None,
+        algorithm_id: Optional[str] = None,
+        **kwargs,
+    ) -> VariableDataFrame:
         if asset_id:
             kwargs["asset_id"] = asset_id
         if algorithm_id:
             kwargs["collection"] = algorithm_id
         if attribute_ids:
             kwargs["attribute_ids"] = attribute_ids
-        return self.datalake_client.get_dataframe(resource_type=Variable, **kwargs)
+        return self.datalake_client.get_dataframe(
+            resource_type=Variable, **kwargs
+        )
 
     def save_results(self, data: VariableDataFrame) -> None:
-        self.datalake_client.save_dataframe(data, collection=self.collection_name)
+        self.datalake_client.save_dataframe(
+            data, collection=self.collection_name
+        )
 
-    def save_file(self,
-                  filename: str,
-                  prefix: Optional[str],
-                  asset_id: Optional[str],
-                  attribute_id: Optional[str],
-                  path: str,
-                  args: Dict) -> StorageFile:
+    def save_file(
+        self,
+        filename: str,
+        prefix: Optional[str],
+        asset_id: Optional[str],
+        attribute_id: Optional[str],
+        path: str,
+        args: Dict,
+    ) -> StorageFile:
         return _save_file(
             self.storage_client,
             self.datalake_client,
@@ -92,7 +102,7 @@ class UtilsMixin:
             asset_id,
             attribute_id,
             path,
-            args
+            args,
         )
 
     def notify(self, notification: Notification):
@@ -100,14 +110,17 @@ class UtilsMixin:
 
 
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
-    collection_name = 'default'
+    collection_name = "default"
     managed_class: Type = None
 
-    def __init__(self,
-                 instance_id: str,
-                 run_spec: str,
-                 namespace: Optional[str] = 'default',
-                 *args, **kwargs):
+    def __init__(
+        self,
+        instance_id: str,
+        run_spec: str,
+        namespace: Optional[str] = "default",
+        *args,
+        **kwargs,
+    ):
 
         self.namespace = namespace
         self.instance_id = instance_id
@@ -141,7 +154,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.database_client = self.setup.DATABASE_CLIENT(self.namespace)
         self.datalake_client = self.setup.DATALAKE_CLIENT(self.namespace)
         self.deployment_client = self.setup.DEPLOYMENT_CLIENT(self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(
+            namespace=self.namespace
+        )
         self.execution_client = ExecutionClient(self.namespace)
 
     @property
@@ -157,7 +172,5 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
     @property
     def instance(self):
         return self.database_client.get(
-            resource_type=self.managed_class,
-            id=self.instance_id,
-            first=True
+            resource_type=self.managed_class, id=self.instance_id, first=True
         )
