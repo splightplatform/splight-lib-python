@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from typing import Any, Dict
 
 from splight_abstract import AbstractAuthClient
@@ -104,22 +105,27 @@ class FakeProfile:
     def list(self):
         return (
             {
-                "organization_id": "org_gxUvmxKLxSZPtHH8",
-                "user_id": "auth0|628f9e023211690069ccc193",
-                "username": "fake.user",
-                "name": "fake.user@splight-ae.com",
-                "email": "fake.user@splight-ae.com",
-                "picture": (
-                    "https://s.gravatar.com/avatar/a7b54dab1cd2b75ec1b1a8f6ed"
-                    "31efdc?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars"
-                    "%2Fma.png"
-                ),
-                "theme": "dark",
-                "picture_color": "green-blue",
-                "language": "es",
-                "permissions": ["admin", "splightadmin"],
-                "role": "splightadmin",
+            "organization_id": "org_gxUvmxKLxSZPtHH8",
+            "original_organization_id": "org_gxUvmxKLxSZPtHH3",
+            "user_id": "auth0|628f9e023211690069ccc193",
+            "username": "fake.user",
+            "name": "fake.user@splight-ae.com",
+            "email": "fake.user@splight-ae.com",
+            "picture": "https://s.gravatar.com/avatar/a7b54dab1cd2b75ec1b1a8f6ed31efdc?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fma.png",
+            "permissions": [
+                "admin",
+                "splightadmin"
+            ],
+            "user_metadata": {
+                "language": "en",
+                "theme": "light",
+                "picture_color": "light-green"
             },
+            "app_metadata": {
+                "is_manager": True
+            },
+            "role": "splightadmin"
+        },
             200,
         )
 
@@ -199,7 +205,13 @@ class FakeUsers:
             "5Y2LMcbEzV4xQBNF=s96-c"
         ),
         "name": "Maximiliano Pezzotta",
-        "picture_color": "green-blue",
+        "app_metadata": {
+            "is_manager": False
+        },
+        "user_metadata":{
+            "theme": "dark",
+            "theme": "dark"
+        },
         "blocked": False,
         "roles": None,
         "role": None,
@@ -212,7 +224,11 @@ class FakeUsers:
             "=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fex.png"
         ),
         "name": "example@gmail.com",
-        "picture_color": "green-blue",
+        "app_metadata": {
+            "is_manager": False
+        },
+        "user_metadata":{
+        },
         "blocked": False,
         "roles": None,
         "role": None,
@@ -225,7 +241,11 @@ class FakeUsers:
             "HNkAdu31RKAzSzxl=s96-c"
         ),
         "name": "Estrella Cholod",
-        "picture_color": "green-blue",
+        "app_metadata": {
+            "is_manager": True
+        },
+        "user_metadata":{
+        },
         "blocked": False,
         "roles": None,
         "role": None,
@@ -386,11 +406,15 @@ class FakeOrganizations:
             200,
         )
 
-    def invite_new_admin(self, organization_id: str, data: Dict[str, Any]):
+    def invite_manager(self, organization_id: str, data: Dict[str, Any]):
         return (
             {},
             200,
         )
+
+    def create(data: Dict[str, Any]):
+        logger.info("[FAKED] Created new org")
+        pass
 
 class FakeAuthClient(AbstractAuthClient):
     def __init__(self, *args, **kwargs):
@@ -439,17 +463,26 @@ class FakeAuthClient(AbstractAuthClient):
 
     def authenticate(self):
         user_complete_info: Dict = {
-            "user_id": "auth0|628f9e023211690069ccc193",
             "organization_id": "org_gxUvmxKLxSZPtHH8",
+            "original_organization_id": "org_gxUvmxKLxSZPtHH3",
+            "user_id": "auth0|628f9e023211690069ccc193",
             "username": "fake.user",
             "name": "fake.user@splight-ae.com",
             "email": "fake.user@splight-ae.com",
             "picture": "https://s.gravatar.com/avatar/a7b54dab1cd2b75ec1b1a8f6ed31efdc?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fma.png",
-            "permissions": ["admin", "splightadmin"],
-            "role": "viewer",
-            "language": "es",
-            "picture_color": "green-blue",
-            "theme": "dark",
+            "permissions": [
+                "admin",
+                "splightadmin"
+            ],
+            "user_metadata": {
+                "language": "en",
+                "theme": "light",
+                "picture_color": "light-green"
+            },
+            "app_metadata": {
+                "is_manager": True
+            },
+            "role": "splightadmin"
         }
         user: User = User.parse_obj(user_complete_info)
         return (user, None)
