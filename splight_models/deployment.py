@@ -47,7 +47,7 @@ class ComponentType(str, Enum):
 class DeploymentStatus(str, Enum):
     PENDING = "Pending"
     RUNNING = "Running"
-    SUCCEDED = "Succeded"
+    SUCCEEDED = "Succeeded"
     FAILED = "Failed"
     UNKNOWN = "Unknonwn"
 
