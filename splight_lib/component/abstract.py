@@ -23,10 +23,10 @@ class RunnableMixin:
     def __init__(self):
         self.health_file = NamedTemporaryFile(prefix="healthy_")
         self.execution_client.start(Thread(self.healthcheck))
-        self._create_startup_file(self._STARTUP_FILE_PREFIX)
+        self._create_health_file(self._STARTUP_FILE_PREFIX)
 
     @staticmethod
-    def _create_startup_file(prefix: str):
+    def _create_health_file(prefix: str):
         logger.debug("Creating startup file")
         startup_file = NamedTemporaryFile(prefix=prefix)
         with open(startup_file.name, "w") as fid:
