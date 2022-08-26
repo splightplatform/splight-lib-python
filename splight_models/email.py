@@ -7,3 +7,4 @@ class EmailType(Enum):
     """
 
     INFO = 'info'
+    CONTACT_FORM = 'contact-form'
