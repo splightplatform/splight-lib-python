@@ -1,15 +1,16 @@
 import logging
-from splight_models.base import SplightBaseModel
-from typing import Optional, List
-from splight_models.runner import Parameter
 from enum import Enum, IntEnum
+from typing import Dict, List, Optional
+
+from splight_models.base import SplightBaseModel
+from splight_models.runner import Parameter
 
 
 class ComponentSize(str, Enum):
-    small = 'small'
-    medium = 'medium'
-    large = 'large'
-    very_large = 'very_large'
+    small = "small"
+    medium = "medium"
+    large = "large"
+    very_large = "very_large"
 
     def __str__(self):
         return self.value
@@ -44,10 +45,11 @@ class ComponentType(str, Enum):
 
 
 class DeploymentStatus(str, Enum):
+    PENDING = "Pending"
     RUNNING = "Running"
-    STARTING = "Starting"
+    SUCCEDED = "Succeded"
     FAILED = "Failed"
-    STOPPED = "Stopped"
+    UNKNOWN = "Unknonwn"
 
 
 class Deployment(SplightBaseModel):
@@ -58,6 +60,7 @@ class Deployment(SplightBaseModel):
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
     status: Optional[DeploymentStatus] = None
+    deployment_conditions: Optional[List[Dict]] = None
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
