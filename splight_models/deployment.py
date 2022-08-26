@@ -31,22 +31,46 @@ class LogginLevel(IntEnum):
         return super()._missing_(int(value))
 
 
+class RestartPolicy(str, Enum):
+    ALWAYS = "Always"
+    ON_FAILURE = "OnFailure"
+    NEVER = "Never"
+
+
+class ComponentType(str, Enum):
+    ALGORITHM = "Algorithm"
+    NETWORK = "Network"
+    CONNECTOR = "Connector"
+
+
+class DeploymentStatus(str, Enum):
+    RUNNING = "Running"
+    STARTING = "Starting"
+    FAILED = "Failed"
+    STOPPED = "Stopped"
+
+
 class Deployment(SplightBaseModel):
     # run-spec
     id: Optional[str] = None
-    type: str  # eg. Connector, Network, Algorithm
-    external_id: str = None  # eg. 1
+    type: ComponentType  # eg. Connector, Network, Algorithm
+    external_id: Optional[str] = None  # eg. 1
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
+    status: Optional[DeploymentStatus] = None
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
     log_level: LogginLevel = LogginLevel.debug
+    restart_policy: RestartPolicy = RestartPolicy.ALWAYS
     # CLI pre setup
-    access_id: str = None
-    secret_key: str = None
-    hub_api_host: str = None
-    api_host: str = None
+    access_id: Optional[str] = None
+    secret_key: Optional[str] = None
+    hub_api_host: Optional[str] = None
+    api_host: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
 
     @property
     def service_name(self):
