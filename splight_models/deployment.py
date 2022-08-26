@@ -60,7 +60,7 @@ class Deployment(SplightBaseModel):
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
     status: Optional[DeploymentStatus] = None
-    deployment_conditions: Optional[List[Dict]] = None
+    status_conditions: Optional[List[Dict]] = None
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
