@@ -51,3 +51,6 @@ class DeploymentClient(AbstractDeploymentClient):
 
     def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
         raise NotImplementedError
+
+    def get_container_capacity_options(self):
+        raise NotImplementedError
