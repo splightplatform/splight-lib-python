@@ -43,6 +43,13 @@ class ComponentType(str, Enum):
     CONNECTOR = "Connector"
 
 
+class DeploymentStatus(str, Enum):
+    RUNNING = "Running"
+    STARTING = "Starting"
+    FAILED = "Failed"
+    STOPPED = "Stopped"
+
+
 class Deployment(SplightBaseModel):
     # run-spec
     id: Optional[str] = None
@@ -50,7 +57,7 @@ class Deployment(SplightBaseModel):
     external_id: Optional[str] = None  # eg. 1
     version: str  # eg. Forecasting-0_2
     parameters: List[Parameter] = []
-    status: Optional[str] = None
+    status: Optional[DeploymentStatus] = None
     # Template vars for deployment
     namespace: Optional[str] = None
     component_capacity: ComponentSize = ComponentSize.medium
