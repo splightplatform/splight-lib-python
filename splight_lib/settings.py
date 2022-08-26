@@ -38,6 +38,7 @@ class SplightBaseSettings(BaseSettings):
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
     INTERNAL_COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
     EXTERNAL_COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
+    EMAIL_TEMPLATES_FOLDER: str = 'email_templates'
 
     @property
     def importables(self):
