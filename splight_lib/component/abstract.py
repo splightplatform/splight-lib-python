@@ -18,19 +18,15 @@ logger = logging.getLogger()
 class RunnableMixin:
 
     healthcheck_interval = 5
+    _HEALTH_FILE_PREFIX = "healthy_"
     _STARTUP_FILE_PREFIX = "ready_"
 
     def __init__(self):
-        self.health_file = NamedTemporaryFile(prefix="healthy_")
+        self.health_file = NamedTemporaryFile(prefix=self._HEALTH_FILE_PREFIX)
+        self.startup_file = NamedTemporaryFile(
+            prefix=self._STARTUP_FILE_PREFIX
+        )
         self.execution_client.start(Thread(self.healthcheck))
-        self._create_health_file(self._STARTUP_FILE_PREFIX)
-
-    @staticmethod
-    def _create_health_file(prefix: str):
-        logger.debug("Creating startup file")
-        startup_file = NamedTemporaryFile(prefix=prefix)
-        with open(startup_file.name, "w") as fid:
-            fid.write("Component is starting")
 
     def healthcheck(self) -> None:
         self.terminated = False
