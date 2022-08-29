@@ -10,7 +10,8 @@ from splight_models.rule import MappingRule
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, create_model, Field
+from copy import copy
 
 
 class Parameter(SplightBaseModel):
@@ -23,17 +24,29 @@ class Parameter(SplightBaseModel):
     value: Any = None
 
 
+class OutputParameter(SplightBaseModel):
+    name: str
+    type: str
+    choices: Optional[List[Any]] = None
+    depends_on: Optional[str] = None
+    filterable: bool = False
+
+
 class CustomType(SplightBaseModel):
     name: str
     fields: List[Parameter]
+
+
+class Output(SplightBaseModel):
+    name: str
+    fields: List[OutputParameter]
 
 
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
     custom_types: List[CustomType] = []
     input: List[Parameter] = []
-    output: List[Parameter] = []
-    filters: List[Parameter] = []
+    output: List[Output] = []
 
     def get_modeled_instance(self) -> 'ModeledRunner':
         return ModeledRunnerFactory(self).get_modeled_runner()
@@ -43,6 +56,9 @@ class ModeledRunner(BaseRunner):
     custom_types: Type
     input: Type
     output: Type
+
+    def get_modeled_instance(self) -> 'ModeledRunner':
+        return self
 
 
 class Runner(BaseRunner):
@@ -135,23 +151,41 @@ class ModeledRunnerFactory:
         return self._create_model("Input", self.runner.input)
 
     def _get_output_model(self) -> BaseModel:
-        return self._create_model("Output", self.runner.output + self.runner.filters, base=RunnerDatalakeModel)
+        output_models: Dict[str, BaseModel] = {}
 
-    def _create_model(self, name: str, fields: List, base: Type = SplightBaseModel) -> Type:
-        fields_dict: Dict[str, Tuple] = {}
+        for output in self.runner.output:
+            output_format_field = {
+                "output_format": Field(output.name, const=True),
+            }
+            output_models[output.name] = self._create_model(output.name,
+                                                            output.fields,
+                                                            output_format_field,
+                                                            RunnerDatalakeModel)
+
+        return type("Output", (), output_models)
+
+    def _create_model(self,
+                      name: str,
+                      fields: List,
+                      extra_fields: Dict = {},
+                      base: Type = SplightBaseModel) -> Type:
+
+        fields_dict: Dict[str, Tuple] = copy(extra_fields)
         for field in fields:
             type = self._type_map[field.type]
+            choices = getattr(field, "choices", None)
+            multiple = getattr(field, "multiple", False)
+            required = getattr(field, "required", False)
 
-            if field.choices:
+            if choices:
                 type = Enum(f"{field.name}-choices", {str(p): p for p in field.choices})
 
-            if field.multiple:
+            if multiple:
                 type = List[type]
 
-            if not field.required:
+            if not required:
                 type = Optional[type]
 
-            value = None
-            fields_dict[field.name] = (type, value)
+            fields_dict[field.name] = (type, ...)
 
         return create_model(name, **fields_dict, __base__=base)

@@ -17,6 +17,7 @@ from splight_models import (
     StorageFile,
     VariableDataFrame,
     Variable,
+    Algorithm
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from splight_lib.shortcut import (
@@ -27,7 +28,6 @@ from splight_lib.logging import logging
 from collections import defaultdict
 from pydantic import BaseModel
 from functools import cached_property
-from pprint import pprint
 
 logger = logging.getLogger()
 
@@ -77,21 +77,18 @@ class HooksMixin:
 
 
 class UtilsMixin:
-    def get_history(
-        self,
-        asset_id: Optional[str] = None,
-        attribute_ids: Optional[List[str]] = None,
-        algorithm_id: Optional[str] = None,
-        **kwargs,
-    ) -> VariableDataFrame:
-        if asset_id:
-            kwargs["asset_id"] = asset_id
-        if algorithm_id:
-            kwargs["collection"] = algorithm_id
-        if attribute_ids:
-            kwargs["attribute_ids"] = attribute_ids
+    # TODO NOT FINISHED
+    def get_algorithm_output(self, algorithm: Algorithm) -> Type:
+        mi = algorithm.get_modeled_instance()
+        return mi.output
+
+    def get_history(self, **kwargs) -> VariableDataFrame:
+        return self.datalake_client.get_dataframe(**kwargs)
+
+    def get_results(self, algorithm, output_model) -> VariableDataFrame:
         return self.datalake_client.get_dataframe(
-            resource_type=Variable, **kwargs
+            collection=algorithm.collection,
+            model=output_model
         )
 
     def save_results(self, data: VariableDataFrame) -> None:
@@ -153,7 +150,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self._retrive_objects_in_input(self._raw_spec["input"])
         parsed_input = self._parse_input(self._raw_spec["input"])
         self.input = mr.input(**parsed_input)
-        self.Output = mr.output
+        self.output = mr.output
         self.custom_types = mr.custom_types
 
     def _load_clients(self):
@@ -163,17 +160,17 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
-    @property
+    @ property
     def setup(self):
         return self._setup
 
-    @setup.setter
+    @ setup.setter
     def setup(self, new_setup):
         self._setup.configure(new_setup)
         self._load_clients()
         self._load_hooks()
 
-    @cached_property
+    @ cached_property
     def instance(self):
         return self.database_client.get(
             resource_type=self.managed_class, id=self.instance_id, first=True

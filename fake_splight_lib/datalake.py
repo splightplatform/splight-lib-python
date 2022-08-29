@@ -137,6 +137,39 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return filters
 
+    def _raw_get(self,
+                 collection: str = 'default',
+                 limit_: int = 50,
+                 skip_: int = 0,
+                 sort: Union[List, str] = ['timestamp__desc'],
+                 group_id: Union[List, str] = [],
+                 group_fields: Union[List, str] = [],
+                 tzinfo: timezone = None,
+                 **kwargs) -> List[BaseModel]:
+
+        if group_id or group_fields or tzinfo:
+            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
+
+        result = self._find(collection, filters=self._parse_filters(**kwargs))
+
+        if limit_ == -1:
+            return result[skip_:]
+
+        return result[skip_:skip_ + limit_]
+
+    def raw_count(self,
+                  collection: str = "default",
+                  group_id: List = [],
+                  group_fields: List = [],
+                  **kwargs) -> int:
+
+        if group_id or group_fields:
+            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
+
+        result = self._find(collection, filters=self._parse_filters(**kwargs))
+
+        return len(result)
+
     @AbstractDatalakeClient.validate_resource_type
     def _get(self,
              resource_type: Type,
@@ -165,18 +198,13 @@ class FakeDatalakeClient(AbstractDatalakeClient):
               collection: str = "default",
               group_id: List = [],
               group_fields: List = [],
-              tzinfo: timezone = None,
-              **kwargs) -> List[BaseModel]:
+              **kwargs) -> int:
 
-        if group_id or group_fields or tzinfo:
+        if group_id or group_fields:
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
+        return self.raw_count(collection=collection, group_id=group_id, group_fields=group_fields, **kwargs)
 
-        result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-
-        return len(result)
-
-    @AbstractDatalakeClient.validate_resource_type
-    def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
+    def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
         self._write_to_collection(collection, data)
 
