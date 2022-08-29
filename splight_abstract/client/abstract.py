@@ -42,10 +42,18 @@ class AbstractClient(ABC, PreHookMixin, FilterMixin):
         class_fields = list(resource_type.__fields__.keys())
         return super()._validated_kwargs(class_fields, **kwargs)
 
+
 class QuerySet(UserList):
-    def __init__(self, client: AbstractClient, *args, **kwargs):
+    def __init__(self,
+                 client: AbstractClient,
+                 get_func: str = '_get',
+                 count_func: str = 'count',
+                 *args,
+                 **kwargs):
         super().__init__()
         self._client = client
+        self._client_func = get_func
+        self._count_func = count_func
         self._args = args
         self._kwargs = kwargs
         self._cached_results = None
@@ -77,7 +85,7 @@ class QuerySet(UserList):
             }
             kwargs["skip_"] = skip_
             kwargs["limit_"] = limit_
-            return QuerySet(self._client, *self._args, **kwargs)
+            return QuerySet(self._client, self._client_func, self._count_func, *self._args, **kwargs)
         else:
             return self.data[i]
 
@@ -85,8 +93,8 @@ class QuerySet(UserList):
         if self._cached_results:
             return len(self._cached_results)
 
-        if hasattr(self._client, "count"):
-            return self._client.count(*self._args, **self._kwargs)
+        if hasattr(self._client, self._count_func):
+            return getattr(self._client, self._count_func)(*self._args, **self._kwargs)
 
         return len(self.data)
 
@@ -96,7 +104,8 @@ class QuerySet(UserList):
     @property
     def data(self):
         if self._cached_results is None:
-            self._cached_results = self._client._get(*self._args, **self._kwargs)
+            client_func = getattr(self._client, self._client_func)
+            self._cached_results = client_func(*self._args, **self._kwargs)
         return self._cached_results
 
     @data.setter

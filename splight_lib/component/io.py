@@ -7,6 +7,9 @@ from splight_models import (
     Variable,
     MappingRule,
     Notification,
+    FloatValue,
+    StrValue,
+    BoolValue
 )
 from splight_lib import logging
 from splight_lib.execution import Task
@@ -152,6 +155,12 @@ class AbstractClientComponent(AbstractIOComponent):
 
     def __init__(self, *args, **kwargs):
         super(AbstractClientComponent, self).__init__(*args, **kwargs)
+        self.type_to_output = {
+            float: self.output.FloatValue,
+            int: self.output.FloatValue,
+            str: self.output.StrValue,
+            bool: self.output.BoolValue,
+        }
         self._mappings_last_sync = set()
         self.execution_client.start(Task(handler=self.sync_mappings_to_device, args=tuple(), period=10))
 
