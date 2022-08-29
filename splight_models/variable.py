@@ -24,17 +24,17 @@ class ConnectorOutput(RunnerDatalakeModel):
 
 
 class FloatValue(ConnectorOutput):
-    output_format: Field("FloatValue", const=True)
+    output_format: str = Field("FloatValue", const=True)
     value: float
 
 
 class StrValue(ConnectorOutput):
-    output_format: Field("StrValue", const=True)
+    output_format: str = Field("StrValue", const=True)
     value: str
 
 
 class BoolValue(ConnectorOutput):
-    output_format: Field("BoolValue", const=True)
+    output_format: str = Field("BoolValue", const=True)
     value: bool
 
 
