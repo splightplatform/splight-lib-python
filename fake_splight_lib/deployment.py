@@ -100,3 +100,19 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
         return [f"[FAKE] log for {id}"]
+
+    def get_capacity_options(self):
+        return {
+            "small": {
+                "cpu_limit": 1.0,
+                "memory_limit": "750Mi",
+                "cpu_requested": 0.5,
+                "memory_requested": "500Mi"
+            },
+            "medium": {
+                "cpu_limit": 3.0,
+                "memory_limit": "6000Mi",
+                "cpu_requested": 2.0,
+                "memory_requested": "4000Mi"
+            }
+        }
