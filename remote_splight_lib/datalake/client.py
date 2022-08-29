@@ -31,7 +31,6 @@ class DatalakeClient(AbstractDatalakeClient):
 
     def save(
         self,
-        resource_type: Type,
         instances: List[BaseModel],
         collection: str = "default",
     ) -> List[BaseModel]:
@@ -41,9 +40,54 @@ class DatalakeClient(AbstractDatalakeClient):
         response = self._session.post(
             url, params={"source": collection}, json=data
         )
-
         response.raise_for_status()
-        return [resource_type.parse_obj(d) for d in response.json()]
+        return instances
+
+    def _raw_get(self,
+                 collection: str = 'default',
+                 limit_: int = 50,
+                 skip_: int = 0,
+                 sort: Union[List, str] = ['timestamp__desc'],
+                 group_id: Union[List, str] = [],
+                 group_fields: Union[List, str] = [],
+                 tzinfo: timezone = timezone(timedelta()),
+                 **kwargs) -> List[BaseModel]:
+        # /datalake/data/
+        url = self._base_url / f"{self._PREFIX}/data/"
+        kwargs.update(
+            {
+                "source": collection,
+                "limit_": limit_,
+                "skip_": skip_,
+                "sort": sort,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                # "tzinfo": tzinfo
+            }
+        )
+        response = self._session.get(url, params=kwargs)
+        response.raise_for_status()
+        return response.json()["results"]
+
+    @AbstractDatalakeClient.validate_resource_type
+    def raw_count(self,
+                  collection: str = "default",
+                  group_id: Union[List, str] = [],
+                  group_fields: Union[List, str] = [],
+                  **kwargs) -> int:
+        # GET /datalake/count/
+        url = self._base_url / f"{self._PREFIX}/count/"
+        kwargs.update(
+            {
+                "source": collection,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                # "tzinfo": tzinfo
+            }
+        )
+        response = self._session.get(url, params=kwargs)
+        response.raise_for_status()
+        return response.json()
 
     def _get(
         self,
@@ -79,23 +123,20 @@ class DatalakeClient(AbstractDatalakeClient):
         ]
         return output
 
-    def count(
-        self,
-        resource_type: Type,
-        collection: str = "default",
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Union[List, str] = [],
-        group_fields: Union[List, str] = [],
-        tzinfo: timezone = timezone(timedelta()),
-        **kwargs,
-    ) -> int:
+    @AbstractDatalakeClient.validate_resource_type
+    def count(self,
+              resource_type: Type,
+              collection: str = "default",
+              group_id: List = [],
+              group_fields: List = [],
+              **kwargs) -> int:
+
         # GET /datalake/count/
         url = self._base_url / f"{self._PREFIX}/count/"
         valid_kwargs = self._validated_kwargs(resource_type, **kwargs)
         valid_kwargs.update(
             {
                 "source": collection,
-                "sort": sort,
                 "group_id": group_id,
                 "group_fields": group_fields,
                 # "tzinfo": tzinfo
