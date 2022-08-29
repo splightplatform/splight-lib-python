@@ -25,6 +25,10 @@ class User(SplightBaseModel):
     app_metadata: AppMetadata = AppMetadata()
     is_authenticated: bool = True
 
+    @property
+    def is_anonymous(self):
+        return False
+
     def has_any_permission(self, permissions: List[str]) -> bool:
         return any(set(self.permissions).intersection(permissions))
 

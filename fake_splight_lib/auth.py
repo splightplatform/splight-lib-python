@@ -51,7 +51,7 @@ class FakeCredentials:
             201,
         )
 
-    def delete(self, resource_id: str):
+    def destroy(self, resource_id: str):
         return ({}, 204)
 
 
@@ -97,7 +97,7 @@ class FakeDeployment:
             201,
         )
 
-    def delete(self, resource_id: str):
+    def destroy(self, resource_id: str):
         return ({}, 204)
 
 
@@ -272,6 +272,7 @@ class FakeUsers:
     def users_update(self, resource_id: str, data: Dict[str, Any]):
         return (self.FAKE_USER_1, 200)
 
+
 class FakeInvitations:
     def list(self):
         return ({
@@ -415,6 +416,11 @@ class FakeOrganizations:
     def create(data: Dict[str, Any]):
         logger.info("[FAKED] Created new org")
         pass
+
+    def destroy(resource_id: str):
+        logger.info("[FAKED] Deleted org {id}")
+        pass
+
 
 class FakeAuthClient(AbstractAuthClient):
     def __init__(self, *args, **kwargs):
