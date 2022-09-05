@@ -12,9 +12,6 @@ class Parameter(SplightBaseModel):
     multiple: bool = False
     value: Any = None
 
-class Tag(SplightBaseModel):
-    name: str
-
 class HubComponent(SplightBaseModel):
     id: Optional[str]
     name: str
@@ -27,22 +24,13 @@ class HubComponent(SplightBaseModel):
     verification: Optional[str]
     created_at: Optional[str]
     last_modified: Optional[str]
-    tags: List[Tag] = []
+    tags: List[str] = []
 
     @validator('verification', pre=True, always=True)
     def set_verification_now(cls, v):
         if v:
             assert v in VERIFICATION_CHOICES, 'Verification value not allowed.'
         return v
-
-class HubComponentVersionItem(HubComponent):
-    name: Optional[str]
-
-class HubComponentVersions(SplightBaseModel):
-    name: str
-    tenant: Optional[str] = None
-    picture_url: Optional[str]
-    versions: List[HubComponentVersionItem]
 
 class HubAlgorithm(HubComponent):
     pass
@@ -55,11 +43,3 @@ class HubNetwork(HubComponent):
 class HubConnector(HubComponent):
     pass
 
-class HubAlgorithmVersions(HubComponentVersions):
-    pass
-
-class HubNetworkVersions(HubComponentVersions):
-    pass
-
-class HubConnectorVersions(HubComponentVersions):
-    pass
