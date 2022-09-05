@@ -1,10 +1,11 @@
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Dict, Union, Callable
-from datetime import datetime, timezone, timedelta
-from splight_models import Variable, VariableDataFrame, DatalakeModel
+from datetime import timezone, timedelta
+from splight_models import VariableDataFrame, DatalakeModel
 from splight_abstract.client import AbstractClient, QuerySet
 from functools import wraps
+import pandas as pd
 
 
 class AbstractDatalakeClient(AbstractClient):
@@ -20,7 +21,11 @@ class AbstractDatalakeClient(AbstractClient):
         return inner
 
     @abstractmethod
-    def save(self, resource_type: Type, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
+    def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
+        pass
+
+    @abstractmethod
+    def raw_save(self, instances: List[Dict], collection: str = "default") -> Dict:
         pass
 
     def get(self, *args, **kwargs) -> QuerySet:
@@ -72,11 +77,11 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def get_dataframe(self, resource_type: Type, freq="H", collection: str = "default") -> VariableDataFrame:
+    def get_dataframe(self, freq="H", collection: str = "default", **kwargs) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def save_dataframe(self, dataframe: VariableDataFrame, collection: str = "default") -> None:
+    def save_dataframe(self, dataframe: pd.DataFrame, collection: str = 'default') -> None:
         pass
 
     @abstractmethod
@@ -106,3 +111,7 @@ class AbstractDatalakeClient(AbstractClient):
         }
 
         return valid_filter
+
+    @abstractmethod
+    def create_index(self, collection: str, index: list) -> None:
+        pass

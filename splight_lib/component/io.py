@@ -7,9 +7,9 @@ from splight_models import (
     Variable,
     MappingRule,
     Notification,
-    FloatValue,
-    StrValue,
-    BoolValue
+    Number,
+    String,
+    Boolean
 )
 from splight_lib import logging
 from splight_lib.execution import Task
@@ -34,11 +34,12 @@ class AbstractIOComponent(AbstractComponent):
         self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=10))
 
         # TODO: move this to create index on organization creation
-        self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
-        self.datalake_client.create_index('files', [('timestamp', -1)])
-        self.datalake_client.create_index('notification', [('timestamp', -1)])
-        self.datalake_client.create_index('BillingEvent', [('timestamp', -1)])
-        self.datalake_client.create_index('useractivity', [('timestamp', -1)])
+        # TODO: create index based on output
+        # self.datalake_client.create_index('default', [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
+        # self.datalake_client.create_index('files', [('timestamp', -1)])
+        # self.datalake_client.create_index('notification', [('timestamp', -1)])
+        # self.datalake_client.create_index('BillingEvent', [('timestamp', -1)])
+        # self.datalake_client.create_index('useractivity', [('timestamp', -1)])
 
     def _load_hooks(self):
         super()._load_hooks()
@@ -156,10 +157,10 @@ class AbstractClientComponent(AbstractIOComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractClientComponent, self).__init__(*args, **kwargs)
         self.type_to_output = {
-            float: self.output.FloatValue,
-            int: self.output.FloatValue,
-            str: self.output.StrValue,
-            bool: self.output.BoolValue,
+            float: Number,
+            int: Number,
+            str: String,
+            bool: Boolean,
         }
         self._mappings_last_sync = set()
         self.execution_client.start(Task(handler=self.sync_mappings_to_device, args=tuple(), period=10))

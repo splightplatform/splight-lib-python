@@ -23,18 +23,18 @@ class ConnectorOutput(RunnerDatalakeModel):
     attribute: Union[Attribute, str]
 
 
-class FloatValue(ConnectorOutput):
-    output_format: str = Field("FloatValue", const=True)
+class Number(ConnectorOutput):
+    output_format: str = Field("Number", const=True)
     value: float
 
 
-class StrValue(ConnectorOutput):
-    output_format: str = Field("StrValue", const=True)
+class String(ConnectorOutput):
+    output_format: str = Field("String", const=True)
     value: str
 
 
-class BoolValue(ConnectorOutput):
-    output_format: str = Field("BoolValue", const=True)
+class Boolean(ConnectorOutput):
+    output_format: str = Field("Boolean", const=True)
     value: bool
 
 
