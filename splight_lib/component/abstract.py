@@ -1,21 +1,20 @@
 import sys
 import time
 from abc import abstractmethod
+import pandas as pd
 from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup
 from splight_lib.shortcut import save_file as _save_file
-from splight_models import Deployment, StorageFile, Variable, VariableDataFrame
 from splight_models.notification import Notification
 from splight_models import (
     Deployment,
     Notification,
-    ModeledRunner,
     Parameter,
     StorageFile,
-    VariableDataFrame,
+    RunnerDatalakeModel,
     Variable,
     Algorithm
 )
@@ -65,9 +64,10 @@ class RunnableMixin:
 
 class HooksMixin:
     def _load_hooks(self):
-        self.datalake_client.add_pre_hook("save", self.hook_insert_origin)
+        self.datalake_client.add_pre_hook("save", self.hook_insert_origin_save)
+        self.datalake_client.add_pre_hook("save_dataframe", self.hook_insert_origin_save_dataframe)
 
-    def hook_insert_origin(self, *args, **kwargs):
+    def hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
         variables = [v for v in instances if isinstance(v, Variable)]
         for variable in variables:
@@ -75,25 +75,44 @@ class HooksMixin:
             variable.instance_type = self.managed_class.__name__
         return args, kwargs
 
+    def hook_insert_origin_save_dataframe(self, *args, **kwargs):
+        dataframe = kwargs.get("dataframe")
+        dataframe["instance_id"] = self.instance_id
+        dataframe["instance_type"] = self.managed_class.__name__
+        kwargs["dataframe"] = dataframe
+        return args, kwargs
+
 
 class UtilsMixin:
-    # TODO NOT FINISHED
-    def get_algorithm_output(self, algorithm: Algorithm) -> Type:
-        mi = algorithm.get_modeled_instance()
-        return mi.output
+    def get_history(self, **kwargs) -> pd.DataFrame:
+        return self.datalake_client.get_dataframe(collections="default", **kwargs)
 
-    def get_history(self, **kwargs) -> VariableDataFrame:
-        return self.datalake_client.get_dataframe(**kwargs)
+    def get_results(self, algorithm: Algorithm, output_model: RunnerDatalakeModel, **kwargs) -> pd.DataFrame:
+        if output_model != getattr(algorithm.output_model, output_model.__name__):
+            raise ValueError(
+                f"Output model {output_model.__name__} does not match algorithm output"
+            )
 
-    def get_results(self, algorithm, output_model) -> VariableDataFrame:
         return self.datalake_client.get_dataframe(
             collection=algorithm.collection,
-            model=output_model
+            output_format=output_model.__name__,
+            **kwargs
         )
 
-    def save_results(self, data: VariableDataFrame) -> None:
+    def save_results(self, output_model: RunnerDatalakeModel, dataframe: pd.DataFrame) -> None:
+        if output_model != getattr(self.output, output_model.__name__):
+            raise ValueError(
+                f"Output model {output_model.__name__} is not defined in the output"
+            )
+
+        try:
+            for _, row in dataframe.iterrows():
+                output_model.parse_obj(row.to_dict())
+        except Exception:
+            raise ValueError(f"Invalid dataframe: does not match output format")
+
         self.datalake_client.save_dataframe(
-            data, collection=self.collection_name
+            dataframe=dataframe, collection=self.collection_name
         )
 
     def save_file(
@@ -126,7 +145,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
         self._raw_spec = run_spec
-        self._spec = Deployment(**run_spec)
+        self._spec: Deployment = Deployment(**run_spec)
 
         self.namespace = self._spec.namespace
         self.instance_id = self._spec.external_id
@@ -146,12 +165,11 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self._version: str = self._spec.version
 
     def _load_models(self):
-        mr: ModeledRunner = self._spec.get_modeled_instance()
         self._retrive_objects_in_input(self._raw_spec["input"])
         parsed_input = self._parse_input(self._raw_spec["input"])
-        self.input = mr.input(**parsed_input)
-        self.output = mr.output
-        self.custom_types = mr.custom_types
+        self.input = self._spec.input_model(**parsed_input)
+        self.output = self._spec.output_model
+        self.custom_types = self._spec.custom_types_model
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
@@ -160,7 +178,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
-    @ property
+    @property
     def setup(self):
         return self._setup
 

@@ -12,7 +12,7 @@ from requests import Session
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import VariableDataFrame
+from splight_models import VariableDataFrame, DatalakeModel
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -43,6 +43,19 @@ class DatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
         return instances
 
+    def raw_save(
+        self,
+        instances: List[Dict],
+        collection: str = "default",
+    ) -> List[Dict]:
+        # POST /datalake/save/
+        url = self._base_url / f"{self._PREFIX}/save/"
+        response = self._session.post(
+            url, params={"source": collection}, json=instances
+        )
+        response.raise_for_status()
+        return instances
+
     def _raw_get(self,
                  collection: str = 'default',
                  limit_: int = 50,
@@ -68,26 +81,6 @@ class DatalakeClient(AbstractDatalakeClient):
         response = self._session.get(url, params=kwargs)
         response.raise_for_status()
         return response.json()["results"]
-
-    @AbstractDatalakeClient.validate_resource_type
-    def raw_count(self,
-                  collection: str = "default",
-                  group_id: Union[List, str] = [],
-                  group_fields: Union[List, str] = [],
-                  **kwargs) -> int:
-        # GET /datalake/count/
-        url = self._base_url / f"{self._PREFIX}/count/"
-        kwargs.update(
-            {
-                "source": collection,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
-        )
-        response = self._session.get(url, params=kwargs)
-        response.raise_for_status()
-        return response.json()
 
     def _get(
         self,
@@ -124,6 +117,26 @@ class DatalakeClient(AbstractDatalakeClient):
         return output
 
     @AbstractDatalakeClient.validate_resource_type
+    def raw_count(self,
+                  collection: str = "default",
+                  group_id: Union[List, str] = [],
+                  group_fields: Union[List, str] = [],
+                  **kwargs) -> int:
+        # GET /datalake/count/
+        url = self._base_url / f"{self._PREFIX}/count/"
+        kwargs.update(
+            {
+                "source": collection,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                # "tzinfo": tzinfo
+            }
+        )
+        response = self._session.get(url, params=kwargs)
+        response.raise_for_status()
+        return response.json()
+
+    @AbstractDatalakeClient.validate_resource_type
     def count(self,
               resource_type: Type,
               collection: str = "default",
@@ -148,21 +161,22 @@ class DatalakeClient(AbstractDatalakeClient):
 
     def get_dataframe(
         self,
-        resource_type: Type,
+        freq: str = None,
         collection: str = "default",
         **kwargs
-    ) -> VariableDataFrame:
+    ) -> pd.DataFrame:
         # GET /datalake/dumpdata/?source=collection
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
         kwargs.update({"source": collection})
+        kwargs.update({"freq": freq})
         response = self._session.get(
             url, params=kwargs
         )
         response.raise_for_status()
-        return VariableDataFrame(pd.read_csv(StringIO(response.text)))
+        return pd.DataFrame(pd.read_csv(StringIO(response.text)))
 
     def save_dataframe(
-        self, dataframe: VariableDataFrame, collection: str = "default"
+        self, dataframe: pd.DataFrame, collection: str = 'default'
     ) -> None:
         # POST /datalake/loaddata/
         url = self._base_url / f"{self._PREFIX}/loaddata/"
@@ -221,3 +235,10 @@ class DatalakeClient(AbstractDatalakeClient):
         response = self._session.get(url)
         response.raise_for_status()
         return response.json()
+
+    def create_index(self, collection: str, index: list) -> None:
+        # POST /datalake/index/
+        url = self._base_url / f"{self._PREFIX}/index/"
+        data = {"source": collection, "index": index}
+        response = self._session.post(url, json=data)
+        response.raise_for_status()
