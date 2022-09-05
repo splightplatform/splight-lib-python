@@ -1,8 +1,7 @@
-from typing import Dict, Any, Literal
-from .base import SplightBaseModel
+from typing import Dict, Any
+from splight_models.base import SplightBaseModel
 from datetime import datetime, timezone
 from pydantic import Field
-from enum import Enum
 
 
 class UserActivityType:
