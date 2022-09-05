@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Type, List, Optional
+from typing import Dict, Type, List, Optional
 from splight_abstract.client import AbstractClient, QuerySet
+from splight_models.deployment import DeploymentEvent
 
 
 class AbstractDeploymentClient(AbstractClient):
@@ -22,3 +23,8 @@ class AbstractDeploymentClient(AbstractClient):
 
     def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
         pass
+
+    @staticmethod
+    def construct_event(payload: Dict, signature: str, secret: str) -> DeploymentEvent:
+        # TODO check signature
+        return DeploymentEvent.parse_obj(payload)

@@ -1,63 +1,17 @@
-import logging
-from enum import Enum, IntEnum
+
 from typing import Dict, List, Optional
 
 from splight_models.base import SplightBaseModel
+from splight_models.constants import ComponentSize, ComponentType, DeploymentStatus, LogginLevel, RestartPolicy
 from splight_models.runner import Parameter
-
-
-class ComponentSize(str, Enum):
-    small = "small"
-    medium = "medium"
-    large = "large"
-    very_large = "very_large"
-
-    def __str__(self):
-        return self.value
-
-
-class LogginLevel(IntEnum):
-    critical = logging.CRITICAL
-    error = logging.ERROR
-    warning = logging.WARNING
-    info = logging.INFO
-    debug = logging.DEBUG
-    notset = logging.NOTSET
-
-    def __str__(self):
-        return str(self.value)
-
-    @classmethod
-    def _missing_(cls, value):
-        return super()._missing_(int(value))
-
-
-class RestartPolicy(str, Enum):
-    ALWAYS = "Always"
-    ON_FAILURE = "OnFailure"
-    NEVER = "Never"
-
-
-class ComponentType(str, Enum):
-    ALGORITHM = "Algorithm"
-    NETWORK = "Network"
-    CONNECTOR = "Connector"
-
-
-class DeploymentStatus(str, Enum):
-    PENDING = "Pending"
-    RUNNING = "Running"
-    SUCCEEDED = "Succeeded"
-    FAILED = "Failed"
-    UNKNOWN = "Unknonwn"
 
 
 class Deployment(SplightBaseModel):
     # run-spec
     id: Optional[str] = None
-    type: ComponentType  # eg. Connector, Network, Algorithm
-    external_id: Optional[str] = None  # eg. 1
-    version: str  # eg. Forecasting-0_2
+    type: ComponentType
+    external_id: Optional[str] = None
+    version: str
     parameters: List[Parameter] = []
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
@@ -83,6 +37,16 @@ class Deployment(SplightBaseModel):
 
     @property
     def deployment_name(self):
+        # TODO remove this. we are no longeer using deployments.
         id = str(self.id).lower()
         type_id = str(self.type).lower()
         return f"deployment-{type_id}-{id}"
+
+
+class DeploymentEvent(SplightBaseModel):
+    severity: str
+    reason: str
+    message: str
+    namespace: str
+    object_id: str
+    object_type: str

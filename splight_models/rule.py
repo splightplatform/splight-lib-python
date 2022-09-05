@@ -1,6 +1,6 @@
 import builtins
 import operator
-from .base import SplightBaseModel
+from splight_models.base import SplightBaseModel
 
 import re
 import math
@@ -9,7 +9,7 @@ from enum import Enum
 from pydoc import locate
 from pydantic import validator
 from typing import Any, Optional, List, Dict
-from .severity import SeverityType
+from splight_models.constants import SeverityType
 
 
 GREATER_THAN = 'gt'

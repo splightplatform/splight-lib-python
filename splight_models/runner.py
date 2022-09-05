@@ -1,5 +1,6 @@
 from typing import List, Any, Optional
-from .base import SplightBaseModel
+from splight_models.base import SplightBaseModel
+from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, RunnerStatus
 
 
 class Parameter(SplightBaseModel):
@@ -14,9 +15,12 @@ class Runner(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str]
-    version: str # Pointer to hub component
+    version: str
     parameters: List[Parameter] = []
-    readme_url: Optional[str]
+    log_level: LogginLevel = LogginLevel.info
+    component_capacity: ComponentSize = ComponentSize.small
+    restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
+    status: RunnerStatus = RunnerStatus.STOPPED
 
     @property
     def collection(self):
@@ -32,8 +36,12 @@ class Algorithm(Runner):
 
 
 class Network(Runner):
-    pass
+    @property
+    def collection(self):
+        return 'default'
 
 
 class Connector(Runner):
-    pass
+    @property
+    def collection(self):
+        return 'default'
