@@ -63,4 +63,4 @@ class RunnerStatus(str, Enum):
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
-    UNKNOWN = "Unknonwn"
+    UNKNOWN = "Unknown"
