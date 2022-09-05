@@ -46,9 +46,9 @@ class AbstractClient(ABC, PreHookMixin, FilterMixin):
 class QuerySet(UserList):
     def __init__(self,
                  client: AbstractClient,
+                 *args,
                  get_func: str = '_get',
                  count_func: str = 'count',
-                 *args,
                  **kwargs):
         super().__init__()
         self._client = client
@@ -104,6 +104,7 @@ class QuerySet(UserList):
     @property
     def data(self):
         if self._cached_results is None:
+            print(self._client_func)
             client_func = getattr(self._client, self._client_func)
             self._cached_results = client_func(*self._args, **self._kwargs)
         return self._cached_results

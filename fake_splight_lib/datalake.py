@@ -7,7 +7,7 @@ from collections.abc import MutableMapping
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
-from splight_models import Variable, VariableDataFrame
+from splight_models import Variable, VariableDataFrame, DatalakeModel
 from splight_abstract import AbstractDatalakeClient
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
@@ -163,6 +163,8 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                   group_fields: List = [],
                   **kwargs) -> int:
 
+        kwargs.pop('limit_')
+        kwargs.pop('skip_')
         if group_id or group_fields:
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 
@@ -204,6 +206,9 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
         return self.raw_count(collection=collection, group_id=group_id, group_fields=group_fields, **kwargs)
 
+    def raw_save(self, instances: List[Dict], collection: str = "default") -> List[Dict]:
+        self._write_to_collection(collection, instances)
+
     def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
         self._write_to_collection(collection, data)
@@ -213,31 +218,18 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
         logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
-        _data = self.get(*args, **kwargs)
-        _data = pd.json_normalize(
-            [d.dict() for d in _data]
-        )
-        _data = VariableDataFrame(_data)
-        if not _data.empty:
-            _data.columns = [col.replace("args.", "") for col in _data.columns]
+        _data = self.raw_get(*args, **kwargs)
+        _data = pd.DataFrame(_data)
+        _data.set_index('timestamp', inplace=True)
         return _data
 
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         raise NotImplementedError
 
-    def save_dataframe(self, dataframe: VariableDataFrame, collection: str = 'default') -> None:
+    def save_dataframe(self, dataframe: pd.DataFrame, collection: str = 'default') -> None:
         logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
-        variables = [
-            Variable(
-                timestamp=pd.to_datetime(row.get("timestamp", index)),
-                asset_id=row.get("asset_id", None),
-                path=row.get("path", None),
-                attribute_id=row.get("attribute_id", None),
-                args={col: value for col, value in row.items() if col not in list(Variable.__fields__) + ['index']}
-            ) for index, row in dataframe.iterrows()
-        ]
-        self.save(Variable, instances=variables, collection=collection)
-        return variables
+        data = dataframe.reset_index().to_dict(orient="records")
+        self.raw_save(instances=data, collection=collection)
 
     def create_index(self, collection: str, index: list) -> None:
         pass
