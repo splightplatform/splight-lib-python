@@ -54,7 +54,7 @@ class DeploymentStatus(str, Enum):
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
-    UNKNOWN = "Unknonwn"
+    UNKNOWN = "Unknown"
 
 
 class RunnerStatus(str, Enum):
