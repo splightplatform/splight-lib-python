@@ -85,7 +85,7 @@ class QuerySet(UserList):
             }
             kwargs["skip_"] = skip_
             kwargs["limit_"] = limit_
-            return QuerySet(self._client, self._client_func, self._count_func, *self._args, **kwargs)
+            return QuerySet(self._client, get_func=self._client_func, count_func=self._count_func, *self._args, **kwargs)
         else:
             return self.data[i]
 
@@ -104,7 +104,6 @@ class QuerySet(UserList):
     @property
     def data(self):
         if self._cached_results is None:
-            print(self._client_func)
             client_func = getattr(self._client, self._client_func)
             self._cached_results = client_func(*self._args, **self._kwargs)
         return self._cached_results
