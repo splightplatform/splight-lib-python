@@ -15,16 +15,16 @@ class TestRuleEval(TestCase):
         self.filters_A = {"asset_id": str(uuid.uuid4()), "attribute_id": "123"}
         self.filters_B = {"asset_id": str(uuid.uuid4()), "attribute_id": "234"}
         variables = [
-                RuleVariable(id='A', type="bool", filters=self.filters_A, key="args__value"),
-                RuleVariable(id='B', type="float", filters=self.filters_B, key="args__value"),
-                RuleVariable(id='C', type="str", key="args__value")
-            ]
+            RuleVariable(id='A', type="bool", filters=self.filters_A, key="args__value"),
+            RuleVariable(id='B', type="float", filters=self.filters_B, key="args__value"),
+            RuleVariable(id='C', type="str", key="args__value")
+        ]
         self.rule = AlgorithmRule(
-                name="Rule1",
-                description="",
-                variables=variables,
-                statement="A and B > 5"
-            )
+            name="Rule1",
+            description="",
+            variables=variables,
+            statement="A and B > 5"
+        )
         return super().setUp()
 
     def test_rule_evaluation_false(self):
@@ -35,7 +35,7 @@ class TestRuleEval(TestCase):
             Variable(args={"value": True}, **self.filters_A),
             Variable(args={"value": 7}, **self.filters_B),
         ]
-        self.datalake.save(Variable, instances=data)
+        self.datalake.save(instances=data)
         self.assertTrue(rule_eval(rule=self.rule, db_client=self.database, dl_client=self.datalake))
 
     def test_unexistent_rule_evaluation(self):
