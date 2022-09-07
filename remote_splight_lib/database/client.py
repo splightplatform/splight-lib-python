@@ -89,7 +89,6 @@ class DatabaseClient(AbstractDatabaseClient):
         path = model_data["path"]
         response = self._list(
             path,
-            first=first,
             limit_=limit_,
             skip_=skip_,
             deleted=deleted,
