@@ -7,8 +7,8 @@ from collections.abc import MutableMapping
 from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
-from splight_models import Variable, VariableDataFrame, DatalakeModel
-from splight_abstract import AbstractDatalakeClient
+from splight_models import VariableDataFrame
+from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
 
@@ -171,7 +171,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return len(result)
 
-    @AbstractDatalakeClient.validate_resource_type
+    @validate_resource_type
     def _get(self,
              resource_type: Type,
              collection: str = 'default',
@@ -193,7 +193,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return result[skip_:skip_ + limit_]
 
-    @AbstractDatalakeClient.validate_resource_type
+    @validate_resource_type
     def count(self,
               resource_type: Type,
               collection: str = "default",
@@ -206,11 +206,12 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         return self.raw_count(collection=collection, group_id=group_id, group_fields=group_fields, **kwargs)
 
     def raw_save(self, instances: List[Dict], collection: str = "default") -> List[Dict]:
-        self._write_to_collection(collection, instances)
+        return self._write_to_collection(collection, instances)
 
     def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
         data = [instance.dict() for instance in instances]
-        self._write_to_collection(collection, data)
+        self.raw_save(data, collection)
+        return instances
 
     def get_db_size_gb(self) -> float:
         return 0.555555
