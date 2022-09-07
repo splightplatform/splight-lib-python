@@ -2,7 +2,7 @@ from pydantic import Field
 from datetime import datetime, timezone
 from typing import Optional
 from enum import Enum
-from splight_models.base import SplightBaseModel
+from splight_models.datalake import DatalakeModel
 from splight_models.severity import SeverityType
 
 
@@ -41,7 +41,7 @@ class SourceType(str, Enum):
     connector = 'Connector'
 
 
-class Notification(SplightBaseModel):
+class Notification(DatalakeModel):
     id: Optional[str]
     title: str
     message: str

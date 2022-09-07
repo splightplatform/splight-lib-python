@@ -2,23 +2,24 @@ from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Dict, Union, Callable
 from datetime import timezone, timedelta
-from splight_models import VariableDataFrame, DatalakeModel
+from splight_models import DatalakeModel
 from splight_abstract.client import AbstractClient, QuerySet
 from functools import wraps
 import pandas as pd
 
 
+def validate_resource_type(func: Callable) -> Callable:
+    @wraps(func)
+    def inner(self, resource_type, *args, **kwargs):
+        if not issubclass(resource_type, DatalakeModel):
+            raise NotImplementedError(f"Not a valid resource_type: {resource_type.__name__}")
+        return func(self, resource_type, *args, **kwargs)
+    return inner
+
+
 class AbstractDatalakeClient(AbstractClient):
 
     valid_filters = ["in", "contains", "gte", "lte"]
-
-    def validate_resource_type(func: Callable) -> Callable:
-        @wraps(func)
-        def inner(self, resource_type, *args, **kwargs):
-            if not issubclass(resource_type, DatalakeModel):
-                raise NotImplementedError(f"Not a valid resource_type: {resource_type.__name__}")
-            return func(self, resource_type, *args, **kwargs)
-        return inner
 
     @abstractmethod
     def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
