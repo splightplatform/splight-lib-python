@@ -6,6 +6,7 @@ class Dashboard(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
+    created_at: str
 
 
 class Tab(SplightBaseModel):
