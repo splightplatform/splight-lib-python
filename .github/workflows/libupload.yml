@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - hotfix/*
 jobs:
   upload:
     runs-on: ubuntu-latest
