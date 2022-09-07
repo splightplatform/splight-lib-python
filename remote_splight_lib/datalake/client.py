@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type, Union
@@ -11,8 +11,7 @@ from requests import Session
 
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
-from splight_abstract.datalake import AbstractDatalakeClient
-from splight_models import VariableDataFrame, DatalakeModel
+from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
 
 
 class DatalakeClient(AbstractDatalakeClient):
@@ -82,6 +81,7 @@ class DatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
         return response.json()["results"]
 
+    @validate_resource_type
     def _get(
         self,
         resource_type: Type,
@@ -116,7 +116,6 @@ class DatalakeClient(AbstractDatalakeClient):
         ]
         return output
 
-    @AbstractDatalakeClient.validate_resource_type
     def raw_count(self,
                   collection: str = "default",
                   group_id: Union[List, str] = [],
@@ -136,7 +135,7 @@ class DatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
         return response.json()
 
-    @AbstractDatalakeClient.validate_resource_type
+    @validate_resource_type
     def count(self,
               resource_type: Type,
               collection: str = "default",
