@@ -188,13 +188,13 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
     def setup(self):
         return self._setup
 
-    @ setup.setter
+    @setup.setter
     def setup(self, new_setup):
         self._setup.configure(new_setup)
         self._load_clients()
         self._load_hooks()
 
-    @ cached_property
+    @cached_property
     def instance(self):
         return self.database_client.get(
             resource_type=self.managed_class, id=self.instance_id, first=True
