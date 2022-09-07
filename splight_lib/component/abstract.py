@@ -144,7 +144,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
     managed_class: Type = None
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
-        self._raw_spec = run_spec
         self._spec: Deployment = Deployment(**run_spec)
 
         self.namespace = self._spec.namespace
@@ -156,6 +155,10 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
 
         super().__init__(*args, **kwargs)
 
+    @property
+    def spec(self) -> Deployment:
+        return self._spec
+
     def _init_setup(self, initial_setup: Optional[dict] = None):
         self._setup = setup
         if initial_setup:
@@ -165,8 +168,11 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self._version: str = self._spec.version
 
     def _load_models(self):
-        self._retrive_objects_in_input(self._raw_spec["input"])
-        parsed_input = self._parse_input(self._raw_spec["input"])
+        raw_spec = self.spec.dict()
+        self._retrive_objects_in_input(raw_spec["input"])
+
+        parsed_input = self._parse_input(raw_spec["input"])
+
         self.input = self._spec.input_model(**parsed_input)
         self.output = self._spec.output_model
         self.custom_types = self._spec.custom_types_model
