@@ -7,6 +7,8 @@ from .datalake import DatalakeModel, RunnerDatalakeModel
 
 
 class Variable(DatalakeModel):
+    instance_id: Optional[str] = None
+    instance_type: Optional[str] = None
     args: Optional[Dict] = None
     path: Optional[str] = None
     asset_id: Optional[str] = None
