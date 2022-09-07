@@ -48,9 +48,9 @@ class Output(SplightBaseModel):
 
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
-    custom_types: Optional[List[CustomType]] = []
-    input: Optional[List[Parameter]] = []
-    output: Optional[List[Output]] = []
+    custom_types: List[CustomType] = []
+    input: List[Parameter] = []
+    output: List[Output] = []
 
     class Config:
         keep_untouched = (cached_property,)
