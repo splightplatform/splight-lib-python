@@ -23,5 +23,5 @@ def notify(notification: Notification,
             timestamp=notification.timestamp,
             args=notification.dict(),
         )
-        datalake_client.save(Variable, instances=[variable], collection='notification')
+        datalake_client.save(instances=[variable], collection='notification')
     return

@@ -9,7 +9,7 @@ from splight_models.rule import MappingRule
 
 from datetime import datetime
 from enum import Enum
-from typing import Type, List, Dict, Tuple, Optional, Any
+from typing import Type, List, Dict, Tuple, Optional, Any, Union
 from pydantic import BaseModel, create_model, Field
 from copy import copy
 from functools import cached_property

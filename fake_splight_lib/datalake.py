@@ -163,8 +163,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                   group_fields: List = [],
                   **kwargs) -> int:
 
-        kwargs.pop('limit_')
-        kwargs.pop('skip_')
+        kwargs.pop('limit_', None)
         if group_id or group_fields:
             raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
 

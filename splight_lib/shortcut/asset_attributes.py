@@ -43,10 +43,10 @@ def _asset_read(asset_id: str, attribute_id: str, datalake_client: DatalakeClien
     mapping: Union[ClientMapping, ValueMapping] = _get_asset_attribute_mapping(asset_id=asset_id, attribute_id=attribute_id, database_client=database_client)
     if type(mapping) == ClientMapping:
         variable: Variable = Variable(asset_id=mapping.asset_id,
-                                        attribute_id=mapping.attribute_id,
-                                        args=dict())
+                                      attribute_id=mapping.attribute_id,
+                                      args=dict())
 
-        variable = datalake_client.get(Variable, asset_id=variable.asset_id, attribute_id=variable.attribute_id)
+        variable = datalake_client.get(asset_id=variable.asset_id, attribute_id=variable.attribute_id)
 
         if not variable:
             raise AttributeError("No variable value found")
@@ -55,7 +55,7 @@ def _asset_read(asset_id: str, attribute_id: str, datalake_client: DatalakeClien
 
     elif type(mapping) == ValueMapping:
         return mapping.value
-    
+
     else:
         raise NotImplementedError
 
@@ -85,7 +85,7 @@ def get_asset_attributes(asset_id: str, database_client: DatabaseClient) -> List
     '''
     This function returns all the attributes of an asset.
     '''
-    mappings = [m for mapping_type in [ClientMapping, ValueMapping, ReferenceMapping] for m in database_client.get(mapping_type, asset_id = asset_id)]
+    mappings = [m for mapping_type in [ClientMapping, ValueMapping, ReferenceMapping] for m in database_client.get(mapping_type, asset_id=asset_id)]
     attributes: List[Attribute] = database_client.get(Attribute, id__in=[m.attribute_id for m in mappings])
     distinct_attributes = set()
     return [a for a in attributes if a.id not in distinct_attributes and not distinct_attributes.add(a.id)]
@@ -136,14 +136,14 @@ def __get_or_create_from_series(db_client: DatabaseClient, db_class: BaseModel, 
 
 
 def asset_load_history(
-        dataframe: pd.DataFrame,
-        db_client: DatabaseClient,
-        dl_client: DatalakeClient,
-        asset_id: str = None,
-        asset_name_cols: List[str] = [],
-        attribute_id: str = None,
-        attribute_name_cols: List[str] = [],
-    ) -> None:
+    dataframe: pd.DataFrame,
+    db_client: DatabaseClient,
+    dl_client: DatalakeClient,
+    asset_id: str = None,
+    asset_name_cols: List[str] = [],
+    attribute_id: str = None,
+    attribute_name_cols: List[str] = [],
+) -> None:
     """
     Loads history from dataframe with
     timestamp column asset and attribute reference
