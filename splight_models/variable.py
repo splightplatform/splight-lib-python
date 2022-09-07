@@ -1,14 +1,9 @@
 import pandas as pd
-<<<<<<< HEAD
-from typing import Dict, Optional
-from .datalake import DatalakeModel
-=======
 from pydantic import Field
 from typing import Dict, Union, Optional
 from .asset import Asset
 from .attribute import Attribute
 from .datalake import DatalakeModel, RunnerDatalakeModel
->>>>>>> 2877884 (Update datalake and abstract component)
 
 
 class Variable(DatalakeModel):
