@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Type
+from splight_abstract.hub.abstract import AbstractHubSubClient
 from splight_lib import logging
 from splight_models import *
 from splight_abstract import AbstractHubClient, validate_resource_type
@@ -8,28 +9,10 @@ from splight_abstract import AbstractHubClient, validate_resource_type
 logger = logging.getLogger()
 
 
-class FakeHubClient(AbstractHubClient):
-    networks = [
-        HubNetwork(id="1", name='Net1', description=None, version='01', input=[]),
-        HubNetwork(id="2", name='Net2', description=None, version='01', input=[]),
-        HubNetwork(id="3", name='Net3', description=None, version='01', input=[])
-    ]
-    algorithms = [
-        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[]),
-        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[])
-    ]
-    connectors = [
-        HubConnector(id="6", name='Conn1', description=None, version='01', input=[])
-    ]
-    database: Dict[Type, List[BaseModel]] = {
-        HubNetwork: networks,
-        HubAlgorithm: algorithms,
-        HubConnector: connectors,
-    }
+class FakeHubSubClient(AbstractHubSubClient):
     valid_classes = [
-        HubNetwork,
-        HubConnector,
-        HubAlgorithm
+        HubComponent,
+        HubComponentVersion
     ]
 
     allowed_update_fields = ["verification"]
@@ -69,3 +52,40 @@ class FakeHubClient(AbstractHubClient):
             if field in data:
                 setattr(instance, field, data[field])
         return instance
+
+
+class FakeHubClient(AbstractHubClient):
+    networks = [
+        HubNetwork(id="1", name='Net1', description=None, version='01', input=[]),
+        HubNetwork(id="2", name='Net2', description=None, version='01', input=[]),
+        HubNetwork(id="3", name='Net3', description=None, version='01', input=[])
+    ]
+    algorithms = [
+        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[]),
+        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[])
+    ]
+    connectors = [
+        HubConnector(id="6", name='Conn1', description=None, version='01', input=[])
+    ]
+    database: Dict[Type, List[BaseModel]] = {
+        HubNetwork: networks,
+        HubAlgorithm: algorithms,
+        HubConnector: connectors,
+    }
+    _client = FakeHubSubClient()
+
+    @property
+    def mine(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def public(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def private(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def setup(self) -> AbstractHubSubClient:
+        return self._client
