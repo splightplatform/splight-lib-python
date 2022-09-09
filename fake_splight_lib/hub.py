@@ -11,16 +11,16 @@ logger = logging.getLogger()
 
 class FakeHubSubClient(AbstractHubSubClient):
     networks = [
-        HubNetwork(id="1", name='Net1', description=None, version='01', input=[]),
-        HubNetwork(id="2", name='Net2', description=None, version='01', input=[]),
-        HubNetwork(id="3", name='Net3', description=None, version='01', input=[])
+        HubNetwork(id="1", name='Net1', description=None, version='01', input=[], type='network'),
+        HubNetwork(id="2", name='Net2', description=None, version='01', input=[], type='network'),
+        HubNetwork(id="3", name='Net3', description=None, version='01', input=[], type='network')
     ]
     algorithms = [
-        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[]),
-        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[])
+        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[], type='algorithm'),
+        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[], type='algorithm')
     ]
     connectors = [
-        HubConnector(id="6", name='Conn1', description=None, version='01', input=[])
+        HubConnector(id="6", name='Conn1', description=None, version='01', input=[], type="connector")
     ]
     versions = networks + connectors + algorithms
     grouped_versions = networks + connectors + algorithms

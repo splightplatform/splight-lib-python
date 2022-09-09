@@ -9,6 +9,7 @@ VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
 class HubComponent(BaseRunner):
     id: Optional[str]
     name: str
+    type: str = None
     description: Optional[str]
     privacy_policy: Optional[str] = None
     tenant: Optional[str] = None
