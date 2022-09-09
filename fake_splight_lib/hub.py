@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Type
+from splight_abstract.hub.abstract import AbstractHubSubClient
 from splight_lib import logging
 from splight_models import *
 from splight_abstract import AbstractHubClient, validate_resource_type
@@ -8,7 +9,7 @@ from splight_abstract import AbstractHubClient, validate_resource_type
 logger = logging.getLogger()
 
 
-class FakeHubClient(AbstractHubClient):
+class FakeHubSubClient(AbstractHubSubClient):
     networks = [
         HubNetwork(id="1", name='Net1', description=None, version='01', input=[]),
         HubNetwork(id="2", name='Net2', description=None, version='01', input=[]),
@@ -21,15 +22,15 @@ class FakeHubClient(AbstractHubClient):
     connectors = [
         HubConnector(id="6", name='Conn1', description=None, version='01', input=[])
     ]
+    versions = networks + connectors + algorithms
+    grouped_versions = networks + connectors + algorithms
     database: Dict[Type, List[BaseModel]] = {
-        HubNetwork: networks,
-        HubAlgorithm: algorithms,
-        HubConnector: connectors,
+        HubComponent: grouped_versions,
+        HubComponentVersion: versions,
     }
     valid_classes = [
-        HubNetwork,
-        HubConnector,
-        HubAlgorithm
+        HubComponent,
+        HubComponentVersion
     ]
 
     allowed_update_fields = ["verification"]
@@ -69,3 +70,29 @@ class FakeHubClient(AbstractHubClient):
             if field in data:
                 setattr(instance, field, data[field])
         return instance
+
+
+class FakeHubClient(AbstractHubClient):
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._client = FakeHubSubClient()
+
+    @property
+    def all(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def mine(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def public(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def private(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def setup(self) -> AbstractHubSubClient:
+        return self._client

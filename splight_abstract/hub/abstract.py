@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 from typing import List, Type, Dict
-from abc import abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from splight_abstract.client import AbstractClient, QuerySet
 
 
-class AbstractHubClient(AbstractClient):
+class AbstractHubSubClient(AbstractClient):
     @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:
         pass
@@ -22,4 +22,26 @@ class AbstractHubClient(AbstractClient):
 
     @abstractmethod
     def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
+        pass
+
+
+class AbstractHubClient(ABC):
+    @abstractproperty
+    def all(self) -> AbstractHubSubClient:
+        pass
+
+    @abstractproperty
+    def mine(self) -> AbstractHubSubClient:
+        pass
+
+    @abstractproperty
+    def public(self) -> AbstractHubSubClient:
+        pass
+
+    @abstractproperty
+    def private(self) -> AbstractHubSubClient:
+        pass
+
+    @abstractproperty
+    def setup(self) -> AbstractHubSubClient:
         pass

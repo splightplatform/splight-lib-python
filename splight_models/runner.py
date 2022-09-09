@@ -181,7 +181,7 @@ class RunnerModelFactory:
             type = self._type_map[field.type]
             choices = getattr(field, "choices", None)
             multiple = getattr(field, "multiple", False)
-            required = getattr(field, "required", False)
+            required = getattr(field, "required", True)
 
             if choices:
                 type = Enum(f"{field.name}-choices", {str(p): p for p in field.choices})
@@ -189,9 +189,11 @@ class RunnerModelFactory:
             if multiple:
                 type = List[type]
 
+            value = ...
             if not required:
                 type = Optional[type]
+                value = None
 
-            fields_dict[field.name] = (type, ...)
+            fields_dict[field.name] = (type, value)
 
         return create_model(name, **fields_dict, __base__=base)
