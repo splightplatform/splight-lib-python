@@ -39,7 +39,7 @@ class TestAttributeHash(AbstractBaseHash, TestCase):
 
 class TestDashboardHash(AbstractBaseHash, TestCase):
     class_model = Dashboard
-    args = {"name": ""}
+    args = {"name": "", "created_at": datetime.now()}
     rand_str_arg = "name"
 
 

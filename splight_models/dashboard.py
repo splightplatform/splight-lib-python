@@ -1,3 +1,5 @@
+from pydantic import Field
+from datetime import timezone, datetime
 from splight_models.base import SplightBaseModel
 from typing import Optional
 
@@ -6,7 +8,7 @@ class Dashboard(SplightBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
-
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Tab(SplightBaseModel):
     id: Optional[str]
