@@ -27,6 +27,10 @@ class AbstractHubSubClient(AbstractClient):
 
 class AbstractHubClient(ABC):
     @abstractproperty
+    def all(self) -> AbstractHubSubClient:
+        pass
+
+    @abstractproperty
     def mine(self) -> AbstractHubSubClient:
         pass
 
