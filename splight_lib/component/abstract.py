@@ -256,12 +256,12 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
             type = parameter["type"]
             name = parameter["name"]
             value = parameter["value"]
-            required = parameter["required"]
             multiple = parameter["multiple"]
 
-            if not required and not value:
-                parameters_dict[name] = None
-            elif type in SIMPLE_TYPES:
+            if value is [] or value == '':
+                value = None
+
+            if type in SIMPLE_TYPES:
                 parameters_dict[name] = value
             elif multiple:
                 parameters_dict[name] = [self._parse_input(val) for val in value]
