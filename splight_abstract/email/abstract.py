@@ -10,3 +10,7 @@ class AbstractEmailClient(AbstractClient):
     @abstractmethod
     def send(self, subject: str, message: str, to: Union[str, List[str]], type: EmailType = EmailType.INFO):
         pass
+
+    @abstractmethod
+    def add_to_newsletter(self, email: str) -> None:
+        pass
