@@ -11,3 +11,6 @@ class FakeEmailClient(AbstractEmailClient):
 
     def send(self, subject: str, message: str, to: Union[str, List[str]], type: EmailType = EmailType.INFO):
         logger.info(f"[FAKED] Email sent to {to}")
+
+    def add_to_newsletter(self, email: str) -> None:
+        logger.info(f"[FAKED] Added {email} to newsletter")
