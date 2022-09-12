@@ -85,7 +85,7 @@ class HooksMixin:
 
 class UtilsMixin:
     def get_history(self, **kwargs) -> pd.DataFrame:
-        return self.datalake_client.get_dataframe(collections="default", **kwargs)
+        return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
     def get_results(self, algorithm: Algorithm, output_model: RunnerDatalakeModel, **kwargs) -> pd.DataFrame:
         if output_model != getattr(algorithm.output_model, output_model.__name__):
