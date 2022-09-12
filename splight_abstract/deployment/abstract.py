@@ -1,3 +1,4 @@
+import stripe
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Dict, Type, List, Optional
@@ -26,5 +27,7 @@ class AbstractDeploymentClient(AbstractClient):
 
     @staticmethod
     def construct_event(payload: Dict, signature: str, secret: str) -> DeploymentEvent:
-        # TODO check signature
+        stripe.Webhook.construct_event(
+            payload, signature, secret
+        )
         return DeploymentEvent.parse_obj(payload)
