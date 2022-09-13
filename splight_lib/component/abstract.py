@@ -69,10 +69,12 @@ class HooksMixin:
 
     def hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
-        variables = [v for v in instances if isinstance(v, Variable)]
-        for variable in variables:
-            variable.instance_id = self.instance_id
-            variable.instance_type = self.managed_class.__name__
+        for instance in instances:
+            if not isinstance(instance, RunnerDatalakeModel):
+                continue
+            instance.instance_id = self.instance_id
+            instance.instance_type = self.managed_class.__name__
+
         return args, kwargs
 
     def hook_insert_origin_save_dataframe(self, *args, **kwargs):
