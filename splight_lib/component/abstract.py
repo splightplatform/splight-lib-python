@@ -258,7 +258,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
             value = parameter["value"]
             multiple = parameter["multiple"]
 
-            if value is [] or value == '':
+            if (value is [] or value == '') and type != "str":
                 value = None
 
             if type in SIMPLE_TYPES:
