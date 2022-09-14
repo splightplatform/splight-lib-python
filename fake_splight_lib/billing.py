@@ -1,4 +1,5 @@
-from typing import Type
+from typing import Type, List
+from pydantic import BaseModel
 from splight_abstract import AbstractBillingClient, AbstractBillingSubClient
 from splight_models import Invoice, InvoiceItem, Customer, CustomerPortal
 from splight_lib import logging
@@ -18,11 +19,13 @@ class FakeBillingSubClient(AbstractBillingSubClient):
         CustomerPortal: [],
     }
 
-    def save(self, *args, **kwargs):
-        logger.debug(f"[FAKED] Saved to Billing")
-        self.database[self.type].append(self.type.parse_obj(kwargs))
+    def create(self, *args, **kwargs) -> BaseModel:
+        logger.debug(f"[FAKED] Created object")
+        object = self.type.parse_obj(kwargs)
+        self.database[self.type].append(object)
+        return object
 
-    def _get(self, first=False, limit_: int = -1, skip_: int = 0, *args, **kwargs):
+    def _get(self, first=False, limit_: int = -1, skip_: int = 0, *args, **kwargs) -> List[BaseModel]:
         queryset = self.database[self.type]
         kwargs = self._validated_kwargs(self.class_map[self.stripe_type], **kwargs)
         queryset = self._filter(queryset, **kwargs)
@@ -32,7 +35,7 @@ class FakeBillingSubClient(AbstractBillingSubClient):
             return queryset[0] if queryset else None
         return queryset
 
-    def delete(self, id: str, *args, **kwargs) -> None:
+    def delete(self, id: str) -> None:
         for item in self.database[self.type]:
             if item.id == id:
                 self.database[self.type].remove(item)
