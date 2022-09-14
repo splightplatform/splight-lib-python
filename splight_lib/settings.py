@@ -27,6 +27,7 @@ back to the defaults.
 
 class SplightBaseSettings(BaseSettings):
     AUTH_CLIENT: str = 'fake_splight_lib.auth.FakeAuthClient'
+    BILLING_CLIENT: str = 'fake_splight_lib.auth.FakeBillingClient'
     BLOCKCHAIN_CLIENT: str = 'fake_splight_lib.blockchain.FakeBlockchainClient'
     DATABASE_CLIENT: str = 'fake_splight_lib.database.FakeDatabaseClient'
     DATALAKE_CLIENT: str = 'fake_splight_lib.datalake.FakeDatalakeClient'
@@ -44,6 +45,7 @@ class SplightBaseSettings(BaseSettings):
     def importables(self):
         return [
             'AUTH_CLIENT',
+            'BILLING_CLIENT',
             'BLOCKCHAIN_CLIENT',
             'DATABASE_CLIENT',
             'DATALAKE_CLIENT',
