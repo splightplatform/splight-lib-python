@@ -27,7 +27,7 @@ class AbstractDeploymentClient(AbstractClient):
 
     @staticmethod
     def construct_event(payload: Dict, signature: str, secret: str) -> DeploymentEvent:
-        stripe.Webhook.construct_event(
+        event = stripe.Webhook.construct_event(
             payload, signature, secret
         )
-        return DeploymentEvent.parse_obj(payload)
+        return DeploymentEvent.parse_obj(event)
