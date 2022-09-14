@@ -12,8 +12,8 @@ class Invoice(SplightBaseModel):
     total: float
     paid: bool
     status: str
-    hosted_invoice_url: str
-    invoice_pdf: str
+    hosted_invoice_url: Optional[str]
+    invoice_pdf: Optional[str]
 
 class InvoiceItem(SplightBaseModel):
     id: Optional[str]
