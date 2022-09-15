@@ -5,10 +5,14 @@ from pydantic import validator
 from datetime import datetime, timezone
 import pytz
 
+class InvoiceMetadata(SplightBaseModel):
+    month: datetime
+    organization_id: str
+
 class Invoice(SplightBaseModel):
     id: Optional[str]
     customer: str
-    metadata: Dict[str,str]
+    metadata: InvoiceMetadata
     total: float
     paid: bool
     status: str
