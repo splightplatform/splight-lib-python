@@ -17,6 +17,10 @@ class AbstractBillingSubClient(AbstractClient):
         pass
 
     @abstractmethod
+    def retrieve(self, id: str) -> BaseModel:
+        pass
+
+    @abstractmethod
     def delete(self, id: str) -> None:
         pass
 
