@@ -35,6 +35,12 @@ class FakeBillingSubClient(AbstractBillingSubClient):
             return queryset[0] if queryset else None
         return queryset
 
+    def retrieve(self, id: str) -> BaseModel:
+        for item in self.database[self.type]:
+            if item.id == id:
+                return item
+        return None
+
     def delete(self, id: str) -> None:
         for item in self.database[self.type]:
             if item.id == id:
