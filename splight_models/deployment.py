@@ -48,4 +48,4 @@ class DeploymentEvent(SplightBaseModel):
     namespace: str
     object_id: str
     object_type: str
-    pod_status: str
+    container_statuses: List[str]
