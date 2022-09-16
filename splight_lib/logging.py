@@ -1,4 +1,5 @@
 import logging
+import time
 import os
 
 
@@ -15,5 +16,6 @@ def getLogger(name=None):
         config['filemode'] = 'a'
 
     logging.basicConfig(**config)
+    logging.Formatter.converter = time.gmtime
 
     return logging.getLogger(name)

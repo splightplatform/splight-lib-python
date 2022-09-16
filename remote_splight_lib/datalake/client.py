@@ -172,7 +172,13 @@ class DatalakeClient(AbstractDatalakeClient):
             url, params=kwargs
         )
         response.raise_for_status()
-        return pd.DataFrame(pd.read_csv(StringIO(response.text)))
+
+        df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
+        if df.empty:
+            return df
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        df.set_index("timestamp", inplace=True)
+        return df
 
     def save_dataframe(
         self, dataframe: pd.DataFrame, collection: str = 'default'
