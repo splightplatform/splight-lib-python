@@ -69,10 +69,12 @@ class HooksMixin:
 
     def hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
-        variables = [v for v in instances if isinstance(v, Variable)]
-        for variable in variables:
-            variable.instance_id = self.instance_id
-            variable.instance_type = self.managed_class.__name__
+        for instance in instances:
+            if not isinstance(instance, RunnerDatalakeModel):
+                continue
+            instance.instance_id = self.instance_id
+            instance.instance_type = self.managed_class.__name__
+
         return args, kwargs
 
     def hook_insert_origin_save_dataframe(self, *args, **kwargs):
@@ -85,7 +87,7 @@ class HooksMixin:
 
 class UtilsMixin:
     def get_history(self, **kwargs) -> pd.DataFrame:
-        return self.datalake_client.get_dataframe(collections="default", **kwargs)
+        return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
     def get_results(self, algorithm: Algorithm, output_model: RunnerDatalakeModel, **kwargs) -> pd.DataFrame:
         if output_model != getattr(algorithm.output_model, output_model.__name__):
@@ -258,7 +260,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
             value = parameter["value"]
             multiple = parameter["multiple"]
 
-            if value is [] or value == '':
+            if (value is [] or value == '') and type != "str":
                 value = None
 
             if type in SIMPLE_TYPES:
