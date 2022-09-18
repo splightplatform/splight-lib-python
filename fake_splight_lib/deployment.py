@@ -98,7 +98,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
             return self._delete_namespace(id)
         raise NotImplementedError
 
-    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
         return [f"[FAKE] log for {id}"]
 
     def get_capacity_options(self):

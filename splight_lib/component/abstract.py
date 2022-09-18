@@ -209,6 +209,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         }
         self._get_ids(parameters, ids)
         objects = self._retrieve_objects(ids)
+        objects[None] = None
         self._complete_input_with_objects(parameters, objects)
         return parameters
 
