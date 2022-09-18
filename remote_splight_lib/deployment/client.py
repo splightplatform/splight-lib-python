@@ -25,7 +25,7 @@ class DeploymentClient(AbstractDeploymentClient):
         raise NotImplementedError
 
     def _get(self, resource_type: Type, id: str = '', first=False, limit_: int = -1, skip_: int = 0, **kwargs) -> List[BaseModel]:
-    
+
         if resource_type != Deployment:
             raise NotImplementedError
         response = self._list(
@@ -49,7 +49,7 @@ class DeploymentClient(AbstractDeploymentClient):
     def delete(self, resource_type: Type, id: str) -> None:
         raise NotImplementedError
 
-    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
         raise NotImplementedError
 
     def get_capacity_options(self):
