@@ -4,6 +4,7 @@ from splight_models.attribute import *
 from splight_models.billing import *
 from splight_models.blockchain import *
 from splight_models.channel import *
+from splight_models.credential import Credential
 from splight_models.dashboard import *
 from splight_models.datalake import *
 from splight_models.deployment import *
