@@ -30,10 +30,10 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     def get(self, *args, **kwargs) -> QuerySet:
-        return QuerySet(self, *args, **kwargs)
+        return QuerySet(self, count_func="None", *args, **kwargs)
 
     def raw_get(self, *args, **kwargs) -> QuerySet:
-        return QuerySet(self, get_func="_raw_get", count_func="raw_count", *args, **kwargs)
+        return QuerySet(self, get_func="_raw_get", count_func="None", *args, **kwargs)
 
     @abstractmethod
     def _get(self,
@@ -58,23 +58,6 @@ class AbstractDatalakeClient(AbstractClient):
                  group_fields: Union[List, str] = [],
                  tzinfo: timezone = timezone(timedelta()),
                  **kwargs) -> List[BaseModel]:
-        pass
-
-    @abstractmethod
-    def count(self,
-              resource_type: int,
-              collection: str = "default",
-              group_id: Union[List, str] = [],
-              group_fields: Union[List, str] = [],
-              **kwargs) -> int:
-        pass
-
-    @abstractmethod
-    def raw_count(self,
-                  collection: str = "default",
-                  group_id: Union[List, str] = [],
-                  group_fields: Union[List, str] = [],
-                  **kwargs) -> int:
         pass
 
     @abstractmethod
