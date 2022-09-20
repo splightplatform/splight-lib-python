@@ -23,7 +23,7 @@ class AbstractDeploymentClient(AbstractClient):
     def delete(self, resource_type: Type, id: str) -> None:
         pass
 
-    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None) -> List[str]:
+    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
         pass
 
     @staticmethod

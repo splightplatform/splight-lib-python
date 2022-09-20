@@ -36,6 +36,7 @@ class Discount(SplightBaseModel):
     coupon: Coupon
 
 class Customer(SplightBaseModel):
+    currency: str
     balance: int
     discount: Optional[Discount]
 
