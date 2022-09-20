@@ -65,7 +65,9 @@ class RunnableMixin:
 class HooksMixin:
     def _load_hooks(self):
         self.datalake_client.add_pre_hook("save", self.hook_insert_origin_save)
+        self.datalake_client.add_pre_hook("save", self.hookk_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.hook_insert_origin_save_dataframe)
+        self.datalake_client.add_pre_hook("save_dataframe", self.hookk_lock_save_collection)
 
     def hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -82,6 +84,10 @@ class HooksMixin:
         dataframe["instance_id"] = self.instance_id
         dataframe["instance_type"] = self.managed_class.__name__
         kwargs["dataframe"] = dataframe
+        return args, kwargs
+
+    def hookk_lock_save_collection(self, *args, **kwargs):
+        kwargs["collection"] = self.collection_name
         return args, kwargs
 
 
@@ -113,8 +119,11 @@ class UtilsMixin:
         except Exception:
             raise ValueError(f"Invalid dataframe: does not match output format")
 
+        dataframe["output_format"] = output_model.__name__
+
         self.datalake_client.save_dataframe(
-            dataframe=dataframe, collection=self.collection_name
+            dataframe=dataframe,
+            collection=self.collection_name
         )
 
     def save_file(
