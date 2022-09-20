@@ -86,7 +86,7 @@ class HooksMixin:
         kwargs["dataframe"] = dataframe
         return args, kwargs
 
-    def hookk_lock_save_collection(self, *args, **kwargs):
+    def hook_lock_save_collection(self, *args, **kwargs):
         kwargs["collection"] = self.collection_name
         return args, kwargs
 
