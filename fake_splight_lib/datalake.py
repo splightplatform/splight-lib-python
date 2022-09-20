@@ -157,20 +157,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return result[skip_:skip_ + limit_]
 
-    def raw_count(self,
-                  collection: str = "default",
-                  group_id: List = [],
-                  group_fields: List = [],
-                  **kwargs) -> int:
-
-        kwargs.pop('limit_', None)
-        if group_id or group_fields:
-            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
-
-        result = self._find(collection, filters=self._parse_filters(**kwargs))
-
-        return len(result)
-
     @validate_resource_type
     def _get(self,
              resource_type: Type,
@@ -192,18 +178,6 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             return result[skip_:]
 
         return result[skip_:skip_ + limit_]
-
-    @validate_resource_type
-    def count(self,
-              resource_type: Type,
-              collection: str = "default",
-              group_id: List = [],
-              group_fields: List = [],
-              **kwargs) -> int:
-
-        if group_id or group_fields:
-            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
-        return self.raw_count(collection=collection, group_id=group_id, group_fields=group_fields, **kwargs)
 
     def raw_save(self, instances: List[Dict], collection: str = "default") -> List[Dict]:
         return self._write_to_collection(collection, instances)

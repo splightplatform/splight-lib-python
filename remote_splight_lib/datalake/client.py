@@ -116,48 +116,6 @@ class DatalakeClient(AbstractDatalakeClient):
         ]
         return output
 
-    def raw_count(self,
-                  collection: str = "default",
-                  group_id: Union[List, str] = [],
-                  group_fields: Union[List, str] = [],
-                  **kwargs) -> int:
-        # GET /datalake/count/
-        url = self._base_url / f"{self._PREFIX}/count/"
-        kwargs.update(
-            {
-                "source": collection,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
-        )
-        response = self._session.get(url, params=kwargs)
-        response.raise_for_status()
-        return response.json()
-
-    @validate_resource_type
-    def count(self,
-              resource_type: Type,
-              collection: str = "default",
-              group_id: List = [],
-              group_fields: List = [],
-              **kwargs) -> int:
-
-        # GET /datalake/count/
-        url = self._base_url / f"{self._PREFIX}/count/"
-        valid_kwargs = self._validated_kwargs(resource_type, **kwargs)
-        valid_kwargs.update(
-            {
-                "source": collection,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
-        )
-        response = self._session.get(url, params=valid_kwargs)
-        response.raise_for_status()
-        return response.json()
-
     def get_dataframe(
         self,
         freq: str = None,
