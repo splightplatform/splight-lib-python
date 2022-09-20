@@ -1,4 +1,5 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
 from requests import Session
 
 
@@ -8,8 +9,8 @@ class BaseEndpoint:
         self._base_url = base_url
         self._url = f"{self._base_url.strip('/')}/{self.PATH.strip('/')}/"
 
-    def _get_request(self, url: str):
-        response = self._session.get(url)
+    def _get_request(self, url: str, params: Optional[Dict] = None):
+        response = self._session.get(url, params=params)
         content = response.json() if response.content else None
         return content, response.status_code
 
@@ -35,8 +36,8 @@ class BaseEndpoint:
 
 
 class ListMixin:
-    def list(self):
-        return self._get_request(url=self._url)
+    def list(self, params: Optional[Dict] = None):
+        return self._get_request(url=self._url, params=params)
 
 
 class RetrieveMixin:
