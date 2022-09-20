@@ -9,5 +9,5 @@ class Credential(SplightBaseModel):
     secret_key: Optional[str] = None
     created_date: Optional[datetime] = None
     last_used: Optional[datetime] = None
-    user: int
+    user: Optional[int] = None
     description: Optional[str] = None
