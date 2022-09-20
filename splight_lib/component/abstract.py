@@ -65,9 +65,9 @@ class RunnableMixin:
 class HooksMixin:
     def _load_hooks(self):
         self.datalake_client.add_pre_hook("save", self.hook_insert_origin_save)
-        self.datalake_client.add_pre_hook("save", self.hookk_lock_save_collection)
+        self.datalake_client.add_pre_hook("save", self.hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.hook_insert_origin_save_dataframe)
-        self.datalake_client.add_pre_hook("save_dataframe", self.hookk_lock_save_collection)
+        self.datalake_client.add_pre_hook("save_dataframe", self.hook_lock_save_collection)
 
     def hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
