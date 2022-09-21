@@ -6,13 +6,13 @@ from datetime import datetime, timezone
 import pytz
 
 class InvoiceMetadata(SplightBaseModel):
-    month: datetime
-    organization_id: str
+    month: Optional[datetime]
+    organization_id: Optional[str]
 
 class Invoice(SplightBaseModel):
     id: Optional[str]
     customer: str
-    metadata: InvoiceMetadata
+    metadata: Optional[InvoiceMetadata]
     total: float
     paid: bool
     status: str
