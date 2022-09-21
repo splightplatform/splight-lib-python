@@ -116,3 +116,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
                 "memory_requested": "4000Mi"
             }
         }
+
+    @classmethod
+    def verify_header(cls, payload: bytes, signature: str, secret: str) -> None:
+        pass
