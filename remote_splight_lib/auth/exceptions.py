@@ -1,11 +1,3 @@
-class AuthenticationError(Exception):
-    def __init__(self, url: str):
-        self._msg = "An error ocurred during authentication"
-
-    def __str__(self) -> str:
-        return self._msg
-
-
 class SignatureVerificationError(Exception):
     def __init__(self, message, sig_header, http_body=None):
         super(SignatureVerificationError, self).__init__(message)

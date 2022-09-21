@@ -11,6 +11,7 @@ class Deployment(BaseRunner):
     external_id: Optional[str] = None
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
+    container_statuses: Optional[List[Dict]] = None
 
     # Template vars for deployment
     namespace: Optional[str] = None
