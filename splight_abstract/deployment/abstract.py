@@ -1,8 +1,10 @@
+import json
 from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Dict, Type, List, Optional
 from splight_abstract.client import AbstractClient, QuerySet
 from splight_models.deployment import DeploymentEvent
+from remote_splight_lib.auth import HmacSignature
 
 
 class AbstractDeploymentClient(AbstractClient):
@@ -25,6 +27,9 @@ class AbstractDeploymentClient(AbstractClient):
         pass
 
     @staticmethod
-    def construct_event(payload: Dict, signature: str, secret: str) -> DeploymentEvent:
-        # TODO check signature
-        return DeploymentEvent.parse_obj(payload)
+    def construct_event(payload: bytes, signature: str, secret: str) -> DeploymentEvent:
+        HmacSignature.verify_header(
+            payload, signature, secret
+        )
+        event = json.loads(payload)
+        return DeploymentEvent.parse_obj(event)
