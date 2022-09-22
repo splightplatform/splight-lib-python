@@ -20,7 +20,7 @@ class HmacSignature(object):
 
     def __init__(self, secret="", *args, **kwargs):
         self.secret = secret
-        supper().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def _compute_signature(payload, secret):
