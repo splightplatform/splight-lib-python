@@ -25,8 +25,8 @@ class AbstractDeploymentClient(AbstractClient):
     def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
         pass
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def verify_header(cls, payload: bytes, signature: str) -> None:
         pass
 

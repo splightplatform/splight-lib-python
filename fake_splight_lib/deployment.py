@@ -118,5 +118,5 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         }
 
     @classmethod
-    def verify_header(cls, payload: bytes, signature: str, secret: str) -> None:
+    def verify_header(cls, payload: bytes, signature: str) -> None:
         pass
