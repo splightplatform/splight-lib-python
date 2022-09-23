@@ -102,6 +102,7 @@ class MappingRule(SplightBaseModel):
     description: Optional[str] = None
     severity: SeverityType = SeverityType.info
     operator: OperatorType = OperatorType.equal
+    period: float = 10
 
     @validator("name", always=True)
     def get_name(cls, name: str, values: Dict[str, Any]) -> str:
