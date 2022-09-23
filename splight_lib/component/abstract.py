@@ -42,7 +42,7 @@ class RunnableMixin:
         self.startup_file = NamedTemporaryFile(
             prefix=self._STARTUP_FILE_PREFIX
         )
-        self.execution_client.start(Thread(self.healthcheck))
+        self.execution_client.start(Thread(self.healthcheck, daemon=True))
 
     def healthcheck(self) -> None:
         self.terminated = False
