@@ -271,10 +271,6 @@ class ExecutionClient(AbstractClient):
         self.processes: List[Thread] = []
         self.threads: List[Popen] = []
 
-        # Instantiate and start Scheduler thread
-        self._scheduler = Scheduler(*args, **kwargs)
-        self._start_thread(Thread(target=self._scheduler.start, daemon=True))
-
         self._register_exit_functions()
         super(ExecutionClient, self).__init__(*args, **kwargs)
 
@@ -324,6 +320,11 @@ class ExecutionClient(AbstractClient):
 
     def _start_task(self, job: Task) -> None:
         logger.debug(f"Starting Task {job}")
+        if not getattr(self, '_scheduler', None):
+            # Instantiate and start Scheduler thread
+            self._scheduler = Scheduler()
+            self._start_thread(Thread(target=self._scheduler.start))
+
         return self._scheduler.schedule(job)
 
     def _stop_task(self, job: Task) -> None:
