@@ -130,9 +130,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         kwargs.update({"source": collection})
         kwargs.update({"freq": freq})
         params = self._parse_params(**kwargs)
-        response = self._session.get(
-            url, params=params
-        )
+        response = self._session.get(url, params=params)
         response.raise_for_status()
 
         df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
