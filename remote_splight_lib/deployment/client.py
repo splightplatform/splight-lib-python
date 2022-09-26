@@ -6,6 +6,7 @@ from remote_splight_lib.auth.auth import SplightAuthToken
 from splight_abstract.deployment.abstract import AbstractDeploymentClient
 from remote_splight_lib.settings import settings
 from splight_models.deployment import Deployment
+from splight_abstract.remote import AbstractRemoteClient
 
 
 class DeploymentClient(AbstractDeploymentClient):
@@ -42,7 +43,8 @@ class DeploymentClient(AbstractDeploymentClient):
 
     def _list(self, **kwargs):
         url = self._base_url / f"{self.PATH}/"
-        response = self._session.get(url, params=kwargs)
+        params = self._parse_params(**kwargs)
+        response = self._session.get(url, params=params)
         response.raise_for_status()
         return response.json()
 

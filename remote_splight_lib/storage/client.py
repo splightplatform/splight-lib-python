@@ -7,9 +7,10 @@ from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.storage.classmap import CLASSMAP
+from splight_abstract.remote import AbstractRemoteClient
 
 
-class StorageClient(AbstractStorageClient):
+class StorageClient(AbstractStorageClient, AbstractRemoteClient):
     """Splight API Storage Client.
     Responsible for interacting with storage resources using HTTP requests
     to the Splight API.
@@ -46,7 +47,8 @@ class StorageClient(AbstractStorageClient):
 
     def _list(self, path: str, **kwargs):
         url = self._base_url / f"{path}/"
-        response = self._session.get(url, params=kwargs)
+        params = self._parse_params(**kwargs)
+        response = self._session.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
