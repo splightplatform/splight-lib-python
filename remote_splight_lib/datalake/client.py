@@ -11,10 +11,11 @@ from requests import Session
 
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
+from splight_abstract.remote import AbstractRemoteClient
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
 
 
-class DatalakeClient(AbstractDatalakeClient):
+class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
     _PREFIX = "datalake"
 
@@ -77,7 +78,8 @@ class DatalakeClient(AbstractDatalakeClient):
                 # "tzinfo": tzinfo
             }
         )
-        response = self._session.get(url, params=kwargs)
+        params = self._parse_params(**kwargs)
+        response = self._session.get(url, params=params)
         response.raise_for_status()
         return response.json()["results"]
 
@@ -108,7 +110,8 @@ class DatalakeClient(AbstractDatalakeClient):
                 # "tzinfo": tzinfo
             }
         )
-        response = self._session.get(url, params=valid_kwargs)
+        params = self._parse_params(valid_kwargs)
+        response = self._session.get(url, params=params)
         response.raise_for_status()
         output = [
             resource_type.parse_obj(item)
@@ -126,8 +129,9 @@ class DatalakeClient(AbstractDatalakeClient):
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
         kwargs.update({"source": collection})
         kwargs.update({"freq": freq})
+        params = self._parse_params(**kwargs)
         response = self._session.get(
-            url, params=kwargs
+            url, params=params
         )
         response.raise_for_status()
 
