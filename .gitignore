@@ -1,6 +1,7 @@
 .env/*
 build/*
 splight_lib.egg-info/*
+db.sqlite3
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
 # Learn more about .gitignore:
