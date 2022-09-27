@@ -93,7 +93,7 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         kwargs = self._validated_kwargs(resource_type, **kwargs)
         queryset = self._filter(queryset, **kwargs)
         if limit_ != -1:
-            queryset = queryset[skip_:skip_ + limit_]
+            queryset = queryset[skip_ : skip_ + limit_]
 
         if first:
             return queryset[0] if queryset else None
@@ -141,3 +141,21 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def delete_rule_checker(self):
         logger.info("[FAKE] Rule Checker deleted")
+
+    def get_rule_checker(self):
+        return {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "labels": {
+                    "access_id": "57e45010-ad7a-4dce-b759-98ec4f77a079",
+                    "component_capacity": "",
+                    "id": "orghhmefmw2iofgdjqw",
+                    "log_level": "20",
+                    "type": "RuleChecker",
+                },
+                "name": "rule-checker",
+                "namespace": "orghhmefmw2iofgdjqw",
+            },
+            "spec": {}
+        }
