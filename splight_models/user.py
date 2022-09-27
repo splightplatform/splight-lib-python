@@ -29,6 +29,7 @@ class User(SplightBaseModel):
     email: str
     picture: str
     permissions: Optional[List[str]] = None
+    last_login: Optional[datetime] = None
     # picture_color: Optional[str] = None
     roles: Optional[List[Dict]] = None
     role: Optional[str] = None

@@ -56,8 +56,13 @@ class UpdateMixin:
         url = f"{self._url}{resource_id}/"
         return self._put_request(url=url, data=data)
 
+class PartialUpdateMixin:
+    def partial_update(self, resource_id: str, data: Dict[str, Any]):
+        url = f"{self._url}{resource_id}/"
+        return self._patch_request(url=url, data=data)
 
 class DestroyMixin:
     def destroy(self, resource_id: str):
         url = f"{self._url}{resource_id}/"
         return self._delete_request(url=url)
+
