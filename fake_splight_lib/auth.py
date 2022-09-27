@@ -1,3 +1,4 @@
+from uuid import uuid4
 from asyncio.log import logger
 from typing import Any, Dict
 
@@ -459,11 +460,12 @@ class FakeOrganizations:
     def invite_manager(self, organization_id: str, data: Dict[str, Any]):
         return ({}, 200)
 
-    def create(data: Dict[str, Any]):
+    def create(self, data: Dict[str, Any]):
         logger.info("[FAKED] Created new org")
-        pass
+        data.update({"id": "org_HhMefMw2ioFGDJqw"})
+        return data, 200
 
-    def destroy(resource_id: str):
+    def destroy(self, resource_id: str):
         logger.info("[FAKED] Deleted org {id}")
         pass
 
