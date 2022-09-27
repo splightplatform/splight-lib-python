@@ -32,6 +32,10 @@ class Task:
         self.args = args
         self.period = period
         self.handler = handler
+        self._name = self.handler
+
+    def __repr__(self):
+        return "<%s(%s)>" % (self.__class__.__name__, self._name)
 
 
 class TaskSet:
@@ -234,7 +238,7 @@ class Thread(DefaultThread):
     def __init__(self, target: Callable, args: Tuple = (), **kwargs) -> None:
         target = self.store_result(target)
         self.result = Empty()
-        super().__init__(target=target, args=args, **kwargs)
+        super().__init__(target=target, args=args, name=target, **kwargs)
 
     def store_result(self, func: Callable) -> Callable:
         @wraps(func)
