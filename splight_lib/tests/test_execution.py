@@ -74,6 +74,7 @@ class TestExecutionClient(TestCase):
 
         # Stop task
         client.stop(task)
+        client._scheduler.stop()
         time.sleep(0.5)
 
         # Check no more executions after stop
