@@ -1,32 +1,20 @@
-import logging
-from splight_abstract import AbstractCommunication
-from datetime import date, datetime
+from typing import Callable
+
+from splight_lib.logging import logging
+from splight_abstract.communication import AbstractCommunicationClient
 
 
-from queue import Queue
-import json
-
-QUEUE = Queue()
+logger = logging.getLogger()
 
 
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
+class FakeCommunicationClient(AbstractCommunicationClient):
 
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
+    @property
+    def status(self):
+        return 'ready'
 
-class FakeCommunicationClient(AbstractCommunication):
-    logger = logging.getLogger()
+    def remove_handler(self, event_name: str, event_handler: Callable):
+        pass
 
-    def __init__(self, *args, **kwargs):
-        self.topic = "default"
-
-    def send(self, data: dict) -> None:
-        self.logger.debug(f"FakeCommunicationClient Sent data: {data}")
-        QUEUE.put(json.dumps(data, default=json_serial))
-
-    def receive(self) -> dict:
-        data = json.loads(QUEUE.get())
-        self.logger.debug(f"FakeCommunicationClient Read data: {data}")
-        return data
+    def add_handler(self, event_name: str, event_handler: Callable):
+        pass
