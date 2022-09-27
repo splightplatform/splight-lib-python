@@ -1,11 +1,10 @@
 import json
 from enum import Enum
 from pydantic import BaseModel
-from typing import Dict, Optional, Callable
+from typing import Callable
 from abc import abstractmethod, abstractproperty
 from splight_abstract.client import AbstractClient
 from splight_models import NotificationContext
-from splight_models.notification import NotificationUserData
 
 
 class CommunicationClientStatus(str, Enum):
@@ -16,11 +15,14 @@ class CommunicationClientStatus(str, Enum):
 
 
 class CommunicationContext(NotificationContext):
-    auth_headers: Optional[Dict] = None
-    user_data: Optional[NotificationUserData] = None
+    pass
 
 
 class AbstractCommunicationClient(AbstractClient):
+    @abstractproperty
+    def context(self) -> CommunicationContext:
+        pass
+    
     @abstractproperty
     def status(self):
         pass

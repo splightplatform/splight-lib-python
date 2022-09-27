@@ -1,6 +1,6 @@
 from pydantic import Field
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Dict, Optional
 from enum import Enum
 from splight_models.base import SplightBaseModel
 from splight_models.datalake import DatalakeModel
@@ -69,6 +69,8 @@ class NotificationUserData(SplightBaseModel):
 
 
 class NotificationContext(SplightBaseModel):
+    auth_headers: Optional[Dict] = None
     auth_endpoint: Optional[str] = None
     key: str
     channel: str
+    user_data: Optional[NotificationUserData] = None
