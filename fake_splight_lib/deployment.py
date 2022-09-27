@@ -1,13 +1,16 @@
-from pydantic import BaseModel
 import uuid
-from typing import List, Type, Optional
-from splight_models import Deployment, Namespace
-from splight_lib import logging
+from typing import List, Optional, Type
+
+from pydantic import BaseModel
+
 from splight_abstract import (
     AbstractDeploymentClient,
     validate_instance_type,
-    validate_resource_type
+    validate_resource_type,
 )
+from splight_lib import logging
+from splight_models import Deployment, Namespace
+
 logger = logging.getLogger()
 
 
@@ -25,10 +28,12 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         instance.id = count
         return instance
 
-    def _get_deployment(self, id: str = '') -> List[Deployment]:
+    def _get_deployment(self, id: str = "") -> List[Deployment]:
         logger.info("[FAKED] Retrieving fake deployment")
         if id:
-            return [value for key, value in self.deployments.items() if key == id]
+            return [
+                value for key, value in self.deployments.items() if key == id
+            ]
         else:
             return [value for _, value in self.deployments.items()]
 
@@ -46,10 +51,12 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         instance.id = count
         return instance
 
-    def _get_namespace(self, id: str = '') -> List[Namespace]:
+    def _get_namespace(self, id: str = "") -> List[Namespace]:
         logger.info("[FAKED] Retrieving fake deployment")
         if id:
-            return [value for key, value in self.deployments.items() if key == id]
+            return [
+                value for key, value in self.deployments.items() if key == id
+            ]
         else:
             return [value for _, value in self.deployments.items()]
 
@@ -69,13 +76,15 @@ class FakeDeploymentClient(AbstractDeploymentClient):
         raise NotImplementedError
 
     @validate_resource_type
-    def _get(self,
-             resource_type: Type,
-             first: bool = False,
-             id: str = '',
-             limit_: int = -1,
-             skip_: int = 0,
-             **kwargs) -> List[BaseModel]:
+    def _get(
+        self,
+        resource_type: Type,
+        first: bool = False,
+        id: str = "",
+        limit_: int = -1,
+        skip_: int = 0,
+        **kwargs,
+    ) -> List[BaseModel]:
         if resource_type == Deployment:
             queryset = self._get_deployment(id=id)
         if resource_type == Namespace:
@@ -98,7 +107,13 @@ class FakeDeploymentClient(AbstractDeploymentClient):
             return self._delete_namespace(id)
         raise NotImplementedError
 
-    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
+    def get_deployment_logs(
+        self,
+        id: str,
+        limit: Optional[int] = None,
+        since: Optional[str] = None,
+        previous: bool = False,
+    ) -> List[str]:
         return [f"[FAKE] log for {id}"]
 
     def get_capacity_options(self):
@@ -107,16 +122,22 @@ class FakeDeploymentClient(AbstractDeploymentClient):
                 "cpu_limit": 1.0,
                 "memory_limit": "750Mi",
                 "cpu_requested": 0.5,
-                "memory_requested": "500Mi"
+                "memory_requested": "500Mi",
             },
             "medium": {
                 "cpu_limit": 3.0,
                 "memory_limit": "6000Mi",
                 "cpu_requested": 2.0,
-                "memory_requested": "4000Mi"
-            }
+                "memory_requested": "4000Mi",
+            },
         }
 
     @classmethod
     def verify_header(cls, payload: bytes, signature: str) -> None:
         pass
+
+    def create_rule_checker(self, instance):
+        logger.info("[FAKE] Rule Checker created")
+
+    def delete_rule_checker(self):
+        logger.info("[FAKE] Rule Checker deleted")
