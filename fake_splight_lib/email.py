@@ -13,7 +13,7 @@ class FakeEmailClient(AbstractEmailClient):
     def send(self, subject: str, to: Union[str, List[str]], variables: Dict, template: Optional[str] = None, type: EmailType = EmailType.INFO):
         logger.info(f"[FAKED] Email sent to {to}")
 
-    def send_to_list(self, name: str, template_id: str, group_id: str, unsubscribe_group_id: int, delay: Optional[timedelta] = None) -> None:
+    def send_to_list(self, name: str, template_id: str, list_id: str, unsubscribe_group_id: int, delay: Optional[timedelta] = None) -> None:
         logger.info(f"[FAKED] Sent template {template_id} to all organizations")
 
     def add_contact_to_list(self, list_id: str, data: Dict) -> None:
