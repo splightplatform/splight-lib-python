@@ -5,6 +5,12 @@ from splight_abstract.client import AbstractClient
 from typing import List, Union, Dict, Optional
 from splight_models import EmailType
 
+class EmailUnsubscribeGroups(BaseSettings):
+    TC_UNSUBSCRIBE_GROUP_ID: int = 0
+
+class EmailTemplates(BaseSettings):
+    TC_TEMPLATE_ID: str = ""
+
 class EmailLists(BaseSettings):
     NEWSLETTER_LIST_ID: str = ""
     ORGANIZATIONS_LIST_ID: str = ""
@@ -12,6 +18,8 @@ class EmailLists(BaseSettings):
 class AbstractEmailClient(AbstractClient):
     def __init__(self, *args, **kwargs):
         self.lists = EmailLists()
+        self.templates = EmailTemplates()
+        self.unsubscribe_groups = EmailUnsubscribeGroups()
         super().__init__(*args, **kwargs)
 
     @abstractmethod
