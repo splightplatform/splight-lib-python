@@ -1,13 +1,15 @@
-from typing import Type, List
+from typing import List, Type
+
 from pydantic import BaseModel
+
 from splight_abstract import AbstractBillingClient, AbstractBillingSubClient
-from splight_models import Invoice, InvoiceItem, Customer, CustomerPortal
 from splight_lib import logging
+from splight_models import Customer, CustomerPortal, Invoice, InvoiceItem
 
 logger = logging.getLogger()
 
-class FakeBillingSubClient(AbstractBillingSubClient):
 
+class FakeBillingSubClient(AbstractBillingSubClient):
     def __init__(self, type: Type, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type = type
@@ -20,14 +22,21 @@ class FakeBillingSubClient(AbstractBillingSubClient):
     }
 
     def create(self, *args, **kwargs) -> BaseModel:
-        logger.debug(f"[FAKED] Created object")
+        logger.debug("[FAKED] Created object")
+        kwargs["currency"] = "USD"
+        kwargs["balance"] = 0
+        kwargs["id"] = "cus_MLC93GFYmg2oTZ"
         object = self.type.parse_obj(kwargs)
         self.database[self.type].append(object)
         return object
 
-    def _get(self, first=False, limit_: int = -1, skip_: int = 0, *args, **kwargs) -> List[BaseModel]:
+    def _get(
+        self, first=False, limit_: int = -1, skip_: int = 0, *args, **kwargs
+    ) -> List[BaseModel]:
         queryset = self.database[self.type]
-        kwargs = self._validated_kwargs(self.class_map[self.stripe_type], **kwargs)
+        kwargs = self._validated_kwargs(
+            self.class_map[self.stripe_type], **kwargs
+        )
         queryset = self._filter(queryset, **kwargs)
         if limit_ != -1:
             queryset = queryset[skip_:skip_ + limit_]
@@ -47,8 +56,8 @@ class FakeBillingSubClient(AbstractBillingSubClient):
                 self.database[self.type].remove(item)
                 break
 
-class FakeBillingClient(AbstractBillingClient):
 
+class FakeBillingClient(AbstractBillingClient):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._invoice = FakeBillingSubClient(Invoice)
