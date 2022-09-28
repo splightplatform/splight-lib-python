@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Callable
 from abc import abstractmethod, abstractproperty
 from splight_abstract.client import AbstractClient
-from splight_models import NotificationContext
+from splight_models import CommunicationContext
 
 
 class CommunicationClientStatus(str, Enum):
@@ -12,10 +12,6 @@ class CommunicationClientStatus(str, Enum):
     READY = 'ready'
     FAILED = 'failed'
     ERROR =  'error'
-
-
-class CommunicationContext(NotificationContext):
-    pass
 
 
 class AbstractCommunicationClient(AbstractClient):
@@ -33,9 +29,17 @@ class AbstractCommunicationClient(AbstractClient):
         return func(**(model(**data).dict()))
 
     @abstractmethod
-    def add_handler(self, event_name: str, event_handler: Callable) -> None:
+    def bind(self, event_name: str, event_handler: Callable) -> None:
         pass
 
     @abstractmethod
-    def remove_handler(self, event_name: str, event_handler: Callable) -> None:
+    def unbind(self, event_name: str, event_handler: Callable) -> None:
+        pass
+
+    @abstractmethod
+    def trigger(self, event_name: str, event_handler: Callable) -> None:
+        pass
+
+    @abstractmethod
+    def authenticate(self, event_name: str, event_handler: Callable) -> None:
         pass

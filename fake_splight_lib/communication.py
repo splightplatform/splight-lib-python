@@ -1,4 +1,5 @@
-from typing import Callable
+import json
+from typing import Callable, Dict, List
 
 from splight_lib.logging import logging
 from splight_abstract.communication import AbstractCommunicationClient, CommunicationContext
@@ -15,15 +16,27 @@ class FakeCommunicationClient(AbstractCommunicationClient):
             auth_endpoint=None,
             key='key',
             channel='default',
-            user_data=None
+            channel_data=None
         )
 
     @property
     def status(self):
         return 'ready'
 
-    def remove_handler(self, event_name: str, event_handler: Callable):
-        pass
+    def unbind(self, event_name: str, event_handler: Callable):
+        logger.debug(f"[FAKED] unbind {event_name} {event_handler}")
 
-    def add_handler(self, event_name: str, event_handler: Callable):
-        pass
+    def bind(self, event_name: str, event_handler: Callable):
+        logger.debug(f"[FAKED] bind {event_name} {event_handler}")
+
+    def trigger(self, channels: List[str], event_name: str, data: Dict, socket_id: str = None):
+        logger.debug(f"[FAKED] trigger {channels} {event_name} {data} {socket_id}")
+
+    def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
+        logger.debug(f"[FAKED] authenticate {channel_name} {socket_id} {custom_data}")
+        return {
+            "auth": "asd",
+            "socket_id": socket_id,
+            "channel_data": json.dumps(custom_data),
+            "channel_name": channel_name
+        }

@@ -196,7 +196,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
                 continue
             event_model = getattr(self.commands, command.name.title())
             event_handler = partial(self.setup.COMMUNICATION_CLIENT.default_handler, _event_handler, event_model)
-            self.communication_client.add_handler(event_name, event_handler)
+            self.communication_client.bind(event_name, event_handler)
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)

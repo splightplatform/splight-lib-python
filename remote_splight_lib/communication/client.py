@@ -2,15 +2,13 @@ import pysher
 import requests
 from retry import retry
 from furl import furl
-from enum import Enum
-from typing import Callable
+from typing import Callable, Dict, List
 from splight_lib.logging import logging
 from splight_abstract.communication import (
     AbstractCommunicationClient,
-    CommunicationContext as AbstractCommunicationContext,
     ClientNotReady,
 )
-from splight_models.notification import NotificationContext
+from splight_models.communication import CommunicationContext, CommunicationClientStatus
 
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
@@ -20,16 +18,8 @@ from remote_splight_lib.communication.classmap import CLASSMAP
 logger = logging.getLogger()
 
 
-class CommunicationClientStatus(str, Enum):
-    STOPPED = 'stopped'
-    STARTING = 'starting'
-    READY = 'ready'
-    FAILED = 'failed'
-    ERROR =  'error'
-
-
-class CommunicationContext(AbstractCommunicationContext):
-    _model = NotificationContext
+class CommunicationContextFactory:
+    _model = CommunicationContext
 
     @classmethod
     def get_url(cls):
@@ -46,10 +36,10 @@ class CommunicationContext(AbstractCommunicationContext):
         return auth_token.header
 
     @classmethod
-    def build(cls):
+    def build(cls) -> CommunicationContext:
         response = requests.get(cls.get_url(), headers=cls.get_headers())
         assert response.status_code == 200, "Cant fetch communication context."
-        return cls.parse_obj(response.json())
+        return cls._model.parse_obj(response.json())
 
 
 class CommunicationClient(AbstractCommunicationClient):
@@ -64,9 +54,9 @@ class CommunicationClient(AbstractCommunicationClient):
             ("pusher:error", self.__on_error),
         ]
         try:
-            self._load_context()
-            self._load_client()
-            self._check_readiness()
+            self.__load_context()
+            self.__load_client()
+            self.__check_readiness()
         except Exception as e:
             logger.exception(e)
             logger.warning("Failed to start communication client. Moving forward without remote commands.")
@@ -76,24 +66,28 @@ class CommunicationClient(AbstractCommunicationClient):
     def status(self):
         return self._status
 
+    @property
+    def context(self):
+        return self._context
+
     @retry(ClientNotReady, tries=3, delay=2, jitter=1)
-    def _check_readiness(self):
+    def __check_readiness(self):
         if self.status != CommunicationClientStatus.READY:
             raise ClientNotReady
 
     @retry(Exception, tries=3, delay=2, jitter=1)
-    def _load_context(self):
-        self._context = CommunicationContext.build()
+    def __load_context(self):
+        self._context = CommunicationContextFactory.build()
 
     @retry(Exception, tries=3, delay=2, jitter=1)
-    def _load_client(self):
+    def __load_client(self):
         if not self._context:
             raise NotImplementedError
         self._client = pysher.Pusher(
             key=self._context.key,
             auth_endpoint=self._context.auth_endpoint,
             auth_endpoint_headers=self._context.auth_headers,
-            user_data=self._context.user_data.dict()
+            user_data=self._context.channel_data.dict()
         )
         self.__bind_system_events()
         self._client.connect()
@@ -116,13 +110,18 @@ class CommunicationClient(AbstractCommunicationClient):
     def __on_error(self, data):
         self._status = CommunicationClientStatus.ERROR
 
-    def remove_handler(self, event_name: str, event_handler: Callable):
-        # TODO. Not needed by now.
-        raise NotImplementedError
-
-    def add_handler(self, event_name: str, event_handler: Callable):
+    def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))
         if self.status != CommunicationClientStatus.READY:
             logger.warning("Bind events failed due to comm client is not ready")
             return
         self._channel.bind(event_name, event_handler)
+
+    def unbind(self, event_name: str, event_handler: Callable) -> None:
+        raise NotImplementedError
+
+    def trigger(self, channels: List[str], event_name: str, data: Dict, socket_id: str = None):
+        raise NotImplementedError
+
+    def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
+        raise NotImplementedError
