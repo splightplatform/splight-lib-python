@@ -22,6 +22,7 @@ from collections import defaultdict
 from pydantic import BaseModel
 from functools import cached_property, partial
 
+
 logger = logging.getLogger()
 
 
@@ -204,6 +205,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
         self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
         self.communication_client = self.setup.COMMUNICATION_CLIENT(namespace=self.namespace)
+        self.communication_client.reference_id = self.instance_id
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
     def _retrieve_objects_in_input(self, parameters: List):
