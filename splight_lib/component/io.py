@@ -5,8 +5,6 @@ from splight_models import (
     Connector,
     ClientMapping,
     Variable,
-    MappingRule,
-    Notification,
     Number,
     String,
     Boolean
@@ -23,10 +21,8 @@ class AbstractIOComponent(AbstractComponent):
     managed_class = Connector
     mapping_class: Type = None
     mappings: List = []
-    rules: List = []
     _hashed_mappings: Dict = {}
     _hashed_mappings_by_path: Dict = {}
-    _hashed_rules: Dict = {}
 
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
@@ -43,34 +39,7 @@ class AbstractIOComponent(AbstractComponent):
 
     def _load_hooks(self):
         super()._load_hooks()
-        self.datalake_client.add_pre_hook('save', self.hook_rules)
         self.datalake_client.add_pre_hook('save', self.hook_map_variable)
-
-    def hook_rules(self, *args, **kwargs):
-        """
-        Hook to handle rules and send notifier if a rule applies
-        """
-        instances = kwargs.get("instances", [])
-        variables = [v for v in instances if isinstance(v, Variable)]
-        for variable in variables:
-            rule = self._hashed_rules.get(f"{variable.asset_id}-{variable.attribute_id}", None)
-            if 'value' in variable.args and rule:  # None could be utilized as a value.
-                value = variable.args['value']
-                if rule.is_satisfied(value):
-                    self.notify(
-                        notification=Notification(
-                            title=rule.message,
-                            message=rule.message,
-                            severity=rule.severity,
-                            asset_id=rule.asset_id,
-                            attribute_id=rule.attribute_id,
-                            rule_id=rule.id,
-                            source_id=self.instance_id,
-                            source_type=str(self.managed_class)
-
-                        )
-                    )
-        return args, kwargs
 
     def hook_map_variable(self, *args, **kwargs):
         """
@@ -136,19 +105,8 @@ class AbstractIOComponent(AbstractComponent):
             f"{m.path}": m
             for m in self.mappings
         }
-        self.rules = self.database_client.get(
-            resource_type=MappingRule,
-            asset_id__in=[m.asset_id for m in self.mappings],
-            attribute_id__in=[m.attribute_id for m in self.mappings]
-        )
-        self._hashed_rules = {
-            f"{r.asset_id}-{r.attribute_id}": r
-            for r in self.rules
-        }
         logger.debug(f"Maps found {len(self.mappings)}")
         logger.debug(self.mappings)
-        logger.debug(f"Rules found {len(self.rules)}")
-        logger.debug(self.rules)
 
 
 class AbstractClientComponent(AbstractIOComponent):
