@@ -8,14 +8,14 @@ from splight_models.user import User
 
 class CommunicationChannelData(SplightBaseModel):
     user_id: str
-    user_info: User
+    user_info: Dict
 
     @classmethod
     def parse_from_user(cls, user: User):
         return cls.parse_obj(
             {
                 "user_id": user.user_id,
-                "user_info": user
+                "user_info": user.dict()
             }
         )
 
@@ -34,3 +34,10 @@ class CommunicationClientStatus(str, Enum):
     READY = 'ready'
     FAILED = 'failed'
     ERROR =  'error'
+
+
+class CommunicationTrigger(SplightBaseModel):
+    data: Dict
+    event_name: str
+    reference_id: Optional[str] = None
+    socket_id: Optional[str] = None

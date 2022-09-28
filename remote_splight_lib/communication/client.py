@@ -1,14 +1,14 @@
 import pysher
 import requests
-from retry import retry
 from furl import furl
-from typing import Callable, Dict, List
+from retry import retry
+from typing import Callable, Dict
 from splight_lib.logging import logging
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
-from splight_models.communication import CommunicationContext, CommunicationClientStatus
+from splight_models.communication import CommunicationClientStatus, CommunicationContext, CommunicationTrigger
 
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
@@ -18,28 +18,33 @@ from remote_splight_lib.communication.classmap import CLASSMAP
 logger = logging.getLogger()
 
 
-class CommunicationContextFactory:
-    _model = CommunicationContext
+class CommunicationFactory:
 
-    @classmethod
-    def get_url(cls):
+    def __init__(self, model):
+        self._model = model
+
+    def get_url(self):
         base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
-        return base_url / CLASSMAP.get(cls._model)
+        return base_url / CLASSMAP.get(self._model)
 
 
-    @classmethod
-    def get_headers(cls):
+    def get_headers(self):
         auth_token = SplightAuthToken(
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
         return auth_token.header
 
-    @classmethod
-    def build(cls) -> CommunicationContext:
-        response = requests.get(cls.get_url(), headers=cls.get_headers())
-        assert response.status_code == 200, "Cant fetch communication context."
-        return cls._model.parse_obj(response.json())
+    def create(self, data: Dict):
+        response = requests.post(self.get_url(), json=data, headers=self.get_headers())
+        assert response.status_code == 201, f"Cant create communication {self._model}."
+        return self._model.parse_obj(response.json())
+
+    def get(self):
+        response = requests.get(self.get_url(), headers=self.get_headers())
+        assert response.status_code == 200, f"Cant fetch communication {self._model}."
+        data = response.json()
+        return self._model.parse_obj(data)
 
 
 class CommunicationClient(AbstractCommunicationClient):
@@ -77,7 +82,7 @@ class CommunicationClient(AbstractCommunicationClient):
 
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_context(self):
-        self._context = CommunicationContextFactory.build()
+        self._context = CommunicationFactory(CommunicationContext).get()
 
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_client(self):
@@ -87,7 +92,7 @@ class CommunicationClient(AbstractCommunicationClient):
             key=self._context.key,
             auth_endpoint=self._context.auth_endpoint,
             auth_endpoint_headers=self._context.auth_headers,
-            user_data=self._context.channel_data.dict()
+            user_data=self._context.channel_data.dict() if self.context.channel_data else None
         )
         self.__bind_system_events()
         self._client.connect()
@@ -120,8 +125,13 @@ class CommunicationClient(AbstractCommunicationClient):
     def unbind(self, event_name: str, event_handler: Callable) -> None:
         raise NotImplementedError
 
-    def trigger(self, channels: List[str], event_name: str, data: Dict, socket_id: str = None):
-        raise NotImplementedError
+    def trigger(self, event_name: str, data: Dict, socket_id: str = None, reference_id: str = None):
+        return CommunicationFactory(CommunicationTrigger).create(data={
+            "data": data,
+            "event_name": event_name,
+            "socket_id": socket_id,
+            "reference_id": reference_id,
+        })
 
     def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
         raise NotImplementedError

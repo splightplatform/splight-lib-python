@@ -1,5 +1,6 @@
-from splight_models import CommunicationContext
+from splight_models import CommunicationContext, CommunicationTrigger
 
 CLASSMAP = {
-    CommunicationContext: "/notification/context/", # TODO change this.
+    CommunicationContext: "/communication/context/",
+    CommunicationTrigger: "/communication/",
 }

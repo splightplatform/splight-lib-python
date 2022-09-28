@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 from pydantic import BaseModel
-from typing import Callable
+from typing import Callable, Dict
 from abc import abstractmethod, abstractproperty
 from splight_abstract.client import AbstractClient
 from splight_models import CommunicationContext
@@ -23,10 +23,15 @@ class AbstractCommunicationClient(AbstractClient):
     def status(self):
         pass
 
-    @staticmethod
-    def default_handler(func: Callable, model: BaseModel, data: str):
+    def default_handler(self, func: Callable, model: BaseModel, data: str):
         data = json.loads(data)
-        return func(**(model(**data).dict()))
+        try:
+            return_value = func(**(model(**data).dict()))
+            self.trigger(event_name=func.__name__ + "_response", data={"response": return_value, "exception": None})
+        except Exception as e:
+            self.trigger(event_name=func.__name__ + "_response", data={"response": None, "exception": str(e)})
+            raise e
+        return return_value
 
     @abstractmethod
     def bind(self, event_name: str, event_handler: Callable) -> None:
@@ -37,9 +42,9 @@ class AbstractCommunicationClient(AbstractClient):
         pass
 
     @abstractmethod
-    def trigger(self, event_name: str, event_handler: Callable) -> None:
+    def trigger(self, event_name: str, data: Dict, socket_id: str = None, reference_id: str = None):
         pass
 
     @abstractmethod
-    def authenticate(self, event_name: str, event_handler: Callable) -> None:
+    def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> dict:
         pass

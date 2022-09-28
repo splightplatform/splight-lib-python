@@ -195,7 +195,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
                 logger.warning(f"Event handler for {event_name} not present skipping binding. Please add a handler for this type of event.")
                 continue
             event_model = getattr(self.commands, command.name.title())
-            event_handler = partial(self.setup.COMMUNICATION_CLIENT.default_handler, _event_handler, event_model)
+            event_handler = partial(self.communication_client.default_handler, _event_handler, event_model)
             self.communication_client.bind(event_name, event_handler)
 
     def _load_clients(self):
