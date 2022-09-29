@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 import pandas as pd
@@ -8,19 +9,21 @@ from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
 from splight_lib.shortcut import save_file as _save_file
-from splight_models.notification import Notification
 from splight_models import (
     Deployment,
     Notification,
     Parameter,
     StorageFile,
     RunnerDatalakeModel,
-    Algorithm
+    Algorithm,
+    CommunicationRPCEvents,
+    CommunicationRPCRequest,
+    CommunicationRPCResponse
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from collections import defaultdict
 from pydantic import BaseModel
-from functools import cached_property, partial
+from functools import cached_property
 
 
 logger = logging.getLogger()
@@ -160,9 +163,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.instance_id = self._spec.external_id
 
         self._load_clients()
-        self._load_client_hooks()
         self._load_spec_models()
-        self._load_spec_bindings()
+        self._load_client_hooks()
+        self._bind_rpc_requests()
         super().__init__(*args, **kwargs)
 
     @property
@@ -172,7 +175,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
     @property
     def setup(self):
         return self._setup
-  
+
     @cached_property
     def instance(self):
         return self.database_client.get(
@@ -188,25 +191,16 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self.custom_types = self._spec.custom_types_model
         self.commands = self._spec.commands_model
 
-    def _load_spec_bindings(self):
-        for command in self.spec.commands:
-            event_name = command.name.lower()
-            _event_handler = getattr(self, event_name, None)
-            if _event_handler is None:
-                logger.warning(f"Event handler for {event_name} not present skipping binding. Please add a handler for this type of event.")
-                continue
-            event_model = getattr(self.commands, command.name.title())
-            event_handler = partial(self.communication_client.default_handler, _event_handler, event_model)
-            self.communication_client.bind(event_name, event_handler)
-
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
         self.datalake_client = self.setup.DATALAKE_CLIENT(namespace=self.namespace)
         self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
         self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
-        self.communication_client = self.setup.COMMUNICATION_CLIENT(namespace=self.namespace)
-        self.communication_client.reference_id = self.instance_id
+        self.communication_client = self.setup.COMMUNICATION_CLIENT(namespace=self.namespace, instance_id=self.instance_id)
         self.execution_client = ExecutionClient(namespace=self.namespace)
+
+    def _bind_rpc_requests(self):
+        self.communication_client.bind(CommunicationRPCEvents.RPC_REQUEST, self._handle_rpc_request)
 
     def _retrieve_objects_in_input(self, parameters: List):
         ids = {
@@ -278,3 +272,16 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
                 parameters_dict[name] = self._parse_input(value)
 
         return parameters_dict
+
+    def _handle_rpc_request(self, data: str):
+        assert self.commands, "Please define .commands to start accepting request."
+        request = CommunicationRPCRequest.parse_obj(json.loads(data))
+        response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
+        try:
+            function = getattr(self, request.function)
+            kwargs_model = getattr(self.commands, request.function.title())
+            kwargs = kwargs_model(**request.kwargs).dict()
+            response.return_value = function(**kwargs)
+        except Exception as e:
+            response.error_detail = str(e)
+        self.communication_client.trigger(event_name=CommunicationRPCEvents.RPC_RESPONSE, data=response.dict())

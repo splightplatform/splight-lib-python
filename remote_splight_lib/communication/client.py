@@ -27,7 +27,6 @@ class CommunicationFactory:
         base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         return base_url / CLASSMAP.get(self._model)
 
-
     def get_headers(self):
         auth_token = SplightAuthToken(
             access_key=settings.SPLIGHT_ACCESS_ID,
@@ -40,8 +39,8 @@ class CommunicationFactory:
         assert response.status_code == 201, f"Cant create communication {self._model}."
         return self._model.parse_obj(response.json())
 
-    def get(self):
-        response = requests.get(self.get_url(), headers=self.get_headers())
+    def get(self, params=None):
+        response = requests.get(self.get_url(), params=params, headers=self.get_headers())
         assert response.status_code == 200, f"Cant fetch communication {self._model}."
         data = response.json()
         return self._model.parse_obj(data)
@@ -50,6 +49,7 @@ class CommunicationFactory:
 class CommunicationClient(AbstractCommunicationClient):
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._status = CommunicationClientStatus.STOPPED
         self._channel_bindings = []
         self._client, self._context = None, None
@@ -82,7 +82,8 @@ class CommunicationClient(AbstractCommunicationClient):
 
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_context(self):
-        self._context = CommunicationFactory(CommunicationContext).get()
+        params = {"instance_id": self.instance_id}
+        self._context = CommunicationFactory(CommunicationContext).get(params)
 
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_client(self):
@@ -113,7 +114,7 @@ class CommunicationClient(AbstractCommunicationClient):
         self._status = CommunicationClientStatus.FAILED
 
     def __on_error(self, data):
-        self._status = CommunicationClientStatus.ERROR
+        logger.error("Error on message", data)
 
     def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))
@@ -123,14 +124,15 @@ class CommunicationClient(AbstractCommunicationClient):
         self._channel.bind(event_name, event_handler)
 
     def unbind(self, event_name: str, event_handler: Callable) -> None:
+        # TODO implement this
         raise NotImplementedError
 
-    def trigger(self, event_name: str, data: Dict, socket_id: str = None, reference_id: str = None):
+    def trigger(self, event_name: str, data: Dict, socket_id: str = None, instance_id: str = None):
         return CommunicationFactory(CommunicationTrigger).create(data={
             "data": data,
             "event_name": event_name,
             "socket_id": socket_id,
-            "reference_id": reference_id,
+            "instance_id": instance_id,
         })
 
     def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:

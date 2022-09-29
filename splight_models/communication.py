@@ -1,6 +1,6 @@
 # TODO move this to splight_models 
 from enum import Enum
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
@@ -39,5 +39,28 @@ class CommunicationClientStatus(str, Enum):
 class CommunicationTrigger(SplightBaseModel):
     data: Dict
     event_name: str
-    reference_id: Optional[str] = None
+    instance_id: Optional[str] = None
     socket_id: Optional[str] = None
+
+
+class CommunicationMessage(SplightBaseModel):
+    pass
+
+
+class CommunicationRPCRequest(CommunicationMessage):
+    function: str
+    kwargs: Dict = {}
+    metadata: Dict = {}
+
+
+class CommunicationRPCResponse(CommunicationMessage):
+    function: str
+    kwargs: Dict = {}
+    metadata: Dict = {}
+    return_value: Optional[Any] = None
+    error_detail: Optional[str] = None
+
+
+class CommunicationRPCEvents(str, Enum):
+    RPC_REQUEST = 'rpc_request'
+    RPC_RESPONSE = 'rpc_response'
