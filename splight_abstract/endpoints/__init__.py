@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from requests import Session
+from requests import Session, JSONDecodeError
 
 
 class BaseEndpoint:
@@ -8,6 +8,12 @@ class BaseEndpoint:
         self._session = session
         self._base_url = base_url
         self._url = f"{self._base_url.strip('/')}/{self.PATH.strip('/')}/"
+
+    def _request_content(self, response: Any):
+        try:
+            return response.json() if response.content else None
+        except JSONDecodeError as e:
+            raise Exception(str(response.content))
 
     def _get_request(self, url: str, params: Optional[Dict] = None):
         response = self._session.get(url, params=params)
