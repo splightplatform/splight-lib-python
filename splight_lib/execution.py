@@ -37,6 +37,15 @@ class Task:
     def __repr__(self):
         return "<%s(%s)>" % (self.__class__.__name__, self._name)
 
+    def __eq__(self, task):
+        return all(
+            [
+                self.hash == task.hash,
+                self.args == task.args,
+                self.period == task.period,
+            ]
+        )
+
 
 class TaskSet:
     """Set of Tasks with the same hash but different or equal periods."""
