@@ -17,27 +17,27 @@ class BaseEndpoint:
 
     def _get_request(self, url: str, params: Optional[Dict] = None):
         response = self._session.get(url, params=params)
-        content = response.json() if response.content else None
+        content = self._request_content(response)
         return content, response.status_code
 
     def _post_request(self, url: str, data: Dict):
         response = self._session.post(url, json=data)
-        content = response.json() if response.content else None
+        content = self._request_content(response)
         return content, response.status_code
 
     def _put_request(self, url: str, data: Dict):
         response = self._session.put(url, json=data)
-        content = response.json() if response.content else None
+        content = self._request_content(response)
         return content, response.status_code
 
     def _patch_request(self, url: str, data: Dict):
         response = self._session.patch(url, json=data)
-        content = response.json() if response.content else None
+        content = self._request_content(response)
         return content, response.status_code
 
     def _delete_request(self, url: str):
         response = self._session.delete(url)
-        content = response.json() if response.content else None
+        content = self._request_content(response)
         return content, response.status_code
 
 
