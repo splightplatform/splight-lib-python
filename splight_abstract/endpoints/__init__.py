@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
 from requests import Session
-from json import JSONDecodeError
+from simplejson.errors import JSONDecodeError
 
 
 class BaseEndpoint:
