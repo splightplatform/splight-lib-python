@@ -41,3 +41,7 @@ class HubConnector(HubComponent):
 
 class HubComponentVersion(HubComponent):
     pass
+
+
+class HubSystem(HubComponent):
+    pass
