@@ -47,6 +47,7 @@ class ComponentType(str, Enum):
     ALGORITHM = "Algorithm"
     NETWORK = "Network"
     CONNECTOR = "Connector"
+    SYSTEM = "System"
 
 
 class DeploymentStatus(str, Enum):
