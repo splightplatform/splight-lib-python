@@ -4,7 +4,6 @@ pydantic==1.8.2
 pytz==2021.3
 pandas==1.4.0
 parameterized==0.8.1
-requests==2.27.1
 Jinja2==3.0.2 # TODO remove this
 mock==4.0.3
 furl==2.1.3
