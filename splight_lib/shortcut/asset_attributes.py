@@ -3,10 +3,9 @@ from pydantic import BaseModel
 from splight_models import *
 from splight_lib import logging
 from splight_lib.settings import setup
-from .exceptions import ShortcutException
+from splight_lib.shortcut.exceptions import ShortcutException
 
 
-ExternalCommunicationClient = setup.EXTERNAL_COMMUNICATION_CLIENT
 DatalakeClient = setup.DATALAKE_CLIENT
 DatabaseClient = setup.DATABASE_CLIENT
 
@@ -60,27 +59,6 @@ def _asset_read(asset_id: str, attribute_id: str, datalake_client: DatalakeClien
         raise NotImplementedError
 
 
-def _asset_write(asset_id: str, attribute_id: str, value: Any, database_client: DatabaseClient, communication_client: ExternalCommunicationClient) -> None:
-    '''
-    This function writes a value to an attribute of an asset. (Helper function for asset_set)
-    '''
-    mapping: Union[ClientMapping, ValueMapping] = _get_asset_attribute_mapping(asset_id=asset_id, attribute_id=attribute_id, database_client=database_client)
-
-    if type(mapping) == ClientMapping:
-        variable: Variable = Variable(asset_id=mapping.asset_id, attribute_id=mapping.attribute_id, args=dict(value=value), path=mapping.path)
-        msg: Message = Message(action=Action.WRITE, variables=[variable])
-        logger.debug(f"Executing write asset attribute. external communication = {communication_client}, message = {msg}")
-        communication_client.send(msg.dict())
-        logger.debug(f"Write message sent through {communication_client}: {msg}. {communication_client.topic}")
-
-    elif type(mapping) == ValueMapping:
-        mapping.value = str(value)
-        database_client.save(mapping)
-
-    else:
-        raise NotImplementedError
-
-
 def get_asset_attributes(asset_id: str, database_client: DatabaseClient) -> List[Attribute]:
     '''
     This function returns all the attributes of an asset.
@@ -104,15 +82,6 @@ def asset_get(asset_id: str, attribute_id: str, namespace: str, default=NoDefaul
         if default != NoDefaultValue:
             return default
         raise e
-
-
-def asset_set(asset_id: str, attribute_id: str, value: Any, namespace: str) -> None:
-    '''
-    This function writes a value to an attribute of an asset.
-    '''
-    db_client = DatabaseClient(namespace)
-    q_client = ExternalCommunicationClient(namespace)
-    _asset_write(asset_id=asset_id, attribute_id=attribute_id, value=value, database_client=db_client, communication_client=q_client)
 
 
 # TODO move this to DBclient ?

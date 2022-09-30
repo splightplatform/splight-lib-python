@@ -15,12 +15,10 @@ class OrganizationHandler:
         id = str(id)
         # TODO add Auth0 step
         namespace = Namespace(id=id)
-        # TODO add step ExternalCommunicationClient.save(namespace)
         DeploymentClient().save(instance=namespace)
         return DatabaseClient().save(namespace)
     
     @staticmethod
     def delete(id):
-        # TODO add step ExternalCommunicationClient.save(namespace)
         DeploymentClient().delete(Namespace, id=id)
         return DatabaseClient().delete(Namespace, id=id) # TODO logic delete

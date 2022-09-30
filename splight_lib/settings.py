@@ -26,6 +26,7 @@ back to the defaults.
 
 
 class SplightBaseSettings(BaseSettings):
+    # TODO move all the private use only clients to private lib. Not need to define here those without remote implementation 
     AUTH_CLIENT: str = 'fake_splight_lib.auth.FakeAuthClient'
     BILLING_CLIENT: str = 'fake_splight_lib.billing.FakeBillingClient'
     BLOCKCHAIN_CLIENT: str = 'fake_splight_lib.blockchain.FakeBlockchainClient'
@@ -34,12 +35,11 @@ class SplightBaseSettings(BaseSettings):
     DEPLOYMENT_CLIENT: str = 'fake_splight_lib.deployment.FakeDeploymentClient'
     EMAIL_CLIENT: str = 'fake_splight_lib.email.FakeEmailClient'
     CACHE_CLIENT: str = 'fake_splight_lib.cache.FakeCacheClient'
-    NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'
+    COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
+    NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient' # TODO deprecate this
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
-    INTERNAL_COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
-    EXTERNAL_COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
-    EMAIL_TEMPLATES_FOLDER: str = 'email_templates'
+    EMAIL_TEMPLATES_FOLDER: str = 'email_templates' # TODO move this to the EmailClient itself.
 
     @property
     def importables(self):
@@ -55,8 +55,7 @@ class SplightBaseSettings(BaseSettings):
             'NOTIFICATION_CLIENT',
             'STORAGE_CLIENT',
             'HUB_CLIENT',
-            'INTERNAL_COMMUNICATION_CLIENT',
-            'EXTERNAL_COMMUNICATION_CLIENT',
+            'COMMUNICATION_CLIENT',
         ]
 
 

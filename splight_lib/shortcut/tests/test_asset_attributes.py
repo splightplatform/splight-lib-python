@@ -1,12 +1,10 @@
 from unittest import TestCase
 from splight_models import Variable
-from splight_lib.shortcut.exceptions import ShortcutException
 from fake_splight_lib.database import FakeDatabaseClient as DatabaseClient
 from fake_splight_lib.datalake import FakeDatalakeClient as DatalakeClient
-from fake_splight_lib.communication import FakeCommunicationClient as ExternalCommunicationClient
 from splight_models import *
 from unittest.mock import patch, call
-from ..asset_attributes import _get_asset_attribute_mapping, asset_get, asset_set, NoDefaultValue, asset_load_history
+from splight_lib.shortcut.asset_attributes import _get_asset_attribute_mapping, asset_get, NoDefaultValue
 
 
 class TestAssetAttributes(TestCase):
@@ -90,34 +88,3 @@ class TestAssetAttributes(TestCase):
             result = asset_get(self.asset.id, self.attribute.id, self.namespace)
             self.assertEqual(result, 123)
             mock.assert_has_calls([call(asset_id=self.asset.id, attribute_id=self.attribute.id)] * 2)
-
-    def test_asset_set(self):
-        VALUE1 = 111
-        VALUE2 = 314
-        VALUE3 = 245
-        VALUE4 = {"asd": "asd"}
-        with patch.object(ExternalCommunicationClient, 'send') as mock_send:
-            with self.assertRaises(AttributeError):
-                asset_set(self.asset.id, self.attribute.id, VALUE1, self.namespace)
-
-            client_mapping = self.database.save(ClientMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, connector_id=self.client_connector.id, path="2/1"))
-            asset_set(self.asset.id, self.attribute.id, VALUE1, self.namespace)
-            self.assertEqual(mock_send.call_args[0][0]["action"], Action.WRITE)
-            self.assertEqual(len(mock_send.call_args[0][0]["variables"]), 1)
-            self.assertEqual(mock_send.call_args[0][0]["variables"][0]["asset_id"], self.asset.id)
-            self.assertEqual(mock_send.call_args[0][0]["variables"][0]["attribute_id"], self.attribute.id)
-            self.assertDictEqual(mock_send.call_args[0][0]["variables"][0]["args"], dict(value=VALUE1))
-
-            self.database.delete(ClientMapping, client_mapping.id)
-            value_mapping = self.database.save(ValueMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, value=VALUE2))
-
-            asset_set(self.asset.id, self.attribute.id, VALUE3, self.namespace)
-            value_mapping = self.database.get(ValueMapping, asset_id=self.asset.id, attribute_id=self.attribute.id)[0]
-            self.assertEqual(value_mapping.value, str(VALUE3))
-
-            self.database.delete(ValueMapping, value_mapping.id)
-            value_mapping = self.database.save(ValueMapping(asset_id=self.asset.id, attribute_id=self.attribute.id, value=VALUE2))
-
-            asset_set(self.asset.id, self.attribute.id, VALUE4, self.namespace)
-            value_mapping = self.database.get(ValueMapping, asset_id=self.asset.id, attribute_id=self.attribute.id)[0]
-            self.assertEqual(value_mapping.value, str(VALUE4))

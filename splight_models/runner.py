@@ -36,6 +36,13 @@ class OutputParameter(SplightBaseModel):
     filterable: bool = False
 
 
+class CommandParameter(SplightBaseModel):
+    name: str
+    type: str
+    description: str = ''
+    choices: Optional[List[Any]] = None
+
+
 class CustomType(SplightBaseModel):
     name: str
     fields: List[Parameter]
@@ -46,11 +53,17 @@ class Output(SplightBaseModel):
     fields: List[OutputParameter]
 
 
+class Command(SplightBaseModel):
+    name: str
+    fields: List[CommandParameter]
+
+
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
     custom_types: Optional[List[CustomType]] = []
     input: Optional[List[Parameter]] = []
     output: Optional[List[Output]] = []
+    commands: Optional[List[Command]] = []
 
     class Config:
         keep_untouched = (cached_property,)
@@ -69,6 +82,10 @@ class BaseRunner(SplightBaseModel):
     @cached_property
     def output_model(self) -> Type:
         return RunnerModelFactory().get_output_model(self.output)
+
+    @cached_property
+    def commands_model(self) -> Type:
+        return RunnerModelFactory().get_commands_model(self.commands)
 
 
 class Runner(BaseRunner):
@@ -169,6 +186,14 @@ class RunnerModelFactory:
                                                             RunnerDatalakeModel)
 
         return type("Output", (), output_models)
+
+    def get_commands_model(self, commands: List) -> BaseModel:
+        command_models: Dict[str, BaseModel] = {}
+        for command in commands:
+            command_models[command.name] = self._create_model(command.name,
+                                                              command.fields)
+
+        return type("Commands", (), command_models)
 
     def _create_model(self,
                       name: str,

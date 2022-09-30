@@ -1,32 +1,30 @@
+import json
 import sys
 import time
-from abc import abstractmethod
 import pandas as pd
+from abc import abstractmethod
 from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
-from splight_lib.settings import setup
+from splight_lib.settings import setup as default_setup
 from splight_lib.shortcut import save_file as _save_file
-from splight_models.notification import Notification
 from splight_models import (
     Deployment,
     Notification,
     Parameter,
     StorageFile,
     RunnerDatalakeModel,
-    Variable,
-    Algorithm
+    Algorithm,
+    CommunicationRPCEvents,
+    CommunicationRPCRequest,
+    CommunicationRPCResponse
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
-from splight_lib.shortcut import (
-    save_file as _save_file
-)
-from splight_lib.execution import Thread, ExecutionClient
-from splight_lib.logging import logging
 from collections import defaultdict
 from pydantic import BaseModel
 from functools import cached_property
+
 
 logger = logging.getLogger()
 
@@ -63,7 +61,7 @@ class RunnableMixin:
 
 
 class HooksMixin:
-    def _load_hooks(self):
+    def _load_client_hooks(self):
         self.datalake_client.add_pre_hook("save", self.hook_insert_origin_save)
         self.datalake_client.add_pre_hook("save", self.hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.hook_insert_origin_save_dataframe)
@@ -156,54 +154,27 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
         self._spec: Deployment = Deployment(**run_spec)
+        self._setup = default_setup
+        if initial_setup:
+            self._setup.configure(initial_setup)
 
+        self.version: str = self._spec.version
         self.namespace = self._spec.namespace
         self.instance_id = self._spec.external_id
 
-        self._init_setup(initial_setup)
-        self._load_metadata()
-        self._load_models()
-
+        self._load_clients()
+        self._load_spec_models()
+        self._load_client_hooks()
+        self._bind_rpc_requests()
         super().__init__(*args, **kwargs)
 
     @property
     def spec(self) -> Deployment:
         return self._spec
 
-    def _init_setup(self, initial_setup: Optional[dict] = None):
-        self._setup = setup
-        if initial_setup:
-            self.setup = initial_setup
-
-    def _load_metadata(self):
-        self._version: str = self._spec.version
-
-    def _load_models(self):
-        raw_spec = self.spec.dict()
-        self._retrive_objects_in_input(raw_spec["input"])
-
-        parsed_input = self._parse_input(raw_spec["input"])
-
-        self.input = self._spec.input_model(**parsed_input)
-        self.output = self._spec.output_model
-        self.custom_types = self._spec.custom_types_model
-
-    def _load_clients(self):
-        self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
-        self.datalake_client = self.setup.DATALAKE_CLIENT(namespace=self.namespace)
-        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
-        self.execution_client = ExecutionClient(namespace=self.namespace)
-
     @property
     def setup(self):
         return self._setup
-
-    @setup.setter
-    def setup(self, new_setup):
-        self._setup.configure(new_setup)
-        self._load_clients()
-        self._load_hooks()
 
     @cached_property
     def instance(self):
@@ -211,7 +182,27 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
-    def _retrive_objects_in_input(self, parameters: List):
+    def _load_spec_models(self):
+        raw_spec = self.spec.dict()
+        self._retrieve_objects_in_input(raw_spec["input"])
+        parsed_input = self._parse_input(raw_spec["input"])
+        self.input = self._spec.input_model(**parsed_input)
+        self.output = self._spec.output_model
+        self.custom_types = self._spec.custom_types_model
+        self.commands = self._spec.commands_model
+
+    def _load_clients(self):
+        self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
+        self.datalake_client = self.setup.DATALAKE_CLIENT(namespace=self.namespace)
+        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
+        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
+        self.communication_client = self.setup.COMMUNICATION_CLIENT(namespace=self.namespace, instance_id=self.instance_id)
+        self.execution_client = ExecutionClient(namespace=self.namespace)
+
+    def _bind_rpc_requests(self):
+        self.communication_client.bind(CommunicationRPCEvents.RPC_REQUEST, self._handle_rpc_request)
+
+    def _retrieve_objects_in_input(self, parameters: List):
         ids = {
             "database": defaultdict(list),
             "storage": defaultdict(list),
@@ -281,3 +272,16 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
                 parameters_dict[name] = self._parse_input(value)
 
         return parameters_dict
+
+    def _handle_rpc_request(self, data: str):
+        assert self.commands, "Please define .commands to start accepting request."
+        request = CommunicationRPCRequest.parse_obj(json.loads(data))
+        response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
+        try:
+            function = getattr(self, request.function)
+            kwargs_model = getattr(self.commands, request.function.title())
+            kwargs = kwargs_model(**request.kwargs).dict()
+            response.return_value = str(function(**kwargs))
+        except Exception as e:
+            response.error_detail = str(e)
+        self.communication_client.trigger(event_name=CommunicationRPCEvents.RPC_RESPONSE, data=response.dict())
