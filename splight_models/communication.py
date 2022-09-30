@@ -1,6 +1,6 @@
 # TODO move this to splight_models 
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
@@ -57,7 +57,7 @@ class CommunicationRPCResponse(CommunicationMessage):
     function: str
     kwargs: Dict = {}
     metadata: Dict = {}
-    return_value: Optional[Any] = None
+    return_value: Optional[str] = None
     error_detail: Optional[str] = None
 
 

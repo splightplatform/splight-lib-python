@@ -281,7 +281,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
             function = getattr(self, request.function)
             kwargs_model = getattr(self.commands, request.function.title())
             kwargs = kwargs_model(**request.kwargs).dict()
-            response.return_value = function(**kwargs)
+            response.return_value = str(function(**kwargs))
         except Exception as e:
             response.error_detail = str(e)
         self.communication_client.trigger(event_name=CommunicationRPCEvents.RPC_RESPONSE, data=response.dict())
