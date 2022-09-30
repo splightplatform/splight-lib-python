@@ -1,8 +1,15 @@
 from pydantic import BaseModel
-from typing import List, Type
+from typing import Dict, List, Type
 from splight_abstract.hub.abstract import AbstractHubSubClient
 from splight_lib import logging
-from splight_models import *
+from splight_models import (
+    HubNetwork,
+    HubAlgorithm,
+    HubComponent,
+    HubComponentVersion,
+    HubConnector,
+    HubSystem,
+)
 from splight_abstract import AbstractHubClient, validate_resource_type
 
 
@@ -21,6 +28,16 @@ class FakeHubSubClient(AbstractHubSubClient):
     ]
     connectors = [
         HubConnector(id="6", name='Conn1', description=None, version='01', input=[], type="connector")
+    ]
+    system = [
+        HubSystem(
+            id="7",
+            name="System1",
+            description=None,
+            version="01",
+            input=[],
+            type="system"
+        )
     ]
     versions = networks + connectors + algorithms
     grouped_versions = networks + connectors + algorithms
@@ -95,4 +112,8 @@ class FakeHubClient(AbstractHubClient):
 
     @property
     def setup(self) -> AbstractHubSubClient:
+        return self._client
+
+    @property
+    def system(self) -> AbstractHubSubClient:
         return self._client
