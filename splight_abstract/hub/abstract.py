@@ -45,3 +45,7 @@ class AbstractHubClient(ABC):
     @abstractproperty
     def setup(self) -> AbstractHubSubClient:
         pass
+
+    @abstractproperty
+    def system(self) -> AbstractHubSubClient:
+        pass
