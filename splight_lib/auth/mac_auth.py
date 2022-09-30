@@ -2,7 +2,7 @@ import six
 import hmac
 import time
 from hashlib import sha256
-from remote_splight_lib.auth.exceptions import SignatureVerificationError
+from splight_lib.auth.exceptions import SignatureVerificationError
 
 
 def utf8(value):
