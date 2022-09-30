@@ -41,6 +41,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Edge,
         BlockchainContract,
         BlockchainContractSubscription,
+        SystemRunner,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:

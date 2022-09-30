@@ -120,6 +120,12 @@ class Connector(Runner):
         return 'default'
 
 
+class SystemRunner(Runner):
+    @property
+    def collection(self):
+        return "default"
+
+
 NATIVE_TYPES = {
     "int": int,
     "bool": bool,
@@ -133,6 +139,7 @@ DATABASE_TYPES = {
     "Algorithm": Algorithm,
     "Attribute": Attribute,
     "Connector": Connector,
+    "SystemRunner": SystemRunner,
     "Graph": Graph,
     "Network": Network,
     "Rule": MappingRule,
