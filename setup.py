@@ -6,7 +6,6 @@ with open('requirements.txt') as fp:
 
 dependency_links = [
     # External repoitories different from pypi
-    "git+https://github.com/matisilva/Pysher.git" # TODO make this work.
 ]
 
 setup(
