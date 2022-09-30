@@ -1,17 +1,22 @@
+from .classmap import CLASSMAP
+from retry import retry
+from splight_abstract.remote import AbstractRemoteClient
+from splight_abstract.database import AbstractDatabaseClient
+from remote_splight_lib.settings import settings
+from remote_splight_lib.exceptions import InvalidModel
+from remote_splight_lib.auth import SplightAuthToken
 import json
 from typing import Dict, List, Type
 
 from furl import furl
 from pydantic import BaseModel
 from requests import Session
+from requests.exceptions import (
+    ConnectionError,
+    Timeout
+)
 
-from remote_splight_lib.auth import SplightAuthToken
-from remote_splight_lib.exceptions import InvalidModel
-from remote_splight_lib.settings import settings
-from splight_abstract.database import AbstractDatabaseClient
-from splight_abstract.remote import AbstractRemoteClient
-
-from .classmap import CLASSMAP
+REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 
 
 class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
@@ -30,6 +35,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         self._session = Session()
         self._session.headers.update(token.header)
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def save(self, instance: BaseModel) -> BaseModel:
         """Creates or updates a new resource depending on the model if
         it contains the id or not.
@@ -57,6 +63,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             output = self._create(path, instance)
         return constructor.parse_obj(output)
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def delete(self, resource_type: Type, id: str):
         """Deletes a resource from the database
 
@@ -77,6 +84,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._session.delete(url)
         response.raise_for_status()
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _get(
         self,
         resource_type: Type,
@@ -101,6 +109,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ]
         return parsed
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def count(self, resource_type: Type, **kwargs) -> int:
         """Returns the number of resources in the database for a given model
 
