@@ -6,11 +6,12 @@ with open('requirements.txt') as fp:
 
 dependency_links = [
     # External repoitories different from pypi
+    "git+https://github.com/matisilva/Pysher.git" # TODO make this work.
 ]
 
 setup(
     name='splight-lib',
-    version='0.4.33',
+    version='0.4.34',
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),

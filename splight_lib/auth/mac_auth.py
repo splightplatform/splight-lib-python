@@ -1,10 +1,8 @@
 import six
 import hmac
-import json
 import time
-from collections import OrderedDict
 from hashlib import sha256
-from .exceptions import SignatureVerificationError
+from remote_splight_lib.auth.exceptions import SignatureVerificationError
 
 
 def utf8(value):
