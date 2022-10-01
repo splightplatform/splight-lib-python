@@ -123,7 +123,7 @@ class Connector(Runner):
 class SystemRunner(Runner):
     @property
     def collection(self):
-        return "default"
+        return "system"
 
 
 NATIVE_TYPES = {
