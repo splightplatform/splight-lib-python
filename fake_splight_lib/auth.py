@@ -463,7 +463,7 @@ class FakeOrganizations:
     def create(self, data: Dict[str, Any]):
         logger.info("[FAKED] Created new org")
         data.update({"id": "org_HhMefMw2ioFGDJqw"})
-        return data, 200
+        return data, 201
 
     def destroy(self, resource_id: str):
         logger.info("[FAKED] Deleted org {id}")
