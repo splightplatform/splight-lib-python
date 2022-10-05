@@ -5,6 +5,7 @@ from typing import Type, List, Optional
 from remote_splight_lib.auth.auth import SplightAuthToken
 from splight_abstract.deployment.abstract import AbstractDeploymentClient
 from remote_splight_lib.settings import settings
+from splight_abstract.remote.abstract import AbstractRemoteClient
 from splight_models.deployment import Deployment
 from retry import retry
 from requests.exceptions import (
@@ -14,7 +15,7 @@ from requests.exceptions import (
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 
 
-class DeploymentClient(AbstractDeploymentClient):
+class DeploymentClient(AbstractDeploymentClient, AbstractRemoteClient):
     PATH = 'deployment'
 
     def __init__(self, namespace: str = "default", *args, **kwargs):
