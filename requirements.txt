@@ -1,4 +1,4 @@
-pysher@git+https://github.com/matisilva/Pysher.git@master#egg=Pysher
+pysher@git+https://github.com/splightplatform/Pysher.git@master#egg=Pysher
 hexbytes==0.2.2
 pytest==7.1.2
 pydantic==1.8.2
