@@ -1,9 +1,9 @@
+pysher@git+https://github.com/deepbrook/Pysher.git@master#egg=Pysher
 hexbytes==0.2.2
 pytest==7.1.2
 pydantic==1.8.2
 pytz==2021.3
 pandas==1.4.0
-git+https://github.com/matisilva/Pysher.git
 retry==0.9.2
 parameterized==0.8.1
 Jinja2==3.0.2 # TODO remove this
