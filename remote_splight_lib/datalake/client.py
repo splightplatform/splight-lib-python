@@ -116,12 +116,14 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
                 "limit_": limit_,
                 "skip_": skip_,
                 "sort": sort,
-                "group_id": group_id,
-                "group_fields": group_fields,
                 # "tzinfo": tzinfo
             }
         )
-        params = self._parse_params(valid_kwargs)
+        if group_id:
+            valid_kwargs.update({"group_id": group_id})
+        if group_fields:
+            valid_kwargs.update({"group_fields": group_fields})
+        params = self._parse_params(**valid_kwargs)
         response = self._session.get(url, params=params)
         response.raise_for_status()
         output = [
