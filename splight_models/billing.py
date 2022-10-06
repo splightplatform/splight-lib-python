@@ -24,9 +24,9 @@ class InvoiceItem(SplightBaseModel):
     customer: str
     amount: int
     currency: str
-    description: str
-    metadata: Dict
-    invoice: str
+    description: Optional[str]
+    metadata: Optional[Dict]
+    invoice: Optional[str]
 
 class Coupon(SplightBaseModel):
     amount_off: Optional[int]
