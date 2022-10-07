@@ -11,6 +11,10 @@ from .pre_hook import PreHookMixin
 logger = logging.getLogger()
 
 
+class empty:
+    pass
+
+
 def validate_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, resource_type: Type, *args, **kwargs):
@@ -56,7 +60,7 @@ class QuerySet(UserList):
         self._count_func = count_func
         self._args = args
         self._kwargs = kwargs
-        self._cached_results = None
+        self._cached_results = empty
 
     def __new__(cls, *args, **kwargs):
         obj = super(QuerySet, cls).__new__(cls)
@@ -69,9 +73,15 @@ class QuerySet(UserList):
         kwargs = {**self._kwargs, **kwargs}
         return QuerySet(self._client, *self._args, **kwargs)
 
+    def __repr__(self):
+        data = [repr(obj) for obj in self[0:4]]
+        extra = ', ...' if len(data) > 3 else ''
+        return f"QuerySet([{', '.join(data[:3])}{extra}])"
+
     def __getitem__(self, i):
-        if self._cached_results:
+        if self._cached_results is not empty:
             return self._cached_results[i]
+
         if isinstance(i, slice):
             skip_ = self._kwargs.get("skip_", 0) + i.start
 
@@ -86,11 +96,11 @@ class QuerySet(UserList):
             kwargs["skip_"] = skip_
             kwargs["limit_"] = limit_
             return QuerySet(self._client, get_func=self._client_func, count_func=self._count_func, *self._args, **kwargs)
-        else:
-            return self.data[i]
+
+        return self.data[i]
 
     def __len__(self):
-        if self._cached_results:
+        if self._cached_results is not empty:
             return len(self._cached_results)
 
         if hasattr(self._client, self._count_func):
@@ -103,7 +113,7 @@ class QuerySet(UserList):
 
     @property
     def data(self):
-        if self._cached_results is None:
+        if self._cached_results is empty:
             client_func = getattr(self._client, self._client_func)
             self._cached_results = client_func(*self._args, **self._kwargs)
         return self._cached_results
