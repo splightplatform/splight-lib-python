@@ -75,7 +75,7 @@ class QuerySet(UserList):
 
     def __repr__(self):
         data = [repr(obj) for obj in self[0:4]]
-        extra = ', ...' if len(data) > 3 else ''
+        extra = ", ..." if len(data) > 3 else ""
         return f"QuerySet([{', '.join(data[:3])}{extra}])"
 
     def __getitem__(self, i):
