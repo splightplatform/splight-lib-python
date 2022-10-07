@@ -46,10 +46,10 @@ class User(SplightBaseModel):
         return any(set(self.permissions).intersection(permissions))
 
     def __str__(self) -> str:
-        return self.username
+        return self.email
 
     def __repr__(self) -> str:
-        return self.username
+        return f"<User {self.email}"
 
 
 class OrganizationMetadata(SplightBaseModel):
