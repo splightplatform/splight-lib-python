@@ -5,6 +5,8 @@ from typing import Dict, Optional
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
 
+from pydantic import Field
+from datetime import datetime, timezone
 
 class CommunicationChannelData(SplightBaseModel):
     user_id: str
@@ -37,10 +39,12 @@ class CommunicationClientStatus(str, Enum):
 
 
 class CommunicationTrigger(SplightBaseModel):
-    data: Dict
     event_name: str
     instance_id: Optional[str] = None
     socket_id: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")) # pusher cannot json serialize datetime objects
+    display_text: Optional[str] = None
+    data: Dict
 
 
 class CommunicationMessage(SplightBaseModel):
@@ -64,3 +68,13 @@ class CommunicationRPCResponse(CommunicationMessage):
 class CommunicationRPCEvents(str, Enum):
     RPC_REQUEST = 'rpc_request'
     RPC_RESPONSE = 'rpc_response'
+
+
+class CommunicationRPCRequestTrigger(CommunicationTrigger):
+    event_name: str = CommunicationRPCEvents.RPC_REQUEST
+    data: CommunicationRPCRequest
+
+
+class CommunicationRPCResponseTrigger(CommunicationTrigger):
+    event_name: str = CommunicationRPCEvents.RPC_RESPONSE
+    data: CommunicationRPCResponse
