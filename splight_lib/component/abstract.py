@@ -4,7 +4,7 @@ import time
 import pandas as pd
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict
+from typing import Optional, Type, List, Dict, Tuple, Set
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
@@ -30,7 +30,6 @@ logger = logging.getLogger()
 
 
 class RunnableMixin:
-
     healthcheck_interval = 5
     _HEALTH_FILE_PREFIX = "healthy_"
     _STARTUP_FILE_PREFIX = "ready_"
@@ -58,6 +57,35 @@ class RunnableMixin:
 
     def terminate(self):
         self.terminated = True
+
+
+class IndexMixin:
+    def add_indexes(self) -> None:
+        indexes: List[Tuple[str]] = self.get_indexes()
+        logger.debug(f"Adding indexes: {indexes}")
+        self.datalake_client.add_index(
+            self.collection_name,
+            indexes
+        )
+
+    def get_indexes(self) -> List[Tuple[str]]:
+        # order in indexes matters
+        indexes: List[Tuple[str]] = [
+            ("output_format", 1),
+        ]
+        unique_indexes: Set[str] = set()
+
+        for output in self._spec.output:
+            for field in output.fields:
+                if field.filterable:
+                    unique_indexes.add(field.name)
+
+        for index in unique_indexes:
+            indexes.append((index, 1))
+
+        indexes.append(("timestamp", -1))
+
+        return indexes
 
 
 class HooksMixin:
@@ -148,7 +176,7 @@ class UtilsMixin:
         return self.database_client.save(notification)
 
 
-class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
+class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
     collection_name = "default"
     managed_class: Type = None
 
@@ -167,6 +195,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin):
         self._load_client_hooks()
         self._bind_rpc_requests()
         super().__init__(*args, **kwargs)
+        self.add_indexes()
 
     @property
     def spec(self) -> Deployment:
