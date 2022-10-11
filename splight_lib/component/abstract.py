@@ -16,6 +16,7 @@ from splight_models import (
     StorageFile,
     RunnerDatalakeModel,
     Algorithm,
+    CommunicationTrigger,
     CommunicationRPCEvents,
     CommunicationRPCRequest,
     CommunicationRPCResponse,
@@ -305,9 +306,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
 
     def _handle_rpc_request(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        event_trigger = json.loads(data)
-        data = event_trigger["data"]
-        request = CommunicationRPCRequest.parse_obj(data)
+        event_trigger = CommunicationTrigger.parse_raw(data)
+        request = CommunicationRPCRequest.parse_obj(event_trigger.data)
         response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
         try:
             function = getattr(self, request.function)
