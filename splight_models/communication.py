@@ -27,6 +27,7 @@ class CommunicationContext(SplightBaseModel):
     auth_endpoint: Optional[str] = None
     key: str
     channel: str
+    presence_room_channel: str
     channel_data: Optional[CommunicationChannelData] = None
 
 
@@ -38,7 +39,7 @@ class CommunicationClientStatus(str, Enum):
     ERROR =  'error'
 
 
-class CommunicationTrigger(SplightBaseModel):
+class CommunicationEvent(SplightBaseModel):
     event_name: str
     instance_id: Optional[str] = None
     socket_id: Optional[str] = None
@@ -46,18 +47,13 @@ class CommunicationTrigger(SplightBaseModel):
     display_text: Optional[str] = None
     data: Dict
 
-
-class CommunicationMessage(SplightBaseModel):
-    pass
-
-
-class CommunicationRPCRequest(CommunicationMessage):
+class CommunicationRPCRequest(SplightBaseModel):
     function: str
     kwargs: Dict = {}
     metadata: Dict = {}
 
 
-class CommunicationRPCResponse(CommunicationMessage):
+class CommunicationRPCResponse(SplightBaseModel):
     function: str
     kwargs: Dict = {}
     metadata: Dict = {}
@@ -70,11 +66,11 @@ class CommunicationRPCEvents(str, Enum):
     RPC_RESPONSE = 'rpc_response'
 
 
-class CommunicationRPCRequestTrigger(CommunicationTrigger):
+class CommunicationRPCRequestEvent(CommunicationEvent):
     event_name: str = CommunicationRPCEvents.RPC_REQUEST
     data: CommunicationRPCRequest
 
 
-class CommunicationRPCResponseTrigger(CommunicationTrigger):
+class CommunicationRPCResponseEvent(CommunicationEvent):
     event_name: str = CommunicationRPCEvents.RPC_RESPONSE
     data: CommunicationRPCResponse

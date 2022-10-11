@@ -3,7 +3,7 @@ from typing import Callable, Dict
 
 from splight_lib.logging import logging
 from splight_abstract.communication import AbstractCommunicationClient, CommunicationContext
-from splight_models.communication import CommunicationTrigger
+from splight_models.communication import CommunicationEvent
 
 
 logger = logging.getLogger()
@@ -34,7 +34,7 @@ class FakeCommunicationClient(AbstractCommunicationClient):
     def bind(self, event_name: str, event_handler: Callable):
         logger.debug(f"[FAKED] bind {event_name} {event_handler}")
 
-    def trigger(self, event: CommunicationTrigger):
+    def trigger(self, event: CommunicationEvent):
         logger.debug(f"[FAKED] trigger {event.event_name} {event.data} {event.socket_id} {event.instance_id}")
 
     def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
