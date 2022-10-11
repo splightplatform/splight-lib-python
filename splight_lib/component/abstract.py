@@ -317,5 +317,4 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         except Exception as e:
             response.error_detail = str(e)
         trigger_event = CommunicationRPCResponseTrigger(data=response)
-        print(trigger_event)
         self.communication_client.trigger(trigger_event)
