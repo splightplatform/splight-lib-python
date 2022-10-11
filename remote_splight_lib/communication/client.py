@@ -127,13 +127,8 @@ class CommunicationClient(AbstractCommunicationClient):
         # TODO implement this
         raise NotImplementedError
 
-    def trigger(self, event_name: str, data: Dict, socket_id: str = None, instance_id: str = None):
-        return CommunicationFactory(CommunicationTrigger).create(data={
-            "data": data,
-            "event_name": event_name,
-            "socket_id": socket_id,
-            "instance_id": instance_id,
-        })
+    def trigger(self, event: CommunicationTrigger):
+        return CommunicationFactory(CommunicationTrigger).create(data=event.dict())
 
     def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
         raise NotImplementedError
