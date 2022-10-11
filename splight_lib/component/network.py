@@ -12,6 +12,3 @@ class AbstractNetworkComponent(AbstractComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
         self.collection_name = str(self.instance_id)
-        # TODO: move this to create index on organization creation
-        # TODO: create index based on output
-        # self.datalake_client.create_index('network', [('timestamp', -1)])
