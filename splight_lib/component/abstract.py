@@ -61,16 +61,16 @@ class RunnableMixin:
 
 class IndexMixin:
     def add_indexes(self) -> None:
-        indexes: List[Tuple[str]] = self.get_indexes()
+        indexes: List[Tuple[str, int]] = self.get_indexes()
         logger.debug(f"Adding indexes: {indexes}")
-        self.datalake_client.add_index(
+        self.datalake_client.create_index(
             self.collection_name,
             indexes
         )
 
-    def get_indexes(self) -> List[Tuple[str]]:
+    def get_indexes(self) -> List[Tuple[str, int]]:
         # order in indexes matters
-        indexes: List[Tuple[str]] = [
+        indexes: List[Tuple[str, int]] = [
             ("output_format", 1),
         ]
         unique_indexes: Set[str] = set()
