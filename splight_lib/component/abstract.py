@@ -18,7 +18,8 @@ from splight_models import (
     Algorithm,
     CommunicationRPCEvents,
     CommunicationRPCRequest,
-    CommunicationRPCResponse
+    CommunicationRPCResponse,
+    CommunicationRPCResponseTrigger,
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from collections import defaultdict
@@ -304,13 +305,17 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
 
     def _handle_rpc_request(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        request = CommunicationRPCRequest.parse_obj(json.loads(data))
+        event_trigger = json.loads(data)
+        data = event_trigger["data"]
+        request = CommunicationRPCRequest.parse_obj(data)
         response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
         try:
             function = getattr(self, request.function)
-            kwargs_model = getattr(self.commands, request.function.title())
+            kwargs_model = getattr(self.commands, request.function)
             kwargs = kwargs_model(**request.kwargs).dict()
             response.return_value = str(function(**kwargs))
         except Exception as e:
             response.error_detail = str(e)
-        self.communication_client.trigger(event_name=CommunicationRPCEvents.RPC_RESPONSE, data=response.dict())
+        trigger_event = CommunicationRPCResponseTrigger(data=response)
+        print(trigger_event)
+        self.communication_client.trigger(trigger_event)
