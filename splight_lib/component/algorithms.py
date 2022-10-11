@@ -10,6 +10,3 @@ class AbstractAlgorithmComponent(AbstractComponent):
         super(AbstractAlgorithmComponent, self).__init__(*args, **kwargs)
 
         self.collection_name = str(self.instance_id)
-        # TODO: move this to create index on organization creation
-        # TODO: create index based on output
-        # self.datalake_client.create_index(self.collection_name, [('attribute_id', 1), ('asset_id', 1), ('timestamp', -1)])
