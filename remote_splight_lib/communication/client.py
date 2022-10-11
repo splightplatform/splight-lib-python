@@ -8,7 +8,7 @@ from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
-from splight_models.communication import CommunicationClientStatus, CommunicationContext, CommunicationTrigger
+from splight_models.communication import CommunicationClientStatus, CommunicationContext, CommunicationEvent
 
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
@@ -127,8 +127,8 @@ class CommunicationClient(AbstractCommunicationClient):
         # TODO implement this
         raise NotImplementedError
 
-    def trigger(self, event: CommunicationTrigger):
-        return CommunicationFactory(CommunicationTrigger).create(data=event.dict())
+    def trigger(self, event: CommunicationEvent):
+        return CommunicationFactory(CommunicationEvent).create(data=event.dict())
 
     def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
         raise NotImplementedError

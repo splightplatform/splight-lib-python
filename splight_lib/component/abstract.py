@@ -16,11 +16,11 @@ from splight_models import (
     StorageFile,
     RunnerDatalakeModel,
     Algorithm,
-    CommunicationTrigger,
+    CommunicationEvent,
     CommunicationRPCEvents,
     CommunicationRPCRequest,
     CommunicationRPCResponse,
-    CommunicationRPCResponseTrigger,
+    CommunicationRPCResponseEvent,
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from collections import defaultdict
@@ -306,7 +306,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
 
     def _handle_rpc_request(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        event_trigger = CommunicationTrigger.parse_raw(data)
+        event_trigger = CommunicationEvent.parse_raw(data)
         request = CommunicationRPCRequest.parse_obj(event_trigger.data)
         response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
         try:
@@ -316,5 +316,5 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
             response.return_value = str(function(**kwargs))
         except Exception as e:
             response.error_detail = str(e)
-        trigger_event = CommunicationRPCResponseTrigger(data=response)
+        trigger_event = CommunicationRPCResponseEvent(data=response)
         self.communication_client.trigger(trigger_event)

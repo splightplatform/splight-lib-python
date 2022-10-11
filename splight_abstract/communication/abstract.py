@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Callable, Dict
 from abc import abstractmethod, abstractproperty
 from splight_abstract.client import AbstractClient
-from splight_models import CommunicationContext, CommunicationTrigger
+from splight_models import CommunicationContext, CommunicationEvent
 
 
 class CommunicationClientStatus(str, Enum):
@@ -34,7 +34,7 @@ class AbstractCommunicationClient(AbstractClient):
         pass
 
     @abstractmethod
-    def trigger(self, event: CommunicationTrigger):
+    def trigger(self, event: CommunicationEvent):
         pass
 
     @abstractmethod
