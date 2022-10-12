@@ -1,5 +1,4 @@
 from unittest import TestCase
-from splight_models import Variable
 from fake_splight_lib.database import FakeDatabaseClient as DatabaseClient
 from fake_splight_lib.datalake import FakeDatalakeClient as DatalakeClient
 from splight_models import *

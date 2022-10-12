@@ -37,50 +37,6 @@ class TestAttributeHash(AbstractBaseHash, TestCase):
     rand_str_arg = "name"
 
 
-class TestDashboardHash(AbstractBaseHash, TestCase):
-    class_model = Dashboard
-    args = {"name": "", "created_at": datetime.now()}
-    rand_str_arg = "name"
-
-
-class TestTabHash(AbstractBaseHash, TestCase):
-    class_model = Tab
-    args = {"name": "", "dashboard_id": "id"}
-    rand_str_arg = "name"
-
-
-class TestFilterHash(AbstractBaseHash, TestCase):
-    class_model = Filter
-    args = {
-        "chart_item_id": "id",
-        "key": "key",
-        "value": "value",
-        "label": "label",
-    }
-    rand_str_arg = "key"
-
-
-class TestChartItemHash(AbstractBaseHash, TestCase):
-    class_model = ChartItem
-    args = {"chart_id": "id"}
-    rand_str_arg = "chart_id"
-
-
-class TestChartHash(AbstractBaseHash, TestCase):
-    class_model = Chart
-    args = {
-        "tab_id": "id",
-        "type": "type",
-        "position_x": 0,
-        "position_y": 0,
-        "height": 0,
-        "width": 0,
-        "min_height": 0,
-        "min_width": 0,
-    }
-    rand_str_arg = "tab_id"
-
-
 class TestDeploymentHash(AbstractBaseHash, TestCase):
     class_model = Deployment
     args = {"version": "ver", "type": "Algorithm"}
