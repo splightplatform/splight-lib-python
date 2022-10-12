@@ -94,8 +94,6 @@ class AbstractIOComponent(AbstractComponent):
         self.mappings.append(mapping)
         self._hashed_mappings[f"{mapping.asset_id}-{mapping.attribute_id}"] = mapping
         self._hashed_mappings_by_path[f"{mapping.path}"] = mapping
-        print(self._hashed_mappings)
-        print(self._hashed_mappings_by_path)
         logger.debug(f"New mapping registered: {mapping}")
         logger.debug(f"Total mappings: {len(self.mappings)}")
 
@@ -107,8 +105,6 @@ class AbstractIOComponent(AbstractComponent):
         self.mappings[:] = [m for m in self.mappings if m.path != mapping.path]
         self._hashed_mappings.pop(f"{mapping.asset_id}-{mapping.attribute_id}", None)
         self._hashed_mappings_by_path.pop(f"{mapping.path}", None)
-        print(self._hashed_mappings)
-        print(self._hashed_mappings_by_path)
         logger.debug(f"Mapping deleted registered: {mapping}")
         logger.debug(f"Total mappings: {len(self.mappings)}")
 
