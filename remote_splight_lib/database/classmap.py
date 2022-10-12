@@ -2,13 +2,9 @@ from splight_models import (
     Algorithm,
     Asset,
     Attribute,
-    Chart,
-    ChartItem,
     Connector,
     ClientMapping,
-    Dashboard,
     Edge,
-    Filter,
     Graph,
     Network,
     Notification,
@@ -16,7 +12,6 @@ from splight_models import (
     MappingRule,
     ReferenceMapping,
     ServerMapping,
-    Tab,
     Tag,
     ValueMapping,
     BlockchainContract,
@@ -34,26 +29,14 @@ CLASSMAP = {
     Attribute: {
         "path": "attribute"
     },
-    Chart: {
-        "path": "dashboard/chart"
-    },
-    ChartItem: {
-        "path": "dashboard/chartitem"
-    },
     Connector: {
         "path": "connector"
     },
     ClientMapping: {
         "path": "mapping/client-mapping"
     },
-    Dashboard: {
-        "path": "dashboard/dashboard"
-    },
     Edge: {
         "path": "graph/edge"
-    },
-    Filter: {
-        "path": "dashboard/filter"
     },
     Graph: {
         "path": "graph/graph"
@@ -78,9 +61,6 @@ CLASSMAP = {
     },
     ServerMapping: {
         "path": "mapping/server-mapping"
-    },
-    Tab: {
-        "path": "dashboard/tab"
     },
     Tag: {
         "path": "tag"
