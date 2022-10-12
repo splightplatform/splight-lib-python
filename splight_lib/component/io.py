@@ -29,7 +29,6 @@ class AbstractIOComponent(AbstractComponent):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
         self._bind_mapping_events()
-        # self.execution_client.start(Task(handler=self.refresh_config_forever, args=tuple(), period=10))
 
     def _load_hooks(self):
         super()._load_hooks()
