@@ -1,4 +1,4 @@
-# TODO move this to splight_models 
+# TODO move this to splight_models
 from enum import Enum
 from typing import Dict, Optional
 
@@ -7,6 +7,7 @@ from splight_models.user import User
 
 from pydantic import Field
 from datetime import datetime, timezone
+
 
 class CommunicationChannelData(SplightBaseModel):
     user_id: str
@@ -36,16 +37,17 @@ class CommunicationClientStatus(str, Enum):
     STARTING = 'starting'
     READY = 'ready'
     FAILED = 'failed'
-    ERROR =  'error'
+    ERROR = 'error'
 
 
 class CommunicationEvent(SplightBaseModel):
     event_name: str
     instance_id: Optional[str] = None
     socket_id: Optional[str] = None
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")) # pusher cannot json serialize datetime objects
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))  # pusher cannot json serialize datetime objects
     display_text: Optional[str] = None
     data: Dict
+
 
 class CommunicationRPCRequest(SplightBaseModel):
     function: str
@@ -74,3 +76,8 @@ class CommunicationRPCRequestEvent(CommunicationEvent):
 class CommunicationRPCResponseEvent(CommunicationEvent):
     event_name: str = CommunicationRPCEvents.RPC_RESPONSE
     data: CommunicationRPCResponse
+
+
+class CommunicationMappingEvent(str, Enum):
+    MAPPING_CREATED = 'mapping_created'
+    MAPPING_DELETED = 'mapping_deleted'
