@@ -8,7 +8,9 @@ from splight_models import (
     Number,
     String,
     Boolean,
-    CommunicationMappingEvent
+    CommunicationMappingEvent,
+    CommunicationMappingCreatedEvent,
+    CommunicationMappingDeletedEvent,
 )
 from splight_lib import logging
 from splight_lib.execution import Task
@@ -28,6 +30,7 @@ class AbstractIOComponent(AbstractComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractIOComponent, self).__init__(*args, **kwargs)
         self.collection_name = 'default'
+        self._retrieve_mappings()
         self._bind_mapping_events()
 
     def _load_hooks(self):
@@ -81,6 +84,26 @@ class AbstractIOComponent(AbstractComponent):
             result.append(var)
         return result
 
+    def _retrieve_mappings(self):
+        if self.mapping_class is None:
+            logger.debug("No mapping class to refresh")
+            return
+        logger.debug("Retrieving mappings in connector")
+        self.mappings = self.database_client.get(
+            resource_type=self.mapping_class,
+            connector_id=self.instance_id
+        )
+        self._hashed_mappings = {
+            f"{m.asset_id}-{m.attribute_id}": m
+            for m in self.mappings
+        }
+        self._hashed_mappings_by_path = {
+            f"{m.path}": m
+            for m in self.mappings
+        }
+        logger.debug(f"Maps found {len(self.mappings)}")
+        logger.debug(self.mappings)
+
     def _bind_mapping_events(self):
         self.communication_client.bind(CommunicationMappingEvent.MAPPING_CREATED, self._handle_mapping_created)
         self.communication_client.bind(CommunicationMappingEvent.MAPPING_DELETED, self._handle_mapping_deleted)
@@ -90,7 +113,7 @@ class AbstractIOComponent(AbstractComponent):
             logger.debug("No mapping class to refresh")
             return
         logger.debug("Created mapping in connector")
-        mapping = self.mapping_class.parse_raw(data)
+        mapping = CommunicationMappingCreatedEvent.parse_raw(data).data
         self.mappings.append(mapping)
         self._hashed_mappings[f"{mapping.asset_id}-{mapping.attribute_id}"] = mapping
         self._hashed_mappings_by_path[f"{mapping.path}"] = mapping
@@ -101,8 +124,8 @@ class AbstractIOComponent(AbstractComponent):
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
             return
-        mapping = self.mapping_class.parse_raw(data)
-        self.mappings[:] = [m for m in self.mappings if m.path != mapping.path]
+        mapping = CommunicationMappingDeletedEvent.parse_raw(data).data
+        self.mappings[:] = [m for m in self.mappings if m.id != mapping.id]  # TODO: maybe use mapping id
         self._hashed_mappings.pop(f"{mapping.asset_id}-{mapping.attribute_id}", None)
         self._hashed_mappings_by_path.pop(f"{mapping.path}", None)
         logger.debug(f"Mapping deleted registered: {mapping}")
