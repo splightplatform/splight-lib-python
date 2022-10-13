@@ -65,3 +65,14 @@ class RunnerStatus(str, Enum):
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
     UNKNOWN = "Unknown"
+
+
+class PrivacyPolicy(str, Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
+class VerificationLevel(str, Enum):
+    VERIFIED = "verified"
+    UNVERIFIED = "unverified"
+    OFFICIAL = "official"
