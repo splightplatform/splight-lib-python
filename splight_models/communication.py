@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
+from splight_models.mapping import ClientMapping
 
 from pydantic import Field
 from datetime import datetime, timezone
@@ -81,3 +82,13 @@ class CommunicationRPCResponseEvent(CommunicationEvent):
 class CommunicationMappingEvent(str, Enum):
     MAPPING_CREATED = 'mapping_created'
     MAPPING_DELETED = 'mapping_deleted'
+
+
+class CommunicationMappingCreatedEvent(CommunicationEvent):
+    event_name: str = CommunicationMappingEvent.MAPPING_CREATED
+    data: ClientMapping
+
+
+class CommunicationMappingDeletedEvent(CommunicationEvent):
+    event_name: str = CommunicationMappingEvent.MAPPING_DELETED
+    data: ClientMapping
