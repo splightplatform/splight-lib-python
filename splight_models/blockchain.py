@@ -1,10 +1,10 @@
-import re
-import json
 from datetime import datetime, timezone
 from typing import Optional, Union
 from pydantic import validator, Json, Field, validator
 from hexbytes import HexBytes
-from .base import SplightBaseModel
+from splight_models.base import SplightBaseModel
+import re
+import json
 
 
 class BlockchainContractSubscription(SplightBaseModel):
