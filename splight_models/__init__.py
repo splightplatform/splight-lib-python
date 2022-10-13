@@ -1,4 +1,3 @@
-from splight_models.action import *
 from splight_models.asset import *
 from splight_models.attribute import *
 from splight_models.billing import *
