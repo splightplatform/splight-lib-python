@@ -15,6 +15,7 @@ class HubComponent(BaseRunner):
     tenant: Optional[str] = None
     readme: Optional[str]
     picture: Optional[str]
+    file: Optional[str]
     verification: Optional[str]
     created_at: Optional[str]
     last_modified: Optional[str]
