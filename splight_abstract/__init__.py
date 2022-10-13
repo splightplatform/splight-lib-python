@@ -1,6 +1,5 @@
 from .auth import AbstractAuthClient, AuthenticationError
 from .notification import *
-from .blockchain import *
 from .cache import *
 from .communication import *
 from .database import *

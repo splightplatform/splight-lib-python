@@ -69,7 +69,7 @@ CLASSMAP = {
         "path": "mapping/value-mapping"
     },
     BlockchainContract: {
-        "path": "blockchain/contract"
+        "path": "setup/blockchain-contracts"
     },
     BlockchainContractSubscription: {
         "path": "blockchain/subscription"
