@@ -122,6 +122,9 @@ class FakeHubClient(AbstractHubClient):
     def download(self, data: Dict) -> Tuple:
         return b"file content", 200
 
+    def random_picture(self) -> Tuple:
+        return b"image", 200
+
     @property
     def all(self) -> AbstractHubSubClient:
         return self._client

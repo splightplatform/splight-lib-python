@@ -36,6 +36,10 @@ class AbstractHubClient(ABC):
     def download(self, data: Dict) -> Tuple:
         pass
 
+    @abstractmethod
+    def random_picture(self):
+        pass
+
     @abstractproperty
     def all(self) -> AbstractHubSubClient:
         pass
