@@ -58,6 +58,8 @@ class CommunicationClient(AbstractCommunicationClient):
             ("pusher:connection_failed", self.__on_connection_failed),
             ("pusher:error", self.__on_error),
         ]
+        # Filter client kwargs
+        self._client_kwargs = {k: v for k, v in kwargs.items() if k in ['daemon']}
         try:
             self.__load_context()
             self.__load_client()
@@ -93,7 +95,8 @@ class CommunicationClient(AbstractCommunicationClient):
             key=self._context.key,
             auth_endpoint=self._context.auth_endpoint,
             auth_endpoint_headers=self._context.auth_headers,
-            user_data=self._context.channel_data.dict() if self.context.channel_data else None
+            user_data=self._context.channel_data.dict() if self.context.channel_data else None,
+            **self._client_kwargs
         )
         self.__bind_system_events()
         self._client.connect()

@@ -5,6 +5,7 @@ from typing import Dict, Optional
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
 from splight_models.mapping import ClientMapping
+from splight_models.rule import MappingRule
 
 from pydantic import Field
 from datetime import datetime, timezone
@@ -94,3 +95,18 @@ class CommunicationMappingCreatedEvent(CommunicationEvent):
 class CommunicationMappingDeletedEvent(CommunicationEvent):
     event_name: str = CommunicationMappingEvent.MAPPING_DELETED
     data: ClientMapping
+
+
+class CommunicationRuleEvent(str, Enum):
+    RULE_CREATED = 'rule_created'
+    RULE_DELETED = 'rule_deleted'
+
+
+class CommunicationRuleCreatedEvent(CommunicationEvent):
+    event_name: str = CommunicationRuleEvent.RULE_CREATED
+    data: MappingRule
+
+
+class CommunicationRuleDeletedEvent(CommunicationEvent):
+    event_name: str = CommunicationRuleEvent.RULE_DELETED
+    data: MappingRule
