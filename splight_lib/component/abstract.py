@@ -4,7 +4,7 @@ import time
 import pandas as pd
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict, Tuple, Set
+from typing import Optional, Type, List, Dict, Tuple, Set, Any
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
@@ -16,11 +16,13 @@ from splight_models import (
     StorageFile,
     RunnerDatalakeModel,
     Algorithm,
+    Connector,
     CommunicationEvent,
     CommunicationRPCEvents,
     CommunicationRPCRequest,
     CommunicationRPCResponse,
     CommunicationRPCResponseEvent,
+    SystemRunner
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from collections import defaultdict
@@ -181,6 +183,11 @@ class UtilsMixin:
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
     collection_name = "default"
     managed_class: Type = None
+    database_client_kwargs: Dict[str, Any] = {}
+    datalake_client_kwargs: Dict[str, Any] = {}
+    deployment_client_kwargs: Dict[str, Any] = {}
+    storage_client_kwargs: Dict[str, Any] = {}
+    communication_client_kwargs: Dict[str, Any] = {}
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
         self._spec: Deployment = Deployment(**run_spec)
@@ -192,6 +199,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         self.namespace = self._spec.namespace
         self.instance_id = self._spec.external_id
 
+        self._load_instance_data()
         self._load_clients()
         self._load_spec_models()
         self._load_client_hooks()
@@ -213,6 +221,15 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
+    def _load_instance_data(self):
+        self.collection_name = str(self.instance_id)
+        self.instance_id_ = self.instance_id
+        if self.managed_class == SystemRunner:
+            self.collection_name = "system"
+            self.instance_id_ = None
+        elif self.managed_class == Connector:
+            self.collection_name = 'default'
+
     def _load_spec_models(self):
         raw_spec = self.spec.dict()
         self._retrieve_objects_in_input(raw_spec["input"])
@@ -223,11 +240,27 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         self.commands = self._spec.commands_model
 
     def _load_clients(self):
-        self.database_client = self.setup.DATABASE_CLIENT(namespace=self.namespace)
-        self.datalake_client = self.setup.DATALAKE_CLIENT(namespace=self.namespace)
-        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(namespace=self.namespace)
-        self.storage_client = self.setup.STORAGE_CLIENT(namespace=self.namespace)
-        self.communication_client = self.setup.COMMUNICATION_CLIENT(namespace=self.namespace, instance_id=self.instance_id)
+        self.database_client = self.setup.DATABASE_CLIENT(
+            namespace=self.namespace,
+            **self.database_client_kwargs
+        )
+        self.datalake_client = self.setup.DATALAKE_CLIENT(
+            namespace=self.namespace,
+            **self.datalake_client_kwargs
+        )
+        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(
+            namespace=self.namespace,
+            **self.deployment_client_kwargs
+        )
+        self.storage_client = self.setup.STORAGE_CLIENT(
+            namespace=self.namespace,
+            **self.storage_client_kwargs
+        )
+        self.communication_client = self.setup.COMMUNICATION_CLIENT(
+            namespace=self.namespace,
+            instance_id=self.instance_id_,
+            **self.communication_client_kwargs
+        )
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
     def _bind_rpc_requests(self):
