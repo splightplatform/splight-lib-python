@@ -13,4 +13,4 @@ class AbstractAlgorithmComponent(AbstractComponent):
 
     def _load_instance_data(self):
         self.collection_name = str(self.instance_id)
-        self.instance_id_ = self.instance_id
+        self.communication_client_kwargs['instance_id'] = self.instance_id
