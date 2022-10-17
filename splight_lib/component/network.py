@@ -12,3 +12,7 @@ class AbstractNetworkComponent(AbstractComponent):
     def __init__(self, *args, **kwargs):
         super(AbstractNetworkComponent, self).__init__(*args, **kwargs)
         self.collection_name = str(self.instance_id)
+
+    def _load_instance_data(self):
+        self.collection_name = str(self.instance_id)
+        self.instance_id_ = self.instance_id
