@@ -44,10 +44,12 @@ class CommunicationClientStatus(str, Enum):
 
 class CommunicationEvent(SplightBaseModel):
     event_name: str
+    id: Optional[str] = None
     instance_id: Optional[str] = None
     socket_id: Optional[str] = None
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))  # pusher cannot json serialize datetime objects
     display_text: Optional[str] = None
+    user: Optional[User] = None
     data: Dict
 
 
