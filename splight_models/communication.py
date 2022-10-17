@@ -88,12 +88,12 @@ class CommunicationMappingEvent(str, Enum):
 
 
 class CommunicationMappingCreatedEvent(CommunicationEvent):
-    event_name: str = CommunicationMappingEvent.MAPPING_CREATED
+    event_name: str = Field(CommunicationMappingEvent.MAPPING_CREATED, const=True)
     data: ClientMapping
 
 
 class CommunicationMappingDeletedEvent(CommunicationEvent):
-    event_name: str = CommunicationMappingEvent.MAPPING_DELETED
+    event_name: str = Field(CommunicationMappingEvent.MAPPING_DELETED, const=True)
     data: ClientMapping
 
 
@@ -103,10 +103,10 @@ class CommunicationRuleEvent(str, Enum):
 
 
 class CommunicationRuleCreatedEvent(CommunicationEvent):
-    event_name: str = CommunicationRuleEvent.RULE_CREATED
+    event_name: str = Field(CommunicationRuleEvent.RULE_CREATED, const=True)
     data: MappingRule
 
 
 class CommunicationRuleDeletedEvent(CommunicationEvent):
-    event_name: str = CommunicationRuleEvent.RULE_DELETED
+    event_name: str = Field(CommunicationRuleEvent.RULE_DELETED, const=True)
     data: MappingRule

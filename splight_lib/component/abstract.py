@@ -183,6 +183,7 @@ class UtilsMixin:
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
     collection_name = "default"
     managed_class: Type = None
+    # TODO: rethink this approach
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
