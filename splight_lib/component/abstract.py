@@ -222,14 +222,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
+    @abstractmethod
     def _load_instance_data(self):
-        self.collection_name = str(self.instance_id)
-        self.instance_id_ = self.instance_id
-        if self.managed_class == SystemRunner:
-            self.collection_name = "system"
-            self.instance_id_ = None
-        elif self.managed_class == Connector:
-            self.collection_name = 'default'
+        pass
 
     def _load_spec_models(self):
         raw_spec = self.spec.dict()
