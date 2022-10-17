@@ -125,7 +125,7 @@ class AbstractIOComponent(AbstractComponent):
             logger.debug("No mapping class to refresh")
             return
         mapping = CommunicationMappingDeletedEvent.parse_raw(data).data
-        self.mappings[:] = [m for m in self.mappings if m.id != mapping.id]  # TODO: maybe use mapping id
+        self.mappings = [m for m in self.mappings if m.id != mapping.id]
         self._hashed_mappings.pop(f"{mapping.asset_id}-{mapping.attribute_id}", None)
         self._hashed_mappings_by_path.pop(f"{mapping.path}", None)
         logger.debug(f"Mapping deleted registered: {mapping}")
@@ -144,6 +144,7 @@ class AbstractClientComponent(AbstractIOComponent):
             bool: Boolean,
         }
         self._mappings_last_sync = set()
+        # TODO: check if this should be changed too
         self.execution_client.start(Task(handler=self.sync_mappings_to_device, args=tuple(), period=10))
 
     @abstractmethod
