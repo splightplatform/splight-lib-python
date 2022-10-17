@@ -48,7 +48,7 @@ class CommunicationFactory:
 
 class CommunicationClient(AbstractCommunicationClient):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, daemon: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._status = CommunicationClientStatus.STOPPED
         self._channel_bindings = []
@@ -58,6 +58,7 @@ class CommunicationClient(AbstractCommunicationClient):
             ("pusher:connection_failed", self.__on_connection_failed),
             ("pusher:error", self.__on_error),
         ]
+        self._daemon = daemon
         try:
             self.__load_context()
             self.__load_client()
@@ -93,7 +94,8 @@ class CommunicationClient(AbstractCommunicationClient):
             key=self._context.key,
             auth_endpoint=self._context.auth_endpoint,
             auth_endpoint_headers=self._context.auth_headers,
-            user_data=self._context.channel_data.dict() if self.context.channel_data else None
+            user_data=self._context.channel_data.dict() if self.context.channel_data else None,
+            daemon=self._daemon,
         )
         self.__bind_system_events()
         self._client.connect()
