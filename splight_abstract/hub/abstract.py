@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-from typing import List, Type, Dict
 from abc import ABC, abstractmethod, abstractproperty
+from typing import Dict, List, Type, Tuple
+
+from pydantic import BaseModel
+
 from splight_abstract.client import AbstractClient, QuerySet
 
 
@@ -26,6 +28,18 @@ class AbstractHubSubClient(AbstractClient):
 
 
 class AbstractHubClient(ABC):
+    @abstractmethod
+    def upload(self, data: Dict, files: Dict) -> Tuple:
+        pass
+
+    @abstractmethod
+    def download(self, data: Dict) -> Tuple:
+        pass
+
+    @abstractmethod
+    def random_picture(self):
+        pass
+
     @abstractproperty
     def all(self) -> AbstractHubSubClient:
         pass

@@ -1,5 +1,8 @@
+from uuid import uuid4
+from datetime import datetime, timezone
+from typing import Dict, List, Type, Tuple
+
 from pydantic import BaseModel
-from typing import Dict, List, Type
 from splight_abstract.hub.abstract import AbstractHubSubClient
 from splight_lib import logging
 from splight_models import (
@@ -93,6 +96,34 @@ class FakeHubClient(AbstractHubClient):
 
     def __init__(self, *args, **kwargs) -> None:
         self._client = FakeHubSubClient()
+
+    def upload(self, data: Dict, files: Dict) -> Tuple:
+        component = {
+            "id": uuid4(),
+            "tenant": "org_agu2n52305",
+            "type": data["type"],
+            "name": data["name"],
+            "version": data["version"],
+            "privacy_policy": data["privacy_policy"],
+            "verification": data["verification"],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "last_modified": datetime.now(timezone.utc).isoformat(),
+            "readme": "some readme",
+            "picture": "picture",
+            "file": "file",
+            "custom_types": [],
+            "input": [],
+            "output": [],
+            "commands": [],
+            "deleted": False
+        }
+        return component, 201
+
+    def download(self, data: Dict) -> Tuple:
+        return b"file content", 200
+
+    def random_picture(self) -> Tuple:
+        return b"image", 200
 
     @property
     def all(self) -> AbstractHubSubClient:
