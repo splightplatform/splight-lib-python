@@ -33,6 +33,10 @@ class AbstractIOComponent(AbstractComponent):
         self._retrieve_mappings()
         self._bind_mapping_events()
 
+    def _load_instance_data(self):
+        self.instance_id_ = self.instance_id
+        self.collection_name = 'default'
+
     def _load_hooks(self):
         super()._load_hooks()
         self.datalake_client.add_pre_hook('save', self.hook_map_variable)

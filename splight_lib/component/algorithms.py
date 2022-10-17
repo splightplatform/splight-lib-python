@@ -10,3 +10,7 @@ class AbstractAlgorithmComponent(AbstractComponent):
         super(AbstractAlgorithmComponent, self).__init__(*args, **kwargs)
 
         self.collection_name = str(self.instance_id)
+
+    def _load_instance_data(self):
+        self.collection_name = str(self.instance_id)
+        self.instance_id_ = self.instance_id
