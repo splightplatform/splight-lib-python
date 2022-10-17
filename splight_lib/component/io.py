@@ -34,8 +34,8 @@ class AbstractIOComponent(AbstractComponent):
         self._bind_mapping_events()
 
     def _load_instance_data(self):
-        self.instance_id_ = self.instance_id
         self.collection_name = 'default'
+        self.communication_client_kwargs['instance_id'] = self.instance_id
 
     def _load_hooks(self):
         super()._load_hooks()

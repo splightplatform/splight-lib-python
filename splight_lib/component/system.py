@@ -10,4 +10,4 @@ class AbstractSystemComponent(AbstractComponent):
 
     def _load_instance_data(self):
         self.collection_name = "system"
-        self.instance_id_ = None
+        self.communication_client_kwargs['instance_id'] = None

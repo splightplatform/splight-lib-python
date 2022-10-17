@@ -254,7 +254,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         )
         self.communication_client = self.setup.COMMUNICATION_CLIENT(
             namespace=self.namespace,
-            instance_id=self.instance_id_,
             **self.communication_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
