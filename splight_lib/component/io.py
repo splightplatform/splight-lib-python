@@ -148,7 +148,7 @@ class AbstractClientComponent(AbstractIOComponent):
             bool: Boolean,
         }
         self._mappings_last_sync = set()
-        # TODO: check if this should be changed too
+        # TODO: pending to change this to be reactive as well
         self.execution_client.start(Task(handler=self.sync_mappings_to_device, args=tuple(), period=10))
 
     @abstractmethod
