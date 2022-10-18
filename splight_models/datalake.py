@@ -23,3 +23,10 @@ class RunnerDatalakeModel(DatalakeModel):
             k: v['id'] if isinstance(v, dict) else v
             for k, v in d.items()
         }
+
+class IngestionDatalakeModel(DatalakeModel):
+    asset: str
+    attribute: str
+    ingestion_id: str
+    type: str
+    value: str
