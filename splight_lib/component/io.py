@@ -8,9 +8,9 @@ from splight_models import (
     Number,
     String,
     Boolean,
-    CommunicationMappingEvent,
-    CommunicationMappingCreatedEvent,
-    CommunicationMappingDeletedEvent,
+    MappingEvents,
+    MappingCreateEvent,
+    MappingDeleteEvent,
 )
 from splight_lib import logging
 from splight_lib.execution import Task
@@ -109,15 +109,15 @@ class AbstractIOComponent(AbstractComponent):
         logger.debug(self.mappings)
 
     def _bind_mapping_events(self):
-        self.communication_client.bind(CommunicationMappingEvent.MAPPING_CREATED, self._handle_mapping_created)
-        self.communication_client.bind(CommunicationMappingEvent.MAPPING_DELETED, self._handle_mapping_deleted)
+        self.communication_client.bind(MappingEvents.MAPPING_CREATE, self._handle_mapping_created)
+        self.communication_client.bind(MappingEvents.MAPPING_DELETE, self._handle_mapping_deleted)
 
     def _handle_mapping_created(self, data: str):
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
             return
         logger.debug("Created mapping in connector")
-        mapping = CommunicationMappingCreatedEvent.parse_raw(data).data
+        mapping = MappingCreateEvent.parse_raw(data).data
         self.mappings.append(mapping)
         self._hashed_mappings[f"{mapping.asset_id}-{mapping.attribute_id}"] = mapping
         self._hashed_mappings_by_path[f"{mapping.path}"] = mapping
@@ -128,7 +128,7 @@ class AbstractIOComponent(AbstractComponent):
         if self.mapping_class is None:
             logger.debug("No mapping class to refresh")
             return
-        mapping = CommunicationMappingDeletedEvent.parse_raw(data).data
+        mapping = MappingDeleteEvent.parse_raw(data).data
         self.mappings = [m for m in self.mappings if m.id != mapping.id]
         self._hashed_mappings.pop(f"{mapping.asset_id}-{mapping.attribute_id}", None)
         self._hashed_mappings_by_path.pop(f"{mapping.path}", None)

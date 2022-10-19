@@ -53,13 +53,13 @@ class CommunicationEvent(SplightBaseModel):
     data: Dict
 
 
-class CommunicationRPCRequest(SplightBaseModel):
+class OperationRequest(SplightBaseModel):
     function: str
     kwargs: Dict = {}
     metadata: Dict = {}
 
 
-class CommunicationRPCResponse(SplightBaseModel):
+class OperationResponse(SplightBaseModel):
     function: str
     kwargs: Dict = {}
     metadata: Dict = {}
@@ -67,46 +67,46 @@ class CommunicationRPCResponse(SplightBaseModel):
     error_detail: Optional[str] = None
 
 
-class CommunicationRPCEvents(str, Enum):
-    RPC_REQUEST = 'rpc_request'
-    RPC_RESPONSE = 'rpc_response'
+class OperationEvents(str, Enum):
+    OPERATION_REQUEST = 'operation-request'
+    OPERATION_RESPONSE = 'operation-response'
 
 
-class CommunicationRPCRequestEvent(CommunicationEvent):
-    event_name: str = CommunicationRPCEvents.RPC_REQUEST
-    data: CommunicationRPCRequest
+class OperationRequestEvent(CommunicationEvent):
+    event_name: str = OperationEvents.OPERATION_REQUEST
+    data: OperationRequest
 
 
-class CommunicationRPCResponseEvent(CommunicationEvent):
-    event_name: str = CommunicationRPCEvents.RPC_RESPONSE
-    data: CommunicationRPCResponse
+class OperationResponseEvent(CommunicationEvent):
+    event_name: str = OperationEvents.OPERATION_RESPONSE
+    data: OperationResponse
 
 
-class CommunicationMappingEvent(str, Enum):
-    MAPPING_CREATED = 'mapping_created'
-    MAPPING_DELETED = 'mapping_deleted'
+class MappingEvents(str, Enum):
+    MAPPING_CREATE = "mapping-create"
+    MAPPING_DELETE = "mapping-delete"
 
 
-class CommunicationMappingCreatedEvent(CommunicationEvent):
-    event_name: str = Field(CommunicationMappingEvent.MAPPING_CREATED, const=True)
+class MappingCreateEvent(CommunicationEvent):
+    event_name: str = Field(MappingEvents.MAPPING_CREATE, const=True)
     data: ClientMapping
 
 
-class CommunicationMappingDeletedEvent(CommunicationEvent):
-    event_name: str = Field(CommunicationMappingEvent.MAPPING_DELETED, const=True)
+class MappingDeleteEvent(CommunicationEvent):
+    event_name: str = Field(MappingEvents.MAPPING_DELETE, const=True)
     data: ClientMapping
 
 
-class CommunicationRuleEvent(str, Enum):
-    RULE_CREATED = 'rule_created'
-    RULE_DELETED = 'rule_deleted'
+class RuleEvents(str, Enum):
+    RULE_CREATE = 'rule-create'
+    RULE_DELETE = 'rule-delete'
 
 
-class CommunicationRuleCreatedEvent(CommunicationEvent):
-    event_name: str = Field(CommunicationRuleEvent.RULE_CREATED, const=True)
+class RuleCreateEvent(CommunicationEvent):
+    event_name: str = Field(RuleEvents.RULE_CREATE, const=True)
     data: MappingRule
 
 
-class CommunicationRuleDeletedEvent(CommunicationEvent):
-    event_name: str = Field(CommunicationRuleEvent.RULE_DELETED, const=True)
+class RuleDeleteEvent(CommunicationEvent):
+    event_name: str = Field(RuleEvents.RULE_DELETE, const=True)
     data: MappingRule
