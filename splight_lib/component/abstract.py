@@ -18,10 +18,10 @@ from splight_models import (
     Algorithm,
     Connector,
     CommunicationEvent,
-    CommunicationRPCEvents,
-    CommunicationRPCRequest,
-    CommunicationRPCResponse,
-    CommunicationRPCResponseEvent,
+    OperationEvents,
+    OperationRequest,
+    OperationResponse,
+    OperationResponseEvent,
     SystemRunner
 )
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
@@ -259,7 +259,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
     def _bind_rpc_requests(self):
-        self.communication_client.bind(CommunicationRPCEvents.RPC_REQUEST, self._handle_rpc_request)
+        self.communication_client.bind(OperationEvents.OPERATION_REQUEST, self._handle_rpc_request)
 
     def _retrieve_objects_in_input(self, parameters: List):
         ids = {
@@ -335,8 +335,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
     def _handle_rpc_request(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
         event_trigger = CommunicationEvent.parse_raw(data)
-        request = CommunicationRPCRequest.parse_obj(event_trigger.data)
-        response = CommunicationRPCResponse(return_value=None, error_detail=None, **request.dict())
+        request = OperationRequest.parse_obj(event_trigger.data)
+        response = OperationResponse(return_value=None, error_detail=None, **request.dict())
         try:
             function = getattr(self, request.function)
             kwargs_model = getattr(self.commands, request.function)
@@ -344,5 +344,5 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
             response.return_value = str(function(**kwargs))
         except Exception as e:
             response.error_detail = str(e)
-        trigger_event = CommunicationRPCResponseEvent(data=response)
+        trigger_event = OperationResponseEvent(data=response)
         self.communication_client.trigger(trigger_event)
