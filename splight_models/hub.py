@@ -10,6 +10,7 @@ class HubComponent(BaseRunner):
     id: Optional[str]
     name: str
     type: str = None
+    spec_version: str = ""
     description: Optional[str]
     privacy_policy: Optional[str] = None
     tenant: Optional[str] = None
