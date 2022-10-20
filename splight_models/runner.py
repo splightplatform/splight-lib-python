@@ -96,6 +96,7 @@ class Runner(BaseRunner):
     component_capacity: ComponentSize = ComponentSize.small
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
     status: RunnerStatus = RunnerStatus.STOPPED
+    active: bool = False
 
     @property
     def collection(self):
