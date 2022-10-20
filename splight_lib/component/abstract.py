@@ -1,4 +1,3 @@
-import json
 import sys
 import time
 import pandas as pd
@@ -15,15 +14,10 @@ from splight_models import (
     Parameter,
     StorageFile,
     RunnerDatalakeModel,
-    Algorithm,
-    Connector,
-    CommunicationEvent,
-    OperationEvents,
-    OperationRequest,
-    OperationResponse,
-    OperationResponseEvent,
-    SystemRunner
+    Algorithm
 )
+from splight_models.communication import Operation
+from splight_models.communication.events import EventNames, OperationCreateEvent, OperationUpdateEvent
 from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
 from collections import defaultdict
 from pydantic import BaseModel
@@ -204,7 +198,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         self._load_clients()
         self._load_spec_models()
         self._load_client_hooks()
-        self._bind_rpc_requests()
+        self._bind_operation_events()
         super().__init__(*args, **kwargs)
         self.add_indexes()
 
@@ -258,8 +252,22 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
-    def _bind_rpc_requests(self):
-        self.communication_client.bind(OperationEvents.OPERATION_REQUEST, self._handle_rpc_request)
+    def _bind_operation_events(self):
+        self.communication_client.bind(EventNames.OPERATION_CREATE, self._handle_operation_created)
+
+    def _handle_operation_created(self, data: str):
+        assert self.commands, "Please define .commands to start accepting request."
+        operation_event = OperationCreateEvent.parse_raw(data)
+        operation: Operation = operation_event.data
+        operation_event = OperationUpdateEvent(return_value=None, error_detail=None, data=operation)
+        try:
+            function = getattr(self, operation.function)
+            kwargs_model = getattr(self.commands, operation.function)
+            kwargs = kwargs_model(**operation.kwargs).dict()
+            operation.return_value = str(function(**kwargs))
+        except Exception as e:
+            operation.error_detail = str(e)
+        self.communication_client.trigger(operation_event)
 
     def _retrieve_objects_in_input(self, parameters: List):
         ids = {
@@ -332,17 +340,3 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
 
         return parameters_dict
 
-    def _handle_rpc_request(self, data: str):
-        assert self.commands, "Please define .commands to start accepting request."
-        event_trigger = CommunicationEvent.parse_raw(data)
-        request = OperationRequest.parse_obj(event_trigger.data)
-        response = OperationResponse(return_value=None, error_detail=None, **request.dict())
-        try:
-            function = getattr(self, request.function)
-            kwargs_model = getattr(self.commands, request.function)
-            kwargs = kwargs_model(**request.kwargs).dict()
-            response.return_value = str(function(**kwargs))
-        except Exception as e:
-            response.error_detail = str(e)
-        trigger_event = OperationResponseEvent(data=response)
-        self.communication_client.trigger(trigger_event)
