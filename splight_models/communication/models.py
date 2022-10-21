@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from splight_models import SplightBaseModel
+from splight_models.runner import CommandParameter
 from splight_models.user import User
 
 
@@ -36,8 +37,7 @@ class CommunicationClientStatus(str, Enum):
 
 
 class Operation(SplightBaseModel):
-    function: str
-    kwargs: Dict = {}
-    metadata: Dict = {}
+    name: str
+    fields: List[CommandParameter]
     return_value: Optional[str] = None
     error_detail: Optional[str] = None

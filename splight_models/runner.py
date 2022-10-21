@@ -27,6 +27,10 @@ class Parameter(SplightBaseModel):
     value: Any = None
 
 
+class InputParameter(Parameter):
+    pass
+
+
 class OutputParameter(SplightBaseModel):
     name: str
     description: str = ''
@@ -36,11 +40,8 @@ class OutputParameter(SplightBaseModel):
     filterable: bool = False
 
 
-class CommandParameter(SplightBaseModel):
-    name: str
-    type: str
-    description: str = ''
-    choices: Optional[List[Any]] = None
+class CommandParameter(Parameter):
+    pass
 
 
 class CustomType(SplightBaseModel):
@@ -61,7 +62,7 @@ class Command(SplightBaseModel):
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
     custom_types: Optional[List[CustomType]] = []
-    input: Optional[List[Parameter]] = []
+    input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
 
@@ -168,6 +169,10 @@ class RunnerModelFactory:
         type_map.update({k: Union[str, v] for k, v in STORAGE_TYPES.items()})
         return type_map
 
+    def get_input_model(self, inputs: List) -> BaseModel:
+        # There is only one input model. No need to define a dict
+        return self._create_model("Input", inputs)
+
     def get_custom_types_model(self, custom_types: List) -> Type:
         custom_types_dict: Dict[str, BaseModel] = {}
 
@@ -177,9 +182,6 @@ class RunnerModelFactory:
             self._type_map[custom_type.name] = model
 
         return type("CustomTypes", (), custom_types_dict)
-
-    def get_input_model(self, inputs: List) -> BaseModel:
-        return self._create_model("Input", inputs)
 
     def get_output_model(self, outputs: List) -> BaseModel:
         output_models: Dict[str, BaseModel] = {}
