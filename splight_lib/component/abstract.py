@@ -21,7 +21,7 @@ from splight_models import (
 )
 from splight_models.communication import Operation
 from splight_models.communication.events import EventNames, OperationCreateEvent, OperationUpdateEvent
-from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
+from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
 
 
 logger = logging.getLogger()
@@ -182,16 +182,17 @@ class BindingsMixin:
         assert self.commands, "Please define .commands to start accepting request."
         operation_event = OperationCreateEvent.parse_raw(data)
         operation: Operation = operation_event.data
-        operation_event = OperationUpdateEvent(return_value=None, error_detail=None, data=operation)
+        command: Command = operation.command
         try:
-            op_name = getattr(self, operation.name)
-            op_parameter_model = getattr(self.commands, operation.name)
-            parsed_command_parameters = self.parse_parameters(operation.fields)
-            op_kwargs = op_parameter_model(**parsed_command_parameters).dict()
-            operation.return_value = str(op_name(**op_kwargs))
+            command_function = getattr(self, command.name)
+            command_kwargs_model = getattr(self.commands, command.name)
+            parsed_command_kwargs = self.parse_parameters(operation.fields)
+            command_kwargs = command_kwargs_model(**parsed_command_kwargs).dict()
+            operation.response.return_value = str(command_function(**command_kwargs))
         except Exception as e:
-            operation.error_detail = str(e)
-        self.communication_client.trigger(operation_event)
+            operation.response.error_detail = str(e)
+        operation_callback_event = OperationUpdateEvent(data=operation)
+        self.communication_client.trigger(operation_callback_event)
 
 
 class ParametersMixin:
