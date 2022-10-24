@@ -86,7 +86,10 @@ class BaseRunner(SplightBaseModel):
 
     @cached_property
     def commands_model(self) -> Type:
-        return RunnerModelFactory().get_commands_model(self.commands)
+        custom_type_model = self.custom_types_model
+        custom_types = inspect.getmembers(custom_type_model)
+        custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
+        return RunnerModelFactory(custom_types_dict).get_commands_model(self.commands)
 
 
 class Runner(BaseRunner):
@@ -202,7 +205,6 @@ class RunnerModelFactory:
         for command in commands:
             command_models[command.name] = self._create_model(command.name,
                                                               command.fields)
-
         return type("Commands", (), command_models)
 
     def _create_model(self,

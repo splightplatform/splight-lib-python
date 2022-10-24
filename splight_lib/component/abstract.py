@@ -21,7 +21,7 @@ from splight_models import (
 )
 from splight_models.communication import Operation
 from splight_models.communication.events import EventNames, OperationCreateEvent, OperationUpdateEvent
-from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
+from splight_models.runner import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
 
 
 logger = logging.getLogger()
@@ -187,7 +187,11 @@ class BindingsMixin:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
             parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
-            command_kwargs = command_kwargs_model(**parsed_command_kwargs).dict()
+            command_kwargs = command_kwargs_model(**parsed_command_kwargs)
+            # .to_dict is not keeping the models of subkeys
+            command_kwargs = {
+                str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
+            }
             operation.response.return_value = str(command_function(**command_kwargs))
         except Exception as e:
             operation.response.error_detail = str(e)
@@ -239,11 +243,15 @@ class ParametersMixin:
         reloaded_parameters = []
         for raw_parameter in parameters:
             parameter = raw_parameter.copy()
-            values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
-            if parameter["type"] in DATABASE_TYPES or parameter["type"] in STORAGE_TYPES:
-                parameter["value"] = [objects[value] for value in values]
-            elif parameter["type"] not in SIMPLE_TYPES:
-                parameter['value'] = [self._reload_parameters(value, objects) for value in values]
+            type = parameter["type"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+            if type in NATIVE_TYPES:
+                parameter["value"] = [val for val in value] if multiple else value
+            elif type in SIMPLE_TYPES:
+                parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
+            else:
+                parameter["value"] = [self._reload_parameters(value, objects) for value in value] if multiple else self._reload_parameters(value, objects)
             reloaded_parameters.append(parameter)
         return reloaded_parameters
 
@@ -259,13 +267,12 @@ class ParametersMixin:
             if (value is [] or value == '') and type != "str":
                 value = None
 
-            if type in SIMPLE_TYPES:
-                parameters_dict[name] = value
-            elif multiple:
-                parameters_dict[name] = [self._transform_parameters(val) for val in value]
+            if type in NATIVE_TYPES:
+                parameters_dict[name] = [val for val in value] if multiple else value
+            elif type in SIMPLE_TYPES:
+                parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else value
             else:
-                parameters_dict[name] = self._transform_parameters(value)
-
+                parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else self._transform_parameters(value)
         return parameters_dict
 
 
