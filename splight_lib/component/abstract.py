@@ -186,7 +186,7 @@ class BindingsMixin:
         try:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
-            parsed_command_kwargs = self.parse_parameters(operation.fields)
+            parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
             command_kwargs = command_kwargs_model(**parsed_command_kwargs).dict()
             operation.response.return_value = str(command_function(**command_kwargs))
         except Exception as e:
@@ -324,7 +324,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         raw_spec = self.spec.dict()
         parsed_input_parameters = self.parse_parameters(raw_spec["input"])
         self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
-
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(

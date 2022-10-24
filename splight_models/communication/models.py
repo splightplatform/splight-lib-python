@@ -42,5 +42,6 @@ class OperationResponse(SplightBaseModel):
 
 
 class Operation(SplightBaseModel):
+    id: Optional[str]
     command: Command
     response: OperationResponse = OperationResponse()
