@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import validator
 from splight_models.runner import BaseRunner
+from splight_models.constants import BuildStatus
 from typing import List
 
 VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
@@ -10,6 +11,8 @@ class HubComponent(BaseRunner):
     id: Optional[str]
     name: str
     type: str = None
+    splitgh_cli_version: str
+    build_status: BuildStatus = BuildStatus.PENDING
     description: Optional[str]
     privacy_policy: Optional[str] = None
     tenant: Optional[str] = None

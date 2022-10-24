@@ -76,3 +76,10 @@ class VerificationLevel(str, Enum):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
+
+
+class BuildStatus(Enum):
+    PENDING = 'pending'
+    BUILDING = 'building'
+    FAILED = 'failed'
+    SUCCESS = 'success'
