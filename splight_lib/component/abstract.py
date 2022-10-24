@@ -243,7 +243,7 @@ class ParametersMixin:
             if parameter["type"] in DATABASE_TYPES or parameter["type"] in STORAGE_TYPES:
                 parameter["value"] = [objects[value] for value in values]
             elif parameter["type"] not in SIMPLE_TYPES:
-                parameter['value'] = [self._reload_parameters(value, objects) for value in values]
+                parameter["value"] = [self._reload_parameters(value, objects) for value in values]
             reloaded_parameters.append(parameter)
         return reloaded_parameters
 
