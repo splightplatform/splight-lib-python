@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 
 class EventNames(str, Enum):
+    OPERATION_TRIGGER = 'operation-trigger'
     OPERATION_CREATE = 'operation-create'
     OPERATION_UPDATE = 'operation-update'
     MAPPING_CREATE = "mapping-create"
@@ -28,6 +29,11 @@ class CommunicationEvent(SplightBaseModel):
     display_text: Optional[str] = None
     user: Optional[User] = None
     data: Dict
+
+
+class OperationTriggerEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.OPERATION_TRIGGER, const=True)
+    data: Operation
 
 
 class OperationCreateEvent(CommunicationEvent):

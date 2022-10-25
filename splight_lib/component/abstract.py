@@ -20,7 +20,7 @@ from splight_models import (
     Algorithm
 )
 from splight_models.communication import Operation
-from splight_models.communication.events import EventNames, OperationCreateEvent, OperationUpdateEvent
+from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
 from splight_models.runner import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
 
 
@@ -176,11 +176,11 @@ class UtilsMixin:
 
 class BindingsMixin:
     def _load_client_bindings(self):
-        self.communication_client.bind(EventNames.OPERATION_CREATE, self.__handle_operation_created)
+        self.communication_client.bind(EventNames.OPERATION_TRIGGER, self.__handle_operation_trigger)
 
-    def __handle_operation_created(self, data: str):
+    def __handle_operation_trigger(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        operation_event = OperationCreateEvent.parse_raw(data)
+        operation_event = OperationTriggerEvent.parse_raw(data)
         operation: Operation = operation_event.data
         command: Command = operation.command
         try:
@@ -247,7 +247,7 @@ class ParametersMixin:
             value = parameter["value"]
             multiple = parameter["multiple"]
             if type in NATIVE_TYPES:
-                parameter["value"] = [val for val in value] if multiple else value
+                parameter["value"] = value
             elif type in SIMPLE_TYPES:
                 parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
             else:
@@ -268,7 +268,7 @@ class ParametersMixin:
                 value = None
 
             if type in NATIVE_TYPES:
-                parameters_dict[name] = [val for val in value] if multiple else value
+                parameters_dict[name] = value
             elif type in SIMPLE_TYPES:
                 parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else value
             else:
