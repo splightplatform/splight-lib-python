@@ -8,13 +8,13 @@ from splight_models import (
     Number,
     String,
     Boolean,
-    MappingEvents,
     MappingCreateEvent,
     MappingDeleteEvent,
 )
 from splight_lib import logging
 from splight_lib.execution import Task
 from splight_lib.component.abstract import AbstractComponent
+from splight_models.communication.events import EventNames
 
 
 logger = logging.getLogger()
@@ -109,8 +109,8 @@ class AbstractIOComponent(AbstractComponent):
         logger.debug(self.mappings)
 
     def _bind_mapping_events(self):
-        self.communication_client.bind(MappingEvents.MAPPING_CREATE, self._handle_mapping_created)
-        self.communication_client.bind(MappingEvents.MAPPING_DELETE, self._handle_mapping_deleted)
+        self.communication_client.bind(EventNames.MAPPING_CREATE, self._handle_mapping_created)
+        self.communication_client.bind(EventNames.MAPPING_DELETE, self._handle_mapping_deleted)
 
     def _handle_mapping_created(self, data: str):
         if self.mapping_class is None:

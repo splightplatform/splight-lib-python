@@ -27,6 +27,10 @@ class Parameter(SplightBaseModel):
     value: Any = None
 
 
+class InputParameter(Parameter):
+    pass
+
+
 class OutputParameter(SplightBaseModel):
     name: str
     description: str = ''
@@ -36,11 +40,8 @@ class OutputParameter(SplightBaseModel):
     filterable: bool = False
 
 
-class CommandParameter(SplightBaseModel):
-    name: str
-    type: str
-    description: str = ''
-    choices: Optional[List[Any]] = None
+class CommandParameter(Parameter):
+    pass
 
 
 class CustomType(SplightBaseModel):
@@ -61,7 +62,7 @@ class Command(SplightBaseModel):
 class BaseRunner(SplightBaseModel):
     version: str  # Pointer to hub component
     custom_types: Optional[List[CustomType]] = []
-    input: Optional[List[Parameter]] = []
+    input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
 
@@ -85,7 +86,10 @@ class BaseRunner(SplightBaseModel):
 
     @cached_property
     def commands_model(self) -> Type:
-        return RunnerModelFactory().get_commands_model(self.commands)
+        custom_type_model = self.custom_types_model
+        custom_types = inspect.getmembers(custom_type_model)
+        custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
+        return RunnerModelFactory(custom_types_dict).get_commands_model(self.commands)
 
 
 class Runner(BaseRunner):
@@ -168,6 +172,10 @@ class RunnerModelFactory:
         type_map.update({k: Union[str, v] for k, v in STORAGE_TYPES.items()})
         return type_map
 
+    def get_input_model(self, inputs: List) -> BaseModel:
+        # There is only one input model. No need to define a dict
+        return self._create_model("Input", inputs)
+
     def get_custom_types_model(self, custom_types: List) -> Type:
         custom_types_dict: Dict[str, BaseModel] = {}
 
@@ -177,9 +185,6 @@ class RunnerModelFactory:
             self._type_map[custom_type.name] = model
 
         return type("CustomTypes", (), custom_types_dict)
-
-    def get_input_model(self, inputs: List) -> BaseModel:
-        return self._create_model("Input", inputs)
 
     def get_output_model(self, outputs: List) -> BaseModel:
         output_models: Dict[str, BaseModel] = {}
@@ -200,7 +205,6 @@ class RunnerModelFactory:
         for command in commands:
             command_models[command.name] = self._create_model(command.name,
                                                               command.fields)
-
         return type("Commands", (), command_models)
 
     def _create_model(self,

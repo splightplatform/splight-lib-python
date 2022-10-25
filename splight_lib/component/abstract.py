@@ -1,33 +1,27 @@
-import json
 import sys
 import time
 import pandas as pd
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict, Tuple, Set, Any
-from splight_lib.execution import ExecutionClient, Thread
-from splight_lib.logging import logging
-from splight_lib.settings import setup as default_setup
-from splight_lib.shortcut import save_file as _save_file
-from splight_models import (
-    Deployment,
-    Notification,
-    Parameter,
-    StorageFile,
-    RunnerDatalakeModel,
-    Algorithm,
-    Connector,
-    CommunicationEvent,
-    OperationEvents,
-    OperationRequest,
-    OperationResponse,
-    OperationResponseEvent,
-    SystemRunner
-)
-from splight_models.runner import DATABASE_TYPES, STORAGE_TYPES, SIMPLE_TYPES
+from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
 from pydantic import BaseModel
 from functools import cached_property
+from splight_lib.execution import ExecutionClient, Thread
+from splight_lib.logging import logging
+from splight_lib.settings import setup as default_setup
+from splight_lib.shortcut import save_file as _save_file # TODO unify storage with database
+from splight_models import (
+    Deployment,
+    Notification,
+    StorageFile,
+    RunnerDatalakeModel,
+    Algorithm
+)
+from splight_models.communication import Operation
+from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
+from splight_models.runner import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
 
 
 logger = logging.getLogger()
@@ -64,15 +58,15 @@ class RunnableMixin:
 
 
 class IndexMixin:
-    def add_indexes(self) -> None:
-        indexes: List[Tuple[str, int]] = self.get_indexes()
+    def _load_client_indexes(self) -> None:
+        indexes: List[Tuple[str, int]] = self.__get_indexes()
         logger.debug(f"Adding indexes: {indexes}")
         self.datalake_client.create_index(
             self.collection_name,
             indexes
         )
 
-    def get_indexes(self) -> List[Tuple[str, int]]:
+    def __get_indexes(self) -> List[Tuple[str, int]]:
         # order in indexes matters
         indexes: List[Tuple[str, int]] = [
             ("output_format", 1),
@@ -94,12 +88,12 @@ class IndexMixin:
 
 class HooksMixin:
     def _load_client_hooks(self):
-        self.datalake_client.add_pre_hook("save", self.hook_insert_origin_save)
-        self.datalake_client.add_pre_hook("save", self.hook_lock_save_collection)
-        self.datalake_client.add_pre_hook("save_dataframe", self.hook_insert_origin_save_dataframe)
-        self.datalake_client.add_pre_hook("save_dataframe", self.hook_lock_save_collection)
+        self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
+        self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
+        self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
+        self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
 
-    def hook_insert_origin_save(self, *args, **kwargs):
+    def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
         for instance in instances:
             if not isinstance(instance, RunnerDatalakeModel):
@@ -109,14 +103,14 @@ class HooksMixin:
 
         return args, kwargs
 
-    def hook_insert_origin_save_dataframe(self, *args, **kwargs):
+    def __hook_insert_origin_save_dataframe(self, *args, **kwargs):
         dataframe = kwargs.get("dataframe")
         dataframe["instance_id"] = self.instance_id
         dataframe["instance_type"] = self.managed_class.__name__
         kwargs["dataframe"] = dataframe
         return args, kwargs
 
-    def hook_lock_save_collection(self, *args, **kwargs):
+    def __hook_lock_save_collection(self, *args, **kwargs):
         kwargs["collection"] = self.collection_name
         return args, kwargs
 
@@ -180,10 +174,110 @@ class UtilsMixin:
         return self.database_client.save(notification)
 
 
-class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
+class BindingsMixin:
+    def _load_client_bindings(self):
+        self.communication_client.bind(EventNames.OPERATION_TRIGGER, self.__handle_operation_trigger)
+
+    def __handle_operation_trigger(self, data: str):
+        assert self.commands, "Please define .commands to start accepting request."
+        operation_event = OperationTriggerEvent.parse_raw(data)
+        operation: Operation = operation_event.data
+        command: Command = operation.command
+        try:
+            command_function = getattr(self, command.name)
+            command_kwargs_model = getattr(self.commands, command.name)
+            parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
+            command_kwargs = command_kwargs_model(**parsed_command_kwargs)
+            # .to_dict is not keeping the models of subkeys
+            command_kwargs = {
+                str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
+            }
+            operation.response.return_value = str(command_function(**command_kwargs))
+        except Exception as e:
+            operation.response.error_detail = str(e)
+        operation_callback_event = OperationUpdateEvent(data=operation)
+        self.communication_client.trigger(operation_callback_event)
+
+
+class ParametersMixin:
+    def parse_parameters(self, parameters: List[Dict]) -> Dict:
+        # TODO make this work as parse_parameters(self, parameters: List[Parameter]) -> Dict:
+        ids_to_fetch: Dict[str, Dict[str, List]] = self._get_ids_from_parameters(parameters)
+        fetched_objects: Dict[str, BaseModel] = self._fetch_objects(ids_to_fetch)
+        parsed_parameters = self._reload_parameters(parameters, objects=fetched_objects)
+        transformed_parameters = self._transform_parameters(parsed_parameters)
+        return transformed_parameters
+
+    def _get_ids_from_parameters(self, parameters: List[Dict]) -> Dict[str, Dict[str, List]]:
+        ids = {
+            "database": defaultdict(list),
+            "storage": defaultdict(list),
+        }
+        for parameter in parameters:
+            values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
+            if parameter["type"] in DATABASE_TYPES:
+                for value in values:
+                    ids["database"][parameter["type"]].append(value)
+            elif parameter["type"] in STORAGE_TYPES:
+                for value in values:
+                    ids["storage"][parameter["type"]].append(value)
+            elif parameter["type"] not in SIMPLE_TYPES:
+                for value in values:
+                    ids = merge(ids, self._get_ids_from_parameters(value), strategy=mergeStrategy.ADDITIVE)
+        return ids
+
+    def _fetch_objects(self, ids_to_fetch: Dict) -> Dict[str, BaseModel]:
+        res: Dict = {
+            None: None
+        }
+        for type, ids_ in ids_to_fetch["database"].items():
+            objs = self.database_client.get(DATABASE_TYPES[type], id__in=ids_)
+            res.update({obj.id: obj for obj in objs})
+
+        for type, ids_ in ids_to_fetch["storage"].items():
+            objs = self.storage_client.get(STORAGE_TYPES[type], id__in=ids_)
+            res.update({obj.id: obj for obj in objs})
+        return res
+
+    def _reload_parameters(self, parameters: List[Dict], objects: Dict) -> None:
+        reloaded_parameters = []
+        for raw_parameter in parameters:
+            parameter = raw_parameter.copy()
+            type = parameter["type"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+            if type in NATIVE_TYPES:
+                parameter["value"] = value
+            elif type in SIMPLE_TYPES:
+                parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
+            else:
+                parameter["value"] = [self._reload_parameters(value, objects) for value in value] if multiple else self._reload_parameters(value, objects)
+            reloaded_parameters.append(parameter)
+        return reloaded_parameters
+
+    def _transform_parameters(self, parameters: List[Dict]) -> Dict:
+        parameters_dict: Dict = {}
+        for parameter in parameters:
+            type = parameter["type"]
+            name = parameter["name"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+
+            if (value is [] or value == '') and type != "str":
+                value = None
+
+            if type in NATIVE_TYPES:
+                parameters_dict[name] = value
+            elif type in SIMPLE_TYPES:
+                parameters_dict[name] = value
+            else:
+                parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else self._transform_parameters(value)
+        return parameters_dict
+
+
+class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
     collection_name = "default"
     managed_class: Type = None
-    # TODO: rethink this approach
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
@@ -203,10 +297,11 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         self._load_instance_data()
         self._load_clients()
         self._load_spec_models()
+        self._load_input_model()
         self._load_client_hooks()
-        self._bind_rpc_requests()
-        super().__init__(*args, **kwargs)
-        self.add_indexes()
+        self._load_client_indexes()
+        self._load_client_bindings()
+        super().__init__(*args, **kwargs) # This is calling RunnableMixin.init() only
 
     @property
     def spec(self) -> Deployment:
@@ -227,13 +322,14 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
         pass
 
     def _load_spec_models(self):
+        self.output: Type = self._spec.output_model
+        self.custom_types: Type = self._spec.custom_types_model
+        self.commands: Type = self._spec.commands_model
+
+    def _load_input_model(self):
         raw_spec = self.spec.dict()
-        self._retrieve_objects_in_input(raw_spec["input"])
-        parsed_input = self._parse_input(raw_spec["input"])
-        self.input = self._spec.input_model(**parsed_input)
-        self.output = self._spec.output_model
-        self.custom_types = self._spec.custom_types_model
-        self.commands = self._spec.commands_model
+        parsed_input_parameters = self.parse_parameters(raw_spec["input"])
+        self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(
@@ -257,92 +353,3 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin):
             **self.communication_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
-
-    def _bind_rpc_requests(self):
-        self.communication_client.bind(OperationEvents.OPERATION_REQUEST, self._handle_rpc_request)
-
-    def _retrieve_objects_in_input(self, parameters: List):
-        ids = {
-            "database": defaultdict(list),
-            "storage": defaultdict(list),
-        }
-        self._get_ids(parameters, ids)
-        objects = self._retrieve_objects(ids)
-        objects[None] = None
-        self._complete_input_with_objects(parameters, objects)
-        return parameters
-
-    def _get_ids(self, parameters: List[Parameter], ids: Dict) -> None:
-        for parameter in parameters:
-            values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
-
-            if parameter["type"] in DATABASE_TYPES:
-                for value in values:
-                    ids["database"][parameter["type"]].append(value)
-            elif parameter["type"] in STORAGE_TYPES:
-                for value in values:
-                    ids["storage"][parameter["type"]].append(value)
-            elif parameter["type"] not in SIMPLE_TYPES:
-                for value in values:
-                    self._get_ids(value, ids)
-
-    def _retrieve_objects(self, ids: Dict) -> Dict[str, BaseModel]:
-        res: Dict = {}
-        for type, ids_ in ids["database"].items():
-            objs = self.database_client.get(DATABASE_TYPES[type], id__in=ids_)
-            res.update({obj.id: obj for obj in objs})
-
-        for type, ids_ in ids["storage"].items():
-            objs = self.storage_client.get(STORAGE_TYPES[type], id__in=ids_)
-            res.update({obj.id: obj for obj in objs})
-
-        return res
-
-    def _complete_input_with_objects(self, parameters: List[Parameter], objects: Dict) -> None:
-        for parameter in parameters:
-            if parameter["type"] in DATABASE_TYPES or parameter["type"] in STORAGE_TYPES:
-                if parameter["multiple"]:
-                    parameter["value"] = [objects[val] for val in parameter["value"]]
-                else:
-                    parameter["value"] = objects[parameter["value"]]
-
-            elif parameter["type"] not in SIMPLE_TYPES:
-                values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
-                for value in values:
-                    self._complete_input_with_objects(value, objects)
-
-    def _parse_input(self, parameters: List) -> Dict:
-        parameters_dict: Dict = {}
-
-        for parameter in parameters:
-            type = parameter["type"]
-            name = parameter["name"]
-            value = parameter["value"]
-            multiple = parameter["multiple"]
-
-            if (value is [] or value == '') and type != "str":
-                value = None
-
-            if type in SIMPLE_TYPES:
-                parameters_dict[name] = value
-            elif multiple:
-                parameters_dict[name] = [self._parse_input(val) for val in value]
-            else:
-                parameters_dict[name] = self._parse_input(value)
-
-        return parameters_dict
-
-    def _handle_rpc_request(self, data: str):
-        assert self.commands, "Please define .commands to start accepting request."
-        event_trigger = CommunicationEvent.parse_raw(data)
-        request = OperationRequest.parse_obj(event_trigger.data)
-        response = OperationResponse(return_value=None, error_detail=None, **request.dict())
-        try:
-            function = getattr(self, request.function)
-            kwargs_model = getattr(self.commands, request.function)
-            kwargs = kwargs_model(**request.kwargs).dict()
-            response.return_value = str(function(**kwargs))
-        except Exception as e:
-            response.error_detail = str(e)
-        trigger_event = OperationResponseEvent(data=response)
-        self.communication_client.trigger(trigger_event)
