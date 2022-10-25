@@ -223,7 +223,7 @@ class ParametersMixin:
                     ids["storage"][parameter["type"]].append(value)
             elif parameter["type"] not in SIMPLE_TYPES:
                 for value in values:
-                    ids = merge(ids, self._get_ids(value), strategy=mergeStrategy.Strategy.ADDITIVE)
+                    ids = merge(ids, self._get_ids_from_parameters(value), strategy=mergeStrategy.ADDITIVE)
         return ids
 
     def _fetch_objects(self, ids_to_fetch: Dict) -> Dict[str, BaseModel]:
@@ -255,9 +255,8 @@ class ParametersMixin:
             reloaded_parameters.append(parameter)
         return reloaded_parameters
 
-    def _transform_parameters(self, parameters: List) -> Dict:
+    def _transform_parameters(self, parameters: List[Dict]) -> Dict:
         parameters_dict: Dict = {}
-
         for parameter in parameters:
             type = parameter["type"]
             name = parameter["name"]
@@ -270,7 +269,7 @@ class ParametersMixin:
             if type in NATIVE_TYPES:
                 parameters_dict[name] = value
             elif type in SIMPLE_TYPES:
-                parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else value
+                parameters_dict[name] = value
             else:
                 parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else self._transform_parameters(value)
         return parameters_dict
