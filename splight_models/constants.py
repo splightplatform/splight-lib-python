@@ -78,7 +78,7 @@ class VerificationLevel(str, Enum):
     OFFICIAL = "official"
 
 
-class BuildStatus(Enum):
+class BuildStatus(str, Enum):
     PENDING = 'pending'
     BUILDING = 'building'
     FAILED = 'failed'
