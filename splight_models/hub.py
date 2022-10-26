@@ -11,7 +11,7 @@ class HubComponent(BaseRunner):
     id: Optional[str]
     name: str
     type: str = None
-    splitgh_cli_version: str
+    splight_cli_version: str
     build_status: BuildStatus = BuildStatus.PENDING
     description: Optional[str]
     privacy_policy: Optional[str] = None
