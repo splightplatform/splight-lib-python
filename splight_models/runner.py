@@ -125,7 +125,7 @@ class Connector(Runner):
         return 'default'
 
 
-class SystemRunner(Runner):
+class System(Runner):
     @property
     def collection(self):
         return "system"
@@ -144,7 +144,7 @@ DATABASE_TYPES = {
     "Algorithm": Algorithm,
     "Attribute": Attribute,
     "Connector": Connector,
-    "SystemRunner": SystemRunner,
+    "System": System,
     "Graph": Graph,
     "Network": Network,
     "Rule": MappingRule,
