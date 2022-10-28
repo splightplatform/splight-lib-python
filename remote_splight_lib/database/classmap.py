@@ -16,6 +16,7 @@ from splight_models import (
     ValueMapping,
     BlockchainContract,
     BlockchainContractSubscription,
+    SystemRunner
 )
 
 
@@ -73,5 +74,8 @@ CLASSMAP = {
     },
     BlockchainContractSubscription: {
         "path": "blockchain/subscription"
+    },
+    SystemRunner: {
+        "path": "system-runner"
     },
 }
