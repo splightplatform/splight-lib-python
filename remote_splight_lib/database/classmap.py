@@ -18,7 +18,6 @@ from splight_models import (
     BlockchainContract,
     BlockchainContractSubscription,
 )
-from splight_models.runner import 
 
 
 CLASSMAP = {
