@@ -3,6 +3,7 @@ from splight_models import (
     Asset,
     Attribute,
     Connector,
+    System,
     ClientMapping,
     Edge,
     Graph,
@@ -16,8 +17,8 @@ from splight_models import (
     ValueMapping,
     BlockchainContract,
     BlockchainContractSubscription,
-    SystemRunner
 )
+from splight_models.runner import 
 
 
 CLASSMAP = {
@@ -75,7 +76,7 @@ CLASSMAP = {
     BlockchainContractSubscription: {
         "path": "blockchain/subscription"
     },
-    SystemRunner: {
-        "path": "system-runner"
+    System: {
+        "path": "system"
     },
 }

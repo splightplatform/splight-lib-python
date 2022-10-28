@@ -31,12 +31,12 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Namespace,
         Algorithm,
         Notification,
+        System,
         Graph,
         Node,
         Edge,
         BlockchainContract,
         BlockchainContractSubscription,
-        SystemRunner,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
