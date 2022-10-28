@@ -1,9 +1,9 @@
 from splight_lib.component.abstract import AbstractComponent
-from splight_models import SystemRunner
+from splight_models.runner import System
 
 
 class AbstractSystemComponent(AbstractComponent):
-    managed_class = SystemRunner
+    managed_class = System
 
     def __init__(self, *args, **kwargs):
         super(AbstractSystemComponent, self).__init__(*args, **kwargs)
