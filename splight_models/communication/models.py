@@ -41,7 +41,15 @@ class OperationResponse(SplightBaseModel):
     error_detail: Optional[str] = None
 
 
+class OperationStatus(str, Enum):
+    NOT_SENT ="not_sent"
+    PENDING = "pending"
+    SUCCESS = "success"
+    ERROR = "error"
+
+
 class Operation(SplightBaseModel):
     id: Optional[str]
     command: Command
+    status: OperationStatus
     response: OperationResponse = OperationResponse()
