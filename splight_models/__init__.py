@@ -6,7 +6,6 @@ from splight_models.channel import *
 from splight_models.credential import *
 from splight_models.datalake import *
 from splight_models.deployment import *
-from splight_models.email import *
 from splight_models.geopoint import *
 from splight_models.graph import *
 from splight_models.hub import *
