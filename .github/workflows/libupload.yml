@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - feature/prebuilt-image
+      - feature/prebuilt-images
       - hotfix/*
 jobs:
   upload:
