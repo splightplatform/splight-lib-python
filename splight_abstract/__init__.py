@@ -1,3 +1,4 @@
+from .auth import AbstractAuthClient, AuthenticationError
 from splight_abstract.notification import *
 from splight_abstract.cache import *
 from splight_abstract.communication import *
