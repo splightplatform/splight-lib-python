@@ -21,6 +21,7 @@ from splight_models import (
 )
 from splight_models.communication import Operation
 from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
+from splight_models.communication.models import OperationStatus
 from splight_models.runner import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
 
 
@@ -193,8 +194,10 @@ class BindingsMixin:
                 str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
             }
             operation.response.return_value = str(command_function(**command_kwargs))
+            operation.status = OperationStatus.SUCCESS
         except Exception as e:
             operation.response.error_detail = str(e)
+            operation.status = OperationStatus.ERROR
         operation_callback_event = OperationUpdateEvent(data=operation)
         self.communication_client.trigger(operation_callback_event)
 
