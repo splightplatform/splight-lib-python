@@ -8,7 +8,7 @@ class Deployment(BaseRunner):
     # run-spec
     id: Optional[str] = None
     type: ComponentType
-    external_id: Optional[str] = None
+    component_id: Optional[str] = None
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
     container_statuses: Optional[List[Dict]] = None
