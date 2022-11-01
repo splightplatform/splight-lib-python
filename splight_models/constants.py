@@ -83,3 +83,4 @@ class BuildStatus(str, Enum):
     BUILDING = 'building'
     FAILED = 'failed'
     SUCCESS = 'success'
+    UNKNOWN = "Unknown"
