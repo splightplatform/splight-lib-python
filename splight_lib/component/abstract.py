@@ -295,7 +295,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
 
         self.version: str = self._spec.version
         self.namespace = self._spec.namespace
-        self.instance_id = self._spec.external_id
+        # self.instance_id = self._spec.external_id
+        self.instance_id = self._spec.component_id
 
         self._load_instance_data()
         self._load_clients()
@@ -304,7 +305,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         self._load_client_hooks()
         self._load_client_indexes()
         self._load_client_bindings()
-        super().__init__(*args, **kwargs) # This is calling RunnableMixin.init() only
+        super().__init__(*args, **kwargs)  # This is calling RunnableMixin.init() only
 
     @property
     def spec(self) -> Deployment:
