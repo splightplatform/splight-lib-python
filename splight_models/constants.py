@@ -79,8 +79,8 @@ class VerificationLevel(str, Enum):
 
 
 class BuildStatus(str, Enum):
-    PENDING = 'pending'
-    BUILDING = 'building'
-    FAILED = 'failed'
-    SUCCESS = 'success'
-    UNKNOWN = "Unknown"
+    PENDING = "pending"
+    BUILDING = "building"
+    FAILED = "failed"
+    SUCCESS = "success"
+    UNKNOWN = "unknown"
