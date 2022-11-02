@@ -36,7 +36,6 @@ class SplightBaseSettings(BaseSettings):
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
-    EMAIL_TEMPLATES_FOLDER: str = 'email_templates'  # TODO move this to the EmailClient itself.
 
     @property
     def importables(self):
