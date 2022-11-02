@@ -1,6 +1,6 @@
 # TODO MOVE THIS STUFF
 from typing import Type
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 from importlib import import_module
 import os
 import sys
@@ -36,6 +36,9 @@ class SplightBaseSettings(BaseSettings):
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
+    COMPONENT_ID: str = Field(
+        None, env=["DEFAULT_COMPONENT_ID", "COMPONENT_ID"]
+    )
 
     @property
     def importables(self):
@@ -106,6 +109,10 @@ class SplightSettings:
         self._base_settings_model = base_settings_model
         self._base_settings = self._base_settings_model()
         self.configure(user_settings)
+
+    @property
+    def settings(self) -> Type[SplightBaseSettings]:
+        return self._base_settings
 
     def __getattr__(self, attr):
         if not hasattr(self._base_settings, attr):
