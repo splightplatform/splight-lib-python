@@ -1,5 +1,5 @@
 # TODO MOVE THIS STUFF
-from typing import Type
+from typing import Type, Optional
 from pydantic import BaseSettings, Field
 from importlib import import_module
 import os
@@ -36,9 +36,7 @@ class SplightBaseSettings(BaseSettings):
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
-    COMPONENT_ID: str = Field(
-        None, env=["DEFAULT_COMPONENT_ID", "COMPONENT_ID"]
-    )
+    COMPONENT_ID: Optional[str] = Field(None, env=["COMPONENT_ID"])
 
     @property
     def importables(self):
