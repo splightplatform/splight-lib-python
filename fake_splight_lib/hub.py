@@ -21,16 +21,16 @@ logger = logging.getLogger()
 
 class FakeHubSubClient(AbstractHubSubClient):
     networks = [
-        HubNetwork(id="1", name='Net1', description=None, version='01', input=[], type='network'),
-        HubNetwork(id="2", name='Net2', description=None, version='01', input=[], type='network'),
-        HubNetwork(id="3", name='Net3', description=None, version='01', input=[], type='network')
+        HubNetwork(id="1", name='Net1', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0"),
+        HubNetwork(id="2", name='Net2', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0"),
+        HubNetwork(id="3", name='Net3', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0")
     ]
     algorithms = [
-        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[], type='algorithm'),
-        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[], type='algorithm')
+        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[], type='algorithm', splight_cli_version="0.1.0"),
+        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[], type='algorithm', splight_cli_version="0.1.0")
     ]
     connectors = [
-        HubConnector(id="6", name='Conn1', description=None, version='01', input=[], type="connector")
+        HubConnector(id="6", name='Conn1', description=None, version='01', input=[], type="connector", splight_cli_version="0.1.0")
     ]
     system = [
         HubSystem(
@@ -39,7 +39,8 @@ class FakeHubSubClient(AbstractHubSubClient):
             description=None,
             version="01",
             input=[],
-            type="system"
+            type="system",
+            splight_cli_version="0.1.0",
         )
     ]
     versions = networks + connectors + algorithms
@@ -104,6 +105,7 @@ class FakeHubClient(AbstractHubClient):
             "type": data["type"],
             "name": data["name"],
             "version": data["version"],
+            "splight_cli_version": data["splight_cli_version"],
             "privacy_policy": data["privacy_policy"],
             "verification": data["verification"],
             "created_at": datetime.now(timezone.utc).isoformat(),
