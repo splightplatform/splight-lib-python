@@ -10,6 +10,8 @@ class HubComponent(BaseRunner):
     id: Optional[str]
     name: str
     type: str = None
+    splight_cli_version: str
+    build_status: Optional[str]
     description: Optional[str]
     privacy_policy: Optional[str] = None
     tenant: Optional[str] = None

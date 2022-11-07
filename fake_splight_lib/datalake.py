@@ -16,12 +16,6 @@ from splight_lib.settings import SPLIGHT_HOME
 DATALAKE_HOME = os.path.join(SPLIGHT_HOME, "datalake")
 logger = logging.getLogger()
 
-# overload operator class with methods not covered
-setattr(operator, "in", lambda x, y: x in y)
-setattr(operator, "contains", lambda x, y: y in x)
-setattr(operator, "gte", lambda x, y: x >= y)
-setattr(operator, "lte", lambda x, y: x <= y)
-
 
 def flatten_dict(d, parent_key='', sep='__'):
     items = []
@@ -35,6 +29,13 @@ def flatten_dict(d, parent_key='', sep='__'):
 
 
 class FakeDatalakeClient(AbstractDatalakeClient):
+    extra_operators = {
+        "in": lambda x, y: x in y,
+        "contains": lambda x, y: y in x,
+        "gte": lambda x, y: x >= y,
+        "lte": lambda x, y: x <= y,
+    }
+
     def __init__(self, namespace: str = 'default', *args, **kwargs) -> None:
         super(FakeDatalakeClient, self).__init__(namespace, *args, **kwargs)
         self.collections = defaultdict(list)
@@ -80,7 +81,11 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 if not isinstance(x, dict) or not key in x:
                     return False
                 x = x[key]
+
+            if oper in FakeDatalakeClient.extra_operators:
+                return FakeDatalakeClient.extra_operators[oper](x, value)
             return getattr(operator, oper)(x, value)
+
         return inner
 
     def _default_load(self):
