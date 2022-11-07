@@ -1,3 +1,4 @@
+# TODO remove this models from here.
 from datetime import datetime, timezone
 from typing import Optional, Union
 from pydantic import validator, Json, Field, validator

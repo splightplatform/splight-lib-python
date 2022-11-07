@@ -19,10 +19,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
     valid_classes = [
         Network,
-        ClientMapping,
-        ServerMapping,
-        ValueMapping,
-        ReferenceMapping,
+        Mapping,
         Connector,
         Asset,
         Attribute,
@@ -47,19 +44,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
     @validate_instance_type
     def save(self, instance: BaseModel) -> BaseModel:
         logger.debug(f"[FAKED] Executing save with {instance}")
-
-        mapping_types = [ClientMapping, ValueMapping, ReferenceMapping]
-        if type(instance) in mapping_types:
-            def same_mapping_in_same_type(x): return x.id != instance.id and x.asset_id == instance.asset_id and x.attribute_id == instance.attribute_id
-            def same_mapping(x): return x.asset_id == instance.asset_id and x.attribute_id == instance.attribute_id
-            mappings = []
-            for mapping_type in mapping_types:
-                if type(instance) == mapping_type:
-                    mappings.append(len(list(filter(lambda x: same_mapping_in_same_type(x), self.database[mapping_type]))) > 0)
-                else:
-                    mappings.append(len(list(filter(lambda x: same_mapping(x), self.database[mapping_type]))) > 0)
-            if any(mappings):
-                raise ValueError("A mapping already exists for this asset and attribute")
 
         for i, item in enumerate(self.database[type(instance)]):
             if item.id == instance.id:

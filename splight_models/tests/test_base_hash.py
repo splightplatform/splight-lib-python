@@ -51,41 +51,8 @@ class TestGeopointHash(AbstractBaseHash, TestCase):
 
 class TestMappingHash(AbstractBaseHash, TestCase):
     class_model = Mapping
-    args = {"id": "id"}
-    rand_str_arg = "id"
-
-
-class TestValueMappingHash(AbstractBaseHash, TestCase):
-    class_model = ValueMapping
-    args = {"asset_id": "1", "attribute_id": "1", "value": "val"}
-    rand_str_arg = "asset_id"
-
-
-class TestReferenceMappingHash(AbstractBaseHash, TestCase):
-    class_model = ReferenceMapping
     args = {
-        "asset_id": "1",
-        "attribute_id": "1",
-        "ref_asset_id": "val",
-        "ref_attribute_id": "val",
-    }
-    rand_str_arg = "asset_id"
-
-
-class TestClientMappingHash(AbstractBaseHash, TestCase):
-    class_model = ClientMapping
-    args = {
-        "asset_id": "1",
-        "attribute_id": "1",
-        "connector_id": "val",
-        "path": "val",
-    }
-    rand_str_arg = "asset_id"
-
-
-class TestServerMappingHash(AbstractBaseHash, TestCase):
-    class_model = ServerMapping
-    args = {
+        "name": "MyMapping",
         "asset_id": "1",
         "attribute_id": "1",
         "connector_id": "val",

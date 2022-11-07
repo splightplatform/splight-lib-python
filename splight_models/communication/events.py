@@ -4,7 +4,7 @@ from typing import Dict, Optional
 from pydantic import Field
 from splight_models.base import SplightBaseModel
 from splight_models.communication import Operation
-from splight_models.mapping import ClientMapping
+from splight_models.mapping import Mapping
 from splight_models.rule import MappingRule
 from splight_models.user import User
 from datetime import datetime, timezone
@@ -48,12 +48,12 @@ class OperationUpdateEvent(CommunicationEvent):
 
 class MappingCreateEvent(CommunicationEvent):
     event_name: str = Field(EventNames.MAPPING_CREATE, const=True)
-    data: ClientMapping
+    data: Mapping
 
 
 class MappingDeleteEvent(CommunicationEvent):
     event_name: str = Field(EventNames.MAPPING_DELETE, const=True)
-    data: ClientMapping
+    data: Mapping
 
 
 class RuleCreateEvent(CommunicationEvent):
