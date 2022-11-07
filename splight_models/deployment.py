@@ -20,6 +20,9 @@ class Deployment(BaseRunner):
     restart_policy: RestartPolicy = RestartPolicy.ALWAYS
 
     # CLI pre setup
+    secrets: Optional[str] = None
+
+    # TODO: Remove the following attributes
     access_id: Optional[str] = None
     secret_key: Optional[str] = None
     hub_api_host: Optional[str] = None
