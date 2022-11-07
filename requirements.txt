@@ -1,7 +1,7 @@
 pysher==1.0.8
 hexbytes==0.2.2
 pytest==7.1.2
-pydantic==1.8.2
+pydantic==1.10.2
 pytz==2021.3
 pandas==1.4.0
 retry==0.9.2
