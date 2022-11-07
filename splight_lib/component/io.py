@@ -3,7 +3,7 @@ from abc import abstractmethod
 from typing import List, Type, Dict
 from splight_models import (
     Connector,
-    ClientMapping,
+    Mapping,
     Variable,
     Number,
     String,
@@ -137,7 +137,7 @@ class AbstractIOComponent(AbstractComponent):
 
 
 class AbstractClientComponent(AbstractIOComponent):
-    mapping_class = ClientMapping
+    mapping_class = Mapping
 
     def __init__(self, *args, **kwargs):
         super(AbstractClientComponent, self).__init__(*args, **kwargs)

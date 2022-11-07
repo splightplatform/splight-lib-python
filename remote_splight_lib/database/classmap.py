@@ -4,17 +4,14 @@ from splight_models import (
     Attribute,
     Connector,
     System,
-    ClientMapping,
+    Mapping,
     Edge,
     Graph,
     Network,
     Notification,
     Node,
     MappingRule,
-    ReferenceMapping,
-    ServerMapping,
     Tag,
-    ValueMapping,
     BlockchainContract,
     BlockchainContractSubscription,
 )
@@ -33,8 +30,8 @@ CLASSMAP = {
     Connector: {
         "path": "connector"
     },
-    ClientMapping: {
-        "path": "mapping/client-mapping"
+    Mapping: {
+        "path": "mapping"
     },
     Edge: {
         "path": "graph/edge"
@@ -57,17 +54,8 @@ CLASSMAP = {
     MappingRule: {
         "path": "rule"
     },
-    ReferenceMapping: {
-        "path": "mapping/reference-mapping"
-    },
-    ServerMapping: {
-        "path": "mapping/server-mapping"
-    },
     Tag: {
         "path": "tag"
-    },
-    ValueMapping: {
-        "path": "mapping/value-mapping"
     },
     BlockchainContract: {
         "path": "blockchain/contract"
