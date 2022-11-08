@@ -1,12 +1,12 @@
 from abc import abstractmethod, ABC
 from hexbytes import HexBytes
-from splight_models.blockchain import CallResponse, Transaction
+from splight_models.blockchain import CallResponse, Transaction, BlockchainContract
 
 
 class AbstractBlockchainClient(ABC):
 
     @abstractmethod
-    def get_balance(self) -> int: 
+    def get_balance(self) -> int:
         pass
 
     @abstractmethod
@@ -14,7 +14,7 @@ class AbstractBlockchainClient(ABC):
         pass
 
     @abstractmethod
-    def transact(self, method: str, *args, **kwargs) -> Transaction:
+    def transact(self, method: str, contract: BlockchainContract, *args, **kwargs) -> Transaction:
         pass
 
     @abstractmethod
