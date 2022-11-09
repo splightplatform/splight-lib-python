@@ -1,8 +1,8 @@
-from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, RunnerStatus
+from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, ComponentStatus
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
-from splight_models.datalake import RunnerDatalakeModel
+from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.rule import Rule
@@ -59,7 +59,16 @@ class Command(SplightBaseModel):
     fields: List[CommandParameter]
 
 
-class BaseRunner(SplightBaseModel):
+class ComponentObject(SplightBaseModel):
+    id: Optional[str]
+    component_id: str
+    name: str
+    description: Optional[str]
+    type: str
+    data: List[Parameter]
+
+
+class BaseComponent(SplightBaseModel):
     name: Optional[str] = None
     version: str
     custom_types: Optional[List[CustomType]] = []
@@ -72,34 +81,34 @@ class BaseRunner(SplightBaseModel):
 
     @cached_property
     def custom_types_model(self) -> Type:
-        return RunnerModelFactory().get_custom_types_model(self.custom_types)
+        return ComponentModelsFactory().get_custom_types_model(self.custom_types)
 
     @cached_property
     def input_model(self) -> Type:
         custom_type_model = self.custom_types_model
         custom_types = inspect.getmembers(custom_type_model)
         custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
-        return RunnerModelFactory(custom_types_dict).get_input_model(self.input)
+        return ComponentModelsFactory(custom_types_dict).get_input_model(self.input)
 
     @cached_property
     def output_model(self) -> Type:
-        return RunnerModelFactory().get_output_model(self.output)
+        return ComponentModelsFactory().get_output_model(self.output)
 
     @cached_property
     def commands_model(self) -> Type:
         custom_type_model = self.custom_types_model
         custom_types = inspect.getmembers(custom_type_model)
         custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
-        return RunnerModelFactory(custom_types_dict).get_commands_model(self.commands)
+        return ComponentModelsFactory(custom_types_dict).get_commands_model(self.commands)
 
 
-class Runner(BaseRunner):
+class Component(BaseComponent):
     id: Optional[str]
     description: Optional[str]
     log_level: LogginLevel = LogginLevel.info
     component_capacity: ComponentSize = ComponentSize.small
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
-    status: RunnerStatus = RunnerStatus.STOPPED
+    status: ComponentStatus = ComponentStatus.STOPPED
     active: bool = False
 
     @property
@@ -107,25 +116,25 @@ class Runner(BaseRunner):
         return 'default'
 
 
-class Algorithm(Runner):
+class Algorithm(Component):
     @property
     def collection(self):
         return str(self.id)
 
 
-class Network(Runner):
+class Network(Component):
     @property
     def collection(self):
         return 'default'
 
 
-class Connector(Runner):
+class Connector(Component):
     @property
     def collection(self):
         return 'default'
 
 
-class System(Runner):
+class System(Component):
     @property
     def collection(self):
         return "system"
@@ -136,7 +145,7 @@ NATIVE_TYPES = {
     "bool": bool,
     "str": str,
     "float": float,
-    "Date": datetime,
+    "date": datetime,
 }
 
 DATABASE_TYPES = {
@@ -157,7 +166,7 @@ STORAGE_TYPES = {
 SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys()) + list(STORAGE_TYPES.keys())
 
 
-class RunnerModelFactory:
+class ComponentModelsFactory:
     def __init__(self, type_map: Dict[str, Type] = {}) -> None:
         self._type_map = {
             **type_map,
@@ -196,7 +205,7 @@ class RunnerModelFactory:
             output_models[output.name] = self._create_model(output.name,
                                                             output.fields,
                                                             output_format_field,
-                                                            RunnerDatalakeModel)
+                                                            ComponentDatalakeModel)
 
         return type("Output", (), output_models)
 

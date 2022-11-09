@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, Optional
 from splight_models import SplightBaseModel
-from splight_models.runner import Command
+from splight_models.component import Command
 from splight_models.user import User
 
 

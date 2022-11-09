@@ -3,7 +3,7 @@ from pydantic import Field
 from typing import Dict, Union, Optional
 from .asset import Asset
 from .attribute import Attribute
-from .datalake import DatalakeModel, RunnerDatalakeModel
+from .datalake import DatalakeModel, ComponentDatalakeModel
 
 
 class Variable(DatalakeModel):
@@ -15,7 +15,7 @@ class Variable(DatalakeModel):
     attribute_id: Optional[str] = None
 
 
-class ConnectorOutput(RunnerDatalakeModel):
+class ConnectorOutput(ComponentDatalakeModel):
     asset: Union[Asset, str]
     attribute: Union[Attribute, str]
 

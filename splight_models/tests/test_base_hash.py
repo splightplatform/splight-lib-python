@@ -114,8 +114,8 @@ class TestRule(AbstractBaseHash, TestCase):
     rand_str_arg = "message"
 
 
-class TestRunnerHash(AbstractBaseHash, TestCase):
-    class_model = Runner
+class TestComponentHash(AbstractBaseHash, TestCase):
+    class_model = Component
     args = {"name": "1", "version": "1"}
     rand_str_arg = "name"
 
