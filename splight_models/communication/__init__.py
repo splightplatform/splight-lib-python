@@ -12,6 +12,7 @@ __all__ = [
     "OperationUpdateEvent",
     "MappingCreateEvent",
     "MappingDeleteEvent",
+    "EventNames",
     "RuleCreateEvent",
     "RuleDeleteEvent",
 ]
