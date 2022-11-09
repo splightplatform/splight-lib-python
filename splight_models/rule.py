@@ -1,7 +1,6 @@
 import builtins
 import operator
 from splight_models.base import SplightBaseModel
-
 import re
 import math
 from collections import defaultdict
@@ -10,6 +9,7 @@ from pydoc import locate
 from pydantic import validator
 from typing import Any, Optional, List, Dict
 from splight_models.constants import SeverityType
+from splight_models.datalake import DatalakeOutputQuery
 
 
 GREATER_THAN = 'gt'
@@ -90,11 +90,9 @@ class OperatorType(str, Enum):
     lower_than_or_equal = LOWER_THAN_OR_EQUAL
     equal = EQUAL
 
-
 class MappingRule(SplightBaseModel):
     id: Optional[str]
-    asset_id: str
-    attribute_id: str
+    query: DatalakeOutputQuery
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str
@@ -119,5 +117,4 @@ class MappingRule(SplightBaseModel):
     def is_satisfied(self, value):
         rule_value = getattr(builtins, self.type)(self.value)
         value = getattr(builtins, self.type)(value)
-        return getattr(operator, self.operator)(rule_value, value)
-
+        return getattr(operator, self.operator)(value, rule_value)
