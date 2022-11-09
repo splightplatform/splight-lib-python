@@ -55,6 +55,6 @@ class TestRule(TestCase):
             type=type,
             message="This is a sample message for the event description",
             severity=INFO,
-            operator=GREATER_THAN,
+            operator=operator,
         )
         self.assertTrue(rule.is_satisfied(value) is expected_result)
