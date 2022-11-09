@@ -30,14 +30,14 @@ class TestRule(TestCase):
 
     @parameterized.expand([
         ('str', GREATER_THAN, 5, False),
-        ('str', GREATER_THAN, 4, True),
+        ('str', GREATER_THAN, 4, False),
         ('str', GREATER_THAN_OR_EQUAL, 5, True),
-        ('str', GREATER_THAN_OR_EQUAL, 6, False),
-        ('str', LOWER_THAN, 6, True),
-        ('str', LOWER_THAN, 2, False),
-        ('str', LOWER_THAN_OR_EQUAL, 2, False),
+        ('str', GREATER_THAN_OR_EQUAL, 6, True),
+        ('str', LOWER_THAN, 6, False),
+        ('str', LOWER_THAN, 2, True),
+        ('str', LOWER_THAN_OR_EQUAL, 2, True),
         ('float', LOWER_THAN_OR_EQUAL, 5, True),
-        ('float', LOWER_THAN_OR_EQUAL, 6, True),
+        ('float', LOWER_THAN_OR_EQUAL, 6, False),
         ('float', EQUAL, 5, True),
         ('float', EQUAL, 2, False),
     ])
