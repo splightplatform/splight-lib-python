@@ -85,26 +85,31 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     rand_str_arg = "title"
 
 
-class TestRuleHash(AbstractBaseHash, TestCase):
-    class_model = AlgorithmRule
-    args = {"name": "1", "statement": "1"}
-    rand_str_arg = "name"
-
-
 class TestRuleVariableHash(AbstractBaseHash, TestCase):
     class_model = RuleVariable
     args = {"id": "1"}
     rand_str_arg = "id"
 
 
-class TestMappingRule(AbstractBaseHash, TestCase):
-    class_model = MappingRule
+class TestRule(AbstractBaseHash, TestCase):
+    class_model = Rule
     args = {
-        "id": "1",
-        "message": "message",
-        "value": "value",
-        "asset_id": "2",
-        "attribute_id": "2",
+        "query": {
+            "source": "Algorithm",
+            "component_id": "01d08df6-e9f6-489c-ad62-9c8e6b714412",
+            "output_format": "Value",
+            "target": "value",
+            "filters": {},
+            "timezone_offset": 0.0
+        },
+        "type": "float",
+        "value": 3,
+        "message": "Random algo outputs > 3",
+        "name": "Random checker test",
+        "description": "Random algo outputs > 3",
+        "severity": "info",
+        "operator": "gt",
+        "period": 10.0
     }
     rand_str_arg = "message"
 
