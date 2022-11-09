@@ -10,7 +10,7 @@ from splight_models import (
     Network,
     Notification,
     Node,
-    MappingRule,
+    Rule,
     Tag,
     BlockchainContract,
     BlockchainContractSubscription,
@@ -51,7 +51,7 @@ CLASSMAP = {
     Node: {
         "path": "graph/node"
     },
-    MappingRule: {
+    Rule: {
         "path": "rule"
     },
     Tag: {
