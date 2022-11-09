@@ -13,6 +13,7 @@ from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.remote import AbstractRemoteClient
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
+from splight_models import DatalakeOutputQuery
 from retry import retry
 
 from requests.exceptions import (
@@ -133,6 +134,16 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             for item in response.json()["results"]
         ]
         return output
+
+    def get_query(self, query: DatalakeOutputQuery) -> List[Dict]:
+        return self.raw_get(
+            collection=query.collection,
+            limit_=query.limit_,
+            skip_=query.skip_,
+            sort=query.sort,
+            tzinfo=timezone(timedelta(hours=query.timezone_offset)),
+            **query.filters
+        )
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def get_dataframe(
