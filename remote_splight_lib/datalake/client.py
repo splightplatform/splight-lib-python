@@ -135,7 +135,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         ]
         return output
 
-    def get_query(self, query: DatalakeOutputQuery) -> List[Dict]:
+    def get_output(self, query: DatalakeOutputQuery) -> List[Dict]:
         return self.raw_get(
             collection=query.collection,
             limit_=query.limit_,

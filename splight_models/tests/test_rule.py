@@ -1,6 +1,7 @@
 from parameterized import parameterized
 from unittest import TestCase
-from splight_models.rule import AlgorithmRule, RuleVariable, MappingRule
+from splight_models.rule import Rule
+from splight_models.datalake import DatalakeOutputQuery
 from splight_models.notification import (
     INFO, GREATER_THAN,
     GREATER_THAN_OR_EQUAL,
@@ -9,65 +10,17 @@ from splight_models.notification import (
     EQUAL
 )
 
-
-class TestAlgorithmRule(TestCase):
-
-    @parameterized.expand([
-        ("True and False",),
-        ("True and 1",),
-        ("True or 5 < 1",),
-    ])
-    def test_algorithm_rule_default(self, statement):
-        AlgorithmRule(
-            name="Rule1",
-            description="",
-            variables=[],
-            statement=statement
-        )
-
-    @parameterized.expand([
-        ("A and B == 2 or C == 's'",),
-        ("A and not(A)",),
-        ("A and A",),
-        ("A and B",),
-        ("(A or A) and (A or A)",),
-        ("True and B > 1",),
-    ])
-    def test_algorithm_rule_ok(self, statement):
-        variables = [
-            RuleVariable(id='A', type="bool", filters={'asset_id__gte': 1}, key="args.value"),
-            RuleVariable(id='B', type="float", key="args.value"),
-            RuleVariable(id='C', type="str", key="args.value")
-        ]
-        AlgorithmRule(
-            name="Rule1",
-            description="",
-            variables=variables,
-            statement=statement
-        )
-
-    @parameterized.expand([
-        ("True and A",),
-        ("True and B > '1'",),
-    ])
-    def test_algorithm_rule_nok(self, statement):
-        with self.assertRaises(ValueError):
-            variables = [
-                RuleVariable(id='B', type="float", key="args.value")
-            ]
-            AlgorithmRule(
-                name="Rule1",
-                description="",
-                variables=variables,
-                statement=statement
-            )
-
-
-class TestMappingRule(TestCase):
-    def test_mapping_rule_ok(self):
-        MappingRule(
-            asset_id="123",
-            attribute_id="123",
+class TestRule(TestCase):
+    def test_rule_ok(self):
+        Rule(
+            query=DatalakeOutputQuery(
+                source="Algorithm",
+                component_id="01d08df6-e9f6-489c-ad62-9c8e6b714412",
+                output_format="Value",
+                target="value",
+                filters={},
+                timezone_offset=0.0
+            ),
             value="4",
             type="float",
             message="This is a sample message for the event description",
@@ -88,14 +41,20 @@ class TestMappingRule(TestCase):
         ('float', EQUAL, 5, True),
         ('float', EQUAL, 2, False),
     ])
-    def test_mapping_rule_eval(self, type, operator, value, expected_result):
-        rule = MappingRule(
-            asset_id="123",
-            attribute_id="123",
+    def test_rule_eval(self, type, operator, value, expected_result):
+        rule = Rule(
+            query=DatalakeOutputQuery(
+                source="Algorithm",
+                component_id="01d08df6-e9f6-489c-ad62-9c8e6b714412",
+                output_format="Value",
+                target="value",
+                filters={},
+                timezone_offset=0.0
+            ),
             value="5",
             type=type,
             message="This is a sample message for the event description",
             severity=INFO,
-            operator=operator,
+            operator=GREATER_THAN,
         )
         self.assertTrue(rule.is_satisfied(value) is expected_result)
