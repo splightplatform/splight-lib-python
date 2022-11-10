@@ -294,7 +294,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             self._setup.configure(initial_setup)
 
         self.version: str = self._spec.version
-        self.namespace = self._spec.namespace
+        self.namespace = self._setup.settings.NAMESPACE
         self.instance_id = self._setup.settings.COMPONENT_ID
 
         self._load_instance_data()
