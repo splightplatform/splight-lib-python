@@ -42,10 +42,10 @@ class DatalakeOutputQuery(SplightBaseModel):
 
     @root_validator(pre=True)
     def component_id_validate(cls, values):
-        component_id = values["component_id"]
+        component_id = values.get("component_id")
         if component_id:
             return values
-        source = values["source"]
+        source = values.get("source")
         if source == DatalakeOutputSource.CONNECTOR:
             values["component_id"] = "default"
             return values
@@ -53,22 +53,22 @@ class DatalakeOutputQuery(SplightBaseModel):
 
     @validator("filters", always=True)
     def filters_validate(cls, filters, values):
-        source = values["source"]
-        component_id = values["component_id"]
+        source = values.get("source")
+        component_id = values.get("component_id")
         if source == DatalakeOutputSource.CONNECTOR and component_id != "default":
             filters["instance_id"] = component_id
         return filters
 
     @validator("collection", always=True)
     def collection_validate(cls, collection, values):
-        source = values["source"]
+        source = values.get("source")
         if source == DatalakeOutputSource.ALGORITHM:
-            return values["component_id"]
+            return values.get("component_id")
         return "default"
 
     @validator("target", always=True)
     def target_validate(cls, target, values):
-        source = values["source"]
+        source = values.get("source")
         if source == DatalakeOutputSource.CONNECTOR:
             target = "value"
         if not target:
