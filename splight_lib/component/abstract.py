@@ -206,14 +206,30 @@ class BindingsMixin:
 
 class ParametersMixin:
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
-        component_object_ids: Dict[str, Dict[str, List]] = self._get_component_object_ids(parameters)
-        component_objects: Dict[str, BaseModel] = self._fetch_component_objects(component_object_ids)
-        parameters = self._reload_component_parameters(parameters, objects=component_objects)
+        parameters = self._fetch_and_reload_component_objects_parameters(parameters)
         object_ids: Dict[str, Dict[str, List]] = self._get_object_ids(parameters)
         objects: Dict[str, BaseModel] = self._fetch_objects(object_ids)
         parameters = self._reload_parameters(parameters, objects=objects)
         transformed_parameters = self._transform_parameters(parameters)
         return transformed_parameters
+
+    def _fetch_and_reload_component_objects_parameters(self, parameters: List[Dict]) -> List[Dict]:
+        reloaded_parameters = []
+        for raw_parameter in parameters:
+            raw_parameter = raw_parameter.dict() if not isinstance(raw_parameter, dict) else raw_parameter
+            parameter = raw_parameter.copy()
+            type = parameter["type"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+            if type in NATIVE_TYPES or type in DATABASE_TYPES or type in STORAGE_TYPES:
+                parameter["value"] = value
+            else:
+                object_ids = value if multiple else [value]
+                objects = self.database_client.get(ComponentObject, id=object_ids, first=True)
+                objects = [o.data for o in objects]
+                parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
+            reloaded_parameters.append(parameter)
+        return reloaded_parameters
 
     def _get_object_ids(self, parameters: List[Dict]) -> Dict[str, Dict[str, List]]:
         ids = {
@@ -221,6 +237,7 @@ class ParametersMixin:
             "storage": defaultdict(list),
         }
         for parameter in parameters:
+            parameter = parameter.dict() if not isinstance(parameter, dict) else parameter
             values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
             if parameter["type"] in NATIVE_TYPES:
                 continue
@@ -233,20 +250,6 @@ class ParametersMixin:
             else:
                 for value in values:
                     ids = merge(ids, self._get_object_ids(value), strategy=mergeStrategy.ADDITIVE)
-        return ids
-
-    def _get_component_object_ids(self, parameters: List[Dict]) -> Dict[str, List]:
-        ids = []
-        for parameter in parameters:
-            values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
-            if parameter["type"] in NATIVE_TYPES:
-                continue
-            elif parameter["type"] in DATABASE_TYPES:
-                continue
-            elif parameter["type"] in STORAGE_TYPES:
-                continue
-            else:
-                ids.extend(values)
         return ids
 
     def _fetch_objects(self, ids_to_fetch: Dict) -> Dict[str, BaseModel]:
@@ -262,31 +265,10 @@ class ParametersMixin:
             res.update({obj.id: obj for obj in objs})
         return res
 
-    def _fetch_component_objects(self, ids_to_fetch: List) -> Dict[str, List]:
-        res: Dict = {
-            None: None
-        }
-        objs = self.database_client.get(ComponentObject, id__in=ids_to_fetch)
-        res.update({obj.id: obj for obj in objs})
-        return res
-
-    def _reload_component_parameters(self, parameters: List[Dict], objects: Dict) -> List[Dict]:
-        reloaded_parameters = []
-        for raw_parameter in parameters:
-            parameter = raw_parameter.copy()
-            type = parameter["type"]
-            value = parameter["value"]
-            multiple = parameter["multiple"]
-            if type in NATIVE_TYPES or type in DATABASE_TYPES or type in STORAGE_TYPES:
-                parameter["value"] = value
-            else:
-                parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
-            reloaded_parameters.append(parameter)
-        return reloaded_parameters      
-
     def _reload_parameters(self, parameters: List[Dict], objects: Dict) -> List[Dict]:
         reloaded_parameters = []
         for raw_parameter in parameters:
+            raw_parameter = raw_parameter.dict() if not isinstance(raw_parameter, dict) else raw_parameter
             parameter = raw_parameter.copy()
             type = parameter["type"]
             value = parameter["value"]
