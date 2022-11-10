@@ -8,3 +8,4 @@ from splight_abstract.deployment import *
 from splight_abstract.hub import *
 from splight_abstract.client import *
 from splight_abstract.storage import *
+from splight_abstract.blockchain import *
