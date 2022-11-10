@@ -49,7 +49,7 @@ class User(SplightBaseModel):
         return self.email
 
     def __repr__(self) -> str:
-        return f"<User: {self.email}>"
+        return f"<User {self.email}"
 
 
 class OrganizationMetadata(SplightBaseModel):
