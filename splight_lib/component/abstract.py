@@ -225,7 +225,7 @@ class ParametersMixin:
                 parameter["value"] = value
             else:
                 object_ids = value if multiple else [value]
-                objects = self.database_client.get(ComponentObject, id=object_ids, first=True)
+                objects = self.database_client.get(ComponentObject, id__in=object_ids)
                 objects = [o.data for o in objects]
                 parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
             reloaded_parameters.append(parameter)
