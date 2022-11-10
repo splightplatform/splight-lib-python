@@ -167,6 +167,11 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         df.set_index("timestamp", inplace=True)
         return df
 
+    def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+        dfs = [self.get_dataframe(**query) for query in queries]
+        df = pd.concat(dfs, axis=1)
+        return df
+
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def save_dataframe(
         self, dataframe: pd.DataFrame, collection: str = 'default'
