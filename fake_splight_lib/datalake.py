@@ -202,6 +202,10 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         _data.set_index('timestamp', inplace=True)
         return _data
 
+    def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+        dfs = [self.get_dataframe(**query) for query in queries]
+        return pd.concat(dfs, axis=1)
+
     def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
         raise NotImplementedError
 
