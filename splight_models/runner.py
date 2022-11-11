@@ -66,6 +66,7 @@ class BaseRunner(SplightBaseModel):
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
+    tags: Optional[List[str]] = []
 
     class Config:
         keep_untouched = (cached_property,)
