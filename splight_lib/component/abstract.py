@@ -11,7 +11,7 @@ from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
-from splight_lib.shortcut import save_file as _save_file # TODO unify storage with database
+from splight_lib.shortcut import save_file as _save_file  # TODO unify storage with database
 from splight_models import (
     Deployment,
     Notification,
@@ -356,3 +356,4 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             **self.communication_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
+        self.blockchain_client = self.setup.BLOCKCHAIN_CLIENT(namespace=self.namespace)
