@@ -37,7 +37,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self._session = Session()
         self._session.headers.update(token.header)
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def save(
         self,
         instances: List[BaseModel],
@@ -52,7 +52,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return instances
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def raw_save(
         self,
         instances: List[Dict],
@@ -66,7 +66,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return instances
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_get(self,
                  collection: str = 'default',
                  limit_: int = 50,
@@ -96,7 +96,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()["results"]
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     @validate_resource_type
     def _get(
         self,
@@ -145,7 +145,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             **query.filters
         )
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def get_dataframe(
         self,
         freq: str = None,
@@ -172,7 +172,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         df = pd.concat(dfs, axis=1)
         return df
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def save_dataframe(
         self, dataframe: pd.DataFrame, collection: str = 'default'
     ) -> None:
@@ -190,7 +190,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         response.raise_for_status()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def list_collection_names(self) -> List[str]:
         # GET /datalake/source
         url = self._base_url / f"{self._PREFIX}/source/"
@@ -199,7 +199,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         sources = [source["source"] for source in response.json()["results"]]
         return sources
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def get_unique_keys(self, collection: str) -> List[str]:
         # GET /datalake/key/?source=collection
         url = self._base_url / f"{self._PREFIX}/key/"
@@ -208,7 +208,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         keys = list({key["key"] for key in response.json()["results"]})
         return keys
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def get_values_for_key(self, collection: str, key: str) -> List[str]:
         # GET /datalake/value/?source=collection&key=key
         url = self._base_url / f"{self._PREFIX}/value/"
@@ -219,7 +219,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return values
 
     # Subject to incompatibility by implementation
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
@@ -231,7 +231,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def get_db_size_gb(self) -> float:
         # GET /datalake/db-size/
         url = self._base_url / f"{self._PREFIX}/db-size/"
@@ -239,7 +239,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def create_index(self, collection: str, index: list) -> None:
         # POST /datalake/index/
         url = self._base_url / f"{self._PREFIX}/index/"
