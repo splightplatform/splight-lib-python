@@ -18,9 +18,10 @@ from retry import retry
 
 from requests.exceptions import (
     ConnectionError,
-    Timeout
+    Timeout,
+    HTTPError,
 )
-REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
+REQUEST_EXCEPTIONS = (ConnectionError, Timeout, HTTPError)
 
 
 class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
