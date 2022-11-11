@@ -110,6 +110,7 @@ class Component(BaseComponent):
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
     status: ComponentStatus = ComponentStatus.STOPPED
     active: bool = False
+    type: str
 
     @property
     def collection(self):
@@ -117,24 +118,32 @@ class Component(BaseComponent):
 
 
 class Algorithm(Component):
+    type: str = "Algorithm"
+
     @property
     def collection(self):
         return str(self.id)
 
 
 class Network(Component):
+    type: str = "Network"
+
     @property
     def collection(self):
         return 'default'
 
 
 class Connector(Component):
+    type: str = "Connector"
+
     @property
     def collection(self):
         return 'default'
 
 
 class System(Component):
+    type: str = "System"
+
     @property
     def collection(self):
         return "system"
