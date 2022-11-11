@@ -12,6 +12,7 @@ class Deployment(BaseRunner):
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
     container_statuses: Optional[List[Dict]] = None
+    tags: Optional[List[str]] = []
 
     # Template vars for deployment
     namespace: Optional[str] = None
