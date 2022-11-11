@@ -60,7 +60,8 @@ class Command(SplightBaseModel):
 
 
 class BaseRunner(SplightBaseModel):
-    version: str  # Pointer to hub component
+    name: Optional[str] = None
+    version: str
     custom_types: Optional[List[CustomType]] = []
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
@@ -94,7 +95,6 @@ class BaseRunner(SplightBaseModel):
 
 class Runner(BaseRunner):
     id: Optional[str]
-    name: str
     description: Optional[str]
     log_level: LogginLevel = LogginLevel.info
     component_capacity: ComponentSize = ComponentSize.small
