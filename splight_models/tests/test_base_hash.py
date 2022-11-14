@@ -116,25 +116,31 @@ class TestRule(AbstractBaseHash, TestCase):
 
 class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component
-    args = {"name": "1", "version": "1"}
+    args = {"name": "1", "version": "1", "type": "Algorithm"}
     rand_str_arg = "name"
 
 
 class TestAlgorithmHash(AbstractBaseHash, TestCase):
     class_model = Algorithm
-    args = {"name": "1", "version": "1"}
+    args = {"name": "1", "version": "1", "type": "Algorithm"}
     rand_str_arg = "name"
 
 
 class TestNetworkHash(AbstractBaseHash, TestCase):
     class_model = Network
-    args = {"name": "1", "version": "1"}
+    args = {"name": "1", "version": "1", "type": "Network"}
     rand_str_arg = "name"
 
 
 class TestConnectorHash(AbstractBaseHash, TestCase):
     class_model = Connector
-    args = {"name": "1", "version": "1"}
+    args = {"name": "1", "version": "1", "type": "Connector"}
+    rand_str_arg = "name"
+
+
+class TestSystemHash(AbstractBaseHash, TestCase):
+    class_model = System
+    args = {"name": "1", "version": "1", "type": "System"}
     rand_str_arg = "name"
 
 
