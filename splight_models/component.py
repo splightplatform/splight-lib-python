@@ -196,9 +196,12 @@ class ComponentModelsFactory:
 
     def get_custom_types_model(self, custom_types: List) -> Type:
         custom_types_dict: Dict[str, BaseModel] = {}
-
+        component_object_base = ComponentObject.__fields__.copy()
+        component_object_base.pop("data")
+        fields = {f"{key}_": (modelfield.type_, modelfield.default if modelfield.default else ...) for key, modelfield in component_object_base.items()}
+        base_model = create_model("ComponentObjectBase", **fields)
         for custom_type in custom_types:
-            model = self._create_model(custom_type.name, custom_type.fields)
+            model = self._create_model(custom_type.name, custom_type.fields, base=base_model)
             custom_types_dict[custom_type.name] = model
             self._type_map[custom_type.name] = model
 

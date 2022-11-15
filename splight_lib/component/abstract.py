@@ -24,7 +24,7 @@ from splight_models import (
 from splight_models.communication import Operation
 from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
 from splight_models.communication.models import OperationStatus
-from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES
+from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter
 
 
 logger = logging.getLogger()
@@ -226,7 +226,15 @@ class ParametersMixin:
             else:
                 object_ids = value if multiple else [value]
                 objects = self.database_client.get(ComponentObject, id__in=object_ids)
-                objects = [o.data for o in objects]
+                new_objects = []
+                for o in objects:
+                    data = o.data
+                    # Include component object information in the Input model
+                    for key, value in o.dict().items():
+                        if key != "dict":
+                            data.append(Parameter(name=f"{key}_", value=value))
+                    new_objects.append(data)
+                objects = new_objects
                 parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
             reloaded_parameters.append(parameter)
         return reloaded_parameters
