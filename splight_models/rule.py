@@ -5,7 +5,6 @@ from enum import Enum
 from pydantic import validator
 from typing import Any, Optional, Dict
 from splight_models.constants import SeverityType
-from splight_models.datalake import DatalakeOutputQuery
 
 GREATER_THAN = 'gt'
 GREATER_THAN_OR_EQUAL = 'ge'
@@ -32,9 +31,10 @@ class OperatorType(str, Enum):
     lower_than_or_equal = LOWER_THAN_OR_EQUAL
     equal = EQUAL
 
+# TODO: Deprecate Rules
 class Rule(SplightBaseModel):
     id: Optional[str]
-    query: DatalakeOutputQuery
+    query_id: str
     value: str
     type: RuleVariableType = RuleVariableType.str
     message: str

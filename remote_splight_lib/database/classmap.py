@@ -9,6 +9,7 @@ from splight_models import (
     Graph,
     Network,
     Notification,
+    Query,
     Node,
     Rule,
     Tag,
@@ -73,5 +74,8 @@ CLASSMAP = {
     },
     ComponentObject: {
         "path": "component-objects"
-    }
+    },
+    Query: {
+        "path": "query"
+    },
 }
