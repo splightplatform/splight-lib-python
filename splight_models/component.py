@@ -5,7 +5,7 @@ from splight_models.base import SplightBaseModel
 from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
-from splight_models.rule import Rule
+from splight_models.query import Query
 
 from datetime import datetime
 from enum import Enum
@@ -165,7 +165,7 @@ DATABASE_TYPES = {
     "System": System,
     "Graph": Graph,
     "Network": Network,
-    "Rule": Rule,
+    "Query": Query,
 }
 
 STORAGE_TYPES = {
