@@ -4,22 +4,28 @@ on:
     branches:
       - master
       - hotfix/*
+      - feature/delete_jfrog # TODO: remove this branch before merge
 jobs:
   upload:
     runs-on: ubuntu-latest
-    name: uploading lib to jfrog
+    name: uploading lib to pypi
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: printf "[distutils]\n" >> ~/.pypirc
-      - run: printf "index-servers=splightlib\n" >> ~/.pypirc
-      - run: printf "[splightlib]\n" >> ~/.pypirc
-      - run: printf "repository:https://splight.jfrog.io/artifactory/api/pypi/splight-local\n" >> ~/.pypirc
-      - run: printf "username=$JFROG_USERNAME\n" >> ~/.pypirc
-        env: 
-          JFROG_USERNAME: ${{secrets.JFROG_USERNAME}}
-      - run: printf "password=$JFROG_PASS" >> ~/.pypirc
-        env: 
-          JFROG_PASS: ${{secrets.JFROG_PASS}}
-      - run: python setup.py bdist_wheel upload -r splightlib
-      - run: rm ~/.pypirc;
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+      - name: Build package
+        run: python -m build
+      # - name: Publish package
+      #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      #   with:
+      #     user: __token__
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
