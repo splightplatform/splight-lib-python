@@ -17,7 +17,7 @@ from splight_models.notification import *
 from splight_models.tag import *
 from splight_models.realtime import *
 from splight_models.rule import *
-from splight_models.runner import *
+from splight_models.component import *
 from splight_models.storage import *
 from splight_models.user_activity import *
 from splight_models.tag import *

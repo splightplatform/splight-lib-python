@@ -1,5 +1,5 @@
 from splight_lib.component.abstract import AbstractComponent
-from splight_models.runner import System
+from splight_models.component import System
 
 
 class AbstractSystemComponent(AbstractComponent):

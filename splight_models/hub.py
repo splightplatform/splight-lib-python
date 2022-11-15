@@ -1,12 +1,12 @@
 from typing import Optional
 from pydantic import validator
-from splight_models.runner import BaseRunner
+from splight_models.component import BaseComponent
 from typing import List
 
 VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
 
 
-class HubComponent(BaseRunner):
+class HubComponent(BaseComponent):
     id: Optional[str]
     name: str
     type: str = None
