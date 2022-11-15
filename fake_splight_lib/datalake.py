@@ -7,7 +7,7 @@ from collections.abc import MutableMapping
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Dict, List, Type, Any, Union
-from splight_models import VariableDataFrame, DatalakeOutputQuery
+from splight_models import VariableDataFrame, Query
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
@@ -217,12 +217,17 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def create_index(self, collection: str, index: list) -> None:
         pass
 
-    def get_output(self, query: DatalakeOutputQuery) -> List[Dict]:
+    def get_output(self, query: Query) -> List[Dict]:
         return self.raw_get(
             collection=query.collection,
-            limit_=query.limit_,
-            skip_=query.skip_,
+            limit_=query.limit,
+            skip_=query.skip,
             sort=query.sort,
+            add_fields=query.add_fields,
+            group_id=query.group_id,
+            group_fields=query.group_fields,
+            rename_fields=query.rename_fields,
+            project_fields=query.project_fields,
             tzinfo=timezone(timedelta(hours=query.timezone_offset)),
             **query.filters
         )

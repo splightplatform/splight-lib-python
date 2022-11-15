@@ -13,7 +13,7 @@ from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
 from splight_abstract.remote import AbstractRemoteClient
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
-from splight_models import DatalakeOutputQuery
+from splight_models import Query
 from retry import retry
 
 from requests.exceptions import (
@@ -136,12 +136,15 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         ]
         return output
 
-    def get_output(self, query: DatalakeOutputQuery) -> List[Dict]:
+    # TODO: Add add_fields, project and renaming
+    def get_output(self, query: Query) -> List[Dict]:
         return self.raw_get(
             collection=query.collection,
-            limit_=query.limit_,
-            skip_=query.skip_,
+            limit_=query.limit,
+            skip_=query.skip,
             sort=query.sort,
+            group_id=query.group_id,
+            group_fields=query.group_fields,
             tzinfo=timezone(timedelta(hours=query.timezone_offset)),
             **query.filters
         )

@@ -1,7 +1,7 @@
 from parameterized import parameterized
 from unittest import TestCase
 from splight_models.rule import Rule
-from splight_models.datalake import DatalakeOutputQuery
+from splight_models import Query
 from splight_models.notification import (
     INFO, GREATER_THAN,
     GREATER_THAN_OR_EQUAL,
@@ -13,7 +13,7 @@ from splight_models.notification import (
 class TestRule(TestCase):
     def test_rule_ok(self):
         Rule(
-            query=DatalakeOutputQuery(
+            query=Query(
                 source="Algorithm",
                 component_id="01d08df6-e9f6-489c-ad62-9c8e6b714412",
                 output_format="Value",
@@ -43,7 +43,7 @@ class TestRule(TestCase):
     ])
     def test_rule_eval(self, type, operator, value, expected_result):
         rule = Rule(
-            query=DatalakeOutputQuery(
+            query=Query(
                 source="Algorithm",
                 component_id="01d08df6-e9f6-489c-ad62-9c8e6b714412",
                 output_format="Value",

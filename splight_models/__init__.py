@@ -15,6 +15,7 @@ from splight_models.namespace import *
 from splight_models.network import *
 from splight_models.notification import *
 from splight_models.tag import *
+from splight_models.query import *
 from splight_models.realtime import *
 from splight_models.rule import *
 from splight_models.component import *
