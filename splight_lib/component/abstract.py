@@ -16,13 +16,15 @@ from splight_models import (
     Deployment,
     Notification,
     StorageFile,
-    RunnerDatalakeModel,
-    Algorithm
+    ComponentDatalakeModel,
+    Algorithm,
+    Command,
+    ComponentObject,
 )
 from splight_models.communication import Operation
 from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
 from splight_models.communication.models import OperationStatus
-from splight_models.runner import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, SIMPLE_TYPES, Command
+from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES
 
 
 logger = logging.getLogger()
@@ -97,7 +99,7 @@ class HooksMixin:
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
         for instance in instances:
-            if not isinstance(instance, RunnerDatalakeModel):
+            if not isinstance(instance, ComponentDatalakeModel):
                 continue
             instance.instance_id = self.instance_id
             instance.instance_type = self.managed_class.__name__
@@ -120,7 +122,7 @@ class UtilsMixin:
     def get_history(self, **kwargs) -> pd.DataFrame:
         return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
-    def get_results(self, algorithm: Algorithm, output_model: RunnerDatalakeModel, **kwargs) -> pd.DataFrame:
+    def get_results(self, algorithm: Algorithm, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
         if output_model != getattr(algorithm.output_model, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} does not match algorithm output"
@@ -132,7 +134,7 @@ class UtilsMixin:
             **kwargs
         )
 
-    def save_results(self, output_model: RunnerDatalakeModel, dataframe: pd.DataFrame) -> None:
+    def save_results(self, output_model: ComponentDatalakeModel, dataframe: pd.DataFrame) -> None:
         if output_model != getattr(self.output, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} is not defined in the output"
@@ -204,29 +206,50 @@ class BindingsMixin:
 
 class ParametersMixin:
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
-        # TODO make this work as parse_parameters(self, parameters: List[Parameter]) -> Dict:
-        ids_to_fetch: Dict[str, Dict[str, List]] = self._get_ids_from_parameters(parameters)
-        fetched_objects: Dict[str, BaseModel] = self._fetch_objects(ids_to_fetch)
-        parsed_parameters = self._reload_parameters(parameters, objects=fetched_objects)
-        transformed_parameters = self._transform_parameters(parsed_parameters)
+        parameters = self._fetch_and_reload_component_objects_parameters(parameters)
+        object_ids: Dict[str, Dict[str, List]] = self._get_object_ids(parameters)
+        objects: Dict[str, BaseModel] = self._fetch_objects(object_ids)
+        parameters = self._reload_parameters(parameters, objects=objects)
+        transformed_parameters = self._transform_parameters(parameters)
         return transformed_parameters
 
-    def _get_ids_from_parameters(self, parameters: List[Dict]) -> Dict[str, Dict[str, List]]:
+    def _fetch_and_reload_component_objects_parameters(self, parameters: List[Dict]) -> List[Dict]:
+        reloaded_parameters = []
+        for raw_parameter in parameters:
+            raw_parameter = raw_parameter.dict() if not isinstance(raw_parameter, dict) else raw_parameter
+            parameter = raw_parameter.copy()
+            type = parameter["type"]
+            value = parameter["value"]
+            multiple = parameter["multiple"]
+            if type in NATIVE_TYPES or type in DATABASE_TYPES or type in STORAGE_TYPES:
+                parameter["value"] = value
+            else:
+                object_ids = value if multiple else [value]
+                objects = self.database_client.get(ComponentObject, id__in=object_ids)
+                objects = [o.data for o in objects]
+                parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
+            reloaded_parameters.append(parameter)
+        return reloaded_parameters
+
+    def _get_object_ids(self, parameters: List[Dict]) -> Dict[str, Dict[str, List]]:
         ids = {
             "database": defaultdict(list),
             "storage": defaultdict(list),
         }
         for parameter in parameters:
+            parameter = parameter.dict() if not isinstance(parameter, dict) else parameter
             values = parameter["value"] if parameter["multiple"] else [parameter["value"]]
-            if parameter["type"] in DATABASE_TYPES:
+            if parameter["type"] in NATIVE_TYPES:
+                continue
+            elif parameter["type"] in DATABASE_TYPES:
                 for value in values:
                     ids["database"][parameter["type"]].append(value)
             elif parameter["type"] in STORAGE_TYPES:
                 for value in values:
                     ids["storage"][parameter["type"]].append(value)
-            elif parameter["type"] not in SIMPLE_TYPES:
+            else:
                 for value in values:
-                    ids = merge(ids, self._get_ids_from_parameters(value), strategy=mergeStrategy.ADDITIVE)
+                    ids = merge(ids, self._get_object_ids(value), strategy=mergeStrategy.ADDITIVE)
         return ids
 
     def _fetch_objects(self, ids_to_fetch: Dict) -> Dict[str, BaseModel]:
@@ -242,16 +265,17 @@ class ParametersMixin:
             res.update({obj.id: obj for obj in objs})
         return res
 
-    def _reload_parameters(self, parameters: List[Dict], objects: Dict) -> None:
+    def _reload_parameters(self, parameters: List[Dict], objects: Dict) -> List[Dict]:
         reloaded_parameters = []
         for raw_parameter in parameters:
+            raw_parameter = raw_parameter.dict() if not isinstance(raw_parameter, dict) else raw_parameter
             parameter = raw_parameter.copy()
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
             if type in NATIVE_TYPES:
                 parameter["value"] = value
-            elif type in SIMPLE_TYPES:
+            elif type in DATABASE_TYPES or type in STORAGE_TYPES:
                 parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
             else:
                 parameter["value"] = [self._reload_parameters(value, objects) for value in value] if multiple else self._reload_parameters(value, objects)
@@ -271,7 +295,7 @@ class ParametersMixin:
 
             if type in NATIVE_TYPES:
                 parameters_dict[name] = value
-            elif type in SIMPLE_TYPES:
+            elif type in DATABASE_TYPES or type in STORAGE_TYPES:
                 parameters_dict[name] = value
             else:
                 parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else self._transform_parameters(value)

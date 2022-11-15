@@ -58,7 +58,7 @@ class DeploymentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class RunnerStatus(str, Enum):
+class ComponentStatus(str, Enum):
     STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"

@@ -1,10 +1,10 @@
 from typing import Dict, List, Optional
 from splight_models.base import SplightBaseModel
 from splight_models.constants import ComponentSize, ComponentType, DeploymentStatus, LogginLevel, RestartPolicy
-from splight_models.runner import BaseRunner
+from splight_models.component import BaseComponent
 
 
-class Deployment(BaseRunner):
+class Deployment(BaseComponent):
     # run-spec
     id: Optional[str] = None
     type: ComponentType

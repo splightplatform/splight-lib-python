@@ -12,7 +12,7 @@ class DatalakeModel(SplightBaseModel):
         validate_assignment = True
 
 
-class RunnerDatalakeModel(DatalakeModel):
+class ComponentDatalakeModel(DatalakeModel):
     instance_id: Optional[str] = None
     instance_type: Optional[str] = None
 
