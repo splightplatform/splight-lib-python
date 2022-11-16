@@ -6,6 +6,7 @@ from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.query import Query
+from splight_models import EventAction, EventNames, CommunicationEvent
 
 from datetime import datetime
 from enum import Enum
@@ -66,6 +67,46 @@ class ComponentObject(SplightBaseModel):
     description: Optional[str]
     type: str
     data: List[Parameter]
+
+    def get_event_name(self, action: EventAction) -> str:
+        return f"{self.type.lower()}_{action}"
+
+
+class ComponentCommandResponse(SplightBaseModel):
+    return_value: Optional[str] = None
+    error_detail: Optional[str] = None
+
+
+class ComponentCommandStatus(str, Enum):
+    NOT_SENT ="not_sent"
+    PENDING = "pending"
+    SUCCESS = "success"
+    ERROR = "error"
+
+
+class ComponentCommand(SplightBaseModel):
+    id: Optional[str]
+    command: Command
+    status: ComponentCommandStatus
+    response: ComponentCommandResponse = ComponentCommandResponse()
+
+    def get_event_name(self, action: EventAction) -> str:
+        return f"componentcommand_{action}"
+
+
+class ComponentCommandTriggerEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandCreateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_CREATE, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandUpdateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_UPDATE, const=True)
+    data: ComponentCommand
 
 
 class BaseComponent(SplightBaseModel):

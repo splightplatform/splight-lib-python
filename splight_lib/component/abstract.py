@@ -21,9 +21,8 @@ from splight_models import (
     Command,
     ComponentObject,
 )
-from splight_models.communication import Operation
-from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
-from splight_models.communication.models import OperationStatus
+from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent
+from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter
 
 
@@ -179,28 +178,25 @@ class UtilsMixin:
 
 class BindingsMixin:
     def _load_client_bindings(self):
-        self.communication_client.bind(EventNames.OPERATION_TRIGGER, self.__handle_operation_trigger)
+        self.communication_client.bind(EventNames.ComponentCommandTriggerEvent, self.__handle_operation_trigger)
 
     def __handle_operation_trigger(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        operation_event = OperationTriggerEvent.parse_raw(data)
-        operation: Operation = operation_event.data
+        operation_event = ComponentCommandTriggerEvent.parse_raw(data)
+        operation: ComponentCommand = operation_event.data
         command: Command = operation.command
         try:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
             parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
             command_kwargs = command_kwargs_model(**parsed_command_kwargs)
-            # .to_dict is not keeping the models of subkeys
-            command_kwargs = {
-                str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
-            }
+            command_kwargs = command_kwargs.dict()
             operation.response.return_value = str(command_function(**command_kwargs))
-            operation.status = OperationStatus.SUCCESS
+            operation.status = ComponentCommandStatus.SUCCESS
         except Exception as e:
             operation.response.error_detail = str(e)
-            operation.status = OperationStatus.ERROR
-        operation_callback_event = OperationUpdateEvent(data=operation)
+            operation.status = ComponentCommandStatus.ERROR
+        operation_callback_event = ComponentCommandUpdateEvent(data=operation)
         self.communication_client.trigger(operation_callback_event)
 
 
