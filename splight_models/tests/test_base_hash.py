@@ -94,14 +94,7 @@ class TestRuleVariableHash(AbstractBaseHash, TestCase):
 class TestRule(AbstractBaseHash, TestCase):
     class_model = Rule
     args = {
-        "query": {
-            "source": "Algorithm",
-            "component_id": "01d08df6-e9f6-489c-ad62-9c8e6b714412",
-            "output_format": "Value",
-            "target": "value",
-            "filters": {},
-            "timezone_offset": 0.0
-        },
+        "query_id": "cb7fd2cb-fa5e-4922-adf9-b8bca2eaec0a",
         "type": "float",
         "value": 3,
         "message": "Random algo outputs > 3",
