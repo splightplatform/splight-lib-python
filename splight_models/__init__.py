@@ -23,3 +23,4 @@ from splight_models.user_activity import *
 from splight_models.tag import *
 from splight_models.user import *
 from splight_models.variable import *
+from splight_models.data_retention_policy import *

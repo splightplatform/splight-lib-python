@@ -35,7 +35,8 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         BlockchainContract,
         BlockchainContractSubscription,
         Component,
-        ComponentObject
+        ComponentObject,
+        DataRetentionPolicy
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
