@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - hotfix/*
+      - feature/delete_jfrog # TODO: delete this line befor merge
 jobs:
   upload:
     runs-on: ubuntu-latest
