@@ -32,7 +32,6 @@ class TestNotification(TestCase):
             title="Title sample",
             asset_id=1,
             attribute_id=1,
-            rule_id=1,
             source_id='3',
             source_type=SourceType.algorithm,
         ),),

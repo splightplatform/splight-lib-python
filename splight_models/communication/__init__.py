@@ -13,6 +13,4 @@ __all__ = [
     "MappingCreateEvent",
     "MappingDeleteEvent",
     "EventNames",
-    "RuleCreateEvent",
-    "RuleDeleteEvent",
 ]

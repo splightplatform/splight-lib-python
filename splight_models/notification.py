@@ -48,6 +48,5 @@ class Notification(DatalakeModel):
     seen: bool = False
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     severity: SeverityType = SeverityType.info
-    rule_id: Optional[str]
     source_id: Optional[str]
     source_type: Optional[SourceType]
