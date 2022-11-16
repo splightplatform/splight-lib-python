@@ -11,7 +11,6 @@ from splight_models import (
     Notification,
     Query,
     Node,
-    Rule,
     Tag,
     BlockchainContract,
     BlockchainContractSubscription,
@@ -53,9 +52,6 @@ CLASSMAP = {
     },
     Node: {
         "path": "graph/node"
-    },
-    Rule: {
-        "path": "rule"
     },
     Tag: {
         "path": "tag"
