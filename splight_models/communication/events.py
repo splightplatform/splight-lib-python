@@ -5,7 +5,6 @@ from pydantic import Field
 from splight_models.base import SplightBaseModel
 from splight_models.communication import Operation
 from splight_models.mapping import Mapping
-from splight_models.rule import Rule
 from splight_models.user import User
 from datetime import datetime, timezone
 
@@ -16,9 +15,6 @@ class EventNames(str, Enum):
     OPERATION_UPDATE = 'operation-update'
     MAPPING_CREATE = "mapping-create"
     MAPPING_DELETE = "mapping-delete"
-    RULE_CREATE = 'rule-create'
-    RULE_DELETE = 'rule-delete'
-
 
 class CommunicationEvent(SplightBaseModel):
     event_name: str
@@ -54,13 +50,3 @@ class MappingCreateEvent(CommunicationEvent):
 class MappingDeleteEvent(CommunicationEvent):
     event_name: str = Field(EventNames.MAPPING_DELETE, const=True)
     data: Mapping
-
-
-class RuleCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.RULE_CREATE, const=True)
-    data: Rule
-
-
-class RuleDeleteEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.RULE_DELETE, const=True)
-    data: Rule

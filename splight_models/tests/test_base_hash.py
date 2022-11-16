@@ -84,29 +84,6 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     args = {"title": "1", "message": "1", "timestamp": datetime.now()}
     rand_str_arg = "title"
 
-
-class TestRuleVariableHash(AbstractBaseHash, TestCase):
-    class_model = RuleVariable
-    args = {"id": "1"}
-    rand_str_arg = "id"
-
-
-class TestRule(AbstractBaseHash, TestCase):
-    class_model = Rule
-    args = {
-        "query_id": "cb7fd2cb-fa5e-4922-adf9-b8bca2eaec0a",
-        "type": "float",
-        "value": 3,
-        "message": "Random algo outputs > 3",
-        "name": "Random checker test",
-        "description": "Random algo outputs > 3",
-        "severity": "info",
-        "operator": "gt",
-        "period": 10.0
-    }
-    rand_str_arg = "message"
-
-
 class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component
     args = {"name": "1", "version": "1", "type": "Algorithm"}
