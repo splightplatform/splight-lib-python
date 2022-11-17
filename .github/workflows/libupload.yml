@@ -7,19 +7,14 @@ on:
 jobs:
   upload:
     runs-on: ubuntu-latest
-    name: uploading lib to jfrog
+    name: uploading lib to pypi
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: printf "[distutils]\n" >> ~/.pypirc
-      - run: printf "index-servers=splightlib\n" >> ~/.pypirc
-      - run: printf "[splightlib]\n" >> ~/.pypirc
-      - run: printf "repository:https://splight.jfrog.io/artifactory/api/pypi/splight-local\n" >> ~/.pypirc
-      - run: printf "username=$JFROG_USERNAME\n" >> ~/.pypirc
-        env: 
-          JFROG_USERNAME: ${{secrets.JFROG_USERNAME}}
-      - run: printf "password=$JFROG_PASS" >> ~/.pypirc
-        env: 
-          JFROG_PASS: ${{secrets.JFROG_PASS}}
-      - run: python setup.py bdist_wheel upload -r splightlib
-      - run: rm ~/.pypirc;
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
