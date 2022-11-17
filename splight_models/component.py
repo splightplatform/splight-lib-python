@@ -86,7 +86,7 @@ class ComponentCommandResponse(SplightBaseModel):
 
 
 class ComponentCommandStatus(str, Enum):
-    NOT_SENT ="not_sent"
+    NOT_SENT = "not_sent"
     PENDING = "pending"
     SUCCESS = "success"
     ERROR = "error"
