@@ -3,16 +3,26 @@ from enum import Enum
 from typing import Dict, Optional
 from pydantic import Field
 from splight_models.base import SplightBaseModel
-from splight_models.communication import Operation
 from splight_models.mapping import Mapping
 from splight_models.user import User
 from datetime import datetime, timezone
 
 
+class EventActions(str, Enum):
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    TRIGGER = "TRIGGER"
+    READ = "READ"
+
+
 class EventNames(str, Enum):
-    OPERATION_TRIGGER = 'operation-trigger'
-    OPERATION_CREATE = 'operation-create'
-    OPERATION_UPDATE = 'operation-update'
+    # TODO make this use EventActions.
+    COMPONENT_COMMAND_TRIGGER = 'componentcommand-trigger'
+    COMPONENT_COMMAND_CREATE = 'componentcommand-create'
+    COMPONENT_COMMAND_UPDATE = 'componentcommand-update'
+    # TODO add Asset Attribute and all shared objects
+    # TODO delete these
     MAPPING_CREATE = "mapping-create"
     MAPPING_DELETE = "mapping-delete"
 
@@ -27,21 +37,7 @@ class CommunicationEvent(SplightBaseModel):
     data: Dict
 
 
-class OperationTriggerEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.OPERATION_TRIGGER, const=True)
-    data: Operation
-
-
-class OperationCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.OPERATION_CREATE, const=True)
-    data: Operation
-
-
-class OperationUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.OPERATION_UPDATE, const=True)
-    data: Operation
-
-
+# TODO remove all this
 class MappingCreateEvent(CommunicationEvent):
     event_name: str = Field(EventNames.MAPPING_CREATE, const=True)
     data: Mapping

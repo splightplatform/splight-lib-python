@@ -16,6 +16,7 @@ from splight_models import (
     BlockchainContractSubscription,
     Component,
     ComponentObject,
+    ComponentCommand,
 )
 
 
@@ -70,6 +71,9 @@ CLASSMAP = {
     },
     ComponentObject: {
         "path": "component-objects"
+    },
+    ComponentCommand: {
+        "path": "component-commands"
     },
     Query: {
         "path": "query"
