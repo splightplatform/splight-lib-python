@@ -39,7 +39,7 @@ class SplightBaseSettings(BaseSettings):
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
     COMPONENT_ID: Optional[str] = Field(None, env=["COMPONENT_ID"])
     NAMESPACE: str = "NO_NAMESPACE"
-    SPLIGHT_ENCRYPTION_KEY: str
+    SPLIGHT_ENCRYPTION_KEY: str = ""
 
     @property
     def importables(self):
