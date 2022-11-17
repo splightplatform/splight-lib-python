@@ -14,6 +14,7 @@ from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
 from splight_lib.shortcut import save_file as _save_file  # TODO unify storage with database
 from splight_models import (
+    CustomType,
     Deployment,
     Notification,
     StorageFile,
@@ -206,7 +207,7 @@ class BindingsMixin:
         custom_object_data = component_object.data
         custom_object_data.extend([
             Parameter(name=key, value=getattr(component_object, key))
-            for key in ["id", "name", "description"]
+            for key in CustomType.reserved_names
         ])
         custom_object_model = getattr(self.custom_types, binding_object_type)
         parsed_component_object = self.parse_parameters(custom_object_data)
@@ -258,7 +259,7 @@ class ParametersMixin:
                 for o in objects:
                     component_object_data = [
                         Parameter(name=key, value=getattr(o, key))
-                        for key in ["id", "name", "description"]
+                        for key in CustomType.reserved_names
                     ]
                     o.data.extend(component_object_data)
                 objects = [o.data for o in objects]
