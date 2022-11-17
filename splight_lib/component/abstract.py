@@ -447,9 +447,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             namespace=self.namespace,
             **self.storage_client_kwargs
         )
-        # self.communication_client = self.setup.COMMUNICATION_CLIENT(
-        #     namespace=self.namespace,
-        #     **self.communication_client_kwargs
-        # )
+        self.communication_client = self.setup.COMMUNICATION_CLIENT(
+            namespace=self.namespace,
+            **self.communication_client_kwargs
+        )
         self.execution_client = ExecutionClient(namespace=self.namespace)
         self.blockchain_client = self.setup.BLOCKCHAIN_CLIENT(namespace=self.namespace)
