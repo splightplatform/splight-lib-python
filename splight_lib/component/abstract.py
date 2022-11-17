@@ -224,7 +224,10 @@ class BindingsMixin:
             command_kwargs_model = getattr(self.commands, command.name)
             parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
             command_kwargs = command_kwargs_model(**parsed_command_kwargs)
-            command_kwargs = command_kwargs.dict()
+            # .dict is not keeping the models of subkeys
+            command_kwargs = {
+                str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
+            }
             component_command.response.return_value = str(command_function(**command_kwargs))
             component_command.status = ComponentCommandStatus.SUCCESS
         except Exception as e:
