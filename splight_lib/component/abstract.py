@@ -1,9 +1,10 @@
 import sys
 import time
 import pandas as pd
+from functools import partial
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict, Tuple, Set, Any
+from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
 from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
 from pydantic import BaseModel
@@ -19,9 +20,10 @@ from splight_models import (
     ComponentDatalakeModel,
     Algorithm,
     Command,
+    Binding,
     ComponentObject,
 )
-from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent
+from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter
 
@@ -178,26 +180,57 @@ class UtilsMixin:
 
 class BindingsMixin:
     def _load_client_bindings(self):
-        self.communication_client.bind(EventNames.ComponentCommandTriggerEvent, self.__handle_operation_trigger)
+        # Commands
+        self.communication_client.bind(EventNames.COMPONENT_COMMAND_TRIGGER, self.__handle_component_command_trigger)
 
-    def __handle_operation_trigger(self, data: str):
+        # Bindings
+        for binding in self.bindings:
+            binding_function = getattr(self, binding.name)
+            # TODO extend this to allow bindings on splight models
+            binding_event_name = ComponentObject.get_event_name(binding.object_type, binding.object_action)
+            binding_object_type = binding.object_type
+            self.communication_client.bind(
+                binding_event_name,
+                partial(
+                    self.__handle_component_binding_trigger,
+                    binding_function,
+                    binding_object_type
+                )
+            )
+            logger.info(f"Binded event: {binding_event_name}")
+
+    def __handle_component_binding_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
+        assert self.bindings, "Please define .bindings to start."
+        component_object_event = CommunicationEvent.parse_raw(data)
+        component_object: ComponentObject = ComponentObject(**component_object_event.data)
+        custom_object_data = component_object.data
+        custom_object_data.extend([
+            Parameter(name=key, value=getattr(component_object, key))
+            for key in ["id", "name", "description"]
+        ])
+        custom_object_model = getattr(self.custom_types, binding_object_type)
+        parsed_component_object = self.parse_parameters(custom_object_data)
+        binding_kwargs = custom_object_model(**parsed_component_object)
+        binding_function(binding_kwargs)
+
+    def __handle_component_command_trigger(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        operation_event = ComponentCommandTriggerEvent.parse_raw(data)
-        operation: ComponentCommand = operation_event.data
-        command: Command = operation.command
+        component_command_event = ComponentCommandTriggerEvent.parse_raw(data)
+        component_command: ComponentCommand = component_command_event.data
+        command: Command = component_command.command
         try:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
             parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
             command_kwargs = command_kwargs_model(**parsed_command_kwargs)
             command_kwargs = command_kwargs.dict()
-            operation.response.return_value = str(command_function(**command_kwargs))
-            operation.status = ComponentCommandStatus.SUCCESS
+            component_command.response.return_value = str(command_function(**command_kwargs))
+            component_command.status = ComponentCommandStatus.SUCCESS
         except Exception as e:
-            operation.response.error_detail = str(e)
-            operation.status = ComponentCommandStatus.ERROR
-        operation_callback_event = ComponentCommandUpdateEvent(data=operation)
-        self.communication_client.trigger(operation_callback_event)
+            component_command.response.error_detail = str(e)
+            component_command.status = ComponentCommandStatus.ERROR
+        component_command_callback_event = ComponentCommandUpdateEvent(data=component_command)
+        self.communication_client.trigger(component_command_callback_event)
 
 
 class ParametersMixin:
@@ -222,15 +255,13 @@ class ParametersMixin:
             else:
                 object_ids = value if multiple else [value]
                 objects = self.database_client.get(ComponentObject, id__in=object_ids)
-                new_objects = []
                 for o in objects:
-                    data = o.data
-                    # Include component object information in the Input model
-                    for key, value in o.dict().items():
-                        if key != "dict":
-                            data.append(Parameter(name=f"{key}_", value=value))
-                    new_objects.append(data)
-                objects = new_objects
+                    component_object_data = [
+                        Parameter(name=key, value=getattr(o, key))
+                        for key in ["id", "name", "description"]
+                    ]
+                    o.data.extend(component_object_data)
+                objects = [o.data for o in objects]
                 parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
             reloaded_parameters.append(parameter)
         return reloaded_parameters
@@ -356,6 +387,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         self.output: Type = self._spec.output_model
         self.custom_types: Type = self._spec.custom_types_model
         self.commands: Type = self._spec.commands_model
+        self.bindings: List[Binding] = self._spec.bindings
 
     def _load_input_model(self):
         raw_spec = self.spec.dict()

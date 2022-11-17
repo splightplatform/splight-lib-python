@@ -8,14 +8,16 @@ from splight_models.user import User
 from datetime import datetime, timezone
 
 
-class EventAction:
+class EventActions(str, Enum):
     CREATE = "CREATE"
     UPDATE = "UPDATE"
     DELETE = "DELETE"
+    TRIGGER = "TRIGGER"
     READ = "READ"
 
 
 class EventNames(str, Enum):
+    # TODO make this use EventActions.
     COMPONENT_COMMAND_TRIGGER = 'componentcommand-trigger'
     COMPONENT_COMMAND_CREATE = 'componentcommand-create'
     COMPONENT_COMMAND_UPDATE = 'componentcommand-update'
