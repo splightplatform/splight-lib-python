@@ -35,6 +35,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         BlockchainContractSubscription,
         Component,
         ComponentObject,
+        ComponentCommand,
         Query,
     ]
 

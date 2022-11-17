@@ -6,6 +6,7 @@ from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.query import Query
+from splight_models import EventActions, EventNames, CommunicationEvent
 
 from datetime import datetime
 from enum import Enum
@@ -45,6 +46,7 @@ class CommandParameter(Parameter):
 
 
 class CustomType(SplightBaseModel):
+    _reserved_names = ["id", "name", "description"]
     name: str
     fields: List[Parameter]
 
@@ -59,6 +61,12 @@ class Command(SplightBaseModel):
     fields: List[CommandParameter]
 
 
+class Binding(SplightBaseModel):
+    name: str
+    object_type: str
+    object_action: EventActions
+
+
 class ComponentObject(SplightBaseModel):
     id: Optional[str]
     component_id: str
@@ -66,6 +74,47 @@ class ComponentObject(SplightBaseModel):
     description: Optional[str]
     type: str
     data: List[Parameter]
+
+    @staticmethod
+    def get_event_name(type: str, action: EventActions) -> str:
+        return f"{type.lower()}_{action}"
+
+
+class ComponentCommandResponse(SplightBaseModel):
+    return_value: Optional[str] = None
+    error_detail: Optional[str] = None
+
+
+class ComponentCommandStatus(str, Enum):
+    NOT_SENT = "not_sent"
+    PENDING = "pending"
+    SUCCESS = "success"
+    ERROR = "error"
+
+
+class ComponentCommand(SplightBaseModel):
+    id: Optional[str]
+    command: Command
+    status: ComponentCommandStatus
+    response: ComponentCommandResponse = ComponentCommandResponse()
+
+    def get_event_name(self, action: EventActions) -> str:
+        return f"componentcommand_{action}"
+
+
+class ComponentCommandTriggerEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandCreateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_CREATE, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandUpdateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_UPDATE, const=True)
+    data: ComponentCommand
 
 
 class BaseComponent(SplightBaseModel):
@@ -75,6 +124,7 @@ class BaseComponent(SplightBaseModel):
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
+    bindings: Optional[List[Binding]] = []
 
     class Config:
         keep_untouched = (cached_property,)
@@ -196,12 +246,14 @@ class ComponentModelsFactory:
 
     def get_custom_types_model(self, custom_types: List) -> Type:
         custom_types_dict: Dict[str, BaseModel] = {}
-        component_object_base = ComponentObject.__fields__.copy()
-        component_object_base.pop("data")
-        fields = {f"{key}_": (modelfield.type_, modelfield.default if modelfield.default else ...) for key, modelfield in component_object_base.items()}
-        base_model = create_model("ComponentObjectBase", **fields)
         for custom_type in custom_types:
-            model = self._create_model(custom_type.name, custom_type.fields, base=base_model)
+            custom_type.fields.extend(
+                [
+                    Parameter(name=key, value=None)
+                    for key in CustomType._reserved_names
+                ]
+            )
+            model = self._create_model(custom_type.name, custom_type.fields)
             custom_types_dict[custom_type.name] = model
             self._type_map[custom_type.name] = model
 
@@ -230,7 +282,7 @@ class ComponentModelsFactory:
 
     def _create_model(self,
                       name: str,
-                      fields: List,
+                      fields: List[Parameter],
                       extra_fields: Dict = {},
                       base: Type = SplightBaseModel) -> Type:
 
