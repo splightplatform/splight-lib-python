@@ -46,12 +46,9 @@ class CommandParameter(Parameter):
 
 
 class CustomType(SplightBaseModel):
+    _reserved_names = ["id", "name", "description"]
     name: str
     fields: List[Parameter]
-
-    @property
-    def reserved_names(self):
-        return ["id", "name", "description"]
 
 
 class Output(SplightBaseModel):
@@ -253,7 +250,7 @@ class ComponentModelsFactory:
             custom_type.fields.extend(
                 [
                     Parameter(name=key, value=None)
-                    for key in CustomType.reserved_names
+                    for key in CustomType._reserved_names
                 ]
             )
             model = self._create_model(custom_type.name, custom_type.fields)
