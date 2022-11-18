@@ -126,7 +126,7 @@ class HooksMixin:
         resource_type = kwargs["resource_type"]
         if resource_type and hasattr(self.custom_types, resource_type.__name__):
             kwargs["resource_type"] = ComponentObject
-            kwargs['component_id'] = self.instance_id
+            kwargs["component_id"] = self.instance_id
             kwargs["type"] = resource_type.__name__
         return args, kwargs
 
