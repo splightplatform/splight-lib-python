@@ -122,7 +122,6 @@ class HooksMixin:
         return args, kwargs
 
     def __hook_custom_resource_type(self, *args, **kwargs):
-        print(args, kwargs)
         resource_type = kwargs["resource_type"]
         if resource_type and hasattr(self.custom_types, resource_type.__name__):
             kwargs["resource_type"] = ComponentObject
