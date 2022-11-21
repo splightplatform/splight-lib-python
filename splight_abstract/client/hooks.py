@@ -1,9 +1,10 @@
+import inspect
+from enum import Enum
 from typing import Callable, List, Dict
 from functools import wraps
-import inspect
 
 
-class HooksStage:
+class HooksStage(str, Enum):
     BEFORE = "before"
     AFTER = "after"
 
