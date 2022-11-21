@@ -97,6 +97,10 @@ class HooksMixin:
         self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
+        self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("delete", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("count", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_post_hook("get", self.__hook_transform_to_custom_instances)
 
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -119,12 +123,37 @@ class HooksMixin:
         kwargs["collection"] = self.collection_name
         return args, kwargs
 
+    def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
+        resource_type = kwargs["resource_type"]
+        if resource_type and hasattr(self.custom_types, resource_type.__name__):
+            kwargs["resource_type"] = ComponentObject
+            kwargs["component_id"] = self.instance_id
+            kwargs["type"] = resource_type.__name__
+        return args, kwargs
+
+    def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
+        parsed_result = []
+        for object in result:
+            if isinstance(object, ComponentObject):
+                custom_object_data: List[Parameter] = object.data
+                custom_object_data.extend([
+                    Parameter(name=key, value=getattr(object, key))
+                    for key in CustomType._reserved_names
+                ])
+                custom_object_model = getattr(self.custom_types, object.type)
+                parsed_component_object = self.parse_parameters(custom_object_data)
+                object = custom_object_model(**parsed_component_object)
+            parsed_result.append(object)
+        return parsed_result
+
 
 class UtilsMixin:
     def get_history(self, **kwargs) -> pd.DataFrame:
+        # TODO handle this with hooks?
         return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
     def get_results(self, algorithm: Algorithm, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
+        # TODO handle this with hooks?
         if output_model != getattr(algorithm.output_model, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} does not match algorithm output"
@@ -137,6 +166,7 @@ class UtilsMixin:
         )
 
     def save_results(self, output_model: ComponentDatalakeModel, dataframe: pd.DataFrame) -> None:
+        # TODO handle this with hooks?
         if output_model != getattr(self.output, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} is not defined in the output"
@@ -164,6 +194,7 @@ class UtilsMixin:
         path: str,
         args: Dict,
     ) -> StorageFile:
+        # TODO deprecate this
         return _save_file(
             self.storage_client,
             self.datalake_client,
@@ -176,6 +207,7 @@ class UtilsMixin:
         )
 
     def notify(self, notification: Notification):
+        # TODO deprecate this.
         return self.database_client.save(notification)
 
 

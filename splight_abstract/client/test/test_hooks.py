@@ -1,8 +1,8 @@
 from unittest import TestCase
-from splight_abstract.client.pre_hook import PreHookMixin
+from splight_abstract.client.hooks import HooksMixin
 
 
-class ForTest(PreHookMixin):
+class ForTest(HooksMixin):
     def test(self, a, b, **kwargs):
         return a, b, kwargs
 
@@ -21,6 +21,21 @@ class TestVariable(TestCase):
     def b_minus(*args, **kwargs):
         kwargs['b'] -= 1
         return args, kwargs
+
+    @staticmethod
+    def join_return_values(result):
+        a, b, kwargs = result
+        return_value = {
+            "a": a,
+            "b": b,
+        }
+        return_value.update(**kwargs)
+        return return_value
+
+    def test_post_hook(self):
+        self.instance.add_post_hook('test', self.join_return_values)
+        return_value = self.instance.test(1, 2, c=3)
+        self.assertEqual(return_value, {"a": 1, "b":2 , "c":3})
 
     def test_1_hook(self):
         self.instance.add_pre_hook('test', self.a_plus)
