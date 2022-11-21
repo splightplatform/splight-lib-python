@@ -97,8 +97,10 @@ class HooksMixin:
         self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
-        self.database_client.add_pre_hook("get", self.__hook_custom_resource_type)
-        self.database_client.add_post_hook("get", self.__hook_custom_instances)
+        self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("delete", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("count", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_post_hook("get", self.__hook_transform_to_custom_instances)
 
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -121,7 +123,7 @@ class HooksMixin:
         kwargs["collection"] = self.collection_name
         return args, kwargs
 
-    def __hook_custom_resource_type(self, *args, **kwargs):
+    def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
         resource_type = kwargs["resource_type"]
         if resource_type and hasattr(self.custom_types, resource_type.__name__):
             kwargs["resource_type"] = ComponentObject
@@ -129,7 +131,7 @@ class HooksMixin:
             kwargs["type"] = resource_type.__name__
         return args, kwargs
 
-    def __hook_custom_instances(self, result: List[BaseModel]):
+    def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
         parsed_result = []
         for object in result:
             if isinstance(object, ComponentObject):
