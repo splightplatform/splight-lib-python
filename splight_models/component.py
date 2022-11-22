@@ -204,7 +204,7 @@ NATIVE_TYPES = {
     "bool": bool,
     "str": str,
     "float": float,
-    "date": datetime,
+    "datetime": datetime,
     "url": AnyUrl,
 }
 
