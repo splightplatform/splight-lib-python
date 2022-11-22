@@ -11,7 +11,7 @@ from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
-from pydantic import BaseModel, create_model, Field
+from pydantic import BaseModel, create_model, Field, AnyUrl
 from copy import copy
 from functools import cached_property
 import inspect
@@ -205,6 +205,7 @@ NATIVE_TYPES = {
     "str": str,
     "float": float,
     "date": datetime,
+    "url": AnyUrl,
 }
 
 DATABASE_TYPES = {
