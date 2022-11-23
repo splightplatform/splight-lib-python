@@ -1,6 +1,7 @@
 import os
 from typing import Optional, Dict
 from .base import SplightBaseModel
+import json
 
 
 class File(SplightBaseModel):
@@ -21,3 +22,10 @@ class File(SplightBaseModel):
     @property
     def name(self):
         return self.file.split(os.sep)[-1]
+
+    def json(self, *args, **kwargs):
+        prev_metadata = self.metadata
+        self.metadata = json.dumps(self.metadata)
+        res = super(File, self).json(*args, **kwargs)
+        self.metadata = prev_metadata
+        return res
