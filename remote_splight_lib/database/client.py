@@ -2,6 +2,7 @@ from .classmap import CLASSMAP
 from retry import retry
 from splight_abstract.remote import AbstractRemoteClient
 from splight_abstract.database import AbstractDatabaseClient
+from splight_models import File
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.auth import SplightAuthToken
@@ -15,6 +16,8 @@ from requests.exceptions import (
     ConnectionError,
     Timeout
 )
+from tempfile import TemporaryFile
+
 
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 
@@ -132,6 +135,35 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._list(path, **kwargs)
         return response["count"]
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def download(self, instance: BaseModel, **kwargs) -> TemporaryFile:
+        """Returns the number of resources in the database for a given model
+
+        Parameters
+        ----------
+        instance : BaseModel
+            The instance of the model to be downloaded
+
+        Returns
+        -------
+        TemporaryFile
+            the file object
+
+        Raises
+        ------
+        InvalidModel thrown when the model name is not correct.
+        """
+        constructor = type(instance)
+        model_data = self._get_model_data(constructor)
+        path = model_data["path"]
+        url = self._base_url / f"{path}/{instance.id}/download"
+        response = self._session.get(url)
+        response.raise_for_status()
+        f = TemporaryFile("wb+")
+        f.write(response.content)
+        f.seek(0)
+        return f
+
     def _pages(self, path: str, **kwargs):
         next_page = kwargs["page"]
         while next_page:
@@ -158,11 +190,18 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             raise InvalidModel(constructor.schema()["title"])
         return model_data
 
-    def _create(self, path: str, data: BaseModel) -> Dict:
+    def _create(self, path: str, instance: BaseModel) -> Dict:
         url = self._base_url / f"{path}/"
-        response = self._session.post(
-            url, json=json.loads(data.json(exclude_none=True))
-        )
+
+        data = json.loads(instance.json(exclude_none=True)),
+
+        if type(instance) == File:
+            with open(instance.file, 'rb') as f:
+                file = {"file": f}
+                response = self._session.post(url, json=data, files=file)
+        else:
+            response = self._session.post(url, json=data)
+
         response.raise_for_status()
         return response.json()
 
