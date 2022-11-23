@@ -2,10 +2,12 @@ from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, 
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
+from splight_models.file import File
 from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.query import Query
+
 from splight_models import EventActions, EventNames, CommunicationEvent
 
 from datetime import datetime
@@ -214,6 +216,7 @@ DATABASE_TYPES = {
     "Algorithm": Algorithm,
     "Attribute": Attribute,
     "Connector": Connector,
+    "File": File,
     "System": System,
     "Graph": Graph,
     "Network": Network,

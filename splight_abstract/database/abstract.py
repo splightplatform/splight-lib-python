@@ -2,6 +2,7 @@ from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List
 from splight_abstract.client import AbstractClient, QuerySet
+from tempfile import TemporaryFile
 
 
 class AbstractDatabaseClient(AbstractClient):
@@ -29,4 +30,8 @@ class AbstractDatabaseClient(AbstractClient):
 
     @abstractmethod
     def count(self, resource_type: Type, **kwargs) -> int:
+        pass
+
+    @abstractmethod
+    def download(self, instance: BaseModel) -> TemporaryFile:
         pass
