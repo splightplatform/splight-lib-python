@@ -3,6 +3,7 @@ from splight_models import (
     Asset,
     Attribute,
     Connector,
+    File,
     System,
     Mapping,
     Edge,
@@ -38,6 +39,9 @@ CLASSMAP = {
     },
     Edge: {
         "path": "graph/edge"
+    },
+    File: {
+        "path": "file"
     },
     Graph: {
         "path": "graph/graph"
