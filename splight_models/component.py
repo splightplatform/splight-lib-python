@@ -23,6 +23,7 @@ class Parameter(SplightBaseModel):
     type: str = "str"
     required: bool = False
     multiple: bool = False
+    sensitive: bool = False
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
     value: Any = None
@@ -307,4 +308,6 @@ class ComponentModelsFactory:
 
             fields_dict[field.name] = (type, value)
 
-        return create_model(name, **fields_dict, __base__=base)
+        return create_model(
+            name, **fields_dict, __base__=base
+        )
