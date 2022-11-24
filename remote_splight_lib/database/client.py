@@ -193,7 +193,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def _create(self, path: str, instance: BaseModel) -> Dict:
         url = self._base_url / f"{path}/"
         data = json.loads(instance.json(exclude_none=True))
-        if type(instance) == File:
+        if isinstance(instance, File):
             with open(instance.file, 'rb') as f:
                 file = {"file": f}
                 response = self._session.post(url, data=data, files=file)
