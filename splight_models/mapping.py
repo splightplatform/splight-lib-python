@@ -8,6 +8,7 @@ class Mapping(SplightBaseModel):
     description: Optional[str] = None
     asset_id: str
     attribute_id: str
+    output_format: str
     connector_id: Optional[str] = None
     path: Optional[str] = None
     period: Optional[int] = 5000
