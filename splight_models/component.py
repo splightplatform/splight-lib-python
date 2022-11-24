@@ -11,7 +11,7 @@ from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
-from pydantic import BaseModel, create_model, Field
+from pydantic import BaseModel, create_model, Field, AnyUrl
 from copy import copy
 from functools import cached_property
 import inspect
@@ -23,6 +23,7 @@ class Parameter(SplightBaseModel):
     type: str = "str"
     required: bool = False
     multiple: bool = False
+    sensitive: bool = False
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
     value: Any = None
@@ -204,7 +205,8 @@ NATIVE_TYPES = {
     "bool": bool,
     "str": str,
     "float": float,
-    "date": datetime,
+    "datetime": datetime,
+    "url": AnyUrl,
 }
 
 DATABASE_TYPES = {
@@ -306,4 +308,6 @@ class ComponentModelsFactory:
 
             fields_dict[field.name] = (type, value)
 
-        return create_model(name, **fields_dict, __base__=base)
+        return create_model(
+            name, **fields_dict, __base__=base
+        )
