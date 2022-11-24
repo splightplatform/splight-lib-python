@@ -1,3 +1,5 @@
+from typing import Union
+
 from pydantic import BaseSettings
 from cryptography.fernet import Fernet
 
@@ -11,3 +13,11 @@ def decrypt_value_validator(cls, value: str) -> str:
     encrypter = Fernet(config.SPLIGHT_ENCRYPTION_KEY.encode("utf-8"))
     decripted = encrypter.decrypt(value.encode("utf-8")).decode("utf-8")
     return decripted
+
+
+def encrypt_value(value: Union[str, int, float]) -> str:
+    string = f"{value}"
+    config = EncryptionSettings()
+    encrypter = Fernet(config.SPLIGHT_ENCRYPTION_KEY.encode("utf-8"))
+    encrypted = encrypter.encrypt(string.encode("utf-8")).decode("utf-8")
+    return encrypted
