@@ -55,8 +55,6 @@ class TestMappingHash(AbstractBaseHash, TestCase):
         "name": "MyMapping",
         "asset_id": "1",
         "attribute_id": "1",
-        "connector_id": "val",
-        "path": "val",
         "output_format": "Number",
     }
     rand_str_arg = "asset_id"
