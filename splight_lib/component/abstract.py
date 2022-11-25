@@ -419,7 +419,8 @@ class ParametersMixin:
 
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
     collection_name = "default"
-    managed_class: Type = None
+    # TODO: Change managed class to be component when everything is unified
+    managed_class: Type = Algorithm
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
@@ -435,6 +436,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         self.version: str = self._spec.version
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_id = self._setup.settings.COMPONENT_ID
+        self.collection_name = str(self.instance_id)
 
         self._load_instance_data()
         self._load_clients()
@@ -459,9 +461,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
-    @abstractmethod
     def _load_instance_data(self):
-        pass
+        self.collection_name = str(self.instance_id)
+        self.communication_client_kwargs['instance_id'] = self.instance_id
 
     def _load_spec_models(self):
         self.output: Type = self._spec.output_model
