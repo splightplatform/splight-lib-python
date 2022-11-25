@@ -290,9 +290,12 @@ class ComponentModelsFactory:
                       fields: List[Parameter],
                       extra_fields: Dict = {},
                       base: Type = SplightBaseModel) -> Type:
+        class Meta:
+            pass
 
         fields_dict: Dict[str, Tuple] = copy(extra_fields)
         for field in fields:
+            setattr(Meta, field.name, field)
             type = self._type_map[field.type]
             choices = getattr(field, "choices", None)
             multiple = getattr(field, "multiple", False)
@@ -311,6 +314,8 @@ class ComponentModelsFactory:
 
             fields_dict[field.name] = (type, value)
 
-        return create_model(
+        model = create_model(
             name, **fields_dict, __base__=base
         )
+        model.Meta = Meta
+        return model

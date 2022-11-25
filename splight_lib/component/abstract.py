@@ -93,10 +93,13 @@ class IndexMixin:
 
 class HooksMixin:
     def _load_client_hooks(self):
+        # Datalake
         self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
         self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
+        # Database
+        self.database_client.add_pre_hook("save", self.__hook_transform_from_custom_instances)
         self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
         self.database_client.add_pre_hook("delete", self.__hook_transform_from_custom_resource_type)
         self.database_client.add_pre_hook("count", self.__hook_transform_from_custom_resource_type)
@@ -129,6 +132,17 @@ class HooksMixin:
             kwargs["resource_type"] = ComponentObject
             kwargs["component_id"] = self.instance_id
             kwargs["type"] = resource_type.__name__
+        return args, kwargs
+
+    def __hook_transform_from_custom_instances(self, *args, **kwargs):
+        instance = kwargs["instance"]
+        if getattr(self.custom_types, type(instance).__name__, None):
+            parsed_instance = ComponentObject(
+                component_id = self.instance_id,
+                type = type(instance).__name__,
+                **self.unparse_parameters(instance)
+            )
+            kwargs["instance"] = parsed_instance
         return args, kwargs
 
     def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
@@ -270,6 +284,36 @@ class BindingsMixin:
 
 
 class ParametersMixin:
+    def unparse_parameters(self, instance: Dict) -> List[Dict]:
+        custom_type = getattr(self.custom_types, type(instance).__name__, None)
+        if custom_type is None:
+            raise NotImplementedError
+        reserved_parameters = {k:v for k,v in instance.dict().items() if k in CustomType._reserved_names}
+        custom_parameters = {k:v for k,v in instance.dict().items() if k not in CustomType._reserved_names}
+        fields = []
+        for key, obj in custom_parameters.items():
+            field = getattr(custom_type.Meta, key)
+            if field is None:
+                continue
+            value = obj
+
+            if field.type not in NATIVE_TYPES:
+                value = [o["id"] for o in obj] if field.multiple else obj["id"]
+
+            fields.append(
+                Parameter(
+                    name = field.name,
+                    value = value,
+                    type = field.type,
+                    multiple = field.multiple,
+                    required = field.required,
+                    choices = field.choices,
+                    depends_on = field.depends_on,
+                    sensitive = field.sensitive,
+                )
+            )
+        return {"data": fields, **reserved_parameters}
+
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
         parameters = self._fetch_and_reload_component_objects_parameters(parameters)
         object_ids: Dict[str, Dict[str, List]] = self._get_object_ids(parameters)
