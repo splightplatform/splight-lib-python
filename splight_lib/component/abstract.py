@@ -142,7 +142,7 @@ class HooksMixin:
                 type = type(instance).__name__,
                 **self.unparse_parameters(instance)
             )
-        kwargs["instance"] = parsed_instance
+            kwargs["instance"] = parsed_instance
         return args, kwargs
 
     def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
