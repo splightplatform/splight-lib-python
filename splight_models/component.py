@@ -7,9 +7,8 @@ from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
 from splight_models.query import Query
-
+from splight_models.mapping import Mapping
 from splight_models import EventActions, EventNames, CommunicationEvent
-
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
@@ -217,6 +216,7 @@ DATABASE_TYPES = {
     "Attribute": Attribute,
     "Connector": Connector,
     "File": File,
+    "Mapping": Mapping,
     "System": System,
     "Graph": Graph,
     "Network": Network,
