@@ -108,8 +108,10 @@ class CommunicationClient(AbstractCommunicationClient):
 
     def __on_connection_established(self, data):
         self._channel = self._client.subscribe(self._context.channel)
+        self._private_room_channel = self._client.subscribe(self._context.private_room_channel)
         for event_name, event_handler in self._channel_bindings:
             self._channel.bind(event_name, event_handler)
+            self._private_room_channel.bind(event_name, event_handler)
         self._status = CommunicationClientStatus.READY
 
     def __on_connection_failed(self, data):
@@ -124,6 +126,7 @@ class CommunicationClient(AbstractCommunicationClient):
             logger.warning("Bind events failed due to comm client is not ready")
             return
         self._channel.bind(event_name, event_handler)
+        self._private_room_channel.bind(event_name, event_handler)
 
     def unbind(self, event_name: str, event_handler: Callable) -> None:
         # TODO implement this
