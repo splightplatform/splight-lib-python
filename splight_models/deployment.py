@@ -7,7 +7,7 @@ from splight_models.component import BaseComponent
 class Deployment(BaseComponent):
     # run-spec
     id: Optional[str] = None
-    type: ComponentType
+    type: ComponentType = ComponentType.COMPONENT
     component_id: Optional[str] = None
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None

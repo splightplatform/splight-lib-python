@@ -20,7 +20,7 @@ from splight_models import (
     Notification,
     StorageFile,
     ComponentDatalakeModel,
-    Algorithm,
+    Component,
     Command,
     Binding,
     ComponentObject,
@@ -167,15 +167,15 @@ class UtilsMixin:
         # TODO handle this with hooks?
         return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
-    def get_results(self, algorithm: Algorithm, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
+    def get_results(self, component: Component, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
         # TODO handle this with hooks?
-        if output_model != getattr(algorithm.output_model, output_model.__name__):
+        if output_model != getattr(component.output_model, output_model.__name__):
             raise ValueError(
-                f"Output model {output_model.__name__} does not match algorithm output"
+                f"Output model {output_model.__name__} does not match component output"
             )
 
         return self.datalake_client.get_dataframe(
-            collection=algorithm.collection,
+            collection=component.collection,
             output_format=output_model.__name__,
             **kwargs
         )
@@ -430,8 +430,7 @@ class ParametersMixin:
 
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
     collection_name = "default"
-    # TODO: Change managed class to be component when everything is unified
-    managed_class: Type = Algorithm
+    managed_class: Type = Component
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
