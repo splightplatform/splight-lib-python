@@ -1,14 +1,11 @@
 from splight_models import (
-    Algorithm,
     Asset,
     Attribute,
-    Connector,
     File,
-    System,
     Mapping,
     Edge,
     Graph,
-    Network,
+    Component,
     Notification,
     Query,
     Node,
@@ -22,17 +19,14 @@ from splight_models import (
 
 
 CLASSMAP = {
-    Algorithm: {
-        "path": "algorithm"
+    Component: {
+        "path": "component"
     },
     Asset: {
         "path": "asset"
     },
     Attribute: {
         "path": "attribute"
-    },
-    Connector: {
-        "path": "connector"
     },
     Mapping: {
         "path": "mapping"
@@ -49,9 +43,6 @@ CLASSMAP = {
     # Namespace: {
     #     "path": "asset"
     # },
-    Network: {
-        "path": "network"
-    },
     Notification: {
         "path": "notification"
     },
@@ -66,9 +57,6 @@ CLASSMAP = {
     },
     BlockchainContractSubscription: {
         "path": "blockchain/subscription"
-    },
-    System: {
-        "path": "system"
     },
     Component: {
         "path": "components"
