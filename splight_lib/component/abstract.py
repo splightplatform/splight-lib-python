@@ -1,9 +1,10 @@
 import sys
 import time
 import pandas as pd
+from functools import partial
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict, Tuple, Set, Any
+from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
 from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
 from pydantic import BaseModel
@@ -13,18 +14,19 @@ from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
 from splight_lib.shortcut import save_file as _save_file  # TODO unify storage with database
 from splight_models import (
+    CustomType,
     Deployment,
     Notification,
     StorageFile,
     ComponentDatalakeModel,
     Algorithm,
     Command,
+    Binding,
     ComponentObject,
 )
-from splight_models.communication import Operation
-from splight_models.communication.events import EventNames, OperationTriggerEvent, OperationUpdateEvent
-from splight_models.communication.models import OperationStatus
-from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES
+from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
+from splight_models.component import ComponentCommand, ComponentCommandStatus
+from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter
 
 
 logger = logging.getLogger()
@@ -91,10 +93,17 @@ class IndexMixin:
 
 class HooksMixin:
     def _load_client_hooks(self):
+        # Datalake
         self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
         self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
+        # Database
+        self.database_client.add_pre_hook("save", self.__hook_transform_from_custom_instances)
+        self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("delete", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("count", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_post_hook("get", self.__hook_transform_to_custom_instances)
 
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -117,12 +126,48 @@ class HooksMixin:
         kwargs["collection"] = self.collection_name
         return args, kwargs
 
+    def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
+        resource_type = kwargs["resource_type"]
+        if resource_type and hasattr(self.custom_types, resource_type.__name__):
+            kwargs["resource_type"] = ComponentObject
+            kwargs["component_id"] = self.instance_id
+            kwargs["type"] = resource_type.__name__
+        return args, kwargs
+
+    def __hook_transform_from_custom_instances(self, *args, **kwargs):
+        instance = kwargs["instance"]
+        if getattr(self.custom_types, type(instance).__name__, None):
+            parsed_instance = ComponentObject(
+                component_id = self.instance_id,
+                type = type(instance).__name__,
+                **self.unparse_parameters(instance)
+            )
+            kwargs["instance"] = parsed_instance
+        return args, kwargs
+
+    def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
+        parsed_result = []
+        for object in result:
+            if isinstance(object, ComponentObject):
+                custom_object_data: List[Parameter] = object.data
+                custom_object_data.extend([
+                    Parameter(name=key, value=getattr(object, key))
+                    for key in CustomType._reserved_names
+                ])
+                custom_object_model = getattr(self.custom_types, object.type)
+                parsed_component_object = self.parse_parameters(custom_object_data)
+                object = custom_object_model(**parsed_component_object)
+            parsed_result.append(object)
+        return parsed_result
+
 
 class UtilsMixin:
     def get_history(self, **kwargs) -> pd.DataFrame:
+        # TODO handle this with hooks?
         return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
     def get_results(self, algorithm: Algorithm, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
+        # TODO handle this with hooks?
         if output_model != getattr(algorithm.output_model, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} does not match algorithm output"
@@ -135,6 +180,7 @@ class UtilsMixin:
         )
 
     def save_results(self, output_model: ComponentDatalakeModel, dataframe: pd.DataFrame) -> None:
+        # TODO handle this with hooks?
         if output_model != getattr(self.output, output_model.__name__):
             raise ValueError(
                 f"Output model {output_model.__name__} is not defined in the output"
@@ -162,6 +208,7 @@ class UtilsMixin:
         path: str,
         args: Dict,
     ) -> StorageFile:
+        # TODO deprecate this
         return _save_file(
             self.storage_client,
             self.datalake_client,
@@ -174,37 +221,99 @@ class UtilsMixin:
         )
 
     def notify(self, notification: Notification):
+        # TODO deprecate this.
         return self.database_client.save(notification)
 
 
 class BindingsMixin:
     def _load_client_bindings(self):
-        self.communication_client.bind(EventNames.OPERATION_TRIGGER, self.__handle_operation_trigger)
+        # Commands
+        self.communication_client.bind(EventNames.COMPONENT_COMMAND_TRIGGER, self.__handle_component_command_trigger)
 
-    def __handle_operation_trigger(self, data: str):
+        # Bindings
+        for binding in self.bindings:
+            binding_function = getattr(self, binding.name)
+            # TODO extend this to allow bindings on splight models
+            binding_event_name = ComponentObject.get_event_name(binding.object_type, binding.object_action)
+            binding_object_type = binding.object_type
+            self.communication_client.bind(
+                binding_event_name,
+                partial(
+                    self.__handle_component_binding_trigger,
+                    binding_function,
+                    binding_object_type
+                )
+            )
+            logger.info(f"Binded event: {binding_event_name}")
+
+    def __handle_component_binding_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
+        assert self.bindings, "Please define .bindings to start."
+        component_object_event = CommunicationEvent.parse_raw(data)
+        component_object: ComponentObject = ComponentObject(**component_object_event.data)
+        custom_object_data = component_object.data
+        custom_object_data.extend([
+            Parameter(name=key, value=getattr(component_object, key))
+            for key in CustomType._reserved_names
+        ])
+        custom_object_model = getattr(self.custom_types, binding_object_type)
+        parsed_component_object = self.parse_parameters(custom_object_data)
+        binding_kwargs = custom_object_model(**parsed_component_object)
+        binding_function(binding_kwargs)
+
+    def __handle_component_command_trigger(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
-        operation_event = OperationTriggerEvent.parse_raw(data)
-        operation: Operation = operation_event.data
-        command: Command = operation.command
+        component_command_event = ComponentCommandTriggerEvent.parse_raw(data)
+        component_command: ComponentCommand = component_command_event.data
+        command: Command = component_command.command
         try:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
             parsed_command_kwargs = self.parse_parameters(command.dict()["fields"])
             command_kwargs = command_kwargs_model(**parsed_command_kwargs)
-            # .to_dict is not keeping the models of subkeys
+            # .dict is not keeping the models of subkeys
             command_kwargs = {
                 str(field): getattr(command_kwargs, str(field)) for field in command_kwargs.__fields__
             }
-            operation.response.return_value = str(command_function(**command_kwargs))
-            operation.status = OperationStatus.SUCCESS
+            component_command.response.return_value = str(command_function(**command_kwargs))
+            component_command.status = ComponentCommandStatus.SUCCESS
         except Exception as e:
-            operation.response.error_detail = str(e)
-            operation.status = OperationStatus.ERROR
-        operation_callback_event = OperationUpdateEvent(data=operation)
-        self.communication_client.trigger(operation_callback_event)
+            component_command.response.error_detail = str(e)
+            component_command.status = ComponentCommandStatus.ERROR
+        component_command_callback_event = ComponentCommandUpdateEvent(data=component_command)
+        self.communication_client.trigger(component_command_callback_event)
 
 
 class ParametersMixin:
+    def unparse_parameters(self, instance: Dict) -> List[Dict]:
+        custom_type = getattr(self.custom_types, type(instance).__name__, None)
+        if custom_type is None:
+            raise NotImplementedError
+        reserved_parameters = {k:v for k,v in instance.dict().items() if k in CustomType._reserved_names}
+        custom_parameters = {k:v for k,v in instance.dict().items() if k not in CustomType._reserved_names}
+        fields = []
+        for key, obj in custom_parameters.items():
+            field = getattr(custom_type.Meta, key)
+            if field is None:
+                continue
+            value = obj
+
+            if field.type not in NATIVE_TYPES:
+                value = [o["id"] for o in obj] if field.multiple else obj["id"]
+
+            fields.append(
+                Parameter(
+                    name = field.name,
+                    value = value,
+                    type = field.type,
+                    multiple = field.multiple,
+                    required = field.required,
+                    choices = field.choices,
+                    depends_on = field.depends_on,
+                    sensitive = field.sensitive,
+                )
+            )
+        return {"data": fields, **reserved_parameters}
+
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
         parameters = self._fetch_and_reload_component_objects_parameters(parameters)
         object_ids: Dict[str, Dict[str, List]] = self._get_object_ids(parameters)
@@ -226,6 +335,12 @@ class ParametersMixin:
             else:
                 object_ids = value if multiple else [value]
                 objects = self.database_client.get(ComponentObject, id__in=object_ids)
+                for o in objects:
+                    component_object_data = [
+                        Parameter(name=key, value=getattr(o, key))
+                        for key in CustomType._reserved_names
+                    ]
+                    o.data.extend(component_object_data)
                 objects = [o.data for o in objects]
                 parameter["value"] = [self._fetch_and_reload_component_objects_parameters(o) for o in objects] if multiple else self._fetch_and_reload_component_objects_parameters(objects[0])
             reloaded_parameters.append(parameter)
@@ -304,7 +419,8 @@ class ParametersMixin:
 
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
     collection_name = "default"
-    managed_class: Type = None
+    # TODO: Change managed class to be component when everything is unified
+    managed_class: Type = Algorithm
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
@@ -320,6 +436,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         self.version: str = self._spec.version
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_id = self._setup.settings.COMPONENT_ID
+        self.collection_name = str(self.instance_id)
 
         self._load_instance_data()
         self._load_clients()
@@ -344,14 +461,15 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
-    @abstractmethod
     def _load_instance_data(self):
-        pass
+        self.collection_name = str(self.instance_id)
+        self.communication_client_kwargs['instance_id'] = self.instance_id
 
     def _load_spec_models(self):
         self.output: Type = self._spec.output_model
         self.custom_types: Type = self._spec.custom_types_model
         self.commands: Type = self._spec.commands_model
+        self.bindings: List[Binding] = self._spec.bindings
 
     def _load_input_model(self):
         raw_spec = self.spec.dict()

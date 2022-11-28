@@ -55,8 +55,7 @@ class TestMappingHash(AbstractBaseHash, TestCase):
         "name": "MyMapping",
         "asset_id": "1",
         "attribute_id": "1",
-        "connector_id": "val",
-        "path": "val",
+        "output_format": "Number",
     }
     rand_str_arg = "asset_id"
 
@@ -83,36 +82,6 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     class_model = Notification
     args = {"title": "1", "message": "1", "timestamp": datetime.now()}
     rand_str_arg = "title"
-
-
-class TestRuleVariableHash(AbstractBaseHash, TestCase):
-    class_model = RuleVariable
-    args = {"id": "1"}
-    rand_str_arg = "id"
-
-
-class TestRule(AbstractBaseHash, TestCase):
-    class_model = Rule
-    args = {
-        "query": {
-            "source": "Algorithm",
-            "component_id": "01d08df6-e9f6-489c-ad62-9c8e6b714412",
-            "output_format": "Value",
-            "target": "value",
-            "filters": {},
-            "timezone_offset": 0.0
-        },
-        "type": "float",
-        "value": 3,
-        "message": "Random algo outputs > 3",
-        "name": "Random checker test",
-        "description": "Random algo outputs > 3",
-        "severity": "info",
-        "operator": "gt",
-        "period": 10.0
-    }
-    rand_str_arg = "message"
-
 
 class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component

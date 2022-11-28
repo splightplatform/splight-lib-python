@@ -10,7 +10,7 @@ from splight_lib import logging
 from typing import Dict
 from splight_models import *
 from collections import defaultdict
-
+from tempfile import TemporaryFile
 
 logger = logging.getLogger()
 
@@ -23,7 +23,7 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Connector,
         Asset,
         Attribute,
-        Rule,
+        File,
         Tag,
         Namespace,
         Algorithm,
@@ -36,7 +36,9 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         BlockchainContractSubscription,
         Component,
         ComponentObject,
-        DataRetentionPolicy
+        DataRetentionPolicy,
+        ComponentCommand,
+        Query,
     ]
 
     def _create(self, instance: BaseModel) -> BaseModel:
@@ -85,3 +87,11 @@ class FakeDatabaseClient(AbstractDatabaseClient):
             if item.id == id:
                 del queryset[i]
                 return
+
+    @validate_instance_type
+    def download(self, instance: BaseModel) -> None:
+        f = TemporaryFile("w+")
+        data = instance.dict()
+        json.dump(data, f, indent=4)
+        f.seek(0)
+        return f

@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Dict, Optional
 from splight_models import SplightBaseModel
-from splight_models.component import Command
 from splight_models.user import User
 
 
@@ -18,7 +17,6 @@ class CommunicationChannelData(SplightBaseModel):
             }
         )
 
-
 class CommunicationContext(SplightBaseModel):
     auth_headers: Optional[Dict] = None
     auth_endpoint: Optional[str] = None
@@ -34,22 +32,3 @@ class CommunicationClientStatus(str, Enum):
     READY = 'ready'
     FAILED = 'failed'
     ERROR = 'error'
-
-
-class OperationResponse(SplightBaseModel):
-    return_value: Optional[str] = None
-    error_detail: Optional[str] = None
-
-
-class OperationStatus(str, Enum):
-    NOT_SENT ="not_sent"
-    PENDING = "pending"
-    SUCCESS = "success"
-    ERROR = "error"
-
-
-class Operation(SplightBaseModel):
-    id: Optional[str]
-    command: Command
-    status: OperationStatus
-    response: OperationResponse = OperationResponse()
