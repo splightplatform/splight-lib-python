@@ -33,7 +33,6 @@ class TestNotification(TestCase):
             asset_id=1,
             attribute_id=1,
             source_id='3',
-            source_type=SourceType.algorithm,
         ),),
     ])
     def test_notify(self, notification):

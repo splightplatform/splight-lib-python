@@ -6,12 +6,8 @@ from pydantic import BaseModel
 from splight_abstract.hub.abstract import AbstractHubSubClient
 from splight_lib import logging
 from splight_models import (
-    HubNetwork,
-    HubAlgorithm,
     HubComponent,
     HubComponentVersion,
-    HubConnector,
-    HubSystem,
 )
 from splight_abstract import AbstractHubClient, validate_resource_type
 
@@ -20,31 +16,24 @@ logger = logging.getLogger()
 
 
 class FakeHubSubClient(AbstractHubSubClient):
-    networks = [
-        HubNetwork(id="1", name='Net1', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0"),
-        HubNetwork(id="2", name='Net2', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0"),
-        HubNetwork(id="3", name='Net3', description=None, version='01', input=[], type='network', splight_cli_version="0.1.0")
-    ]
-    algorithms = [
-        HubAlgorithm(id="4", name='Algo1', description=None, version='01', input=[], type='algorithm', splight_cli_version="0.1.0"),
-        HubAlgorithm(id="5", name='Algo2', description=None, version='01', input=[], type='algorithm', splight_cli_version="0.1.0")
-    ]
-    connectors = [
-        HubConnector(id="6", name='Conn1', description=None, version='01', input=[], type="connector", splight_cli_version="0.1.0")
-    ]
-    system = [
-        HubSystem(
+    components = [
+        HubComponent(id="1", name='Net1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="2", name='Net2', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="3", name='Net3', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="4", name='Algo1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="5", name='Algo2', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="6", name='Conn1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(
             id="7",
             name="System1",
             description=None,
             version="01",
             input=[],
-            type="system",
             splight_cli_version="0.1.0",
         )
     ]
-    versions = networks + connectors + algorithms
-    grouped_versions = networks + connectors + algorithms
+    versions = components
+    grouped_versions = components
     database: Dict[Type, List[BaseModel]] = {
         HubComponent: grouped_versions,
         HubComponentVersion: versions,
@@ -102,7 +91,6 @@ class FakeHubClient(AbstractHubClient):
         component = {
             "id": uuid4(),
             "tenant": "org_agu2n52305",
-            "type": data["type"],
             "name": data["name"],
             "version": data["version"],
             "splight_cli_version": data["splight_cli_version"],

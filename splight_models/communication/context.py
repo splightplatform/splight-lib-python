@@ -22,6 +22,7 @@ class CommunicationContext(SplightBaseModel):
     auth_endpoint: Optional[str] = None
     key: str
     channel: str
+    private_room_channel: str
     presence_room_channel: str
     channel_data: Optional[CommunicationChannelData] = None
 
