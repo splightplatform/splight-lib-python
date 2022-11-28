@@ -43,7 +43,7 @@ class RunnableMixin:
         self.startup_file = NamedTemporaryFile(
             prefix=self._STARTUP_FILE_PREFIX
         )
-        self.execution_client.start(Thread(self.healthcheck, daemon=True))
+        self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
         self.terminated = False
@@ -139,8 +139,8 @@ class HooksMixin:
         instance = kwargs["instance"]
         if getattr(self.custom_types, type(instance).__name__, None):
             parsed_instance = ComponentObject(
-                component_id = self.instance_id,
-                type = type(instance).__name__,
+                component_id=self.instance_id,
+                type=type(instance).__name__,
                 **self.unparse_parameters(instance)
             )
             kwargs["instance"] = parsed_instance
@@ -299,8 +299,8 @@ class ParametersMixin:
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
             raise NotImplementedError
-        reserved_parameters = {k:v for k,v in instance.dict().items() if k in CustomType._reserved_names}
-        custom_parameters = {k:v for k,v in instance.dict().items() if k not in CustomType._reserved_names}
+        reserved_parameters = {k: v for k, v in instance.dict().items() if k in CustomType._reserved_names}
+        custom_parameters = {k: v for k, v in instance.dict().items() if k not in CustomType._reserved_names}
         fields = []
         for key, obj in custom_parameters.items():
             field = getattr(custom_type.Meta, key)
@@ -313,14 +313,14 @@ class ParametersMixin:
 
             fields.append(
                 Parameter(
-                    name = field.name,
-                    value = value,
-                    type = field.type,
-                    multiple = field.multiple,
-                    required = field.required,
-                    choices = field.choices,
-                    depends_on = field.depends_on,
-                    sensitive = field.sensitive,
+                    name=field.name,
+                    value=value,
+                    type=field.type,
+                    multiple=field.multiple,
+                    required=field.required,
+                    choices=field.choices,
+                    depends_on=field.depends_on,
+                    sensitive=field.sensitive,
                 )
             )
         return {"data": fields, **reserved_parameters}
