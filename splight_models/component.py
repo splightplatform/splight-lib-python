@@ -162,43 +162,10 @@ class Component(BaseComponent):
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
     status: ComponentStatus = ComponentStatus.STOPPED
     active: bool = False
-    type: str
-
-    @property
-    def collection(self):
-        return 'default'
-
-
-class Algorithm(Component):
-    type: str = "Algorithm"
-
+    type: str = "Component"
     @property
     def collection(self):
         return str(self.id)
-
-
-class Network(Component):
-    type: str = "Network"
-
-    @property
-    def collection(self):
-        return 'default'
-
-
-class Connector(Component):
-    type: str = "Connector"
-
-    @property
-    def collection(self):
-        return 'default'
-
-
-class System(Component):
-    type: str = "System"
-
-    @property
-    def collection(self):
-        return "system"
 
 
 NATIVE_TYPES = {
@@ -211,15 +178,12 @@ NATIVE_TYPES = {
 }
 
 DATABASE_TYPES = {
+    "Component": Component,
     "Asset": Asset,
-    "Algorithm": Algorithm,
     "Attribute": Attribute,
-    "Connector": Connector,
     "File": File,
     "Mapping": Mapping,
-    "System": System,
     "Graph": Graph,
-    "Network": Network,
     "Query": Query,
 }
 

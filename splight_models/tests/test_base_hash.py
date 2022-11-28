@@ -39,7 +39,7 @@ class TestAttributeHash(AbstractBaseHash, TestCase):
 
 class TestDeploymentHash(AbstractBaseHash, TestCase):
     class_model = Deployment
-    args = {"version": "ver", "type": "Algorithm"}
+    args = {"version": "ver", "type": "Component"}
     rand_str_arg = "version"
 
 
@@ -85,33 +85,8 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
 
 class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component
-    args = {"name": "1", "version": "1", "type": "Algorithm"}
+    args = {"name": "1", "version": "1"}
     rand_str_arg = "name"
-
-
-class TestAlgorithmHash(AbstractBaseHash, TestCase):
-    class_model = Algorithm
-    args = {"name": "1", "version": "1", "type": "Algorithm"}
-    rand_str_arg = "name"
-
-
-class TestNetworkHash(AbstractBaseHash, TestCase):
-    class_model = Network
-    args = {"name": "1", "version": "1", "type": "Network"}
-    rand_str_arg = "name"
-
-
-class TestConnectorHash(AbstractBaseHash, TestCase):
-    class_model = Connector
-    args = {"name": "1", "version": "1", "type": "Connector"}
-    rand_str_arg = "name"
-
-
-class TestSystemHash(AbstractBaseHash, TestCase):
-    class_model = System
-    args = {"name": "1", "version": "1", "type": "System"}
-    rand_str_arg = "name"
-
 
 class TestStorageFileHash(AbstractBaseHash, TestCase):
     class_model = StorageFile

@@ -29,13 +29,13 @@ SEVERITIES = (
 )
 
 SOURCE_TYPE = (
-    ('Algorithm', 'Algorithm'),
-    ('Network', 'Network'),
-    ('Connector', 'Connector'),
+    ('Component', 'Component'),
 )
 
 
 class SourceType(str, Enum):
+    # TODO: Remove this once component types are unified
+    component = 'Component'
     algorithm = 'Algorithm'
     network = 'Network'
     connector = 'Connector'
@@ -49,4 +49,4 @@ class Notification(DatalakeModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     severity: SeverityType = SeverityType.info
     source_id: Optional[str]
-    source_type: Optional[SourceType]
+    source_type: Optional[SourceType] = SourceType.component
