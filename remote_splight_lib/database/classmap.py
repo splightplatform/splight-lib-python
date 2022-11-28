@@ -3,19 +3,21 @@ from splight_models import (
     Asset,
     Attribute,
     Connector,
+    File,
     System,
     Mapping,
     Edge,
     Graph,
     Network,
     Notification,
+    Query,
     Node,
-    Rule,
     Tag,
     BlockchainContract,
     BlockchainContractSubscription,
     Component,
     ComponentObject,
+    ComponentCommand,
 )
 
 
@@ -38,6 +40,9 @@ CLASSMAP = {
     Edge: {
         "path": "graph/edge"
     },
+    File: {
+        "path": "file"
+    },
     Graph: {
         "path": "graph/graph"
     },
@@ -52,9 +57,6 @@ CLASSMAP = {
     },
     Node: {
         "path": "graph/node"
-    },
-    Rule: {
-        "path": "rule"
     },
     Tag: {
         "path": "tag"
@@ -73,5 +75,11 @@ CLASSMAP = {
     },
     ComponentObject: {
         "path": "component-objects"
-    }
+    },
+    ComponentCommand: {
+        "path": "component-commands"
+    },
+    Query: {
+        "path": "query"
+    },
 }

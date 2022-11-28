@@ -5,7 +5,7 @@ from functools import wraps
 from abc import ABC
 from splight_lib import logging
 from .filter import FilterMixin
-from .pre_hook import PreHookMixin
+from .hooks import HooksMixin
 
 
 logger = logging.getLogger()
@@ -33,7 +33,7 @@ def validate_instance_type(func: Callable) -> Callable:
     return wrapper
 
 
-class AbstractClient(ABC, PreHookMixin, FilterMixin):
+class AbstractClient(ABC, HooksMixin, FilterMixin):
     valid_classes: List[Type] = []
 
     def __init__(self, namespace: str = "default", *args, **kwargs):

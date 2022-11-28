@@ -2,7 +2,7 @@ from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List, Dict, Union, Callable
 from datetime import timezone, timedelta
-from splight_models import DatalakeModel
+from splight_models import DatalakeModel, Query
 from splight_abstract.client import AbstractClient, QuerySet
 from functools import wraps
 import pandas as pd
@@ -98,4 +98,8 @@ class AbstractDatalakeClient(AbstractClient):
 
     @abstractmethod
     def create_index(self, collection: str, index: list) -> None:
+        pass
+
+    @abstractmethod
+    def get_output(self, query: Query) -> List[Dict]:
         pass

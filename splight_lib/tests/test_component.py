@@ -6,5 +6,4 @@ class TestComponent(TestCase):
         from splight_lib.component import (
             AbstractAlgorithmComponent,
             AbstractNetworkComponent,
-            AbstractClientComponent
         )

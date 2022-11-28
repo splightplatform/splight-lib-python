@@ -2,15 +2,17 @@ from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, 
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
+from splight_models.file import File
 from splight_models.datalake import ComponentDatalakeModel
 from splight_models.graph import Graph
 from splight_models.storage import StorageFile
-from splight_models.rule import Rule
-
+from splight_models.query import Query
+from splight_models.mapping import Mapping
+from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
-from pydantic import BaseModel, create_model, Field
+from pydantic import BaseModel, create_model, Field, AnyUrl
 from copy import copy
 from functools import cached_property
 import inspect
@@ -22,6 +24,7 @@ class Parameter(SplightBaseModel):
     type: str = "str"
     required: bool = False
     multiple: bool = False
+    sensitive: bool = False
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
     value: Any = None
@@ -45,6 +48,7 @@ class CommandParameter(Parameter):
 
 
 class CustomType(SplightBaseModel):
+    _reserved_names = ["id", "name", "description"]
     name: str
     fields: List[Parameter]
 
@@ -59,6 +63,12 @@ class Command(SplightBaseModel):
     fields: List[CommandParameter]
 
 
+class Binding(SplightBaseModel):
+    name: str
+    object_type: str
+    object_action: EventActions
+
+
 class ComponentObject(SplightBaseModel):
     id: Optional[str]
     component_id: str
@@ -66,6 +76,47 @@ class ComponentObject(SplightBaseModel):
     description: Optional[str]
     type: str
     data: List[Parameter]
+
+    @staticmethod
+    def get_event_name(type: str, action: EventActions) -> str:
+        return f"{type.lower()}_{action}"
+
+
+class ComponentCommandResponse(SplightBaseModel):
+    return_value: Optional[str] = None
+    error_detail: Optional[str] = None
+
+
+class ComponentCommandStatus(str, Enum):
+    NOT_SENT = "not_sent"
+    PENDING = "pending"
+    SUCCESS = "success"
+    ERROR = "error"
+
+
+class ComponentCommand(SplightBaseModel):
+    id: Optional[str]
+    command: Command
+    status: ComponentCommandStatus
+    response: ComponentCommandResponse = ComponentCommandResponse()
+
+    def get_event_name(self, action: EventActions) -> str:
+        return f"componentcommand_{action}"
+
+
+class ComponentCommandTriggerEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandCreateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_CREATE, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandUpdateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_UPDATE, const=True)
+    data: ComponentCommand
 
 
 class BaseComponent(SplightBaseModel):
@@ -75,6 +126,7 @@ class BaseComponent(SplightBaseModel):
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
+    bindings: Optional[List[Binding]] = []
 
     class Config:
         keep_untouched = (cached_property,)
@@ -154,7 +206,8 @@ NATIVE_TYPES = {
     "bool": bool,
     "str": str,
     "float": float,
-    "date": datetime,
+    "datetime": datetime,
+    "url": AnyUrl,
 }
 
 DATABASE_TYPES = {
@@ -162,10 +215,12 @@ DATABASE_TYPES = {
     "Algorithm": Algorithm,
     "Attribute": Attribute,
     "Connector": Connector,
+    "File": File,
+    "Mapping": Mapping,
     "System": System,
     "Graph": Graph,
     "Network": Network,
-    "Rule": Rule,
+    "Query": Query,
 }
 
 STORAGE_TYPES = {
@@ -196,8 +251,13 @@ class ComponentModelsFactory:
 
     def get_custom_types_model(self, custom_types: List) -> Type:
         custom_types_dict: Dict[str, BaseModel] = {}
-
         for custom_type in custom_types:
+            custom_type.fields.extend(
+                [
+                    Parameter(name=key, value=None)
+                    for key in CustomType._reserved_names
+                ]
+            )
             model = self._create_model(custom_type.name, custom_type.fields)
             custom_types_dict[custom_type.name] = model
             self._type_map[custom_type.name] = model
@@ -227,12 +287,15 @@ class ComponentModelsFactory:
 
     def _create_model(self,
                       name: str,
-                      fields: List,
+                      fields: List[Parameter],
                       extra_fields: Dict = {},
                       base: Type = SplightBaseModel) -> Type:
+        class Meta:
+            pass
 
         fields_dict: Dict[str, Tuple] = copy(extra_fields)
         for field in fields:
+            setattr(Meta, field.name, field)
             type = self._type_map[field.type]
             choices = getattr(field, "choices", None)
             multiple = getattr(field, "multiple", False)
@@ -251,4 +314,8 @@ class ComponentModelsFactory:
 
             fields_dict[field.name] = (type, value)
 
-        return create_model(name, **fields_dict, __base__=base)
+        model = create_model(
+            name, **fields_dict, __base__=base
+        )
+        model.Meta = Meta
+        return model
