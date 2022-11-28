@@ -4,10 +4,13 @@ from pydantic import validator, root_validator
 from splight_models.base import SplightBaseModel
 
 class QuerySource(str, Enum):
+    # TODO: remove this once component types is unified
+    COMPONENT = "Component"
     ALGORITHM = "Algorithm"
     CONNECTOR = "Connector"
 
 class Query(SplightBaseModel):
+    # TODO: Update query after all component types are unified
     id: Optional[str]
     name: str
     description: Optional[str]

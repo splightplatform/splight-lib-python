@@ -9,7 +9,7 @@ VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
 class HubComponent(BaseComponent):
     id: Optional[str]
     name: str
-    type: str = None
+    type: str = "Component"
     splight_cli_version: str
     build_status: Optional[str]
     description: Optional[str]
@@ -30,21 +30,5 @@ class HubComponent(BaseComponent):
         return v
 
 
-class HubAlgorithm(HubComponent):
-    pass
-
-
-class HubNetwork(HubComponent):
-    pass
-
-
-class HubConnector(HubComponent):
-    pass
-
-
 class HubComponentVersion(HubComponent):
-    pass
-
-
-class HubSystem(HubComponent):
     pass

@@ -1,6 +1,7 @@
 import sys
 import time
 import pandas as pd
+import splight_models as spmodels
 from functools import partial
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
@@ -19,7 +20,7 @@ from splight_models import (
     Notification,
     StorageFile,
     ComponentDatalakeModel,
-    Algorithm,
+    Component,
     Command,
     Binding,
     ComponentObject,
@@ -42,7 +43,7 @@ class RunnableMixin:
         self.startup_file = NamedTemporaryFile(
             prefix=self._STARTUP_FILE_PREFIX
         )
-        self.execution_client.start(Thread(self.healthcheck, daemon=True))
+        self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
         self.terminated = False
@@ -138,8 +139,8 @@ class HooksMixin:
         instance = kwargs["instance"]
         if getattr(self.custom_types, type(instance).__name__, None):
             parsed_instance = ComponentObject(
-                component_id = self.instance_id,
-                type = type(instance).__name__,
+                component_id=self.instance_id,
+                type=type(instance).__name__,
                 **self.unparse_parameters(instance)
             )
             kwargs["instance"] = parsed_instance
@@ -166,15 +167,15 @@ class UtilsMixin:
         # TODO handle this with hooks?
         return self.datalake_client.get_dataframe(collection="default", **kwargs)
 
-    def get_results(self, algorithm: Algorithm, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
+    def get_results(self, component: Component, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
         # TODO handle this with hooks?
-        if output_model != getattr(algorithm.output_model, output_model.__name__):
+        if output_model != getattr(component.output_model, output_model.__name__):
             raise ValueError(
-                f"Output model {output_model.__name__} does not match algorithm output"
+                f"Output model {output_model.__name__} does not match component output"
             )
 
         return self.datalake_client.get_dataframe(
-            collection=algorithm.collection,
+            collection=component.collection,
             output_format=output_model.__name__,
             **kwargs
         )
@@ -233,20 +234,30 @@ class BindingsMixin:
         # Bindings
         for binding in self.bindings:
             binding_function = getattr(self, binding.name)
-            # TODO extend this to allow bindings on splight models
-            binding_event_name = ComponentObject.get_event_name(binding.object_type, binding.object_action)
-            binding_object_type = binding.object_type
+            binding_model = getattr(spmodels, binding.object_type, ComponentObject)
+            binding_event_name = binding_model.get_event_name(
+                binding.object_type,
+                binding.object_action
+            )
+            binding_handler = self.__handle_component_object_trigger if binding_model == ComponentObject else self.__handle_native_object_trigger
             self.communication_client.bind(
                 binding_event_name,
                 partial(
-                    self.__handle_component_binding_trigger,
+                    binding_handler,
                     binding_function,
-                    binding_object_type
+                    binding.object_type
                 )
             )
             logger.info(f"Binded event: {binding_event_name}")
 
-    def __handle_component_binding_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
+    def __handle_native_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
+        assert self.bindings, "Please define .bindings to start."
+        object_event = CommunicationEvent.parse_raw(data)
+        object_model = getattr(spmodels, binding_object_type)
+        binding_kwargs = object_model(**object_event.data)
+        binding_function(binding_kwargs)
+
+    def __handle_component_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
         component_object_event = CommunicationEvent.parse_raw(data)
         component_object: ComponentObject = ComponentObject(**component_object_event.data)
@@ -288,8 +299,8 @@ class ParametersMixin:
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
             raise NotImplementedError
-        reserved_parameters = {k:v for k,v in instance.dict().items() if k in CustomType._reserved_names}
-        custom_parameters = {k:v for k,v in instance.dict().items() if k not in CustomType._reserved_names}
+        reserved_parameters = {k: v for k, v in instance.dict().items() if k in CustomType._reserved_names}
+        custom_parameters = {k: v for k, v in instance.dict().items() if k not in CustomType._reserved_names}
         fields = []
         for key, obj in custom_parameters.items():
             field = getattr(custom_type.Meta, key)
@@ -302,14 +313,14 @@ class ParametersMixin:
 
             fields.append(
                 Parameter(
-                    name = field.name,
-                    value = value,
-                    type = field.type,
-                    multiple = field.multiple,
-                    required = field.required,
-                    choices = field.choices,
-                    depends_on = field.depends_on,
-                    sensitive = field.sensitive,
+                    name=field.name,
+                    value=value,
+                    type=field.type,
+                    multiple=field.multiple,
+                    required=field.required,
+                    choices=field.choices,
+                    depends_on=field.depends_on,
+                    sensitive=field.sensitive,
                 )
             )
         return {"data": fields, **reserved_parameters}
@@ -419,8 +430,7 @@ class ParametersMixin:
 
 class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
     collection_name = "default"
-    # TODO: Change managed class to be component when everything is unified
-    managed_class: Type = Algorithm
+    managed_class: Type = Component
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
