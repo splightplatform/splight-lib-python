@@ -18,9 +18,11 @@ class HooksMixin:
     def add_post_hook(self, function, hook):
         setattr(self, function, self._add_hook(getattr(self, function), hook, HooksStage.AFTER))
 
-    def _add_hook(self, func, hook, stage: HooksStage = HooksStage.BEFORE):
-        if func.__name__ not in self._original_signature:
-            self._original_signature[func.__name__] = [
+    def _add_hook(self, func: Callable, hook, stage: HooksStage = HooksStage.BEFORE):
+        func_name = func.__qualname__
+
+        if func_name not in self._original_signature:
+            self._original_signature[func_name] = [
                 param
                 for param in inspect.getfullargspec(func).args
                 if param not in ['self', 'cls', 'args', 'kwargs']
@@ -42,7 +44,7 @@ class HooksMixin:
     def _args_to_kwargs(self, func: Callable, *args, **kwargs) -> Dict:
         if not args:
             return kwargs
-        func_params: List = self._original_signature[func.__name__]
+        func_params: List = self._original_signature[func.__qualname__]
         new_kwargs: Dict = dict(zip(func_params, args))
         new_kwargs.update(kwargs)
 

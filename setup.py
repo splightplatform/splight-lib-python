@@ -10,7 +10,7 @@ dependency_links = [
 
 setup(
     name='splight-lib',
-    version='0.5.13',
+    version='0.5.15',
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
