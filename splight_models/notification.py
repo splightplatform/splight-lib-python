@@ -30,8 +30,10 @@ SEVERITIES = (
 
 SOURCE_TYPE = (
     ('Component', 'Component'),
+    ('Algorithm', 'Algorithm'),
+    ('Connector', 'Connector'),
+    ('Network', 'Network'),
 )
-
 
 class SourceType(str, Enum):
     # TODO: Remove this once component types are unified
