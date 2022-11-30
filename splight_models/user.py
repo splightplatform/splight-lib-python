@@ -54,8 +54,6 @@ class User(SplightBaseModel):
 
 class OrganizationMetadata(SplightBaseModel):
     billing_id: Optional[str] = None
-    payout_account_id: Optional[str] = None
-    referral_code: Optional[str] = None
     blockchain_id: Optional[str] = None
     manager_email: Optional[str] = None
 
