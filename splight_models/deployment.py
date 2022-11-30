@@ -39,6 +39,10 @@ class Deployment(BaseComponent):
         return f"service-{type_id}-{id}"
 
     @property
+    def service_port(self):
+        return 1080
+
+    @property
     def deployment_name(self):
         # TODO remove this. we are no longeer using deployments.
         id = str(self.id).lower()
