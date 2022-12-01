@@ -250,3 +250,10 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         data = {"source": collection, "index": index}
         response = self._session.post(url, json=data)
         response.raise_for_status()
+
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def delete_many(self, collection: str, **kwargs) -> None:
+        url = self._base_url / f"{self._PREFIX}/delete/"
+        params = {"source": collection}
+        response = self._session.delete(url, params=params, json=kwargs)
+        response.raise_for_status()
