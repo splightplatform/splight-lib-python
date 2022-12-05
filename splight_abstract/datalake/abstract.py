@@ -46,34 +46,16 @@ class AbstractDatalakeClient(AbstractClient):
         return valid_filter
 
     @abstractmethod
-    def _get(self,
-             resource_type: Type,
-             limit_: int = 50,
-             skip_: int = 0,
-             sort: Union[List, str] = ['timestamp__desc'],
-             group_id: Union[List, str] = [],
-             group_fields: Union[List, str] = [],
-             tzinfo: timezone = timezone(timedelta()),
-             **kwargs) -> List[BaseModel]:
+    def get(self,
+            resource_type: Type,
+            limit_: int = 50,
+            skip_: int = 0,
+            sort: Union[List, str] = ['timestamp__desc'],
+            group_id: Union[List, str] = [],
+            group_fields: Union[List, str] = [],
+            tzinfo: timezone = timezone(timedelta()),
+            **kwargs) -> QuerySet:
         pass
-
-    @abstractmethod
-    def _raw_get(self,
-             resource_type: Type,
-             limit_: int = 50,
-             skip_: int = 0,
-             sort: Union[List, str] = ['timestamp__desc'],
-             group_id: Union[List, str] = [],
-             group_fields: Union[List, str] = [],
-             tzinfo: timezone = timezone(timedelta()),
-             **kwargs) -> List[BaseModel]:
-        pass
-
-    def get(self, *args, **kwargs) -> QuerySet:
-        return QuerySet(self, count_func="None", *args, **kwargs)
-
-    def raw_get(self, *args, **kwargs) -> QuerySet:
-        return QuerySet(self, get_func="_raw_get", count_func="None", *args, **kwargs)
 
     @abstractmethod
     def get_output(self, query: Query) -> List[Dict]:
@@ -95,43 +77,6 @@ class AbstractDatalakeClient(AbstractClient):
     def save_dataframe(self, resource_type: Type, dataframe: pd.DataFrame) -> None:
         pass
 
-    # Subject to incompatibility by implementation
-    # Raw methods
-
-    # def raw_save(self, instances: List[Dict], collection: str = "default") -> Dict:
-    #     pass
-
-    # def raw_get_dataframe
-    # def raw_save_dataframe
-
-    # @abstractmethod
-    # def _raw_get(self,
-    #              collection: str = 'default',
-    #              limit_: int = 50,
-    #              skip_: int = 0,
-    #              sort: Union[List, str] = ['timestamp__desc'],
-    #              group_id: Union[List, str] = [],
-    #              group_fields: Union[List, str] = [],
-    #              tzinfo: timezone = timezone(timedelta()),
-    #              **kwargs) -> List[BaseModel]:
-    #     pass
-
-    # @abstractmethod
-    # def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-    #     pass
-
     @abstractmethod
     def create_index(self, collection: str, index: list) -> None:
         pass
-
-    # @abstractmethod
-    # def list_collection_names(self) -> List[str]:
-    #     pass
-
-    # @abstractmethod
-    # def get_unique_keys(self, collection: str) -> List[str]:
-    #     pass
-
-    # @abstractmethod
-    # def get_values_for_key(self, collection: str, key: str) -> List[str]:
-    #     pass

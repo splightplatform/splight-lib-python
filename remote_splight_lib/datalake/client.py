@@ -1,7 +1,7 @@
 from datetime import timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 import json
@@ -11,7 +11,7 @@ from requests import Session
 
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
-from splight_abstract.remote import AbstractRemoteClient
+from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type, validate_instance_type
 from splight_models import Query, DatalakeModel
 from retry import retry
@@ -39,16 +39,11 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self._session.headers.update(token.header)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_instance_type
-    def save(
+    def _raw_save(
         self,
+        collection: str,
         instances: List[DatalakeModel],
     ) -> List[DatalakeModel]:
-        # POST /datalake/save/
-        if not instances:
-            return instances
-        resource_type = instances[0].__class__
-        collection = resource_type.Meta.collection_name
         url = self._base_url / f"{self._PREFIX}/save/"
         data = [json.loads(model.json()) for model in instances]
         response = self._session.post(
@@ -58,18 +53,6 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return instances
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
-    def _get(
-        self,
-        resource_type: DatalakeModel,
-        **kwargs,
-    ) -> List[BaseModel]:
-        collection = resource_type.Meta.collection_name
-        kwargs['collection'] = collection
-        return self._raw_get(resource_type, **kwargs)
-
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
     def _raw_get(
         self,
         resource_type: DatalakeModel,
@@ -107,9 +90,29 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         ]
         return output
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    def _raw_delete(self, collection: DatalakeModel, **kwargs) -> None:
+        # DELETE /datalake/delete/
+        url = self._base_url / f"{self._PREFIX}/delete/"
+        params = {"source": collection}
+        response = self._session.delete(url, params=params, json=kwargs)
+        response.raise_for_status()
+
+    @validate_resource_type
+    def get(
+        self,
+        resource_type: DatalakeModel,
+        *args,
+        **kwargs,
+    ) -> List[BaseModel]:
+        kwargs["get_func"] = "_raw_get"
+        kwargs["count_func"] = "None"
+        kwargs["collection"] = resource_type.Meta.collection_name
+        return QuerySet(self, *args, **kwargs)
+
     def get_output(self, query: Query) -> List[Dict]:
         # TODO: Add add_fields, project and renaming
-        return self.raw_get(
+        return self._raw_get(
             collection=query.collection,
             limit_=query.limit,
             skip_=query.skip,
@@ -143,6 +146,18 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         df = pd.concat(dfs, axis=1)
         return df
 
+    @validate_instance_type
+    def save(
+        self,
+        instances: List[DatalakeModel],
+    ) -> List[DatalakeModel]:
+        # POST /datalake/save/
+        if not instances:
+            return instances
+        resource_type = instances[0].__class__
+        collection = resource_type.Meta.collection_name
+        return self._raw_save(collection=collection, instances=instances)
+
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     @validate_resource_type
     def save_dataframe(self, resource_type: DatalakeModel, dataframe: pd.DataFrame) -> None:
@@ -160,15 +175,10 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         response.raise_for_status()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     @validate_resource_type
     def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
-        # DELETE /datalake/delete/
-        url = self._base_url / f"{self._PREFIX}/delete/"
         collection = resource_type.Meta.collection_name
-        params = {"source": collection}
-        response = self._session.delete(url, params=params, json=kwargs)
-        response.raise_for_status()
+        return self._raw_delete(collection=collection, **kwargs)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def create_index(self, collection: str, index: list) -> None:

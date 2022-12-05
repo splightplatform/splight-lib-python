@@ -1,19 +1,34 @@
 # TODO rename this file or move it to datalake
 import pandas as pd
 from pydantic import Field
+from datetime import datetime, timezone
 from typing import Dict, Union, Optional
 from .asset import Asset
 from .attribute import Attribute
-from .datalake import DatalakeModel, DatalakeModel
+from .datalake import DatalakeModel
+from .base import SplightBaseModel
+
 
 # TODO remove Variable and VariableDataFrame
-class Variable(DatalakeModel):
+class Variable(SplightBaseModel):
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     instance_id: Optional[str] = None
     instance_type: Optional[str] = None
     args: Optional[Dict] = None
     path: Optional[str] = None
     asset_id: Optional[str] = None
     attribute_id: Optional[str] = None
+
+    class Config:
+        # pydantic
+        validate_assignment = True
+
+    class Meta:
+        collection_name = "Splight.DatalakeModel"
+
+    class SpecFields:
+        # Fields to reconstruct Spec .fields
+        pass
 
 
 class VariableDataFrame(pd.DataFrame):

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, Type, List
 from splight_abstract.client import AbstractClient, QuerySet
 
+
 class AbstractStorageClient(AbstractClient):
 
     @abstractmethod
@@ -10,6 +11,8 @@ class AbstractStorageClient(AbstractClient):
         pass
 
     def get(self, *args, **kwargs) -> QuerySet:
+        kwargs["get_func"] = "_get"
+        kwargs["count_func"] = "None"
         return QuerySet(self, *args, **kwargs)
 
     @abstractmethod
