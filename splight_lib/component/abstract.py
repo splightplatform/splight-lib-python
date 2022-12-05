@@ -13,17 +13,17 @@ from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
-from splight_lib.shortcut import save_file as _save_file  # TODO unify storage with database
 from splight_models import (
     CustomType,
     Deployment,
-    Notification,
-    StorageFile,
-    ComponentDatalakeModel,
+    DatalakeModel,
     Component,
     Command,
     Binding,
     ComponentObject,
+    Boolean,
+    String,
+    Number
 )
 from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
@@ -66,16 +66,29 @@ class RunnableMixin:
 class IndexMixin:
     def _load_client_indexes(self) -> None:
         indexes: List[Tuple[str, int]] = self.__get_indexes()
-        logger.debug(f"Adding indexes: {indexes}")
-        self.datalake_client.create_index(
-            self.collection_name,
-            indexes
-        )
+        collections: List[str] = self.__get_collections()
+        for col in collections:
+            logger.debug(f"Adding indexes: {indexes} for collection {col}")
+            self.datalake_client.create_index(
+                col,
+                indexes
+            )
+
+    def __get_collections(self) -> List[str]:
+        native_output_types = [Boolean, String, Number]
+        # TODO do this better
+        component_output_types = [v for _,v in self.output.__dict__.items() if isinstance(v, BaseModel)]
+        return [r.Meta.collection_name for r in native_output_types + component_output_types]
 
     def __get_indexes(self) -> List[Tuple[str, int]]:
         # order in indexes matters
         indexes: List[Tuple[str, int]] = [
             ("output_format", 1),
+            ("instance_id", 1),
+            ("instance_type", 1),
+            ("asset", 1),
+            ("attribute", 1),
+            ("timestamp", -1),
         ]
         unique_indexes: Set[str] = set()
 
@@ -87,8 +100,6 @@ class IndexMixin:
         for index in unique_indexes:
             indexes.append((index, 1))
 
-        indexes.append(("timestamp", -1))
-
         return indexes
 
 
@@ -96,9 +107,7 @@ class HooksMixin:
     def _load_client_hooks(self):
         # Datalake
         self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
-        self.datalake_client.add_pre_hook("save", self.__hook_lock_save_collection)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
-        self.datalake_client.add_pre_hook("save_dataframe", self.__hook_lock_save_collection)
         # Database
         self.database_client.add_pre_hook("save", self.__hook_transform_from_custom_instances)
         self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
@@ -109,11 +118,10 @@ class HooksMixin:
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
         for instance in instances:
-            if not isinstance(instance, ComponentDatalakeModel):
+            if not isinstance(instance, DatalakeModel):
                 continue
             instance.instance_id = self.instance_id
             instance.instance_type = self.managed_class.__name__
-
         return args, kwargs
 
     def __hook_insert_origin_save_dataframe(self, *args, **kwargs):
@@ -123,9 +131,6 @@ class HooksMixin:
         kwargs["dataframe"] = dataframe
         return args, kwargs
 
-    def __hook_lock_save_collection(self, *args, **kwargs):
-        kwargs["collection"] = self.collection_name
-        return args, kwargs
 
     def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
         resource_type = kwargs["resource_type"]
@@ -160,70 +165,6 @@ class HooksMixin:
                 object = custom_object_model(**parsed_component_object)
             parsed_result.append(object)
         return parsed_result
-
-
-class UtilsMixin:
-    def get_history(self, **kwargs) -> pd.DataFrame:
-        # TODO handle this with hooks?
-        return self.datalake_client.get_dataframe(collection="default", **kwargs)
-
-    def get_results(self, component: Component, output_model: ComponentDatalakeModel, **kwargs) -> pd.DataFrame:
-        # TODO handle this with hooks?
-        if output_model != getattr(component.output_model, output_model.__name__):
-            raise ValueError(
-                f"Output model {output_model.__name__} does not match component output"
-            )
-
-        return self.datalake_client.get_dataframe(
-            collection=component.collection,
-            output_format=output_model.__name__,
-            **kwargs
-        )
-
-    def save_results(self, output_model: ComponentDatalakeModel, dataframe: pd.DataFrame) -> None:
-        # TODO handle this with hooks?
-        if output_model != getattr(self.output, output_model.__name__):
-            raise ValueError(
-                f"Output model {output_model.__name__} is not defined in the output"
-            )
-
-        try:
-            for _, row in dataframe.iterrows():
-                output_model.parse_obj(row.to_dict())
-        except Exception:
-            raise ValueError(f"Invalid dataframe: does not match output format")
-
-        dataframe["output_format"] = output_model.__name__
-
-        self.datalake_client.save_dataframe(
-            dataframe=dataframe,
-            collection=self.collection_name
-        )
-
-    def save_file(
-        self,
-        filename: str,
-        prefix: Optional[str],
-        asset_id: Optional[str],
-        attribute_id: Optional[str],
-        path: str,
-        args: Dict,
-    ) -> StorageFile:
-        # TODO deprecate this
-        return _save_file(
-            self.storage_client,
-            self.datalake_client,
-            filename,
-            prefix,
-            asset_id,
-            attribute_id,
-            path,
-            args,
-        )
-
-    def notify(self, notification: Notification):
-        # TODO deprecate this.
-        return self.database_client.save(notification)
 
 
 class BindingsMixin:
@@ -428,14 +369,14 @@ class ParametersMixin:
         return parameters_dict
 
 
-class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, BindingsMixin, ParametersMixin):
-    collection_name = "default"
+class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, ParametersMixin):
     managed_class: Type = Component
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
     storage_client_kwargs: Dict[str, Any] = {}
     communication_client_kwargs: Dict[str, Any] = {}
+    blockchain_client_kwargs: Dict[str, Any] = {}
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
         self._spec: Deployment = Deployment(**run_spec)
@@ -446,14 +387,13 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
         self.version: str = self._spec.version
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_id = self._setup.settings.COMPONENT_ID
-        self.collection_name = str(self.instance_id)
 
-        self._load_instance_data()
+        self._load_instance_kwargs_for_clients()
         self._load_clients()
         self._load_spec_models()
         self._load_input_model()
-        self._load_client_hooks()
         self._load_client_indexes()
+        self._load_client_hooks()
         self._load_client_bindings()
         super().__init__(*args, **kwargs)  # This is calling RunnableMixin.init() only
 
@@ -471,8 +411,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             resource_type=self.managed_class, id=self.instance_id, first=True
         )
 
-    def _load_instance_data(self):
-        self.collection_name = str(self.instance_id)
+    def _load_instance_kwargs_for_clients(self):
         self.communication_client_kwargs['instance_id'] = self.instance_id
 
     def _load_spec_models(self):
@@ -507,5 +446,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, UtilsMixin, IndexMixin, Bindi
             namespace=self.namespace,
             **self.communication_client_kwargs
         )
+        self.blockchain_client = self.setup.BLOCKCHAIN_CLIENT(
+            namespace=self.namespace,
+            **self.blockchain_client_kwargs
+        )
         self.execution_client = ExecutionClient(namespace=self.namespace)
-        self.blockchain_client = self.setup.BLOCKCHAIN_CLIENT(namespace=self.namespace)
