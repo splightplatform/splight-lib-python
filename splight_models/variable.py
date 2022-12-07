@@ -46,16 +46,10 @@ class Number(NativeOutput):
     output_format: str = Field("Number", const=True)
     value: float
 
-    class Meta:
-        collection_name = "Number"
-
 
 class String(NativeOutput):
     output_format: str = Field("String", const=True)
     value: str
-
-    class Meta:
-        collection_name = "String"
 
 
 class Boolean(NativeOutput):
