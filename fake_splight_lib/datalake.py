@@ -164,7 +164,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
     def get_output(self, query: Query) -> List[Dict]:
         # TODO this is not ok. It should return QuerySet
         return self._raw_get(
-            collection=query.collection,
+            collection=query.source,
             limit_=query.limit,
             skip_=query.skip,
             sort=query.sort,
