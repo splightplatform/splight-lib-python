@@ -47,7 +47,7 @@ class Number(NativeOutput):
     value: float
 
     class Meta:
-        collection_name = "Splight.Number"
+        collection_name = "Number"
 
 
 class String(NativeOutput):
@@ -55,7 +55,7 @@ class String(NativeOutput):
     value: str
 
     class Meta:
-        collection_name = "Splight.String"
+        collection_name = "String"
 
 
 class Boolean(NativeOutput):
