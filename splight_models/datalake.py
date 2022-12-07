@@ -14,7 +14,7 @@ class DatalakeModel(SplightBaseModel):
         validate_assignment = True
 
     class Meta:
-        collection_name = "Splight.DatalakeModel"
+        collection_name = "DatalakeModel"
 
     class SpecFields:
         # Fields to reconstruct Spec .fields

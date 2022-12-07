@@ -24,7 +24,7 @@ class Variable(SplightBaseModel):
         validate_assignment = True
 
     class Meta:
-        collection_name = "Splight.DatalakeModel"
+        collection_name = "Variable"
 
     class SpecFields:
         # Fields to reconstruct Spec .fields
@@ -46,7 +46,7 @@ class Number(ConnectorOutput):
     value: float
 
     class Meta:
-        collection_name = "Splight.Number"
+        collection_name = "Number"
 
 
 class String(ConnectorOutput):
@@ -54,7 +54,7 @@ class String(ConnectorOutput):
     value: str
 
     class Meta:
-        collection_name = "Splight.String"
+        collection_name = "String"
 
 
 class Boolean(ConnectorOutput):
@@ -62,4 +62,4 @@ class Boolean(ConnectorOutput):
     value: bool
 
     class Meta:
-        collection_name = "Splight.Boolean"
+        collection_name = "Boolean"

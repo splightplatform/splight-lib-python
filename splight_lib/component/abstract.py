@@ -1,6 +1,5 @@
 import sys
 import time
-import pandas as pd
 import splight_models as spmodels
 from functools import partial
 from abc import abstractmethod
@@ -76,7 +75,7 @@ class IndexMixin:
 
     def __get_collections(self) -> List[str]:
         native_output_types = [Boolean, String, Number]
-        # TODO do this better
+        # TODO do this autodiscovery better
         component_output_types = [v for _,v in self.output.__dict__.items() if isinstance(v, BaseModel)]
         return [r.Meta.collection_name for r in native_output_types + component_output_types]
 
@@ -121,13 +120,13 @@ class HooksMixin:
             if not isinstance(instance, DatalakeModel):
                 continue
             instance.instance_id = self.instance_id
-            instance.instance_type = self.managed_class.__name__
+            instance.instance_type = self.instance_type.__name__
         return args, kwargs
 
     def __hook_insert_origin_save_dataframe(self, *args, **kwargs):
         dataframe = kwargs.get("dataframe")
         dataframe["instance_id"] = self.instance_id
-        dataframe["instance_type"] = self.managed_class.__name__
+        dataframe["instance_type"] = self.instance_type.__name__
         kwargs["dataframe"] = dataframe
         return args, kwargs
 
@@ -370,7 +369,6 @@ class ParametersMixin:
 
 
 class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, ParametersMixin):
-    managed_class: Type = Component
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
@@ -379,15 +377,15 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
     blockchain_client_kwargs: Dict[str, Any] = {}
 
     def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
-        self._spec: Deployment = Deployment(**run_spec)
         self._setup = default_setup
         if initial_setup:
             self._setup.configure(initial_setup)
 
-        self.version: str = self._spec.version
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_id = self._setup.settings.COMPONENT_ID
+        self.instance_type = Component
 
+        self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
         self._load_instance_kwargs_for_clients()
         self._load_clients()
         self._load_spec_models()
@@ -408,7 +406,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
     @cached_property
     def instance(self):
         return self.database_client.get(
-            resource_type=self.managed_class, id=self.instance_id, first=True
+            resource_type=self.instance_type, id=self.instance_id, first=True
         )
 
     def _load_instance_kwargs_for_clients(self):

@@ -120,6 +120,7 @@ class ComponentCommandUpdateEvent(CommunicationEvent):
 
 
 class BaseComponent(SplightBaseModel):
+    id: Optional[str]
     name: Optional[str] = None
     version: str
     custom_types: Optional[List[CustomType]] = []
@@ -134,7 +135,7 @@ class BaseComponent(SplightBaseModel):
     @cached_property
     def custom_types_model(self) -> Type:
         return ComponentModelsFactory(
-            hub_component_name=self.name
+            component_id=self.id
         ).get_custom_types_model(self.custom_types)
 
     @cached_property
@@ -144,13 +145,13 @@ class BaseComponent(SplightBaseModel):
         custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
         return ComponentModelsFactory(
             type_map=custom_types_dict,
-            hub_component_name=self.name
+            component_id=self.id
         ).get_input_model(self.input)
 
     @cached_property
     def output_model(self) -> Type:
         return ComponentModelsFactory(
-            hub_component_name=self.name
+            component_id=self.id
         ).get_output_model(self.output)
 
     @cached_property
@@ -160,7 +161,7 @@ class BaseComponent(SplightBaseModel):
         custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
         return ComponentModelsFactory(
             type_map=custom_types_dict,
-            hub_component_name=self.name
+            component_id=self.id
         ).get_commands_model(self.commands)
 
 
@@ -173,9 +174,6 @@ class Component(BaseComponent):
     status: ComponentStatus = ComponentStatus.STOPPED
     active: bool = False
     type: str = "Component"
-    @property
-    def collection(self):
-        return str(self.id)
 
 
 NATIVE_TYPES = {
@@ -205,8 +203,8 @@ SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys()) + list(ST
 
 
 class ComponentModelsFactory:
-    def __init__(self, type_map: Dict[str, Type] = {}, hub_component_name=None) -> None:
-        self._hub_component_name = hub_component_name
+    def __init__(self, type_map: Dict[str, Type] = {}, component_id=None) -> None:
+        self._component_id = component_id
         self._type_map = {
             **type_map,
             **self._load_type_map()
@@ -271,7 +269,7 @@ class ComponentModelsFactory:
             pass
 
         class Meta:
-            collection_name = f"{self._hub_component_name}.{name}"
+            collection_name = str(self._component_id)
 
         fields_dict: Dict[str, Tuple] = copy(extra_fields)
         for field in fields:
