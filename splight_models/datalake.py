@@ -26,3 +26,19 @@ class DatalakeModel(SplightBaseModel):
             k: v['id'] if isinstance(v, dict) and 'id' in v.keys() else v
             for k, v in d.items()
         }
+
+    def json(self, *args, **kwargs):
+        restore = {}
+
+        for k in self.__class__.__fields__.keys():
+            v = getattr(self, k)
+            if hasattr(v, "id"):
+                restore[k] = v.id
+                setattr(self, k, v.id)
+
+        res = super().json(*args, **kwargs)
+
+        for k, v in restore.items():
+            setattr(self, k, v)
+
+        return res
