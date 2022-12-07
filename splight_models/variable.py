@@ -6,11 +6,10 @@ from typing import Dict, Union, Optional
 from .asset import Asset
 from .attribute import Attribute
 from .datalake import DatalakeModel
-from .base import SplightBaseModel
 
 
 # TODO remove Variable and VariableDataFrame
-class Variable(SplightBaseModel):
+class Variable(DatalakeModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     instance_id: Optional[str] = None
     instance_type: Optional[str] = None
