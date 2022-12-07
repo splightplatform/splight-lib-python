@@ -24,7 +24,7 @@ class Variable(SplightBaseModel):
         validate_assignment = True
 
     class Meta:
-        collection_name = "Variable"
+        collection_name = "default"
 
     class SpecFields:
         # Fields to reconstruct Spec .fields
@@ -34,32 +34,25 @@ class Variable(SplightBaseModel):
 class VariableDataFrame(pd.DataFrame):
     pass
 
-# TODO rename ConnectorOutput to AssetAttributeDatalakeModel
-# furthermore. does it make sense to have this metamodel?
-class ConnectorOutput(DatalakeModel):
+
+class NativeOutput(DatalakeModel):
     asset: Union[Asset, str]
     attribute: Union[Attribute, str]
 
+    class Meta:
+        collection_name = "default"
 
-class Number(ConnectorOutput):
+
+class Number(NativeOutput):
     output_format: str = Field("Number", const=True)
     value: float
 
-    class Meta:
-        collection_name = "Number"
 
-
-class String(ConnectorOutput):
+class String(NativeOutput):
     output_format: str = Field("String", const=True)
     value: str
 
-    class Meta:
-        collection_name = "String"
 
-
-class Boolean(ConnectorOutput):
+class Boolean(NativeOutput):
     output_format: str = Field("Boolean", const=True)
     value: bool
-
-    class Meta:
-        collection_name = "Boolean"

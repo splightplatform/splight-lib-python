@@ -142,6 +142,8 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return df
 
     def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+        # TODO this should be 
+        # def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
         dfs = [self.get_dataframe(**query) for query in queries]
         df = pd.concat(dfs, axis=1)
         return df
