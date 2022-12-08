@@ -63,6 +63,10 @@ class Command(SplightBaseModel):
     fields: List[CommandParameter]
 
 
+class Endpoint(SplightBaseModel):
+    port: str
+
+
 class Binding(SplightBaseModel):
     name: str
     object_type: str
@@ -127,6 +131,7 @@ class BaseComponent(SplightBaseModel):
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
+    endpoints: Optional[List[Endpoint]] = []
     bindings: Optional[List[Binding]] = []
 
     class Config:
