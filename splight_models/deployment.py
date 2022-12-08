@@ -28,6 +28,7 @@ class Deployment(BaseComponent):
     secret_key: Optional[str] = None
     hub_api_host: Optional[str] = None
     api_host: Optional[str] = None
+    service_ports: Optional[List[int]] = None
 
     class Config:
         use_enum_values = True
@@ -36,10 +37,6 @@ class Deployment(BaseComponent):
     def service_name(self):
         id = str(self.id).lower()
         return f"service-{id}"
-
-    @property
-    def service_port(self):
-        return 1883
 
     @property
     def deployment_name(self):
