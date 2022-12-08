@@ -39,7 +39,7 @@ class Deployment(BaseComponent):
 
     @property
     def service_port(self):
-        return 1080
+        return 1883
 
     @property
     def deployment_name(self):
