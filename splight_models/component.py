@@ -203,7 +203,7 @@ SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys()) + list(ST
 
 
 class ComponentModelsFactory:
-    def __init__(self, type_map: Dict[str, Type] = {}, component_id=None) -> None:
+    def __init__(self, type_map: Dict[str, Type] = {}, component_id: Optional[str] = None) -> None:
         self._component_id = component_id
         self._type_map = {
             **type_map,
