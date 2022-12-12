@@ -19,7 +19,6 @@ from splight_models.tag import *
 from splight_models.query import *
 from splight_models.component import *
 from splight_models.storage import *
-from splight_models.user_activity import *
 from splight_models.tag import *
 from splight_models.user import *
 from splight_models.variable import *
