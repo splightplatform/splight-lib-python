@@ -6,11 +6,16 @@ from collections import defaultdict
 from collections.abc import MutableMapping
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
-from typing import Dict, List, Type, Any, Union
-from splight_models import VariableDataFrame, Query
-from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type
+from typing import Dict, List, Any, Union
+from splight_models import VariableDataFrame, Query, DatalakeModel
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
+from splight_abstract import (
+    AbstractDatalakeClient,
+    validate_resource_type,
+    validate_instance_type,
+    QuerySet
+)
 
 
 DATALAKE_HOME = os.path.join(SPLIGHT_HOME, "datalake")
@@ -109,28 +114,12 @@ class FakeDatalakeClient(AbstractDatalakeClient):
                 "timestamp": datetime.now(timezone.utc)
             }
         ]
-        self._write_to_collection('default', data)
+        self._write_to_collection('Splight.Number', data)
 
     def _find(self, collection: str, filters: List = [], **kwargs) -> List[Dict]:
         values: List[Dict] = self._read_from_collection(collection)
         values = [v for v in values if all(f(v) for f in filters)]
         return values
-
-    def list_collection_names(self):
-        return [f for f in os.listdir(DATALAKE_HOME) if os.path.isfile(os.path.join(DATALAKE_HOME, f))]
-
-    def get_unique_keys(self, collection: str, **kwargs):
-        read = self._find(collection, filters=self._parse_filters(**kwargs))
-        # flatten all dicts
-        read = [flatten_dict(d) for d in read]
-        return list(set(key for dic in read for key in dic.keys()))
-
-    def get_values_for_key(self, collection: str, key: str, **kwargs):
-        read = self._find(collection, filters=self._parse_filters(**kwargs))
-        # flatten all dicts
-        read = [flatten_dict(d) for d in read]
-        ret = list(set(d[key] for d in read if key in d))
-        return ret
 
     def _parse_filters(self, **kwargs) -> List:
         filters: List = []
@@ -143,7 +132,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         return filters
 
     def _raw_get(self,
-                 collection: str = 'default',
+                 collection: str,
                  limit_: int = 50,
                  skip_: int = 0,
                  sort: Union[List, str] = ['timestamp__desc'],
@@ -162,64 +151,20 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
         return result[skip_:skip_ + limit_]
 
-    @validate_resource_type
-    def _get(self,
-             resource_type: Type,
-             collection: str = 'default',
-             limit_: int = 50,
-             skip_: int = 0,
-             sort: Union[List, str] = ['timestamp__desc'],
-             group_id: Union[List, str] = [],
-             group_fields: Union[List, str] = [],
-             tzinfo: timezone = None,
-             **kwargs) -> List[BaseModel]:
-
-        if group_id or group_fields or tzinfo:
-            raise NotImplementedError(f"Not implemented yet in fake version. Try removing group_ and tzinfo fields")
-
-        result = [resource_type(**v) for v in self._find(collection, filters=self._parse_filters(**kwargs))]
-
-        if limit_ == -1:
-            return result[skip_:]
-
-        return result[skip_:skip_ + limit_]
-
-    def raw_save(self, instances: List[Dict], collection: str = "default") -> List[Dict]:
+    def _raw_save(self, instances: List[Dict], collection: str) -> List[Dict]:
         return self._write_to_collection(collection, instances)
 
-    def save(self, instances: List[BaseModel], collection: str = "default") -> List[BaseModel]:
-        data = [instance.dict() for instance in instances]
-        self.raw_save(data, collection)
-        return instances
-
-    def get_db_size_gb(self) -> float:
-        return 0.555555
-
-    def get_dataframe(self, *args, **kwargs) -> VariableDataFrame:
-        logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
-        _data = self.raw_get(*args, **kwargs)
-        _data = pd.DataFrame(_data)
-        _data.set_index('timestamp', inplace=True)
-        return _data
-
-    def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
-        dfs = [self.get_dataframe(**query) for query in queries]
-        return pd.concat(dfs, axis=1)
-
-    def raw_aggregate(self, collection: str, pipeline: List[Dict]) -> List[Dict]:
-        raise NotImplementedError
-
-    def save_dataframe(self, dataframe: pd.DataFrame, collection: str = 'default') -> None:
-        logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
-        data = dataframe.reset_index().to_dict(orient="records")
-        self.raw_save(instances=data, collection=collection)
-
-    def create_index(self, collection: str, index: list) -> None:
-        pass
+    @validate_resource_type
+    def get(self, resource_type: DatalakeModel, *args, **kwargs) -> QuerySet:
+        kwargs["get_func"] = "_raw_get"
+        kwargs["count_func"] = "None"
+        kwargs["collection"] = resource_type.Meta.collection_name
+        return QuerySet(self, *args, **kwargs)
 
     def get_output(self, query: Query) -> List[Dict]:
-        return self.raw_get(
-            collection=query.collection,
+        # TODO this is not ok. It should return QuerySet
+        return self._raw_get(
+            collection=query.source,
             limit_=query.limit,
             skip_=query.skip,
             sort=query.sort,
@@ -231,3 +176,40 @@ class FakeDatalakeClient(AbstractDatalakeClient):
             tzinfo=timezone(timedelta(hours=query.timezone_offset)),
             **query.filters
         )
+
+    @validate_resource_type
+    def get_dataframe(self, resource_type: DatalakeModel, *args, **kwargs) -> VariableDataFrame:
+        logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
+        kwargs["collection"] = resource_type.Meta.collection_name
+        _data = self._raw_get(*args, **kwargs)
+        _data = pd.DataFrame(_data)
+        _data.set_index('timestamp', inplace=True)
+        return _data
+
+    def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+        dfs = [self.get_dataframe(**query) for query in queries]
+        return pd.concat(dfs, axis=1)
+
+    @validate_resource_type
+    def save_dataframe(self, resource_type: DatalakeModel, dataframe: pd.DataFrame) -> None:
+        logger.info(f"[FAKED] saving dataframe {dataframe.columns}")
+        collection = resource_type.Meta.collection_name
+        data = dataframe.reset_index().to_dict(orient="records")
+        self._raw_save(instances=data, collection=collection)
+
+    @validate_instance_type
+    def save(self, instances: List[BaseModel]) -> List[BaseModel]:
+        logger.info(f"[FAKED] Saving instances {instances}")
+        if not instances:
+            return instances
+        resource_type = instances[0].__class__
+        collection = resource_type.Meta.collection_name
+        return self._raw_save(instances=instances, collection=collection)
+
+    @validate_resource_type
+    def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
+        logger.info(f"[FAKED] Deleting from {resource_type}")
+        raise NotImplementedError
+
+    def create_index(self, collection: str, index: list) -> None:
+        logger.info(f"[FAKED] creating index {collection} {index}")

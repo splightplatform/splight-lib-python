@@ -95,6 +95,8 @@ class QuerySet(UserList):
             }
             kwargs["skip_"] = skip_
             kwargs["limit_"] = limit_
+            kwargs.pop("get_func", None)
+            kwargs.pop("count_func", None)
             return QuerySet(self._client, get_func=self._client_func, count_func=self._count_func, *self._args, **kwargs)
 
         return self.data[i]
