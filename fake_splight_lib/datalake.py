@@ -187,6 +187,8 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         return _data
 
     def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+        # TODO make this work with List[Query] objects
+        logger.info(f"[FAKED] getting dataset {queries}")
         dfs = [self.get_dataframe(**query) for query in queries]
         return pd.concat(dfs, axis=1)
 
