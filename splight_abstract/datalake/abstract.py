@@ -19,7 +19,7 @@ def validate_resource_type(func: Callable) -> Callable:
 
 def validate_instance_type(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(self, instances: BaseModel, *args, **kwargs):
+    def wrapper(self, instances: List[BaseModel], *args, **kwargs):
         if instances:
             resource_type = instances[0].__class__
             if not all([isinstance(i, resource_type) for i in instances]):
