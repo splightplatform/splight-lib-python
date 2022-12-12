@@ -76,7 +76,7 @@ class IndexMixin:
     def __get_collections(self) -> List[str]:
         native_output_types = [Boolean, String, Number]
         # TODO do this autodiscovery better
-        component_output_types = [v for _,v in self.output.__dict__.items() if isinstance(v, BaseModel)]
+        component_output_types = [v for v in self.output.__dict__.values() if isinstance(v, BaseModel)]
         return [r.Meta.collection_name for r in native_output_types + component_output_types]
 
     def __get_indexes(self) -> List[Tuple[str, int]]:
