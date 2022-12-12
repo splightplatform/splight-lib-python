@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Dict, Union, List, Optional
 from pydantic import validator
-# from splight_models import Boolean, String, Number
 from splight_models.base import SplightBaseModel
 
 
@@ -33,18 +32,24 @@ class Query(SplightBaseModel):
     @validator("source", always=True)
     def source_validate(cls, source, values):
         source_type = values.get("source_type")
-        native_sources = ["Boolean", "String", "Number"]
-        if source_type == QuerySourceType.NATIVE and source not in native_sources:
-            raise ValueError(f"source must be one of {native_sources} when source_type is {QuerySourceType.NATIVE}")
+        if source_type == QuerySourceType.NATIVE and source != 'default':
+            raise ValueError(f"source must be one of 'default' when source_type is {source_type}")
         return source
+
+    @validator("source_component_id", always=True)
+    def source_component_id_validate(cls, source_component_id, values):
+        source_type = values.get("source_type")
+        if source_type == QuerySourceType.COMPONENT and not source_component_id:
+            raise ValueError(f"source must be set when source_type is {source_type}")
+        return source_component_id
 
     @validator("target", always=True)
     def target_validate(cls, target, values):
         source_type = values.get("source_type")
         if source_type == QuerySourceType.NATIVE and target != "value":
-            raise ValueError(f"target must be 'value' when source_type is {QuerySourceType.NATIVE}")
+            raise ValueError(f"target must be 'value' when source_type is {source_type}")
         if source_type == QuerySourceType.COMPONENT and not target:
-            raise ValueError(f"target must be set when source_type is {QuerySourceType.COMPONENT}")
+            raise ValueError(f"target must be set when source_type is {source_type}")
         return target
 
     @property
