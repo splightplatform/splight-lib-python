@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Union
 from splight_models import VariableDataFrame, Query, DatalakeModel
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
-from splight_abstract import (
+from splight_abstract.datalake import (
     AbstractDatalakeClient,
     validate_resource_type,
     validate_instance_type,
