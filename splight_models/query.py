@@ -15,7 +15,6 @@ class Query(SplightBaseModel):
     description: Optional[str]
     source_type: QuerySourceType
     source_component_id: Optional[str] = None
-    source: str
     output_format: str
     target: str
     filters: Dict = {}
@@ -28,13 +27,6 @@ class Query(SplightBaseModel):
     rename_fields: Union[List, str] = []
     project_fields: Union[List, str] = []
     timezone_offset: float = 0.0 # UTC
-
-    @validator("source", always=True)
-    def source_validate(cls, source, values):
-        source_type = values.get("source_type")
-        if source_type == QuerySourceType.NATIVE and source != 'default':
-            raise ValueError(f"source must be one of 'default' when source_type is {source_type}")
-        return source
 
     @validator("source_component_id", always=True)
     def source_component_id_validate(cls, source_component_id, values):
@@ -51,6 +43,10 @@ class Query(SplightBaseModel):
         if source_type == QuerySourceType.COMPONENT and not target:
             raise ValueError(f"target must be set when source_type is {source_type}")
         return target
+
+    @property
+    def source(self):
+        return "default" if self.source_type == QuerySourceType.NATIVE else self.source_component_id
 
     @property
     def query_params(self):
