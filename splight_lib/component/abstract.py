@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
 from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
-from pydantic import BaseModel
+from pydantic import BaseModel, main
 from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
@@ -76,7 +76,7 @@ class IndexMixin:
     def __get_collections(self) -> List[str]:
         native_output_types = [Boolean, String, Number]
         # TODO do this autodiscovery better
-        component_output_types = [v for v in self.output.__dict__.values() if isinstance(v, BaseModel)]
+        component_output_types = [v for v in self.output.__dict__.values() if isinstance(v, main.ModelMetaclass)]
         return [r.Meta.collection_name for r in native_output_types + component_output_types]
 
     def __get_indexes(self) -> List[Tuple[str, int]]:
@@ -382,7 +382,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             self._setup.configure(initial_setup)
 
         self.namespace = self._setup.settings.NAMESPACE
-        self.instance_id = self._setup.settings.COMPONENT_ID
+        self.instance_id = run_spec.pop("id", self._setup.settings.COMPONENT_ID)
         self.instance_type = Component
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
