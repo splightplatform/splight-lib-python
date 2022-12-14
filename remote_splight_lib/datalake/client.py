@@ -189,3 +189,15 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         data = {"source": collection, "index": index}
         response = self._session.post(url, json=data)
         response.raise_for_status()
+
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    def raw_aggregate(
+        self, collection: str, pipeline: List[Dict]
+    ) -> List[Dict]:
+        # POST /datalake/aggregate/?source=collection
+        url = self._base_url / f"{self._PREFIX}/aggregate/"
+        params = {"source": collection}
+        data = {"pipeline": pipeline}
+        response = self._session.post(url, params=params, data=data)
+        response.raise_for_status()
+        return response.json()
