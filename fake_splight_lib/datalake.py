@@ -215,3 +215,9 @@ class FakeDatalakeClient(AbstractDatalakeClient):
 
     def create_index(self, collection: str, index: list) -> None:
         logger.info(f"[FAKED] creating index {collection} {index}")
+
+    def raw_aggregate(
+        self, collection: str, pipeline: List[Dict]
+    ) -> List[Dict]:
+        logger.info(f"[FAKED] pipeline {collection} {pipeline}")
+        return []

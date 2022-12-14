@@ -78,5 +78,15 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
+    def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
+        pass
+
+    @abstractmethod
     def create_index(self, collection: str, index: list) -> None:
+        pass
+
+    @abstractmethod
+    def raw_aggregate(
+        self, collection: str, pipeline: List[Dict]
+    ) -> List[Dict]:
         pass
