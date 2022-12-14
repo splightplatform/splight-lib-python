@@ -22,6 +22,7 @@ class HubComponent(BaseComponent):
     created_at: Optional[str]
     last_modified: Optional[str]
     tags: List[str] = []
+    image_size: float
 
     @validator('verification', pre=True, always=True)
     def set_verification_now(cls, v):
