@@ -50,15 +50,18 @@ class Query(SplightBaseModel):
 
     @property
     def query_params(self):
-        query_params = f"?source={self.source}&"
-        query_params += "&".join([f"{k}={','.join([str(i) for i in v])}" if type(v) == list else f"{k}={v}" for k, v in self.filters.items()]) + "&" if self.filters else ""
+        query_params = f"?source={self.source}"
+        if self.filters:
+            joined_filters = "&".join([f"{k}={','.join([str(i) for i in v])}" if type(v) == list else f"{k}={v}" for k, v in self.filters.items()])
+            query_params += f"&{joined_filters}"
+        if self.output_format:
+            query_params += f"&output_format={self.output_format}"
         query_params_fields = ["limit", "skip", "sort"]
         underscored_fields = ["limit", "skip"]
         for k in query_params_fields:
             field = k if not k in underscored_fields else k + "_"
             if type(getattr(self, k)) == list:
-                query_params += f"{field}={','.join(getattr(self, k))}&"
+                query_params += f"&{field}={','.join(getattr(self, k))}"
             else:
-                query_params += f"{field}={getattr(self, k)}&"
-        query_params = query_params[:-1]
+                query_params += f"&{field}={getattr(self, k)}"
         return query_params
