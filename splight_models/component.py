@@ -64,6 +64,7 @@ class Command(SplightBaseModel):
 
 
 class Endpoint(SplightBaseModel):
+    name: Optional[str]
     port: str
 
 
