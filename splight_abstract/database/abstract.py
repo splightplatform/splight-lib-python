@@ -2,7 +2,7 @@ from abc import abstractmethod
 from pydantic import BaseModel
 from typing import Type, List
 from splight_abstract.client import AbstractClient, QuerySet
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 
 
 class AbstractDatabaseClient(AbstractClient):
@@ -33,5 +33,5 @@ class AbstractDatabaseClient(AbstractClient):
         pass
 
     @abstractmethod
-    def download(self, instance: BaseModel) -> TemporaryFile:
+    def download(self, instance: BaseModel) -> NamedTemporaryFile:
         pass

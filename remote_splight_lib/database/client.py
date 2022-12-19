@@ -16,7 +16,7 @@ from requests.exceptions import (
     ConnectionError,
     Timeout
 )
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 
 
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
@@ -136,7 +136,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def download(self, instance: BaseModel, **kwargs) -> TemporaryFile:
+    def download(self, instance: BaseModel, **kwargs) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -159,7 +159,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         url = self._base_url / f"{path}/{instance.id}/download"
         response = self._session.get(url)
         response.raise_for_status()
-        f = TemporaryFile("wb+")
+        f = NamedTemporaryFile("wb+")
         f.write(response.content)
         f.seek(0)
         return f
