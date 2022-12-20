@@ -382,8 +382,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             self._setup.configure(initial_setup)
 
         self.namespace = self._setup.settings.NAMESPACE
-        self.instance_id = run_spec.pop("id", self._setup.settings.COMPONENT_ID)
+        self.instance_id = self._setup.settings.COMPONENT_ID
         self.instance_type = Component
+        self.deployment_id = run_spec.pop("id", None)
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
         self._load_instance_kwargs_for_clients()
