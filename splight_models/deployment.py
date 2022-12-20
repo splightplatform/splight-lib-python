@@ -35,8 +35,7 @@ class Deployment(BaseComponent):
     @property
     def service_name(self):
         id = str(self.id).lower()
-        type_id = str(self.type).lower()
-        return f"service-{type_id}-{id}"
+        return f"service-{id}"
 
     @property
     def service_port(self):
@@ -47,7 +46,7 @@ class Deployment(BaseComponent):
         # TODO remove this. we are no longeer using deployments.
         id = str(self.id).lower()
         type_id = str(self.type).lower()
-        return f"deployment-{type_id}-{id}"
+        return f"deployment-{id}"
 
 
 class DeploymentEvent(SplightBaseModel):
