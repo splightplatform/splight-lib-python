@@ -341,7 +341,7 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
-            if type in NATIVE_TYPES of value is None:
+            if type in NATIVE_TYPES or value is None:
                 parameter["value"] = value
             elif type in DATABASE_TYPES or type in STORAGE_TYPES:
                 parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
