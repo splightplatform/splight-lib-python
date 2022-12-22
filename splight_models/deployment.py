@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from splight_models.base import SplightBaseModel
 from splight_models.constants import ComponentSize, ComponentType, DeploymentStatus, LogginLevel, RestartPolicy
-from splight_models.component import BaseComponent
+from splight_models.component import BaseComponent, Endpoint
 
 
 class Deployment(BaseComponent):
@@ -28,18 +28,11 @@ class Deployment(BaseComponent):
     secret_key: Optional[str] = None
     hub_api_host: Optional[str] = None
     api_host: Optional[str] = None
+    endpoints: Optional[List[Endpoint]] = None
+    service_name: Optional[str] = None
 
     class Config:
         use_enum_values = True
-
-    @property
-    def service_name(self):
-        id = str(self.id).lower()
-        return f"service-{id}"
-
-    @property
-    def service_port(self):
-        return 1080
 
     @property
     def deployment_name(self):
