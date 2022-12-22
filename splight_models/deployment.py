@@ -41,11 +41,6 @@ class Deployment(BaseComponent):
         type_id = str(self.type).lower()
         return f"deployment-{id}"
 
-    # def dict(self, *args, **kwargs):
-    #     dict = super().dict(*args, **kwargs)
-    #     dict['service_name'] = self.service_name
-    #     return dict
-
 
 class DeploymentEvent(SplightBaseModel):
     severity: str
