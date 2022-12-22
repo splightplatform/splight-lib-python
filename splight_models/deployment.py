@@ -29,14 +29,10 @@ class Deployment(BaseComponent):
     hub_api_host: Optional[str] = None
     api_host: Optional[str] = None
     endpoints: Optional[List[Endpoint]] = None
+    service_name: Optional[str] = None
 
     class Config:
         use_enum_values = True
-
-    @property
-    def service_name(self):
-        id = str(self.id).lower()
-        return f"service-{id}"
 
     @property
     def deployment_name(self):
@@ -45,10 +41,10 @@ class Deployment(BaseComponent):
         type_id = str(self.type).lower()
         return f"deployment-{id}"
 
-    def dict(self, *args, **kwargs):
-        dict = super().dict(*args, **kwargs)
-        dict['service_name'] = self.service_name
-        return dict
+    # def dict(self, *args, **kwargs):
+    #     dict = super().dict(*args, **kwargs)
+    #     dict['service_name'] = self.service_name
+    #     return dict
 
 
 class DeploymentEvent(SplightBaseModel):
