@@ -18,6 +18,10 @@ from functools import cached_property
 import inspect
 
 
+class ComponentActionEnum(str, Enum):
+    REGISTER_USAGE = "register_usage"
+
+
 class Parameter(SplightBaseModel):
     name: str
     description: str = ''
