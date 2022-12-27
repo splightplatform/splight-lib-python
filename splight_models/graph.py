@@ -14,6 +14,7 @@ class Node(SplightBaseModel):
     type: str
     graph_id: str
     asset_id: Optional[str] = None
+    text: Optional[str] = None
     color: str
     fill_color: Optional[str]
     position_x: int
