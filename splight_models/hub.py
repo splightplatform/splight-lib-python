@@ -23,6 +23,7 @@ class HubComponent(BaseComponent):
     last_modified: Optional[str]
     tags: List[str] = []
     min_component_capacity: Optional[str]
+    usage_count: int = 0
 
     @validator('verification', pre=True, always=True)
     def set_verification_now(cls, v):
