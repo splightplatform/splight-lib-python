@@ -8,6 +8,7 @@ from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
+import logging
 from splight_models.communication import CommunicationClientStatus, CommunicationContext, CommunicationEvent
 
 from remote_splight_lib.auth.auth import SplightAuthToken
@@ -96,6 +97,7 @@ class CommunicationClient(AbstractCommunicationClient):
             auth_endpoint_headers=self._context.auth_headers,
             user_data=self._context.channel_data.dict() if self.context.channel_data else None,
             daemon=self._daemon,
+            log_level=logging.WARNING
         )
         self.__bind_system_events()
         self._client.connect()
