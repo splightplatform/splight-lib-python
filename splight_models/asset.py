@@ -7,4 +7,6 @@ class Asset(SplightBaseModel):
     name: str
     description: Optional[str] = None
     external_id: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
     tags: List[str] = []
