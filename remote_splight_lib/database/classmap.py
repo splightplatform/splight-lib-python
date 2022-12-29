@@ -11,7 +11,6 @@ from splight_models import (
     Node,
     Tag,
     BlockchainContract,
-    BlockchainContractSubscription,
     Component,
     ComponentObject,
     ComponentCommand,
@@ -54,9 +53,6 @@ CLASSMAP = {
     },
     BlockchainContract: {
         "path": "blockchain/contract"
-    },
-    BlockchainContractSubscription: {
-        "path": "blockchain/subscription"
     },
     Component: {
         "path": "components"

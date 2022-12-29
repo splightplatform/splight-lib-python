@@ -39,7 +39,7 @@ class TestAttributeHash(AbstractBaseHash, TestCase):
 
 class TestDeploymentHash(AbstractBaseHash, TestCase):
     class_model = Deployment
-    args = {"version": "ver", "type": "Component"}
+    args = {"version": "ver"}
     rand_str_arg = "version"
 
 
