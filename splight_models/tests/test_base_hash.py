@@ -43,12 +43,6 @@ class TestDeploymentHash(AbstractBaseHash, TestCase):
     rand_str_arg = "version"
 
 
-class TestGeopointHash(AbstractBaseHash, TestCase):
-    class_model = Geopoint
-    args = {"id": "id", "latitude": 0.1, "longitude": 0.2}
-    rand_str_arg = "id"
-
-
 class TestMappingHash(AbstractBaseHash, TestCase):
     class_model = Mapping
     args = {
@@ -83,10 +77,12 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     args = {"title": "1", "message": "1", "timestamp": datetime.now()}
     rand_str_arg = "title"
 
+
 class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component
     args = {"name": "1", "version": "1"}
     rand_str_arg = "name"
+
 
 class TestStorageFileHash(AbstractBaseHash, TestCase):
     class_model = StorageFile
