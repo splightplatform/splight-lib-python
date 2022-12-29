@@ -46,10 +46,6 @@ class RestartPolicy(str, Enum):
 class ComponentType(str, Enum):
     # TODO: Remove this
     COMPONENT = "Component"
-    ALGORITHM = "Algorithm"
-    NETWORK = "Network"
-    CONNECTOR = "Connector"
-    SYSTEM = "System"
 
 
 class DeploymentStatus(str, Enum):
