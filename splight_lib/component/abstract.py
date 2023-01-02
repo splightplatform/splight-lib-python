@@ -130,7 +130,6 @@ class HooksMixin:
         kwargs["dataframe"] = dataframe
         return args, kwargs
 
-
     def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
         resource_type = kwargs["resource_type"]
         if resource_type and hasattr(self.custom_types, resource_type.__name__):

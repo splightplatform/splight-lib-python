@@ -9,7 +9,6 @@ VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
 class HubComponent(BaseComponent):
     id: Optional[str]
     name: str
-    type: str = "Component"
     splight_cli_version: str
     build_status: Optional[str]
     description: Optional[str]

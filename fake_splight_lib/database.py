@@ -30,7 +30,6 @@ class FakeDatabaseClient(AbstractDatabaseClient):
         Node,
         Edge,
         BlockchainContract,
-        BlockchainContractSubscription,
         Component,
         ComponentObject,
         ComponentCommand,

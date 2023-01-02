@@ -8,14 +8,6 @@ from hexbytes import HexBytes
 from splight_models.base import SplightBaseModel
 
 
-class BlockchainContractSubscription(SplightBaseModel):
-    id: Optional[str]
-    asset_id: str
-    attribute_id: str
-    contract_id: str
-    last_checkpoint: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-
 class BlockchainContract(SplightBaseModel):
     id: Optional[str]
     name: str
