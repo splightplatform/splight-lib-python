@@ -43,15 +43,6 @@ class RestartPolicy(str, Enum):
     NEVER = "Never"
 
 
-class ComponentType(str, Enum):
-    # TODO: Remove this
-    COMPONENT = "Component"
-    ALGORITHM = "Algorithm"
-    NETWORK = "Network"
-    CONNECTOR = "Connector"
-    SYSTEM = "System"
-
-
 class DeploymentStatus(str, Enum):
     PENDING = "Pending"
     RUNNING = "Running"

@@ -1,13 +1,12 @@
 from typing import Dict, List, Optional
 from splight_models.base import SplightBaseModel
-from splight_models.constants import ComponentSize, ComponentType, DeploymentStatus, LogginLevel, RestartPolicy
+from splight_models.constants import ComponentSize, DeploymentStatus, LogginLevel, RestartPolicy
 from splight_models.component import BaseComponent, Endpoint
 
 
 class Deployment(BaseComponent):
     # run-spec
     id: Optional[str] = None
-    type: ComponentType = ComponentType.COMPONENT
     component_id: Optional[str] = None
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
