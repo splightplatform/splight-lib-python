@@ -179,7 +179,15 @@ class Component(BaseComponent):
     restart_policy: RestartPolicy = RestartPolicy.ON_FAILURE
     status: ComponentStatus = ComponentStatus.STOPPED
     active: bool = False
-    type: str = "Component"
+    namespace: Optional[str] = None
+
+    @property
+    def service_name(self):
+        return f"service-{self.id}"
+
+    @property
+    def secret_name(self):
+        return f"{self.namespace}-secrets"
 
 
 NATIVE_TYPES = {

@@ -27,18 +27,17 @@ class Deployment(BaseComponent):
     secret_key: Optional[str] = None
     hub_api_host: Optional[str] = None
     api_host: Optional[str] = None
-    endpoints: Optional[List[Endpoint]] = None
-    service_name: Optional[str] = None
 
     class Config:
         use_enum_values = True
 
     @property
-    def deployment_name(self):
-        # TODO remove this. we are no longeer using deployments.
-        id = str(self.id).lower()
-        type_id = str(self.type).lower()
-        return f"deployment-{id}"
+    def secret_name(self):
+        return f"{self.namespace}-secret"
+
+    @property
+    def service_name(self):
+        return f"service-{self.component_id}"
 
 
 class DeploymentEvent(SplightBaseModel):

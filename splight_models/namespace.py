@@ -12,3 +12,7 @@ class Namespace(SplightBaseModel):
     environment: Dict = {}
     _extract_id = validator('id', pre=True, allow_reuse=True)(namespace_transform)
 
+    @property
+    def secret_name(self):
+        return f"{self.id}-secrets"
+
