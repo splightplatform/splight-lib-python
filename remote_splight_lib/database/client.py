@@ -110,6 +110,8 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             resource_type.parse_obj(resource)
             for resource in response["results"]
         ]
+        if first:
+            return parsed[0] if parsed else None
         return parsed
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
