@@ -13,3 +13,4 @@ class Asset(SplightBaseModel):
     longitude: Optional[float]
     tags: List[Tag] = []
     attributes: List[Attribute] = []
+    verified: bool = False
