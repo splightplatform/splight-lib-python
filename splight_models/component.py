@@ -27,11 +27,10 @@ class Parameter(SplightBaseModel):
     sensitive: bool = False
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
-    value: Any = None
 
 
 class InputParameter(Parameter):
-    pass
+    value: Optional[Any] = None
 
 
 class OutputParameter(SplightBaseModel):
@@ -43,7 +42,7 @@ class OutputParameter(SplightBaseModel):
     filterable: bool = False
 
 
-class CommandParameter(Parameter):
+class CommandParameter(InputParameter):
     pass
 
 
