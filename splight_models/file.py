@@ -12,6 +12,7 @@ class File(SplightBaseModel):
     metadata: Dict = {}
     content_type: Optional[str] = None
     url: Optional[str] = None
+    encrypted: Optional[bool] = False
 
     @validator("file", pre=True)
     def validate_file(cls, v):
