@@ -12,6 +12,7 @@ from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
+from splight_lib.component.exceptions import MissingComponentID
 from splight_models import (
     CustomType,
     Deployment,
@@ -383,8 +384,11 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             self._setup.configure(initial_setup)
 
         self.namespace = self._setup.settings.NAMESPACE
-        self.instance_id = self._setup.settings.COMPONENT_ID
         self.instance_type = Component
+        # self.instance_id = self._setup.settings.COMPONENT_ID
+        self.instance_id = run_spec.get("component_id", None)
+        if not self.instance_id:
+            raise MissingComponentID
         self.deployment_id = run_spec.pop("id", None)
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
