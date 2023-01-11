@@ -385,7 +385,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
 
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_type = Component
-        # self.instance_id = self._setup.settings.COMPONENT_ID
         self.instance_id = run_spec.get("component_id", None)
         if not self.instance_id:
             raise MissingComponentID
