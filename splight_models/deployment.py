@@ -1,7 +1,9 @@
 from typing import Dict, List, Optional
 from splight_models.base import SplightBaseModel
-from splight_models.constants import ComponentSize, DeploymentStatus, LogginLevel, RestartPolicy
-from splight_models.component import BaseComponent, Endpoint
+from splight_models.constants import (
+    ComponentSize, DeploymentStatus, LogginLevel, RestartPolicy
+)
+from splight_models.component import BaseComponent
 
 
 class Deployment(BaseComponent):
@@ -21,12 +23,6 @@ class Deployment(BaseComponent):
 
     # CLI pre setup
     secrets: Optional[str] = None
-
-    # TODO: Remove the following attributes
-    access_id: Optional[str] = None
-    secret_key: Optional[str] = None
-    hub_api_host: Optional[str] = None
-    api_host: Optional[str] = None
 
     class Config:
         use_enum_values = True
