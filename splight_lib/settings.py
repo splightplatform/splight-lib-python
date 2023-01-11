@@ -1,6 +1,6 @@
 # TODO MOVE THIS STUFF
-from typing import Type, Optional
-from pydantic import BaseSettings, Field
+from typing import Type
+from pydantic import BaseSettings
 from importlib import import_module
 import os
 import sys
