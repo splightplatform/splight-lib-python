@@ -37,7 +37,6 @@ class SplightBaseSettings(BaseSettings):
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
     STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
-    COMPONENT_ID: Optional[str] = Field(None, env=["COMPONENT_ID"])
     NAMESPACE: str = "NO_NAMESPACE"
 
     @property
