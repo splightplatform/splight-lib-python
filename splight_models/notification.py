@@ -26,8 +26,11 @@ class Notification(DatalakeModel):
     id: Optional[str]
     message: str
     seen: bool = False
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     source_id: Optional[str]
     source_type: Optional[SourceType] = SourceType.component
     target_id: Optional[str]
     target_type: Optional[TargetType] = TargetType.component
+    is_error: bool = False
+    external_url: Optional[str]
+    volatile: bool = False
