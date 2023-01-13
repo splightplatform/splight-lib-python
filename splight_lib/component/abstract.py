@@ -23,7 +23,8 @@ from splight_models import (
     ComponentObject,
     Boolean,
     String,
-    Number
+    Number,
+    Secret
 )
 from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
@@ -33,8 +34,40 @@ from splight_models.component import (
     Parameter,
     InputParameter
 )
+import re
+
 
 logger = logging.getLogger()
+
+
+class __SecretValueParser:
+
+    def __init__(self, utils, *args, **kwargs):
+        self.utils = utils
+
+    def get_value(self, name: str) -> Any:
+        secret = self.utils.database_client.get(Secret, name=name)
+        return secret.decrypted_value
+
+
+class VariableValueMixin:
+    _variable_parameter_map_class = {
+        'SECRET': __SecretValueParser,
+    }
+
+    @staticmethod
+    def parse_variable_string(self, value: str) -> Any:
+        pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
+        match = pattern.search(value)
+        if not match:
+            return value
+        class_key, name = match
+        try:
+            parser_class = self._variable_parameter_map_class[class_key]
+        except KeyError as e:
+            raise NotImplementedError(f"Variable {class_key} is not supported yet.") from e
+
+        return parser_class(utils=self).get_value(name)
 
 
 class RunnableMixin:
@@ -239,6 +272,10 @@ class BindingsMixin:
 
 
 class ParametersMixin:
+    _variable_parameter_map_class = {
+        'SECRET': Secret,
+    }
+
     def unparse_parameters(self, instance: Dict) -> List[Dict]:
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
@@ -285,6 +322,8 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
+            if type == 'str':
+                parameter["value"] = self.parse_variable_string(value)
             if type in NATIVE_TYPES or type in DATABASE_TYPES:
                 parameter["value"] = value
             else:
@@ -366,7 +405,7 @@ class ParametersMixin:
         return parameters_dict
 
 
-class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, ParametersMixin):
+class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, ParametersMixin, VariableValueMixin):
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}

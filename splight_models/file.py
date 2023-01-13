@@ -1,8 +1,9 @@
 from .base import SplightBaseModel
 from typing import Optional, Dict
-from pydantic import validator
+from pydantic import validator, BaseSettings
 import json
 import os
+from splight_lib.encryption import EncryptionManager
 
 
 class File(SplightBaseModel):
@@ -30,3 +31,9 @@ class File(SplightBaseModel):
         res = super(File, self).json(*args, **kwargs)
         self.metadata = prev_metadata
         return res
+
+    def decrypt(self, path: str, **kwargs):
+        if not self.encrypted:
+            return
+        encryption_manager = EncryptionManager()
+        encryption_manager.decrypt_file(path=path)

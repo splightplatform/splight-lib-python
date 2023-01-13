@@ -138,7 +138,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def download(self, instance: BaseModel, **kwargs) -> NamedTemporaryFile:
+    def download(self, instance: BaseModel, decrypt: bool = True, **kwargs) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -164,6 +164,8 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         f = NamedTemporaryFile("wb+")
         f.write(response.content)
         f.seek(0)
+        if decrypt and instance.encrypted:
+            instance.decrypt(f.name)
         return f
 
     def _pages(self, path: str, **kwargs):
