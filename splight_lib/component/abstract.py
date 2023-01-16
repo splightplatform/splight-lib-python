@@ -46,7 +46,7 @@ class __SecretValueParser:
         self.utils = utils
 
     def get_value(self, name: str) -> Any:
-        secret = self.utils.database_client.get(Secret, name=name)
+        secret = self.utils.database_client.get(Secret, name=name, first=True)
         return secret.decrypted_value
 
 
