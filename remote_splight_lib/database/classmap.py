@@ -12,6 +12,7 @@ from splight_models import (
     Component,
     ComponentObject,
     ComponentCommand,
+    Secret,
 )
 
 
@@ -57,5 +58,8 @@ CLASSMAP = {
     },
     Query: {
         "path": "query"
+    },
+    Secret: {
+        "path": "secret"
     },
 }
