@@ -304,8 +304,7 @@ class ParametersMixin:
 
     def _get_object_ids(self, parameters: List[Dict]) -> Dict[str, Dict[str, List]]:
         ids = {
-            "database": defaultdict(list),
-            "storage": defaultdict(list),
+            "database": defaultdict(list)
         }
         for parameter in parameters:
             parameter = parameter.dict() if not isinstance(parameter, dict) else parameter
@@ -317,9 +316,6 @@ class ParametersMixin:
             elif parameter["type"] in DATABASE_TYPES:
                 for value in values:
                     ids["database"][parameter["type"]].append(value)
-            elif parameter["type"] in STORAGE_TYPES:
-                for value in values:
-                    ids["storage"][parameter["type"]].append(value)
             else:
                 for value in values:
                     ids = merge(ids, self._get_object_ids(value), strategy=mergeStrategy.ADDITIVE)
@@ -331,10 +327,6 @@ class ParametersMixin:
         }
         for type, ids_ in ids_to_fetch["database"].items():
             objs = self.database_client.get(DATABASE_TYPES[type], id__in=ids_)
-            res.update({obj.id: obj for obj in objs})
-
-        for type, ids_ in ids_to_fetch["storage"].items():
-            objs = self.storage_client.get(STORAGE_TYPES[type], id__in=ids_)
             res.update({obj.id: obj for obj in objs})
         return res
 
@@ -379,7 +371,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
-    storage_client_kwargs: Dict[str, Any] = {}
     communication_client_kwargs: Dict[str, Any] = {}
     blockchain_client_kwargs: Dict[str, Any] = {}
 
@@ -445,10 +436,6 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         self.deployment_client = self.setup.DEPLOYMENT_CLIENT(
             namespace=self.namespace,
             **self.deployment_client_kwargs
-        )
-        self.storage_client = self.setup.STORAGE_CLIENT(
-            namespace=self.namespace,
-            **self.storage_client_kwargs
         )
         self.communication_client = self.setup.COMMUNICATION_CLIENT(
             namespace=self.namespace,

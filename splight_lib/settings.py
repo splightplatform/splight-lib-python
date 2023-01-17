@@ -35,7 +35,6 @@ class SplightBaseSettings(BaseSettings):
     CACHE_CLIENT: str = 'fake_splight_lib.cache.FakeCacheClient'
     COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
-    STORAGE_CLIENT: str = 'fake_splight_lib.storage.FakeStorageClient'
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
     NAMESPACE: str = "NO_NAMESPACE"
 
@@ -50,7 +49,6 @@ class SplightBaseSettings(BaseSettings):
             'DEPLOYMENT_CLIENT',
             'CACHE_CLIENT',
             'NOTIFICATION_CLIENT',
-            'STORAGE_CLIENT',
             'HUB_CLIENT',
             'COMMUNICATION_CLIENT',
         ]

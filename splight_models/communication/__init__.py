@@ -9,7 +9,4 @@ __all__ = [
     "CommunicationEvent",
     "EventNames",
     "EventActions",
-    # TODO remove this
-    "MappingCreateEvent",
-    "MappingDeleteEvent",
 ]

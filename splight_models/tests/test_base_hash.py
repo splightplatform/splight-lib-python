@@ -43,33 +43,10 @@ class TestDeploymentHash(AbstractBaseHash, TestCase):
     rand_str_arg = "version"
 
 
-class TestMappingHash(AbstractBaseHash, TestCase):
-    class_model = Mapping
-    args = {
-        "name": "MyMapping",
-        "asset_id": "1",
-        "attribute_id": "1",
-        "output_format": "Number",
-    }
-    rand_str_arg = "asset_id"
-
-
-class TestMessageHash(AbstractBaseHash, TestCase):
-    class_model = Message
-    args = {"action": "1", "variables": []}
-    rand_str_arg = "action"
-
-
 class TestNamespaceHash(AbstractBaseHash, TestCase):
     class_model = Namespace
     args = {"id": "1"}
     rand_str_arg = "id"
-
-
-class TestNetTargetHash(AbstractBaseHash, TestCase):
-    class_model = NetTarget
-    args = {"ip": "1", "port": "1"}
-    rand_str_arg = "ip"
 
 
 class TestNotificationHash(AbstractBaseHash, TestCase):
@@ -82,21 +59,3 @@ class TestComponentHash(AbstractBaseHash, TestCase):
     class_model = Component
     args = {"name": "1", "version": "1"}
     rand_str_arg = "name"
-
-
-class TestStorageFileHash(AbstractBaseHash, TestCase):
-    class_model = StorageFile
-    args = {"file": "1"}
-    rand_str_arg = "file"
-
-
-class TestTagHash(AbstractBaseHash, TestCase):
-    class_model = Tag
-    args = {"name": "1"}
-    rand_str_arg = "name"
-
-
-class TestVariableHash(AbstractBaseHash, TestCase):
-    class_model = Variable
-    args = {"path": "1", "args": {}, "timestamp": datetime.now()}
-    rand_str_arg = "path"

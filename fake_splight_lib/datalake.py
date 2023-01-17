@@ -7,7 +7,7 @@ from collections.abc import MutableMapping
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Dict, List, Any, Union
-from splight_models import VariableDataFrame, Query, DatalakeModel
+from splight_models import Query, DatalakeModel
 from splight_lib import logging
 from splight_lib.settings import SPLIGHT_HOME
 from splight_abstract.datalake import (
@@ -178,7 +178,7 @@ class FakeDatalakeClient(AbstractDatalakeClient):
         )
 
     @validate_resource_type
-    def get_dataframe(self, resource_type: DatalakeModel, *args, **kwargs) -> VariableDataFrame:
+    def get_dataframe(self, resource_type: DatalakeModel, *args, **kwargs) -> pd.DataFrame:
         logger.info(f"[FAKED] getting dataframe {args}, {kwargs}")
         kwargs["collection"] = resource_type.Meta.collection_name
         _data = self._raw_get(*args, **kwargs)
