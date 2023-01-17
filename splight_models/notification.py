@@ -20,17 +20,18 @@ class TargetType(str, Enum):
     graph = 'Graph'
     query = 'Query'
     user = 'User'
-
-
 class Notification(DatalakeModel):
     id: Optional[str]
     message: str
     seen: bool = False
-    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notify_by_email: bool = False
+    notify_by_web: bool = False
+    notify_by_sms: bool = False
+    notify_by_push: bool = False
     source_id: Optional[str]
     source_type: Optional[SourceType] = SourceType.component
     target_id: Optional[str]
     target_type: Optional[TargetType] = TargetType.component
-    is_error: bool = False
-    external_url: Optional[str]
     volatile: bool = False
+    redirect_url: Optional[str]
