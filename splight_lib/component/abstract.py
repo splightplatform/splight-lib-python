@@ -27,7 +27,13 @@ from splight_models import (
 )
 from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
-from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter, InputParameter
+from splight_models.component import (
+    DATABASE_TYPES,
+    NATIVE_TYPES,
+    STORAGE_TYPES,
+    Parameter,
+    InputParameter
+)
 
 logger = logging.getLogger()
 
