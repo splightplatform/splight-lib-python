@@ -5,9 +5,7 @@ from splight_models.base import SplightBaseModel
 from splight_models.file import File
 from splight_models.datalake import DatalakeModel
 from splight_models.graph import Graph
-from splight_models.storage import StorageFile
 from splight_models.query import Query
-from splight_models.mapping import Mapping
 from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
 from enum import Enum
@@ -94,7 +92,7 @@ class ComponentCommandResponse(SplightBaseModel):
 class ComponentCommandStatus(str, Enum):
     NOT_SENT = "not_sent"
     PENDING = "pending"
-    SUCCESS = "success"
+    SUCCESS = "succeeded"
     ERROR = "error"
 
 
@@ -203,16 +201,12 @@ DATABASE_TYPES = {
     "Asset": Asset,
     "Attribute": Attribute,
     "File": File,
-    "Mapping": Mapping,
     "Graph": Graph,
     "Query": Query,
 }
 
-STORAGE_TYPES = {
-    "file": StorageFile,
-}
 
-SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys()) + list(STORAGE_TYPES.keys())
+SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys())
 
 
 class ComponentModelsFactory:
@@ -228,7 +222,6 @@ class ComponentModelsFactory:
         type_map: Dict[str, Type] = {}
         type_map.update(NATIVE_TYPES)
         type_map.update({k: Union[str, v] for k, v in DATABASE_TYPES.items()})
-        type_map.update({k: Union[str, v] for k, v in STORAGE_TYPES.items()})
         return type_map
 
     def get_input_model(self, inputs: List) -> BaseModel:

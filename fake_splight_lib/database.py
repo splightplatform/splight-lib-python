@@ -18,11 +18,9 @@ logger = logging.getLogger()
 class FakeDatabaseClient(AbstractDatabaseClient):
     database: Dict[Type, List[BaseModel]] = defaultdict(list)
     valid_classes = [
-        Mapping,
         Asset,
         Attribute,
         File,
-        Tag,
         Namespace,
         Component,
         Notification,
