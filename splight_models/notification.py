@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from typing import Optional
 from enum import Enum
 from splight_models.datalake import DatalakeModel
-from splight_models.severity import SeverityType
 
 
 SYSTEM = 'system'
@@ -49,6 +48,6 @@ class Notification(DatalakeModel):
     message: str
     seen: bool = False
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    severity: SeverityType = SeverityType.info
+    severity: str = INFO
     source_id: Optional[str]
     source_type: Optional[SourceType] = SourceType.component
