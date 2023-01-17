@@ -27,8 +27,13 @@ from splight_models import (
 )
 from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
-from splight_models.component import DATABASE_TYPES, NATIVE_TYPES, STORAGE_TYPES, Parameter
-
+from splight_models.component import (
+    DATABASE_TYPES,
+    NATIVE_TYPES,
+    STORAGE_TYPES,
+    Parameter,
+    InputParameter
+)
 
 logger = logging.getLogger()
 
@@ -203,7 +208,7 @@ class BindingsMixin:
         component_object: ComponentObject = ComponentObject(**component_object_event.data)
         custom_object_data = component_object.data
         custom_object_data.extend([
-            Parameter(name=key, value=getattr(component_object, key))
+            InputParameter(name=key, value=getattr(component_object, key))
             for key in CustomType._reserved_names
         ])
         custom_object_model = getattr(self.custom_types, binding_object_type)
@@ -288,7 +293,7 @@ class ParametersMixin:
                 objects = self.database_client.get(ComponentObject, id__in=object_ids)
                 for o in objects:
                     component_object_data = [
-                        Parameter(name=key, value=getattr(o, key))
+                        InputParameter(name=key, value=getattr(o, key))
                         for key in CustomType._reserved_names
                     ]
                     o.data.extend(component_object_data)
