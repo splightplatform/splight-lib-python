@@ -79,7 +79,7 @@ class ComponentObject(SplightBaseModel):
     name: str
     description: Optional[str]
     type: str
-    data: List[Parameter]
+    data: List[InputParameter]
 
     @staticmethod
     def get_event_name(type: str, action: EventActions) -> str:
