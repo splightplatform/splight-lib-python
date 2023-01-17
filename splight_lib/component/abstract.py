@@ -30,7 +30,6 @@ from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import (
     DATABASE_TYPES,
     NATIVE_TYPES,
-    STORAGE_TYPES,
     Parameter,
     InputParameter
 )
@@ -286,7 +285,7 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
-            if type in NATIVE_TYPES or type in DATABASE_TYPES or type in STORAGE_TYPES:
+            if type in NATIVE_TYPES or type in DATABASE_TYPES:
                 parameter["value"] = value
             else:
                 object_ids = value if multiple else [value]
@@ -340,7 +339,7 @@ class ParametersMixin:
             multiple = parameter["multiple"]
             if type in NATIVE_TYPES or value is None:
                 parameter["value"] = value
-            elif type in DATABASE_TYPES or type in STORAGE_TYPES:
+            elif type in DATABASE_TYPES:
                 parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
             else:
                 parameter["value"] = [self._reload_parameters(value, objects) for value in value] if multiple else self._reload_parameters(value, objects)
@@ -360,7 +359,7 @@ class ParametersMixin:
 
             if type in NATIVE_TYPES:
                 parameters_dict[name] = value
-            elif type in DATABASE_TYPES or type in STORAGE_TYPES:
+            elif type in DATABASE_TYPES:
                 parameters_dict[name] = value
             else:
                 parameters_dict[name] = [self._transform_parameters(val) for val in value] if multiple else self._transform_parameters(value)
