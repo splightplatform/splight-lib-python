@@ -272,10 +272,6 @@ class BindingsMixin:
 
 
 class ParametersMixin:
-    _variable_parameter_map_class = {
-        'SECRET': Secret,
-    }
-
     def unparse_parameters(self, instance: Dict) -> List[Dict]:
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
