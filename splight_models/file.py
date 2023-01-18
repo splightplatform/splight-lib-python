@@ -1,8 +1,9 @@
 from .base import SplightBaseModel
 from typing import Optional, Dict
-from pydantic import validator
+from pydantic import validator, BaseSettings
 import json
 import os
+from splight_lib.encryption import EncryptionManager
 
 
 class File(SplightBaseModel):
@@ -12,6 +13,7 @@ class File(SplightBaseModel):
     metadata: Dict = {}
     content_type: Optional[str] = None
     url: Optional[str] = None
+    encrypted: Optional[bool] = False
 
     @validator("file", pre=True)
     def validate_file(cls, v):
