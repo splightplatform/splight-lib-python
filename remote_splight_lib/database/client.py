@@ -6,6 +6,7 @@ from splight_models import File
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.auth import SplightAuthToken
+from splight_lib.encryption import EncryptionManager
 import json
 from typing import Dict, List, Type
 
@@ -138,7 +139,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def download(self, instance: BaseModel, **kwargs) -> NamedTemporaryFile:
+    def download(self, instance: BaseModel, decrypt: bool = True, **kwargs) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -164,6 +165,9 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         f = NamedTemporaryFile("wb+")
         f.write(response.content)
         f.seek(0)
+        if decrypt and instance.encrypted:
+            encryption_manager = EncryptionManager()
+            encryption_manager.decrypt_file(path=f.name)
         return f
 
     def _pages(self, path: str, **kwargs):
