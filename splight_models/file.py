@@ -31,9 +31,3 @@ class File(SplightBaseModel):
         res = super(File, self).json(*args, **kwargs)
         self.metadata = prev_metadata
         return res
-
-    def decrypt(self, path: str, **kwargs):
-        if not self.encrypted:
-            return
-        encryption_manager = EncryptionManager()
-        encryption_manager.decrypt_file(path=path)

@@ -6,6 +6,7 @@ from splight_models import File
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.auth import SplightAuthToken
+from splight_lib.encryption import EncryptionManager
 import json
 from typing import Dict, List, Type
 
@@ -165,7 +166,8 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         f.write(response.content)
         f.seek(0)
         if decrypt and instance.encrypted:
-            instance.decrypt(f.name)
+            encryption_manager = EncryptionManager()
+            encryption_manager.decrypt_file(path=f.name)
         return f
 
     def _pages(self, path: str, **kwargs):
