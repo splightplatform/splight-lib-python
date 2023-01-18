@@ -47,7 +47,7 @@ class __SecretValueParser:
 
     def get_value(self, name: str) -> Any:
         secret = self.utils.database_client.get(Secret, name=name, first=True)
-        return secret.decrypted_value
+        return secret.decrypt()
 
 
 class VariableValueMixin:

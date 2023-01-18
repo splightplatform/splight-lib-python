@@ -9,7 +9,6 @@ class Secret(SplightBaseModel):
     name: str
     value: str
 
-    @property
-    def decrypted_value(self):
+    def decrypt(self):
         encryption_manager = EncryptionManager()
         return encryption_manager.decrypt(self.value)
