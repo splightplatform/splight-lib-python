@@ -40,7 +40,7 @@ import re
 logger = logging.getLogger()
 
 
-class __SecretValueParser:
+class SecretValueParser:
 
     def __init__(self, utils, *args, **kwargs):
         self.utils = utils
@@ -52,7 +52,7 @@ class __SecretValueParser:
 
 class VariableValueMixin:
     _variable_parameter_map_class = {
-        'SECRET': __SecretValueParser,
+        'SECRET': SecretValueParser,
     }
 
     @staticmethod
