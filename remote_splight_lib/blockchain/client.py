@@ -10,7 +10,7 @@ import json
 
 
 class BlockchainClient(AbstractBlockchainClient, AbstractRemoteClient):
-    _PREFIX = "blockchain"
+    _PREFIX = "v2/backoffice/blockchain"
 
     def __init__(self, namespace: str = "default") -> None:
         super().__init__()
