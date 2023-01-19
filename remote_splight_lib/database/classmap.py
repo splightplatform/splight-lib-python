@@ -55,7 +55,7 @@ CLASSMAP = {
         "path": "v2/engine/queries"
     },
     Secret: {
-        "path": "v2/engine/secrets"
+        "path": "v2/engine/secret"
     },
     HubComponent: {
         "path": "v2/engine/hub/component-versions"
