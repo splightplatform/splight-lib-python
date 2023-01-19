@@ -11,10 +11,14 @@ dependency_links = [
 setup(
     name='splight-lib',
 <<<<<<< HEAD
+<<<<<<< HEAD
     version='2.0.0',
 =======
     version='0.6.4',
 >>>>>>> 7f89b66 (new requirement cryptography)
+=======
+    version='2.0.1',
+>>>>>>> e2885be (Use v2 api in remote clients)
     author='Splight',
     author_email='factory@splight-ae.com',
     packages=find_packages(),
