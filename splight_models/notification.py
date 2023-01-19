@@ -13,13 +13,13 @@ class SourceType(str, Enum):
 
 class TargetType(str, Enum):
     component = 'Component'
-    organization = 'Organization'
+    dashboard = 'Dashboard'
     asset = 'Asset'
     attribute = 'Attribute'
     file_ = 'File'
     graph = 'Graph'
     query = 'Query'
-    user = 'User'
+
 class Notification(DatalakeModel):
     id: Optional[str]
     message: str
