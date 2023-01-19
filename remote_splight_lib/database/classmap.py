@@ -18,48 +18,42 @@ from splight_models import (
 
 CLASSMAP = {
     Component: {
-        "path": "component"
+        "path": "v2/engine/component/components"
     },
     Asset: {
-        "path": "asset"
+        "path": "v2/engine/assets"
     },
     Attribute: {
-        "path": "attribute"
+        "path": "v2/engine/assets"
     },
     Edge: {
-        "path": "graph/edge"
+        "path": "v2/engine/graph/edges"
     },
     File: {
-        "path": "file"
+        "path": "v2/engine/files"
     },
     Graph: {
-        "path": "graph/graph"
+        "path": "v2/engine/graph/graphs"
     },
-    # Namespace: {
-    #     "path": "asset"
-    # },
     Notification: {
-        "path": "notification"
+        "path": "v2/account/notifications"
     },
     Node: {
-        "path": "graph/node"
+        "path": "v2/engine/graph/nodes"
     },
     BlockchainContract: {
-        "path": "blockchain/contract"
-    },
-    Component: {
-        "path": "components"
+        "path": "v2/backoffice/blockchain/contracts"
     },
     ComponentObject: {
-        "path": "component-objects"
+        "path": "v2/engine/component/objects"
     },
     ComponentCommand: {
-        "path": "component-commands"
+        "path": "v2/engine/component/commands"
     },
     Query: {
-        "path": "query"
+        "path": "v2/engine/queries"
     },
     Secret: {
-        "path": "secret"
+        "path": "v2/engine/secrets"
     },
 }
