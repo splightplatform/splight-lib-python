@@ -26,7 +26,7 @@ REQUEST_EXCEPTIONS = (ConnectionError, Timeout, HTTPError)
 
 class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
-    _PREFIX = "datalake"
+    _PREFIX = "v2/engine/datalake"
 
     def __init__(self, namespace: str = "default"):
         super(DatalakeClient, self).__init__(namespace=namespace)
