@@ -13,6 +13,8 @@ class AbstractBaseHash(object):
     def test_eq_hash(self):
         obj1 = self.class_model(**self.args)
         obj2 = self.class_model(**self.args)
+        print(obj1.dict())
+        print(obj2.dict())
         self.assertEqual(obj1.__hash__(), obj2.__hash__())
 
     def test_neq_hash(self):
@@ -51,8 +53,13 @@ class TestNamespaceHash(AbstractBaseHash, TestCase):
 
 class TestNotificationHash(AbstractBaseHash, TestCase):
     class_model = Notification
-    args = {"title": "1", "message": "1", "timestamp": datetime.now()}
-    rand_str_arg = "title"
+    args = {
+        "message": "1", 
+        "timestamp": datetime.now(),
+        "seen": False,
+        "volatile": False,
+        }
+    rand_str_arg = "redirect_url"
 
 
 class TestComponentHash(AbstractBaseHash, TestCase):

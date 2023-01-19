@@ -24,11 +24,11 @@ class Notification(DatalakeModel):
     id: Optional[str]
     message: str
     seen: bool = False
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    notify_by_email: bool = False
-    notify_by_web: bool = False
-    notify_by_sms: bool = False
-    notify_by_push: bool = False
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notify_by_email: Optional[bool] = False
+    notify_by_web: Optional[bool] = False
+    notify_by_sms: Optional[bool] = False
+    notify_by_push: Optional[bool] = False
     source_id: Optional[str]
     source_type: Optional[SourceType] = SourceType.component
     target_id: Optional[str]
