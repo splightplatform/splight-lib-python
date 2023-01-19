@@ -10,6 +10,7 @@ from splight_models import (
     Node,
     BlockchainContract,
     Component,
+    HubComponent,
     ComponentObject,
     ComponentCommand,
     Secret,
@@ -55,5 +56,8 @@ CLASSMAP = {
     },
     Secret: {
         "path": "v2/engine/secrets"
+    },
+    HubComponent: {
+        "path": "v2/engine/hub/components"
     },
 }
