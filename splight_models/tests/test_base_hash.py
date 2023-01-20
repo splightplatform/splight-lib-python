@@ -13,8 +13,6 @@ class AbstractBaseHash(object):
     def test_eq_hash(self):
         obj1 = self.class_model(**self.args)
         obj2 = self.class_model(**self.args)
-        print(obj1.dict())
-        print(obj2.dict())
         self.assertEqual(obj1.__hash__(), obj2.__hash__())
 
     def test_neq_hash(self):
