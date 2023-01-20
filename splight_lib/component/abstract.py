@@ -60,7 +60,7 @@ class VariableValueMixin:
         match = pattern.search(value)
         if not match:
             return value
-        class_key, name = match
+        class_key, name = match.groups()
         try:
             parser_class = self._variable_parameter_map_class[class_key]
         except KeyError as e:
