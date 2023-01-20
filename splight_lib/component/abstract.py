@@ -55,7 +55,6 @@ class VariableValueMixin:
         'SECRET': SecretValueParser,
     }
 
-    @staticmethod
     def parse_variable_string(self, value: str) -> Any:
         pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
         match = pattern.search(value)
