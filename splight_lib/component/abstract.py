@@ -414,7 +414,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
 
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_type = Component
-        self.component_id = component_id if component_id else str(uuid.uuid4())
+        self.instance_id = component_id if component_id else str(uuid.uuid4())
         self.deployment_id = run_spec.pop("id", None)
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
