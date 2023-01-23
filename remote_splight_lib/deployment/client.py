@@ -16,7 +16,7 @@ REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 
 
 class DeploymentClient(AbstractDeploymentClient, AbstractRemoteClient):
-    PATH = 'deployment'
+    PATH = 'v2/engine/deployment'
 
     def __init__(self, namespace: str = "default", *args, **kwargs):
         super().__init__(namespace, *args, **kwargs)
