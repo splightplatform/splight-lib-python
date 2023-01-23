@@ -17,41 +17,24 @@ class WebhookClient:
     def settings(self):
         return self._settings
 
-    @staticmethod
-    def construct_payload(event: WebhookEvent) -> bytes:
-        """Creates an encoded payload based on a webhook event.
+    def construct_payload(self, event: WebhookEvent) -> bytes:
+        signature = self.get_signature(event.json().encode("ascii"))
+        return signature
 
-        Parameter
-        ---------
-        event : WebhookEvent
-
-        Returns
-        -------
-        bytes
-            the ascii encoded payload
-        """
-        return event.json().encode("ascii")
-
-    @staticmethod
-    def construct_event(payload: bytes) -> WebhookEvent:
-        event = WebhookEvent.from_event_dict(
-            json.loads(payload.decode("utf-8"))
-        )
+    def construct_event(self, payload: bytes, signature: str) -> WebhookEvent:
+        self.validate_signature(payload)
+        event_dict = json.loads(payload.decode("utf-8"))
+        event = WebhookEvent.from_event_dict(event_dict)
         return event
 
-    @staticmethod
-    def validate_signature(payload: bytes, signature: str) -> bool:
+    def validate_signature(self, payload: bytes, signature: str) -> bool:
         return HmacSignature.verify_header(
-            payload, signature, WebhookSettings.SPLIGHTD_WEBHOOK_SECRET
+            payload, signature, self._settings.SPLIGHTD_WEBHOOK_SECRET
         )
 
-    @staticmethod
-    def get_signature(payload: bytes) -> str:
-        """
-        payload is an ascii encoded string
-        """
+    def get_signature(self, payload: bytes) -> str:
         hmac = HmacSignature(
-            secret=WebhookSettings.SPLIGHTD_WEBHOOK_SECRET
+            secret=self._settings.SPLIGHTD_WEBHOOK_SECRET
         )
         signature = hmac.compute_header_signature(payload)
         return signature
