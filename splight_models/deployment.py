@@ -13,6 +13,7 @@ class Deployment(BaseComponent):
     status: Optional[DeploymentStatus] = None
     status_conditions: Optional[List[Dict]] = None
     container_statuses: Optional[List[Dict]] = None
+    restarts: int = 0
     tags: Optional[List[str]] = []
 
     # Template vars for deployment
