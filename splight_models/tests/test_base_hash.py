@@ -51,8 +51,13 @@ class TestNamespaceHash(AbstractBaseHash, TestCase):
 
 class TestNotificationHash(AbstractBaseHash, TestCase):
     class_model = Notification
-    args = {"title": "1", "message": "1", "timestamp": datetime.now()}
-    rand_str_arg = "title"
+    args = {
+        "message": "1", 
+        "timestamp": datetime.now(),
+        "seen": False,
+        "volatile": False,
+        }
+    rand_str_arg = "redirect_url"
 
 
 class TestComponentHash(AbstractBaseHash, TestCase):
