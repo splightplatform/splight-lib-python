@@ -1,7 +1,7 @@
 from .base import SplightBaseModel
 from typing import Optional
 from pydantic import BaseSettings
-from splight_lib.encryption import EncryptionManager
+from splight_lib.encryption import EncryptionClient
 
 
 class Secret(SplightBaseModel):
@@ -10,5 +10,5 @@ class Secret(SplightBaseModel):
     value: str
 
     def decrypt(self):
-        encryption_manager = EncryptionManager()
+        encryption_manager = EncryptionClient()
         return encryption_manager.decrypt(self.value)

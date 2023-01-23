@@ -65,7 +65,3 @@ class FakeDeploymentClient(AbstractDeploymentClient):
 
     def get_capacity_options(self):
         raise NotImplementedError
-
-    @classmethod
-    def verify_header(cls, payload: bytes, signature: str) -> None:
-        pass
