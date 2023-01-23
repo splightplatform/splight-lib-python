@@ -26,7 +26,7 @@ class Notification(DatalakeModel):
     seen: bool = False
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notify_by_email: Optional[bool] = False
-    notify_by_web: Optional[bool] = False
+    notify_by_web: Optional[bool] = True
     notify_by_sms: Optional[bool] = False
     notify_by_push: Optional[bool] = False
     source_id: Optional[str]
