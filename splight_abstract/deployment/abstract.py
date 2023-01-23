@@ -1,9 +1,7 @@
-import json
 from abc import abstractmethod
 from pydantic import BaseModel
-from typing import Dict, Type, List, Optional
+from typing import Type, List, Optional
 from splight_abstract.client import AbstractClient, QuerySet
-from splight_models.deployment import DeploymentEvent
 
 
 class AbstractDeploymentClient(AbstractClient):
@@ -24,14 +22,3 @@ class AbstractDeploymentClient(AbstractClient):
 
     def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
         pass
-
-    @classmethod
-    @abstractmethod
-    def verify_header(cls, payload: bytes, signature: str) -> None:
-        pass
-
-    @classmethod
-    def construct_event(cls, payload: bytes, signature: str) -> DeploymentEvent:
-        cls.verify_header(payload, signature)
-        event = json.loads(payload)
-        return DeploymentEvent.parse_obj(event)

@@ -53,7 +53,7 @@ class TestNotificationHash(AbstractBaseHash, TestCase):
     class_model = Notification
     args = {
         "message": "1", 
-        "timestamp": datetime.now(),
+        "created_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
         "seen": False,
         "volatile": False,
         }

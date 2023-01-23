@@ -1,23 +1,22 @@
 from functools import cached_property
 from cryptography.fernet import Fernet as Branca
+from typing import Optional
 from pydantic import BaseSettings
 
 
 class EncryptionSettings(BaseSettings):
-    SPLIGHT_ENCRYPTION_KEY: str = ""
+    SPLIGHT_ENCRYPTION_KEY: Optional[str] = None
 
 
-encryption_settings = EncryptionSettings()
-
-
-class EncryptionKey:
-    key = encryption_settings.SPLIGHT_ENCRYPTION_KEY
-
-
-class EncryptionManager:
+class EncryptionClient:
     def __init__(self):
         self._fernet = None
-        self.key = EncryptionKey.key
+        self._settings = EncryptionSettings()
+        self.key = self.settings.SPLIGHT_ENCRYPTION_KEY
+
+    @cached_property
+    def settings(self):
+        return self._settings
 
     @cached_property
     def fernet(self):
@@ -26,12 +25,18 @@ class EncryptionManager:
         return self._fernet
 
     def encrypt(self, value: str):
+        if not self.key:
+            return value
         return self.fernet.encrypt(value.encode()).decode()
 
     def decrypt(self, value: str):
+        if not self.key:
+            return value
         return self.fernet.decrypt(value.encode()).decode()
 
     def encrypt_file(self, path: str):
+        if not self.key:
+            return None
         with open(path, 'rb+') as f:
             original = f.read()
         with open(path, 'wb') as f:
@@ -40,6 +45,8 @@ class EncryptionManager:
             f.write(encrypted)
 
     def decrypt_file(self, path: str):
+        if not self.key:
+            return
         with open(path, 'rb+') as f:
             original = f.read()
         with open(path, 'wb') as f:
