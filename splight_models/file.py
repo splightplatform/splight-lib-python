@@ -1,9 +1,8 @@
 from .base import SplightBaseModel
 from typing import Optional, Dict
-from pydantic import validator, BaseSettings
+from pydantic import validator
 import json
 import os
-from splight_lib.encryption import EncryptionManager
 
 
 class File(SplightBaseModel):

@@ -1,13 +1,21 @@
-import os
 import json
-
+from functools import cached_property
+from pydantic import BaseSettings
 from splight_lib.auth import HmacSignature
 from splight_models import WebhookEvent
 
 
-class Webhook:
+class WebhookSettings(BaseSettings):
+    SPLIGHTD_WEBHOOK_SECRET: str
 
-    WEBHOOK_SECRET = os.getenv("SPLIGHTD_WEBHOOK_SECRET")
+
+class WebhookClient:
+    def __init__(self) -> None:
+        self._settings = WebhookSettings()
+
+    @cached_property
+    def settings(self):
+        return self._settings
 
     @staticmethod
     def construct_payload(event: WebhookEvent) -> bytes:
@@ -34,7 +42,7 @@ class Webhook:
     @staticmethod
     def validate_signature(payload: bytes, signature: str) -> bool:
         return HmacSignature.verify_header(
-            payload, signature, Webhook.WEBHOOK_SECRET
+            payload, signature, WebhookSettings.SPLIGHTD_WEBHOOK_SECRET
         )
 
     @staticmethod
@@ -43,7 +51,7 @@ class Webhook:
         payload is an ascii encoded string
         """
         hmac = HmacSignature(
-            secret=Webhook.WEBHOOK_SECRET
+            secret=WebhookSettings.SPLIGHTD_WEBHOOK_SECRET
         )
         signature = hmac.compute_header_signature(payload)
         return signature

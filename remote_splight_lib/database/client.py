@@ -1,3 +1,4 @@
+import json
 from .classmap import CLASSMAP
 from retry import retry
 from splight_abstract.remote import AbstractRemoteClient
@@ -6,8 +7,7 @@ from splight_models import File
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.auth import SplightAuthToken
-from splight_lib.encryption import EncryptionManager
-import json
+from splight_lib.encryption import EncryptionClient
 from typing import Dict, List, Type
 
 from furl import furl
@@ -166,7 +166,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         f.write(response.content)
         f.seek(0)
         if decrypt and instance.encrypted:
-            encryption_manager = EncryptionManager()
+            encryption_manager = EncryptionClient()
             encryption_manager.decrypt_file(path=f.name)
         return f
 
