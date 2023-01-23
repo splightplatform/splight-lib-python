@@ -371,7 +371,9 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
-            if type in NATIVE_TYPES or value is None:
+            if type == 'str':
+                parameter["value"] = self.parse_variable_string(value)
+            elif type in NATIVE_TYPES or value is None:
                 parameter["value"] = value
             elif type in DATABASE_TYPES:
                 parameter["value"] = [objects[val] for val in value] if multiple else objects[value]
