@@ -1,6 +1,7 @@
 import sys
 import time
 import splight_models as spmodels
+import uuid
 from functools import partial
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
@@ -12,7 +13,6 @@ from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import logging
 from splight_lib.settings import setup as default_setup
-from splight_lib.component.exceptions import MissingComponentID
 from splight_models import (
     CustomType,
     Deployment,
@@ -407,16 +407,14 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
     communication_client_kwargs: Dict[str, Any] = {}
     blockchain_client_kwargs: Dict[str, Any] = {}
 
-    def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, *args, **kwargs):
+    def __init__(self, run_spec: dict, initial_setup: Optional[dict] = None, component_id: str = None, *args, **kwargs):
         self._setup = default_setup
         if initial_setup:
             self._setup.configure(initial_setup)
 
         self.namespace = self._setup.settings.NAMESPACE
         self.instance_type = Component
-        self.instance_id = run_spec.get("component_id", None)
-        if not self.instance_id:
-            raise MissingComponentID
+        self.instance_id = component_id if component_id else str(uuid.uuid4())
         self.deployment_id = run_spec.pop("id", None)
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
