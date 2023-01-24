@@ -22,7 +22,7 @@ class WebhookClient:
         return signature
 
     def construct_event(self, payload: bytes, signature: str) -> WebhookEvent:
-        self.validate_signature(payload)
+        self.validate_signature(payload, signature)
         event_dict = json.loads(payload.decode("utf-8"))
         event = WebhookEvent.from_event_dict(event_dict)
         return event
