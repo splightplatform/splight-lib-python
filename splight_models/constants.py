@@ -45,6 +45,7 @@ class RestartPolicy(str, Enum):
 
 
 class DeploymentStatus(str, Enum):
+    STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"
     SUCCEEDED = "Succeeded"
