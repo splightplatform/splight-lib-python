@@ -6,4 +6,5 @@ class SplightRemoteSettings(BaseSettings):
     SPLIGHT_ACCESS_ID: str
     SPLIGHT_SECRET_KEY: str
 
+
 settings = SplightRemoteSettings()
