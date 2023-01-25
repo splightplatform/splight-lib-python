@@ -31,13 +31,12 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
     config = {}
     config_file = os.path.join(SPLIGHT_HOME, "config")
     if os.path.exists(config_file):
-        with open(os.path.join(SPLIGHT_HOME, "config")) as f:
+        with open(config_file) as f:
             config = yaml.safe_load(f)
         if "workspaces" in config:  # splight format config
             workspace = config.get("current_workspace", "default")
             config = config["workspaces"].get(workspace, {})
-    # Set the environment and
-    # each model reloads the respective setup from there
+    # Set the environment for each model. The models should reload the respective setup.
     for key, value in config.items():
         os.environ[key] = value
     return config
