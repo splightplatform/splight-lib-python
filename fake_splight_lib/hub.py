@@ -95,7 +95,7 @@ class FakeHubClient(AbstractHubClient):
             "version": data["version"],
             "splight_cli_version": data["splight_cli_version"],
             "privacy_policy": data["privacy_policy"],
-            "verification": data["verification"],
+            "verification": data.get("verification", "Official"),
             "created_at": datetime.now(timezone.utc).isoformat(),
             "last_modified": datetime.now(timezone.utc).isoformat(),
             "readme": "some readme",
