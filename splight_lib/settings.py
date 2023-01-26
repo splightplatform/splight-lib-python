@@ -1,6 +1,6 @@
 import yaml
 # TODO MOVE THIS STUFF
-from typing import Type, Dict, Tuple, Any
+from typing import Type, Dict, Tuple, Any, Optional
 from pydantic import BaseSettings, Extra
 from importlib import import_module
 from pydantic.env_settings import SettingsSourceCallable
@@ -155,7 +155,7 @@ class SplightSettings:
         setattr(self, attr, val)
         return val
 
-    def configure(self, user_settings: Dict = None):
+    def configure(self, user_settings: Optional[Dict[str, str]] = None):
         if user_settings is None:
             user_settings = {}
 
@@ -167,7 +167,7 @@ class SplightSettings:
         for key, value in user_settings.items():
             os.environ[key] = value
         # Reload settings
-        self._base_settings = self._base_settings_model(**user_settings)
+        self._base_settings = self._base_settings_model.parse_obj(user_settings)
         return self
 
 
