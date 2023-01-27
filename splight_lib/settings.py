@@ -1,10 +1,12 @@
+import yaml
 # TODO MOVE THIS STUFF
-from typing import Type
-from pydantic import BaseSettings
+from typing import Type, Dict, Tuple, Any, Optional
+from pydantic import BaseSettings, Extra
 from importlib import import_module
+from pydantic.env_settings import SettingsSourceCallable
 import os
 import sys
-from typing import Dict
+
 TESTING = "test" in sys.argv or "pytest" in sys.argv
 SPLIGHT_HOME = os.path.join(os.getenv('HOME'), '.splight')
 USE_TZ = True
@@ -23,6 +25,21 @@ This module provides the `setup` object, that is used to access
 SPLIGHT framework settings, checking for user settings first, then falling
 back to the defaults.
 """
+
+
+def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
+    config = {}
+    config_file = os.path.join(SPLIGHT_HOME, "config")
+    if os.path.exists(config_file):
+        with open(config_file) as f:
+            config = yaml.safe_load(f)
+        if "workspaces" in config:  # splight format config
+            workspace = config.get("current_workspace", "default")
+            config = config["workspaces"].get(workspace, {})
+    # Set the environment for each model. The models should reload the respective setup.
+    for key, value in config.items():
+        os.environ[key] = value
+    return config
 
 
 class SplightBaseSettings(BaseSettings):
@@ -52,6 +69,19 @@ class SplightBaseSettings(BaseSettings):
             'HUB_CLIENT',
             'COMMUNICATION_CLIENT',
         ]
+
+    class Config:
+
+        extra = Extra.ignore
+
+        @classmethod
+        def customise_sources(
+            cls,
+            init_settings: SettingsSourceCallable,
+            env_settings: SettingsSourceCallable,
+            file_secret_settings: SettingsSourceCallable,
+        ) -> Tuple[SettingsSourceCallable, ...]:
+            return init_settings, yml_config_setting, env_settings
 
 
 def import_string(dotted_path):
@@ -125,7 +155,10 @@ class SplightSettings:
         setattr(self, attr, val)
         return val
 
-    def configure(self, user_settings: Dict):
+    def configure(self, user_settings: Optional[Dict[str, str]] = None):
+        if user_settings is None:
+            user_settings = {}
+
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
@@ -134,7 +167,8 @@ class SplightSettings:
         for key, value in user_settings.items():
             os.environ[key] = value
         # Reload settings
-        self._base_settings = self._base_settings_model()
+        self._base_settings = self._base_settings_model.parse_obj(user_settings)
+        return self
 
 
 setup = SplightSettings()
