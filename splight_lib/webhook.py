@@ -1,4 +1,5 @@
 import json
+from typing import Tuple
 from functools import cached_property
 from pydantic import BaseSettings
 from splight_lib.auth import HmacSignature
@@ -17,9 +18,10 @@ class WebhookClient:
     def settings(self):
         return self._settings
 
-    def construct_payload(self, event: WebhookEvent) -> bytes:
-        signature = self.get_signature(event.json().encode("ascii"))
-        return signature
+    def construct_payload(self, event: WebhookEvent) -> Tuple[bytes, bytes]:
+        payload = event.json().encode("utf-8")
+        signature = self.get_signature(payload)
+        return payload, signature
 
     def construct_event(self, payload: bytes, signature: str) -> WebhookEvent:
         self.validate_signature(payload, signature)
