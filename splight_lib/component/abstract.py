@@ -19,7 +19,7 @@ from splight_models import (
     DatalakeModel,
     Component,
     Command,
-    Binding,
+    Hook,
     ComponentObject,
     Boolean,
     String,
@@ -139,7 +139,7 @@ class IndexMixin:
         return indexes
 
 
-class HooksMixin:
+class ClientHooksMixin:
     def _load_client_hooks(self):
         # Datalake
         self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
@@ -202,39 +202,39 @@ class HooksMixin:
         return parsed_result
 
 
-class BindingsMixin:
-    def _load_client_bindings(self):
+class ComponentHooksMixin:
+    def _load_component_hooks(self):
         # Commands
         self.communication_client.bind(EventNames.COMPONENT_COMMAND_TRIGGER, self.__handle_component_command_trigger)
 
-        # Bindings
-        for binding in self.bindings:
-            binding_function = getattr(self, binding.name)
-            binding_model = getattr(spmodels, binding.object_type, ComponentObject)
-            binding_event_name = binding_model.get_event_name(
-                binding.object_type,
-                binding.object_action
+        # Hooks
+        for hook in self.hooks:
+            hook_function = getattr(self, hook.name)
+            hook_model = getattr(spmodels, hook.object_type, ComponentObject)
+            hook_event_name = hook_model.get_event_name(
+                hook.object_type,
+                hook.object_action
             )
-            binding_handler = self.__handle_component_object_trigger if binding_model == ComponentObject else self.__handle_native_object_trigger
+            hook_handler = self.__handle_component_object_trigger if hook_model == ComponentObject else self.__handle_native_object_trigger
             self.communication_client.bind(
-                binding_event_name,
+                hook_event_name,
                 partial(
-                    binding_handler,
-                    binding_function,
-                    binding.object_type
+                    hook_handler,
+                    hook_function,
+                    hook.object_type
                 )
             )
-            logger.info(f"Binded event: {binding_event_name}")
+            logger.info(f"Binded event: {hook_event_name}")
 
-    def __handle_native_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
-        assert self.bindings, "Please define .bindings to start."
+    def __handle_native_object_trigger(self, hook_function: Callable, hook_object_type: str, data: str):
+        assert self.hooks, "Please define .hooks to start."
         object_event = CommunicationEvent.parse_raw(data)
-        object_model = getattr(spmodels, binding_object_type)
-        binding_kwargs = object_model(**object_event.data)
-        binding_function(binding_kwargs)
+        object_model = getattr(spmodels, hook_object_type)
+        hook_kwargs = object_model(**object_event.data)
+        hook_function(hook_kwargs)
 
-    def __handle_component_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
-        assert self.bindings, "Please define .bindings to start."
+    def __handle_component_object_trigger(self, hook_function: Callable, hook_object_type: str, data: str):
+        assert self.hooks, "Please define .hooks to start."
         component_object_event = CommunicationEvent.parse_raw(data)
         component_object: ComponentObject = ComponentObject(**component_object_event.data)
         custom_object_data = component_object.data
@@ -242,10 +242,10 @@ class BindingsMixin:
             InputParameter(name=key, value=getattr(component_object, key))
             for key in CustomType._reserved_names
         ])
-        custom_object_model = getattr(self.custom_types, binding_object_type)
+        custom_object_model = getattr(self.custom_types, hook_object_type)
         parsed_component_object = self.parse_parameters(custom_object_data)
-        binding_kwargs = custom_object_model(**parsed_component_object)
-        binding_function(binding_kwargs)
+        hook_kwargs = custom_object_model(**parsed_component_object)
+        hook_function(hook_kwargs)
 
     def __handle_component_command_trigger(self, data: str):
         assert self.commands, "Please define .commands to start accepting request."
@@ -402,7 +402,7 @@ class ParametersMixin:
         return parameters_dict
 
 
-class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, ParametersMixin, VariableValueMixin):
+class AbstractComponent(RunnableMixin, ClientHooksMixin, IndexMixin, ComponentHooksMixin, ParametersMixin, VariableValueMixin):
     database_client_kwargs: Dict[str, Any] = {}
     datalake_client_kwargs: Dict[str, Any] = {}
     deployment_client_kwargs: Dict[str, Any] = {}
@@ -426,7 +426,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         self._load_input_model()
         self._load_client_indexes()
         self._load_client_hooks()
-        self._load_client_bindings()
+        self._load_component_hooks()
         super().__init__(*args, **kwargs)  # This is calling RunnableMixin.init() only
 
     @property
@@ -450,7 +450,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         self.output: Type = self._spec.output_model
         self.custom_types: Type = self._spec.custom_types_model
         self.commands: Type = self._spec.commands_model
-        self.bindings: List[Binding] = self._spec.bindings
+        self.hooks: List[Hook] = self._spec.hooks
 
     def _load_input_model(self):
         raw_spec = self.spec.dict()

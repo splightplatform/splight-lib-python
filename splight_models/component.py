@@ -65,7 +65,7 @@ class Endpoint(SplightBaseModel):
     port: str
 
 
-class Binding(SplightBaseModel):
+class Hook(SplightBaseModel):
     name: str
     object_type: str
     object_action: EventActions
@@ -130,7 +130,7 @@ class BaseComponent(SplightBaseModel):
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
     endpoints: Optional[List[Endpoint]] = []
-    bindings: Optional[List[Binding]] = []
+    hooks: Optional[List[Hook]] = []
 
     class Config:
         keep_untouched = (cached_property,)
