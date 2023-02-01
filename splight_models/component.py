@@ -131,6 +131,7 @@ class BaseComponent(SplightBaseModel):
     commands: Optional[List[Command]] = []
     endpoints: Optional[List[Endpoint]] = []
     hooks: Optional[List[Hook]] = []
+    bindings: Optional[List[Hook]] = []
 
     class Config:
         keep_untouched = (cached_property,)
