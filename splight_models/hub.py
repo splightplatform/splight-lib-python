@@ -4,6 +4,7 @@ from splight_models.component import BaseComponent
 from typing import List
 
 VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
+COMPONENT_TYPES = ['connector', 'network', 'algorithm']
 
 
 class HubComponent(BaseComponent):
@@ -13,6 +14,7 @@ class HubComponent(BaseComponent):
     build_status: Optional[str]
     description: Optional[str]
     privacy_policy: Optional[str] = None
+    default_type: Optional[str] = None
     tenant: Optional[str] = None
     readme: Optional[str]
     picture: Optional[str]
