@@ -6,7 +6,7 @@ from splight_models.file import File
 from splight_models.datalake import DatalakeModel
 from splight_models.graph import Graph
 from splight_models.query import Query
-from splight_models import EventActions, EventNames, CommunicationEvent
+from splight_models import EventActions, CommunicationEvent
 from datetime import datetime
 from enum import Enum
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
@@ -79,10 +79,6 @@ class ComponentObject(SplightBaseModel):
     type: str
     data: List[InputParameter]
 
-    @staticmethod
-    def get_event_name(type: str, action: EventActions) -> str:
-        return f"{type.lower()}_{action}"
-
 
 class ComponentCommandResponse(SplightBaseModel):
     return_value: Optional[str] = None
@@ -102,22 +98,19 @@ class ComponentCommand(SplightBaseModel):
     status: ComponentCommandStatus
     response: ComponentCommandResponse = ComponentCommandResponse()
 
-    def get_event_name(self, action: EventActions) -> str:
-        return f"componentcommand_{action}"
-
 
 class ComponentCommandTriggerEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    event_name: str = Field(f"{ComponentCommand.__name__.lower()}-{EventActions.TRIGGER.lower()}", const=True)
     data: ComponentCommand
 
 
 class ComponentCommandCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENT_COMMAND_CREATE, const=True)
+    event_name: str = Field(f"{ComponentCommand.__name__.lower()}-{EventActions.CREATE.lower()}", const=True)
     data: ComponentCommand
 
 
 class ComponentCommandUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENT_COMMAND_UPDATE, const=True)
+    event_name: str = Field(f"{ComponentCommand.__name__.lower()}-{EventActions.UPDATE.lower()}", const=True)
     data: ComponentCommand
 
 

@@ -26,7 +26,8 @@ from splight_models import (
     Number,
     Secret
 )
-from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
+from splight_models.communication import CommunicationEvent, EventActions
+from splight_models.component import ComponentCommandUpdateEvent, ComponentCommandTriggerEvent
 from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import (
     DATABASE_TYPES,
@@ -205,16 +206,14 @@ class HooksMixin:
 class BindingsMixin:
     def _load_client_bindings(self):
         # Commands
-        self.communication_client.bind(EventNames.COMPONENT_COMMAND_TRIGGER, self.__handle_component_command_trigger)
+        event_name = f"{ComponentCommand.__name__.lower()}-{EventActions.TRIGGER.lower()}"
+        self.communication_client.bind(event_name, self.__handle_component_command_trigger)
 
         # Bindings
         for binding in self.bindings:
             binding_function = getattr(self, binding.name)
             binding_model = getattr(spmodels, binding.object_type, ComponentObject)
-            binding_event_name = binding_model.get_event_name(
-                binding.object_type,
-                binding.object_action
-            )
+            binding_event_name = f"{binding_model.__name__.lower()}-{binding.object_action.lower()}"
             binding_handler = self.__handle_component_object_trigger if binding_model == ComponentObject else self.__handle_native_object_trigger
             self.communication_client.bind(
                 binding_event_name,

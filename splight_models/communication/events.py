@@ -15,14 +15,6 @@ class EventActions(str, Enum):
     READ = "READ"
 
 
-class EventNames(str, Enum):
-    # TODO make this use EventActions.
-    COMPONENT_COMMAND_TRIGGER = 'componentcommand-trigger'
-    COMPONENT_COMMAND_CREATE = 'componentcommand-create'
-    COMPONENT_COMMAND_UPDATE = 'componentcommand-update'
-    # TODO add Asset Attribute and all shared objects
-
-
 class CommunicationEvent(SplightBaseModel):
     event_name: str
     id: Optional[str] = None

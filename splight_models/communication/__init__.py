@@ -7,6 +7,5 @@ __all__ = [
     "CommunicationClientStatus",
     "CommunicationContext",
     "CommunicationEvent",
-    "EventNames",
     "EventActions",
 ]
