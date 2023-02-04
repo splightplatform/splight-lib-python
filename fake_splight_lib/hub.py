@@ -96,6 +96,7 @@ class FakeHubClient(AbstractHubClient):
             "version": data["version"],
             "component_type": data["component_type"],
             "splight_cli_version": data["splight_cli_version"],
+            "component_type": data["component_type"],
             "privacy_policy": data["privacy_policy"],
             "verification": data.get("verification", "Official"),
             "created_at": datetime.now(timezone.utc).isoformat(),

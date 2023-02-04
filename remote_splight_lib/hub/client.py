@@ -15,7 +15,7 @@ from splight_models import HubComponent, HubComponentVersion
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
-    _PREFIX: str = "hub"
+    _PREFIX: str = "v2/hub"
     valid_classes = [
         HubComponent,
         HubComponentVersion,
@@ -157,7 +157,7 @@ class SplightHubClient(AbstractHubClient):
         self._headers = token.header
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
-        url = self._host / "hub/upload/"
+        url = self._host / "v2/hub/upload/"
         response = requests.post(
             url, files=files, data=data, headers=self._headers
         )
