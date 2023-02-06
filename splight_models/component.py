@@ -95,6 +95,11 @@ class ComponentCommandStatus(str, Enum):
     SUCCESS = "succeeded"
     ERROR = "error"
 
+class ComponentType(str,Enum):
+    ALGORITHM = "algorithm"
+    NETWORK = "network"
+    CONNECTOR = "connector"
+    SIMULATOR = "simulator"
 
 class ComponentCommand(SplightBaseModel):
     id: Optional[str]
@@ -126,6 +131,7 @@ class BaseComponent(SplightBaseModel):
     name: Optional[str] = None
     version: str
     custom_types: Optional[List[CustomType]] = []
+    component_type: Optional[ComponentType] = None
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
