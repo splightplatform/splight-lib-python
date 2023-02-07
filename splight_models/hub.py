@@ -13,6 +13,7 @@ class HubComponent(BaseComponent):
     build_status: Optional[str]
     description: Optional[str]
     privacy_policy: Optional[str] = None
+    component_type: Optional[str] = None
     tenant: Optional[str] = None
     readme: Optional[str]
     picture: Optional[str]
