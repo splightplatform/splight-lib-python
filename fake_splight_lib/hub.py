@@ -17,15 +17,16 @@ logger = logging.getLogger()
 
 class FakeHubSubClient(AbstractHubSubClient):
     components = [
-        HubComponent(id="1", name='Net1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
-        HubComponent(id="2", name='Net2', description=None, version='01', input=[], splight_cli_version="0.1.0"),
-        HubComponent(id="3", name='Net3', description=None, version='01', input=[], splight_cli_version="0.1.0"),
-        HubComponent(id="4", name='Algo1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
-        HubComponent(id="5", name='Algo2', description=None, version='01', input=[], splight_cli_version="0.1.0"),
-        HubComponent(id="6", name='Conn1', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="1", name='Net1', component_type='network', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="2", name='Net2', component_type='network', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="3", name='Net3', component_type='network', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="4", name='Algo1', component_type='algorithm', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="5", name='Algo2', component_type='algorithm', description=None, version='01', input=[], splight_cli_version="0.1.0"),
+        HubComponent(id="6", name='Conn1', component_type='connector', description=None, version='01', input=[], splight_cli_version="0.1.0"),
         HubComponent(
             id="7",
             name="System1",
+            component_type="network",
             description=None,
             version="01",
             input=[],
@@ -93,6 +94,7 @@ class FakeHubClient(AbstractHubClient):
             "tenant": "org_agu2n52305",
             "name": data["name"],
             "version": data["version"],
+            "component_type": data["component_type"],
             "splight_cli_version": data["splight_cli_version"],
             "privacy_policy": data["privacy_policy"],
             "verification": data.get("verification", "Official"),

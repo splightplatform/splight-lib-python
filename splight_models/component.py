@@ -1,4 +1,10 @@
-from splight_models.constants import ComponentSize, RestartPolicy, LogginLevel, ComponentStatus
+from splight_models.constants import (
+    ComponentSize,
+    RestartPolicy,
+    LogginLevel,
+    ComponentStatus,
+    ComponentType
+)
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
@@ -126,6 +132,7 @@ class BaseComponent(SplightBaseModel):
     name: Optional[str] = None
     version: str
     custom_types: Optional[List[CustomType]] = []
+    component_type: Optional[ComponentType]
     input: Optional[List[InputParameter]] = []
     output: Optional[List[Output]] = []
     commands: Optional[List[Command]] = []
