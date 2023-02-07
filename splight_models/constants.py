@@ -79,3 +79,9 @@ class BuildStatus(str, Enum):
     FAILED = "failed"
     SUCCESS = "success"
     UNKNOWN = "unknown"
+
+class ComponentType(str,Enum):
+    ALGORITHM = "algorithm"
+    NETWORK = "network"
+    CONNECTOR = "connector"
+    SIMULATOR = "simulator"
