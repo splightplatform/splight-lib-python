@@ -95,6 +95,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         first: bool = False,
         limit_: int = -1,
         skip_: int = 0,
+        page_size: int = -1,
         deleted: bool = False,
         **kwargs,
     ) -> List[BaseModel]:
@@ -105,6 +106,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             limit_=limit_,
             skip_=skip_,
             deleted=deleted,
+            page_size=page_size,
             **kwargs,
         )
         parsed = [
