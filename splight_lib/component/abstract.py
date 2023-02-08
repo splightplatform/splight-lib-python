@@ -190,9 +190,9 @@ class HooksMixin:
         parsed_result = []
         for object in result:
             if isinstance(object, ComponentObject):
-                custom_object_data: List[Parameter] = object.data
+                custom_object_data: List[InputParameter] = object.data
                 custom_object_data.extend([
-                    Parameter(name=key, value=getattr(object, key))
+                    InputParameter(name=key, value=getattr(object, key))
                     for key in CustomType._reserved_names
                 ])
                 custom_object_model = getattr(self.custom_types, object.type)
