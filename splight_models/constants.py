@@ -80,8 +80,13 @@ class BuildStatus(str, Enum):
     SUCCESS = "success"
     UNKNOWN = "unknown"
 
-class ComponentType(str,Enum):
+
+class ComponentType(str, Enum):
     ALGORITHM = "algorithm"
     NETWORK = "network"
     CONNECTOR = "connector"
     SIMULATOR = "simulator"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
