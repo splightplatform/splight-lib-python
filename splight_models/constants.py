@@ -66,11 +66,19 @@ class PrivacyPolicy(str, Enum):
     PUBLIC = "public"
     PRIVATE = "private"
 
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
 
 class VerificationLevel(str, Enum):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
 
 
 class BuildStatus(str, Enum):
@@ -79,3 +87,18 @@ class BuildStatus(str, Enum):
     FAILED = "failed"
     SUCCESS = "success"
     UNKNOWN = "unknown"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class ComponentType(str, Enum):
+    ALGORITHM = "algorithm"
+    NETWORK = "network"
+    CONNECTOR = "connector"
+    SIMULATOR = "simulator"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]

@@ -25,7 +25,7 @@ CLASSMAP = {
         "path": "v2/engine/assets"
     },
     Attribute: {
-        "path": "v2/engine/assets"
+        "path": "v2/engine/attributes"
     },
     Edge: {
         "path": "v2/engine/graph/edges"
