@@ -58,14 +58,14 @@ class DeploymentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class MinComponentCapacity(str, Enum, ChoiceMixin):
+class MinComponentCapacity(str, ChoiceMixin, Enum):
     SMALL = 'small'
     MEDIUM = 'medium'
     LARGE = 'large'
     VERY_LARGE = 'very_large'
 
 
-class ComponentStatus(str, Enum, ChoiceMixin):
+class ComponentStatus(str, ChoiceMixin, Enum):
     STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"
@@ -74,18 +74,18 @@ class ComponentStatus(str, Enum, ChoiceMixin):
     UNKNOWN = "Unknown"
 
 
-class PrivacyPolicy(str, Enum, ChoiceMixin):
+class PrivacyPolicy(str, ChoiceMixin, Enum):
     PUBLIC = "public"
     PRIVATE = "private"
 
 
-class VerificationLevel(str, Enum, ChoiceMixin):
+class VerificationLevel(str, ChoiceMixin, Enum):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
 
 
-class BuildStatus(str, Enum, ChoiceMixin):
+class BuildStatus(str, ChoiceMixin, Enum):
     PENDING = "pending"
     BUILDING = "building"
     FAILED = "failed"
@@ -93,7 +93,7 @@ class BuildStatus(str, Enum, ChoiceMixin):
     UNKNOWN = "unknown"
 
 
-class ComponentType(str, Enum, ChoiceMixin):
+class ComponentType(str, ChoiceMixin, Enum):
     ALGORITHM = "algorithm"
     NETWORK = "network"
     CONNECTOR = "connector"

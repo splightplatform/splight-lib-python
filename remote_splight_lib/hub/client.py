@@ -15,7 +15,7 @@ from splight_models import HubComponent, HubComponentVersion
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
-    _PREFIX: str = "hub"
+    _PREFIX: str = "v2/hub"
     valid_classes = [
         HubComponent,
         HubComponentVersion,
