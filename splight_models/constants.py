@@ -1,6 +1,6 @@
-# TODO remove this file
 import logging
 from enum import Enum, IntEnum
+
 
 class ChoiceMixin():
     @classmethod
@@ -98,6 +98,3 @@ class ComponentType(str, ChoiceMixin, Enum):
     NETWORK = "network"
     CONNECTOR = "connector"
     SIMULATOR = "simulator"
-
-
-
