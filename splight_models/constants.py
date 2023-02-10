@@ -5,7 +5,7 @@ from enum import Enum, IntEnum
 class ChoiceMixin():
     @classmethod
     def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
+        return [(key.value.lower(), key.name.capitalize()) for key in cls]
 
 
 class SeverityType(str, Enum):
