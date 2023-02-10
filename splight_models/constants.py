@@ -2,6 +2,11 @@
 import logging
 from enum import Enum, IntEnum
 
+class ChoiceMixin():
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name.capitalize()) for key in cls]
+
 
 class SeverityType(str, Enum):
     system = 'system'
@@ -53,7 +58,14 @@ class DeploymentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class ComponentStatus(str, Enum):
+class MinComponentCapacity(str, Enum, ChoiceMixin):
+    SMALL = 'small'
+    MEDIUM = 'medium'
+    LARGE = 'large'
+    VERY_LARGE = 'very_large'
+
+
+class ComponentStatus(str, Enum, ChoiceMixin):
     STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"
@@ -61,47 +73,31 @@ class ComponentStatus(str, Enum):
     FAILED = "Failed"
     UNKNOWN = "Unknown"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
 
-class PrivacyPolicy(str, Enum):
+class PrivacyPolicy(str, Enum, ChoiceMixin):
     PUBLIC = "public"
     PRIVATE = "private"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
 
-
-class VerificationLevel(str, Enum):
+class VerificationLevel(str, Enum, ChoiceMixin):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
 
-
-class BuildStatus(str, Enum):
+class BuildStatus(str, Enum, ChoiceMixin):
     PENDING = "pending"
     BUILDING = "building"
     FAILED = "failed"
     SUCCESS = "success"
     UNKNOWN = "unknown"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
 
-
-class ComponentType(str, Enum):
+class ComponentType(str, Enum, ChoiceMixin):
     ALGORITHM = "algorithm"
     NETWORK = "network"
     CONNECTOR = "connector"
     SIMULATOR = "simulator"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.capitalize()) for key in cls]
+
+
