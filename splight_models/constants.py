@@ -61,6 +61,9 @@ class ComponentStatus(str, Enum):
     FAILED = "Failed"
     UNKNOWN = "Unknown"
 
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name.capitalize()) for key in cls]
 
 class PrivacyPolicy(str, Enum):
     PUBLIC = "public"
@@ -68,7 +71,7 @@ class PrivacyPolicy(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(key.value, key.name) for key in cls]
+        return [(key.value, key.name.capitalize()) for key in cls]
 
 
 class VerificationLevel(str, Enum):
@@ -78,7 +81,7 @@ class VerificationLevel(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(key.value, key.name) for key in cls]
+        return [(key.value, key.name.capitalize()) for key in cls]
 
 
 class BuildStatus(str, Enum):
@@ -90,7 +93,7 @@ class BuildStatus(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(key.value, key.name) for key in cls]
+        return [(key.value, key.name.capitalize()) for key in cls]
 
 
 class ComponentType(str, Enum):
@@ -101,4 +104,4 @@ class ComponentType(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(key.value, key.name) for key in cls]
+        return [(key.value, key.name.capitalize()) for key in cls]
