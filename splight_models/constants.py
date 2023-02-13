@@ -2,7 +2,7 @@ import logging
 from enum import Enum, IntEnum
 
 
-class ChoiceMixin():
+class ChoiceMixin(str, Enum):
     @classmethod
     def choices(cls):
         return [(key.value.lower(), key.name.capitalize()) for key in cls]
@@ -58,14 +58,14 @@ class DeploymentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class MinComponentCapacity(str, ChoiceMixin, Enum):
+class MinComponentCapacity(ChoiceMixin):
     SMALL = 'small'
     MEDIUM = 'medium'
     LARGE = 'large'
     VERY_LARGE = 'very_large'
 
 
-class ComponentStatus(str, ChoiceMixin, Enum):
+class ComponentStatus(ChoiceMixin):
     STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"
@@ -74,18 +74,18 @@ class ComponentStatus(str, ChoiceMixin, Enum):
     UNKNOWN = "Unknown"
 
 
-class PrivacyPolicy(str, ChoiceMixin, Enum):
+class PrivacyPolicy(ChoiceMixin):
     PUBLIC = "public"
     PRIVATE = "private"
 
 
-class VerificationLevel(str, ChoiceMixin, Enum):
+class VerificationLevel(ChoiceMixin):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
 
 
-class BuildStatus(str, ChoiceMixin, Enum):
+class BuildStatus(ChoiceMixin):
     PENDING = "pending"
     BUILDING = "building"
     FAILED = "failed"
@@ -93,7 +93,7 @@ class BuildStatus(str, ChoiceMixin, Enum):
     UNKNOWN = "unknown"
 
 
-class ComponentType(str, ChoiceMixin, Enum):
+class ComponentType(ChoiceMixin):
     ALGORITHM = "algorithm"
     NETWORK = "network"
     CONNECTOR = "connector"
