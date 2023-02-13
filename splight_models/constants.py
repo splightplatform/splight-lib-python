@@ -1,6 +1,11 @@
-# TODO remove this file
 import logging
 from enum import Enum, IntEnum
+
+
+class ChoiceMixin(str, Enum):
+    @classmethod
+    def choices(cls):
+        return [(key.value.lower(), key.name.capitalize()) for key in cls]
 
 
 class SeverityType(str, Enum):
@@ -53,7 +58,14 @@ class DeploymentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class ComponentStatus(str, Enum):
+class MinComponentCapacity(ChoiceMixin):
+    SMALL = 'small'
+    MEDIUM = 'medium'
+    LARGE = 'large'
+    VERY_LARGE = 'very_large'
+
+
+class ComponentStatus(ChoiceMixin):
     STOPPED = "Stopped"
     PENDING = "Pending"
     RUNNING = "Running"
@@ -62,43 +74,27 @@ class ComponentStatus(str, Enum):
     UNKNOWN = "Unknown"
 
 
-class PrivacyPolicy(str, Enum):
+class PrivacyPolicy(ChoiceMixin):
     PUBLIC = "public"
     PRIVATE = "private"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name) for key in cls]
 
-
-class VerificationLevel(str, Enum):
+class VerificationLevel(ChoiceMixin):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     OFFICIAL = "official"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name) for key in cls]
 
-
-class BuildStatus(str, Enum):
+class BuildStatus(ChoiceMixin):
     PENDING = "pending"
     BUILDING = "building"
     FAILED = "failed"
     SUCCESS = "success"
     UNKNOWN = "unknown"
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name) for key in cls]
 
-
-class ComponentType(str, Enum):
+class ComponentType(ChoiceMixin):
     ALGORITHM = "algorithm"
     NETWORK = "network"
     CONNECTOR = "connector"
     SIMULATOR = "simulator"
-
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name) for key in cls]
