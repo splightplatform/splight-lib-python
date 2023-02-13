@@ -8,13 +8,21 @@ class ChoiceMixin(str, Enum):
         return [(key.value.lower(), key.name.capitalize()) for key in cls]
 
 
-class SeverityType(str, Enum):
+class SeverityType(ChoiceMixin):
     system = 'system'
     info = 'info'
     low = 'low'
     medium = 'medium'
     high = 'high'
     critical = 'critical'
+
+
+class AlertOperator(ChoiceMixin):
+    GREATER_THAN = "gt"
+    GREATER_THAN_OR_EQUAL = "ge"
+    LOWER_THAN = "lt"
+    LOWER_THAN_OR_EQUAL = "le"
+    EQUAL = "eq"
 
 
 class ComponentSize(str, Enum):
