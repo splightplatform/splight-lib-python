@@ -25,6 +25,12 @@ class AlertOperator(ChoiceMixin):
     EQUAL = "eq"
 
 
+class AlertVariableType(ChoiceMixin):
+    STR = "str"
+    INT = "int"
+    FLOAT = "float"
+
+
 class ComponentSize(str, Enum):
     small = "small"
     medium = "medium"
