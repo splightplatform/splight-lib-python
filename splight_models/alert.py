@@ -10,7 +10,7 @@ from .query import Query
 from splight_models.constants import (
     AlertOperator,
     AlertVariableType,
-    # SeverityType,
+    AlertStatus,
 )
 
 
@@ -34,6 +34,8 @@ class Alert(SplightBaseModel):
     name: str
     description: Optional[str] = None
     period: float = 1.0
+    active: bool = False
+    status: AlertStatus = AlertStatus.NO_ALERT
     namespace: str = Field("default", alias="namespace_id")
     deleted: bool = False
     condition: AlertCondition

@@ -17,6 +17,12 @@ class SeverityType(ChoiceMixin):
     critical = 'critical'
 
 
+class AlertStatus(ChoiceMixin):
+    ALERT = "alert"
+    NO_ALERT = "no_alert"
+    NO_DATA = "no_data"
+
+
 class AlertOperator(ChoiceMixin):
     GREATER_THAN = "gt"
     GREATER_THAN_OR_EQUAL = "ge"
