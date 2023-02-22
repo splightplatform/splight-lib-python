@@ -26,13 +26,24 @@ from splight_models import (
     Number,
     Secret
 )
-from splight_models.component import EventNames, ComponentCommandUpdateEvent, ComponentCommandTriggerEvent, CommunicationEvent
+from splight_models import (
+    EventNames,
+    ComponentCommandUpdateEvent,
+    ComponentCommandTriggerEvent,
+    CommunicationEvent
+)
 from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import (
     DATABASE_TYPES,
     NATIVE_TYPES,
-    Parameter,
     InputParameter
+)
+from splight_models.setpoint import (
+    SetPoint,
+    SetPointResponse,
+    SetPointResponseStatus,
+    SetPointCreateEvent,
+    SetPointUpdateEvent
 )
 import re
 
@@ -215,7 +226,13 @@ class BindingsMixin:
                 binding.object_type,
                 binding.object_action
             )
-            binding_handler = self.__handle_component_object_trigger if binding_model == ComponentObject else self.__handle_native_object_trigger
+            logger.info(f"Binding event: {binding_event_name}")
+            binding_handler = self.__handle_native_object_trigger
+            if binding_model == ComponentObject:
+                binding_handler = self.__handle_component_object_trigger
+            if binding_model == spmodels.SetPoint:
+                binding_handler = self.__handle_setpoint_trigger
+
             self.communication_client.bind(
                 binding_event_name,
                 partial(
@@ -226,12 +243,36 @@ class BindingsMixin:
             )
             logger.info(f"Binded event: {binding_event_name}")
 
+    def __handle_setpoint_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
+        try:
+            object_event = SetPointCreateEvent.parse_raw(data)
+            setpoint = object_event.data
+            response_status = SetPointResponseStatus(binding_function(setpoint))
+            if response_status == SetPointResponseStatus.IGNORE:
+                return
+
+            setpoint.responses = [
+                SetPointResponse(
+                    component=self.instance_id,
+                    status=response_status,
+                )
+            ]
+            setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
+            self.communication_client.trigger(setpoint_callback_event)
+        except Exception as e:
+            logger.error(f"Error while handling setpoint create: {e}")
+            logger.exception(e)
+
     def __handle_native_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
-        object_event = CommunicationEvent.parse_raw(data)
-        object_model = getattr(spmodels, binding_object_type)
-        binding_kwargs = object_model(**object_event.data)
-        binding_function(binding_kwargs)
+        try:
+            object_event = CommunicationEvent.parse_raw(data)
+            object_model = getattr(spmodels, binding_object_type)
+            binding_kwargs = object_model(**object_event.data)
+            binding_function(binding_kwargs)
+        except Exception as e:
+            logger.error(f"Error while handling native object trigger: {e}")
+            logger.exception(e)
 
     def __handle_component_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
@@ -288,7 +329,7 @@ class ParametersMixin:
                 value = [o["id"] for o in obj] if field.multiple else obj["id"]
 
             fields.append(
-                Parameter(
+                InputParameter(
                     name=field.name,
                     value=value,
                     type=field.type,
