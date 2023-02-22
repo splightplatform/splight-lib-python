@@ -85,10 +85,6 @@ class ComponentObject(SplightBaseModel):
     type: str
     data: List[InputParameter]
 
-    @staticmethod
-    def get_event_name(type: str, action: EventActions) -> str:
-        return f"{type.lower()}_{action}"
-
 
 class ComponentCommandResponse(SplightBaseModel):
     return_value: Optional[str] = None
