@@ -230,7 +230,7 @@ class BindingsMixin:
             binding_handler = self.__handle_native_object_trigger
             if binding_model == ComponentObject:
                 binding_handler = self.__handle_component_object_trigger
-            if binding_model == spmodels.SetPoint:
+            if binding_model == SetPoint:
                 binding_handler = self.__handle_setpoint_trigger
 
             self.communication_client.bind(
