@@ -65,6 +65,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             output = self._update(path, instance.id, instance)
         else:
             output = self._create(path, instance)
+            instance.id = output["id"]
         return constructor.parse_obj(output)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)

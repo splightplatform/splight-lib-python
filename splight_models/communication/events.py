@@ -22,6 +22,9 @@ class EventNames(str, Enum):
     COMPONENT_COMMAND_UPDATE = 'componentcommand-update'
     # TODO add Asset Attribute and all shared objects
 
+    SETPOINT_CREATE = 'setpoint-create'
+    SETPOINT_UPDATE = 'setpoint-update'
+
 
 class CommunicationEvent(SplightBaseModel):
     event_name: str

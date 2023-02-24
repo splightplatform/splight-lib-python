@@ -14,3 +14,4 @@ simplejson==3.17.6
 requests>=2.26.0
 cryptography==35.0.0
 PyYAML==6.0
+StrEnum==0.4.9

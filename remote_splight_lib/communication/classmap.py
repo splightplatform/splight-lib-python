@@ -1,6 +1,6 @@
 from splight_models import CommunicationContext, CommunicationEvent
 
 CLASSMAP = {
-    CommunicationContext: "/communication/context/",
-    CommunicationEvent: "/communication/",
+    CommunicationContext: "v2/engine/communication/context/",
+    CommunicationEvent: "v2/engine/communication/",
 }
