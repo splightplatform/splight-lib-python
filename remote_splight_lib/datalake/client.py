@@ -56,7 +56,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def _raw_get(
         self,
         resource_type: DatalakeModel,
-        collection: str, 
+        collection: str,
         limit_: int = 50,
         skip_: int = 0,
         sort: Union[List, str] = ["timestamp__desc"],
@@ -108,6 +108,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
         kwargs["collection"] = resource_type.Meta.collection_name
+        kwargs["resource_type"] = resource_type
         return QuerySet(self, *args, **kwargs)
 
     def get_output(self, query: Query) -> List[Dict]:
@@ -142,7 +143,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return df
 
     def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
-        # TODO this should be 
+        # TODO this should be
         # def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
         dfs = [self.get_dataframe(**query) for query in queries]
         df = pd.concat(dfs, axis=1)

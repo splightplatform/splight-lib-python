@@ -39,7 +39,6 @@ class SetPoint(SplightBaseModel):
     type: SetPointType
     value: Union[str, bool, float]
     responses: List[SetPointResponse] = []
-    created_date: Optional[datetime] = None
 
     @validator('value')
     def cast_value(cls, v, values, **kwargs):
