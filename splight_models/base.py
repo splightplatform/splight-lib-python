@@ -7,4 +7,4 @@ class SplightBaseModel(BaseModel):
 
     @staticmethod
     def get_event_name(type: str, action: str) -> str:
-        return f"{type.lower()}_{action}"
+        return f"{type.lower()}-{action.lower()}"

@@ -17,3 +17,4 @@ from splight_models.user import *
 from splight_models.variable import *
 from splight_models.webhook import *
 from splight_models.secret import *
+from splight_models.setpoint import *

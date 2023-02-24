@@ -14,6 +14,7 @@ from splight_models import (
     ComponentObject,
     ComponentCommand,
     Secret,
+    SetPoint,
 )
 
 
@@ -59,5 +60,8 @@ CLASSMAP = {
     },
     HubComponent: {
         "path": "v2/engine/hub/component-versions"
+    },
+    SetPoint: {
+        "path": "v2/engine/setpoints"
     },
 }
