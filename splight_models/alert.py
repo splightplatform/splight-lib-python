@@ -76,5 +76,9 @@ class Alert(SplightBaseModel):
     def convert_to_str(cls, value: Union[str, UUID]):
         return str(value)
 
+    @validator("namespace", pre=True)
+    def validate_namespace(cls, value: Optional[str]):
+        return value if value else "default"
+
     def check_alert(self, value: Union[float, int, str]) -> bool:
         return self.condition.is_satisfied(value)
