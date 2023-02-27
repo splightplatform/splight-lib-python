@@ -1,5 +1,6 @@
 from splight_models import (
     Alert,
+    AlertCondition,
     Asset,
     Attribute,
     File,
@@ -23,7 +24,10 @@ CLASSMAP = {
         "path": "v2/engine/component/components"
     },
     Alert: {
-        "path": "v2/engine/alerts"
+        "path": "v2/engine/alert/alerts"
+    },
+    AlertCondition: {
+        "path": "v2/engine/alert/conditions"
     },
     Asset: {
         "path": "v2/engine/assets"
