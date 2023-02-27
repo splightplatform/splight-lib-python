@@ -65,12 +65,12 @@ class Alert(SplightBaseModel):
     descriptIon: Optional[str] = None
     message: str
     period: float = 1.0
-    active: bool = False
+    active: bool = True
     status: AlertStatus = AlertStatus.NO_ALERT
     notification_emails: List[EmailStr] = Field(default_factory=list)
     namespace: str = Field("default", alias="namespace_id")
     deleted: bool = False
-    condition: AlertCondition
+    condition: Optional[AlertCondition] = None
 
     @validator("id", pre=True)
     def convert_to_str(cls, value: Union[str, UUID]):
