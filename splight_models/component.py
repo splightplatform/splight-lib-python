@@ -30,7 +30,6 @@ class Parameter(SplightBaseModel):
     name: str
     description: str = ''
     type: str = "str"
-    category: Optional[Category] = None
     required: bool = False
     multiple: bool = False
     sensitive: bool = False
@@ -58,6 +57,7 @@ class CommandParameter(InputParameter):
 class CustomType(SplightBaseModel):
     _reserved_names = ["id", "name", "description"]
     name: str
+    category: Optional[Category] = None
     fields: List[Parameter]
 
 
