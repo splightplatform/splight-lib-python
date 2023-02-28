@@ -333,6 +333,7 @@ class ParametersMixin:
                     name=field.name,
                     value=value,
                     type=field.type,
+                    category=field.category,
                     multiple=field.multiple,
                     required=field.required,
                     choices=field.choices,

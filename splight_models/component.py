@@ -21,11 +21,16 @@ from copy import copy
 from functools import cached_property
 import inspect
 
+class Category(str, Enum):
+    READ = "read"
+    WRITE = "write"
+    READWRITE = "readwrite"
 
 class Parameter(SplightBaseModel):
     name: str
     description: str = ''
     type: str = "str"
+    category: Optional[Category] = None
     required: bool = False
     multiple: bool = False
     sensitive: bool = False
