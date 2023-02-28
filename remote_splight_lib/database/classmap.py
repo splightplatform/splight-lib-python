@@ -1,4 +1,6 @@
 from splight_models import (
+    Alert,
+    AlertCondition,
     Asset,
     Attribute,
     File,
@@ -9,7 +11,6 @@ from splight_models import (
     Query,
     Node,
     BlockchainContract,
-    Component,
     HubComponent,
     ComponentObject,
     ComponentCommand,
@@ -21,6 +22,12 @@ from splight_models import (
 CLASSMAP = {
     Component: {
         "path": "v2/engine/component/components"
+    },
+    Alert: {
+        "path": "v2/engine/alert/alerts"
+    },
+    AlertCondition: {
+        "path": "v2/engine/alert/conditions"
     },
     Asset: {
         "path": "v2/engine/assets"
