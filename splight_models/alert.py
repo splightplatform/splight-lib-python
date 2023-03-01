@@ -28,6 +28,7 @@ class InvalidValueType(Exception):
 
 class AlertCondition(SplightBaseModel):
     id: Optional[str] = Field(None, max_length=100)
+    # TODO: not use this models in Splight API repository
     query: Union[str, Query]
     operator: AlertOperator = AlertOperator.EQUAL
     threshold: str
