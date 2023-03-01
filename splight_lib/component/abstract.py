@@ -360,11 +360,14 @@ class ParametersMixin:
             multiple = parameter["multiple"]
             if type == 'str':
                 parameter["value"] = self.parse_variable_string(value)
-            if type in NATIVE_TYPES or type in DATABASE_TYPES or not value:
+            if type in NATIVE_TYPES or type in DATABASE_TYPES:
                 parameter["value"] = value
             else:
                 object_ids = value if multiple else [value]
-                objects = self.database_client.get(ComponentObject, id__in=object_ids)
+                objects = (
+                    self.database_client.get(ComponentObject, id__in=object_ids)
+                    if object_ids else []
+                )
                 for o in objects:
                     component_object_data = [
                         InputParameter(name=key, value=getattr(o, key))
