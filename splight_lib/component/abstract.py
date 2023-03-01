@@ -360,7 +360,7 @@ class ParametersMixin:
             multiple = parameter["multiple"]
             if type == 'str':
                 parameter["value"] = self.parse_variable_string(value)
-            if type in NATIVE_TYPES or type in DATABASE_TYPES:
+            if type in NATIVE_TYPES or type in DATABASE_TYPES or not value:
                 parameter["value"] = value
             else:
                 object_ids = value if multiple else [value]
