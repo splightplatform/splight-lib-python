@@ -366,7 +366,7 @@ class ParametersMixin:
                 object_ids = value if multiple else [value]
                 objects = (
                     self.database_client.get(ComponentObject, id__in=object_ids)
-                    if object_ids else []
+                    if object_ids else []  # TODO: Investigate why the filter is not working properly.
                 )
                 for o in objects:
                     component_object_data = [
