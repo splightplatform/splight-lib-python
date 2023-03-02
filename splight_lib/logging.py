@@ -5,6 +5,9 @@ import sys
 from typing import Dict
 
 
+TAGS_KEY = "tags"
+
+
 class SplightLogger:
 
     def __init__(self, name=None) -> None:
@@ -31,7 +34,7 @@ class SplightLogger:
 
     @property
     def formatter(self) -> logging.Formatter:
-        fmt = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(msg)s"
+        fmt = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(msg)s | %(tags)s"
         formatter = logging.Formatter(fmt=fmt)
         formatter.converter = time.gmtime
         return formatter
@@ -44,36 +47,23 @@ class SplightLogger:
         self.logger.addHandler(handler)
         self.logger.propagate = False
 
-    @staticmethod
-    def __format_msg(msg: str, tags: Dict) -> str:
-        formatted_msg = msg
-        if tags is not None:
-            formatted_msg += " " + str([f"{k}:{v}" for k, v in tags.items()])
-        return formatted_msg
-
     def debug(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.debug(formatted_msg, *args, **kwargs)
+        self.logger.debug(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
     def info(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.info(formatted_msg, *args, **kwargs)
+        self.logger.info(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
     def warning(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.warning(formatted_msg, *args, **kwargs)
+        self.logger.warning(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
     def error(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.error(formatted_msg, *args, **kwargs)
+        self.logger.error(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
     def exception(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.exception(formatted_msg, *args, **kwargs)
+        self.logger.exception(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
     def critical(self, msg: str, tags: Dict=None, *args, **kwargs):
-        formatted_msg = self.__format_msg(msg, tags)
-        self.logger.critical(formatted_msg, *args, **kwargs)
+        self.logger.critical(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
 
 class ComponentLogger(SplightLogger):
