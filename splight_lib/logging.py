@@ -11,14 +11,19 @@ class SplightLogger:
         # this is to avoid adding handlers to root logger
         # and interfering with third party app logs
         if name is None:
-            name = "SplightLogger"
-        self.logger = logging.getLogger(name)
+            name = "splight"
+        self.name = name
+        self.logger = logging.getLogger(self.name)
         self.logger.setLevel(self.log_level)
 
         # hasHandlers returns True when self parent
         # have a handler so, don"t use method
         if not self.logger.handlers:
             self.load_handler()
+
+    def __repr__(self) -> str:
+        level = logging.getLevelName(self.logger.getEffectiveLevel())
+        return '<%s %s (%s)>' % (self.__class__.__name__, self.name, level)
 
     @property
     def log_level(self) -> int:
@@ -75,7 +80,7 @@ class ComponentLogger(SplightLogger):
 
     def __init__(self, name=None) -> None:
         if name is None:
-            name = "ComponentLogger"
+            name = "component"
         super().__init__(name)
 
     def load_handler(self) -> None:
