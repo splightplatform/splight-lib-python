@@ -67,6 +67,8 @@ class VariableValueMixin:
     }
 
     def parse_variable_string(self, value: str) -> Any:
+        if value is None:
+            return ""
         pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
         match = pattern.search(value)
         if not match:
@@ -320,7 +322,7 @@ class ParametersMixin:
         custom_parameters = {k: v for k, v in instance.dict().items() if k not in CustomType._reserved_names}
         fields = []
         for key, obj in custom_parameters.items():
-            field = getattr(custom_type.Meta, key)
+            field = getattr(custom_type.SpecFields, key)
             if field is None:
                 continue
             value = obj
