@@ -1,4 +1,5 @@
 from splight_models.asset import *
+from splight_models.alert import Alert, AlertCondition
 from splight_models.attribute import *
 from splight_models.blockchain import *
 from splight_models.communication import *
