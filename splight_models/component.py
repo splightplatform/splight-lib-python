@@ -22,10 +22,12 @@ from functools import cached_property
 import inspect
 from strenum import LowercaseStrEnum
 
+
 class Category(LowercaseStrEnum):
     READ = auto()
     WRITE = auto()
     READWRITE = auto()
+
 
 class Parameter(SplightBaseModel):
     name: str
