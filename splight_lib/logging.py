@@ -8,7 +8,20 @@ from typing import Dict
 TAGS_KEY = "tags"
 
 
-class SplightLogger:
+class SplightFormatter(logging.Formatter):
+    DEFAULT_FMT: str = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(msg)s"
+
+    def format(self, record):
+        fmt = self.DEFAULT_FMT
+        # add tags just if are present
+        if record.tags is not None:
+            fmt += " | %(tags)s"
+        formatter = logging.Formatter(fmt=fmt)
+        formatter.converter = time.gmtime
+        return formatter.format(record)
+
+
+class BaseSplightLogger:
 
     def __init__(self, name=None) -> None:
         # this is to avoid adding handlers to root logger
@@ -22,7 +35,7 @@ class SplightLogger:
         # hasHandlers returns True when self parent
         # have a handler so, don"t use method
         if not self.logger.handlers:
-            self.load_handler()
+            self.load_handlers()
 
     def __repr__(self) -> str:
         level = logging.getLevelName(self.logger.getEffectiveLevel())
@@ -34,15 +47,11 @@ class SplightLogger:
 
     @property
     def formatter(self) -> logging.Formatter:
-        fmt = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(msg)s | %(tags)s"
-        formatter = logging.Formatter(fmt=fmt)
-        formatter.converter = time.gmtime
-        return formatter
+        return SplightFormatter()
 
-    def load_handler(self) -> None:
-        handler = logging.StreamHandler(sys.stderr)
+    def load_handlers(self) -> None:
+        handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(self.formatter)
-
         handler.setLevel(self.log_level)
         self.logger.addHandler(handler)
         self.logger.propagate = False
@@ -66,14 +75,32 @@ class SplightLogger:
         self.logger.critical(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
 
 
-class ComponentLogger(SplightLogger):
+class SplightDevLogger(BaseSplightLogger):
+    def __init__(self, name=None) -> None:
+        if name is None:
+            name = "splight-dev"
+        super().__init__(name)
+
+    def load_handlers(self) -> None:
+        filename = os.getenv("LOG_FILE", "/tmp/splight-dev.log")
+        handler = logging.FileHandler(filename=filename)
+        handler.setFormatter(self.formatter)
+        handler.setLevel(self.log_level)
+
+        self.logger.addHandler(handler)
+        self.logger.propagate = False
+
+
+class ComponentLogger(BaseSplightLogger):
 
     def __init__(self, name=None) -> None:
         if name is None:
             name = "component"
         super().__init__(name)
 
-    def load_handler(self) -> None:
+    def load_handlers(self) -> None:
+        super().load_handlers()  # to load stdout handler
+        # adding file handler
         filename = os.getenv("LOG_FILE", "/tmp/components.log")
         handler = logging.FileHandler(filename=filename)
         handler.setFormatter(self.formatter)
@@ -83,9 +110,7 @@ class ComponentLogger(SplightLogger):
         self.logger.propagate = False
 
 
-def getLogger(name=None):
+def getLogger(name=None, dev=False):
+    if dev:
+        return SplightDevLogger(name)
     return ComponentLogger(name)
-
-
-def getSplightLogger(name=None):
-    return SplightLogger(name)
