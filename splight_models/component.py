@@ -14,10 +14,7 @@ from splight_models.graph import Graph
 from splight_models.query import Query
 from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
-from enum import (
-    Enum,
-    auto
-)
+from enum import Enum, auto
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
 from pydantic import BaseModel, create_model, Field, AnyUrl
 from copy import copy
