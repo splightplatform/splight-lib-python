@@ -23,7 +23,7 @@ import inspect
 from strenum import LowercaseStrEnum
 
 
-class Category(LowercaseStrEnum):
+class Action(LowercaseStrEnum):
     READ = auto()
     WRITE = auto()
     READWRITE = auto()
@@ -60,7 +60,7 @@ class CommandParameter(InputParameter):
 class CustomType(SplightBaseModel):
     _reserved_names = ["id", "name", "description"]
     name: str
-    category: Optional[Category] = None
+    action: Optional[Action] = None
     fields: List[Parameter]
 
 
