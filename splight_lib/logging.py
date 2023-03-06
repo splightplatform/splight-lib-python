@@ -82,7 +82,7 @@ class SplightDevLogger(BaseSplightLogger):
         super().__init__(name)
 
     def load_handlers(self) -> None:
-        filename = os.getenv("LOG_FILE", "/tmp/splight-dev.log")
+        filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
         handler = logging.FileHandler(filename=filename)
         handler.setFormatter(self.formatter)
         handler.setLevel(self.log_level)
@@ -101,7 +101,7 @@ class ComponentLogger(BaseSplightLogger):
     def load_handlers(self) -> None:
         super().load_handlers()  # to load stdout handler
         # adding file handler
-        filename = os.getenv("LOG_FILE", "/tmp/components.log")
+        filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
         handler = logging.FileHandler(filename=filename)
         handler.setFormatter(self.formatter)
 
