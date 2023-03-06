@@ -31,6 +31,9 @@ class HooksMixin:
         @wraps(func)
         def pre_hooked_func(*args, **kwargs):
             kwargs = self._args_to_kwargs(func, *args, **kwargs)
+            ignore_hook = kwargs.get("ignore_hook", False)
+            if ignore_hook:
+                return func(*args, **kwargs)
             args, kwargs = hook(**kwargs)
             return func(*args, **kwargs)
 
