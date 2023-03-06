@@ -14,12 +14,19 @@ from splight_models.graph import Graph
 from splight_models.query import Query
 from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
-from enum import Enum
+from enum import Enum, auto
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
 from pydantic import BaseModel, create_model, Field, AnyUrl
 from copy import copy
 from functools import cached_property
 import inspect
+from strenum import LowercaseStrEnum
+
+
+class Action(LowercaseStrEnum):
+    READ = auto()
+    WRITE = auto()
+    READWRITE = auto()
 
 
 class Parameter(SplightBaseModel):
@@ -53,6 +60,7 @@ class CommandParameter(InputParameter):
 class CustomType(SplightBaseModel):
     _reserved_names = ["id", "name", "description"]
     name: str
+    action: Optional[Action] = None
     fields: List[Parameter]
 
 
