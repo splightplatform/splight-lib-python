@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import RotatingFileHandler
 import time
 import os
 import sys
@@ -80,7 +81,11 @@ class SplightDevLogger(BaseSplightLogger):
 
     def load_handlers(self) -> None:
         filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
-        handler = logging.FileHandler(filename=filename)
+        max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 1000))
+        backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 5e+6))  # 5MB
+        handler = RotatingFileHandler(
+            filename=filename, maxBytes=max_bytes, backupCount=backup_count
+        )
         handler.setFormatter(self.formatter)
         handler.setLevel(self.log_level)
 
@@ -98,7 +103,11 @@ class ComponentLogger(BaseSplightLogger):
         super().load_handlers()  # to load stdout handler
         # adding file handler
         filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
-        handler = logging.FileHandler(filename=filename)
+        max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 1000))
+        backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 5e+6))  # 5MB
+        handler = RotatingFileHandler(
+            filename=filename, maxBytes=max_bytes, backupCount=backup_count
+        )
         handler.setFormatter(self.formatter)
 
         handler.setLevel(self.log_level)
