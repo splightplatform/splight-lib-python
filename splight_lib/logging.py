@@ -23,12 +23,10 @@ class SplightFormatter(logging.Formatter):
 
 class BaseSplightLogger:
 
-    def __init__(self, name=None) -> None:
+    def __init__(self, name: str = None) -> None:
         # this is to avoid adding handlers to root logger
         # and interfering with third party app logs
-        if name is None:
-            name = "splight"
-        self.name = name
+        self.name = name if name is not None else "splight"
         self.logger = logging.getLogger(self.name)
         self.logger.setLevel(self.log_level)
 
@@ -76,9 +74,8 @@ class BaseSplightLogger:
 
 
 class SplightDevLogger(BaseSplightLogger):
-    def __init__(self, name=None) -> None:
-        if name is None:
-            name = "splight-dev"
+    def __init__(self, name: str = None) -> None:
+        name = name if name is not None else "splight-dev"
         super().__init__(name)
 
     def load_handlers(self) -> None:
@@ -93,9 +90,8 @@ class SplightDevLogger(BaseSplightLogger):
 
 class ComponentLogger(BaseSplightLogger):
 
-    def __init__(self, name=None) -> None:
-        if name is None:
-            name = "component"
+    def __init__(self, name: str = None) -> None:
+        name = name if name is not None else "component"
         super().__init__(name)
 
     def load_handlers(self) -> None:
@@ -111,6 +107,4 @@ class ComponentLogger(BaseSplightLogger):
 
 
 def getLogger(name=None, dev=False):
-    if dev:
-        return SplightDevLogger(name)
-    return ComponentLogger(name)
+    return SplightDevLogger(name) if dev else ComponentLogger(name)
