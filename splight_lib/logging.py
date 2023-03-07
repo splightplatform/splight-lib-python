@@ -10,7 +10,7 @@ TAGS_KEY = "tags"
 
 
 class SplightFormatter(logging.Formatter):
-    DEFAULT_FMT: str = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(msg)s"
+    DEFAULT_FMT: str = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(message)s"
 
     def format(self, record):
         fmt = self.DEFAULT_FMT
