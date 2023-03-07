@@ -14,9 +14,11 @@ class SplightFormatter(logging.Formatter):
 
     def format(self, record):
         fmt = self.DEFAULT_FMT
-        # add tags just if are present
-        if record.tags is not None:
-            fmt += " | %(tags)s"
+        try:
+            if record.tags is not None:
+                fmt = " | ".join([fmt, "%(tags)s"])
+        except AttributeError:
+            pass  # tags aren't present
         formatter = logging.Formatter(fmt=fmt)
         formatter.converter = time.gmtime
         return formatter.format(record)
@@ -55,23 +57,36 @@ class BaseSplightLogger:
         self.logger.addHandler(handler)
         self.logger.propagate = False
 
-    def debug(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.debug(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    @staticmethod
+    def _update_kwargs(kwargs: Dict) -> Dict:
+        tags = kwargs.pop(TAGS_KEY, None)
+        if tags is not None:
+            kwargs.update({"extra": {TAGS_KEY: tags}})
+        return kwargs
 
-    def info(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.info(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    def debug(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.debug(msg, *args, **kwargs)
 
-    def warning(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.warning(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    def info(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.info(msg, *args, **kwargs)
 
-    def error(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.error(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    def warning(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.warning(msg, *args, **kwargs)
 
-    def exception(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.exception(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    def error(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.error(msg, *args, **kwargs)
 
-    def critical(self, msg: str, tags: Dict=None, *args, **kwargs):
-        self.logger.critical(msg, extra={TAGS_KEY: tags}, *args, **kwargs)
+    def exception(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.exception(msg, *args, **kwargs)
+
+    def critical(self, msg: str, *args, **kwargs):
+        kwargs = self._update_kwargs(kwargs)
+        self.logger.critical(msg, *args, **kwargs)
 
 
 class SplightDevLogger(BaseSplightLogger):
