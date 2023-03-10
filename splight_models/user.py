@@ -78,11 +78,11 @@ class Invitation(SplightBaseModel):
     organization_id: Optional[str] = None
     inviter: Inviter
     invitee: Invitee
-    app_metadata: AppMetadata
-    user_metadata: UserMetadata
-    invitation_url: str
-    created_at: datetime
-    expires_at: datetime
-    client_id: str
+    app_metadata: Optional[AppMetadata] = None
+    user_metadata: Optional[UserMetadata] = None
+    invitation_url: Optional[str]
+    created_at: Optional[datetime]
+    expires_at: Optional[datetime]
+    client_id: Optional[str]
     roles: List[str] = []
-    ticket_id: str
+    ticket_id: Optional[str]
