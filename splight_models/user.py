@@ -59,11 +59,16 @@ class OrganizationMetadata(SplightBaseModel):
 
 
 class Organization(SplightBaseModel):
-    id: str
+    id: Optional[str] = None
+    connection_id: str
     name: str
     display_name: str
     metadata: OrganizationMetadata = OrganizationMetadata()
 
+class Connection(SplightBaseModel):
+    id: Optional[str] = None
+    name: str
+    display_name: str
 
 class Inviter(SplightBaseModel):
     name: str
