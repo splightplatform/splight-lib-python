@@ -296,9 +296,6 @@ class ComponentModelsFactory:
             multiple = getattr(field, "multiple", False)
             required = getattr(field, "required", True)
 
-            if choices and name != "Input":
-                type = Enum(f"{field.name}-choices", {str(p): p for p in field.choices})
-
             if multiple:
                 type = List[type]
 
