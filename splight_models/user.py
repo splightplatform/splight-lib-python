@@ -60,7 +60,7 @@ class OrganizationMetadata(SplightBaseModel):
 
 class Organization(SplightBaseModel):
     id: Optional[str] = None
-    connection_id: str
+    connection_id: Optional[str]
     name: str
     display_name: str
     metadata: OrganizationMetadata = OrganizationMetadata()
