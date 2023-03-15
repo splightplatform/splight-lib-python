@@ -6,7 +6,7 @@ from unittest import TestCase
 class TestLogging(TestCase):
     def test_import_logging(self):
         from splight_lib import logging
-        logger = logging.getLogger()
+        logger = logging.BaseSplightLogger()
         logger.debug("DEBUG MESSAGE")
         logger.info("INFO MESSAGE")
         logger.warning("WARNING MESSAGE")
@@ -18,9 +18,9 @@ class TestLogging(TestCase):
 
     def test_logger_message_present(self):
         from splight_lib import logging
-        logger = logging.getLogger()
+        logger = logging.BaseSplightLogger()
         message = "WARNING MESSAGE"
-        with self.assertLogs() as captured:
+        with self.assertLogs(logger=logger.name, level=logger.log_level) as captured:
             logger.warning(message)
         self.assertEqual(len(captured.records), 1)
         self.assertEqual(captured.records[0].getMessage(), message)
