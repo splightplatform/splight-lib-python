@@ -4,6 +4,7 @@ import splight_models as spmodels
 import uuid
 from functools import partial
 from abc import abstractmethod
+from enum import Enum
 from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
 from mergedeep import merge, Strategy as mergeStrategy
@@ -505,6 +506,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         raw_spec = self.spec.dict()
         parsed_input_parameters = self.parse_parameters(raw_spec["input"])
         self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
+        self._remove_choices_from_input()
 
     def _load_clients(self):
         self.database_client = self.setup.DATABASE_CLIENT(
@@ -528,3 +530,9 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             **self.blockchain_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
+
+    def _remove_choices_from_input(self):
+        for param in self.input.__fields_set__:
+            param_value = self.input.__getattribute__(param)
+            if issubclass(type(param_value), Enum):
+                self.input.__setattr__(param, param_value.value)
