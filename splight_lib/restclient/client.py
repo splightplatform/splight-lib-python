@@ -216,6 +216,7 @@ class SplightRestClient:
 
 def get_restclient():
     # uses restclient singleton
+    global restclient
     if restclient is None:
         restclient = SplightRestClient()
     return restclient
