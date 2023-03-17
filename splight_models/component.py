@@ -23,9 +23,13 @@ import inspect
 from strenum import LowercaseStrEnum
 
 
-def choices_validator(valid_values: List, cls, value):
-    if value not in valid_values:
-        raise ValidationError()
+def choices_validator(cls, value, field):
+    valid_choices = cls.SpecFields.__getattribute__(
+        cls.SpecFields, field.name
+    ).choices
+
+    if value not in valid_choices:
+        raise ValidationError(f"{field.name} value not in valid choices.")
     return value
 
 
@@ -304,12 +308,8 @@ class ComponentModelsFactory:
             required = getattr(field, "required", True)
 
             if choices:
-                # type = Enum(f"{field.name}-choices", {str(p): p for p in field.choices})
-                value_validator = validator(field.name, pre=True)(
-                    partial(choices_validator, field.choices)
-                )
                 validators.update({
-                    "choices_validator": value_validator
+                    "choices_validator": validator(field.name, pre=True)(choices_validator)
                 })
 
             if multiple:
