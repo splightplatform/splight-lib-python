@@ -5,45 +5,37 @@ Type definitions for type checking purposes.
 import ssl
 from http.cookiejar import CookieJar
 from typing import (
-    IO,
-    TYPE_CHECKING,
-    Any,
-    AsyncIterable,
-    AsyncIterator,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    NamedTuple,
     Optional,
-    Sequence,
-    Tuple,
     Union,
+    Tuple,
+    Callable,
+    Mapping,
+    IO,
+    Sequence,
+    Dict,
+    List,
+    Any
 )
 
-if TYPE_CHECKING:  # pragma: no cover
-    from httpx._auth import Auth  # noqa: F401
-    from httpx._config import Proxy, Timeout  # noqa: F401
-    from httpx._models import Cookies, Headers, Request  # noqa: F401
-    from httpx._urls import URL, QueryParams  # noqa: F401
+from httpx._auth import Auth
+from httpx._urls import QueryParams
+from httpx._models import Request, Headers, Cookies
+from httpx._config import Timeout, Proxy, Limits
+from httpx._transports.base import BaseTransport  # used in client
 
-from httpx._client import UseClientDefault, USE_CLIENT_DEFAULT
+# Currently, this types are based on httpx._types.
+
+DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)
+DEFAULT_LIMITS = Limits(max_connections=100, max_keepalive_connections=20)
+DEFAULT_MAX_REDIRECTS = 20
 
 PrimitiveData = Optional[Union[str, int, float, bool]]
 
-RawURL = NamedTuple(
-    "RawURL",
-    [
-        ("raw_scheme", bytes),
-        ("raw_host", bytes),
-        ("port", Optional[int]),
-        ("raw_path", bytes),
-    ],
-)
-
-URLTypes = Union["URL", str]
+AuthTypes = Union[
+    Tuple[Union[str, bytes], Union[str, bytes]],
+    Callable[["Request"], "Request"],
+    "Auth",
+]
 
 QueryParamTypes = Union[
     "QueryParams",
@@ -64,6 +56,14 @@ HeaderTypes = Union[
 
 CookieTypes = Union["Cookies", CookieJar, Dict[str, str], List[Tuple[str, str]]]
 
+TimeoutTypes = Union[
+    Optional[float],
+    Tuple[Optional[float], Optional[float], Optional[float], Optional[float]],
+    "Timeout",
+]
+
+VerifyTypes = Union[str, bool, ssl.SSLContext]
+
 CertTypes = Union[
     # certfile
     str,
@@ -72,27 +72,22 @@ CertTypes = Union[
     # (certfile, keyfile, password)
     Tuple[str, Optional[str], Optional[str]],
 ]
-VerifyTypes = Union[str, bool, ssl.SSLContext]
-TimeoutTypes = Union[
-    Optional[float],
-    Tuple[Optional[float], Optional[float], Optional[float], Optional[float]],
-    "Timeout",
-]
-ProxiesTypes = Union[URLTypes, "Proxy", Dict[URLTypes, Union[None, URLTypes, "Proxy"]]]
 
-AuthTypes = Union[
-    Tuple[Union[str, bytes], Union[str, bytes]],
-    Callable[["Request"], "Request"],
-    "Auth",
+# for now is just a string. In the future could be httpx._urls.URL too.
+URLTypes = str
+
+ProxiesTypes = Union[
+    URLTypes,
+    "Proxy",
+    Dict[URLTypes, Union[None, URLTypes, "Proxy"]]
 ]
 
-RequestContent = Union[str, bytes, Iterable[bytes], AsyncIterable[bytes]]
-ResponseContent = Union[str, bytes, Iterable[bytes], AsyncIterable[bytes]]
-ResponseExtensions = Mapping[str, Any]
+EventHook = Callable[..., Any]
 
 RequestData = Mapping[str, Any]
 
 FileContent = Union[IO[bytes], bytes, str]
+
 FileTypes = Union[
     # file (or bytes)
     FileContent,
@@ -103,36 +98,5 @@ FileTypes = Union[
     # (filename, file (or bytes), content_type, headers)
     Tuple[Optional[str], FileContent, Optional[str], Mapping[str, str]],
 ]
+
 RequestFiles = Union[Mapping[str, FileTypes], Sequence[Tuple[str, FileTypes]]]
-
-RequestExtensions = Mapping[str, Any]
-
-
-class SyncByteStream:
-    def __iter__(self) -> Iterator[bytes]:
-        raise NotImplementedError(
-            "The '__iter__' method must be implemented."
-        )  # pragma: no cover
-        yield b""  # pragma: no cover
-
-    def close(self) -> None:
-        """
-        Subclasses can override this method to release any network resources
-        after a request/response cycle is complete.
-        """
-
-
-class AsyncByteStream:
-    async def __aiter__(self) -> AsyncIterator[bytes]:
-        raise NotImplementedError(
-            "The '__aiter__' method must be implemented."
-        )  # pragma: no cover
-        yield b""  # pragma: no cover
-
-    async def aclose(self) -> None:
-        pass
-
-from httpx._config import Timeout
-DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)
-# DEFAULT_LIMITS = Limits(max_connections=100, max_keepalive_connections=20)
-DEFAULT_MAX_REDIRECTS = 20
