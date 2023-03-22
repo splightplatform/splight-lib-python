@@ -1,6 +1,7 @@
 import httpx
 from typing import Optional, Callable, Any, Union, Mapping, List
 
+from splight_lib.restclient.cached import CachedObject
 from splight_lib.restclient.types import (
     AuthTypes,
     QueryParamTypes,
@@ -54,7 +55,7 @@ class SplightResponse(httpx.Response):
             setattr(self, key, value)
 
 
-class SplightRestClient:
+class SplightRestClient(CachedObject):
     """A REST client for making HTTP requests.
 
     Currently, this client is based on httpx.Client.
