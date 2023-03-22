@@ -1,222 +1,354 @@
-import requests
-from requests import Session
-from typing import Dict, Union, List, Any, Optional
+import httpx
+from typing import Optional, Union, Callable, Any, Mapping, List
+from splight_lib.restclient.types import (
+    AuthTypes,
+    QueryParamTypes,
+    HeaderTypes,
+    CookieTypes,
+    CertTypes,
+    ProxiesTypes,
+    TimeoutTypes,
+    DEFAULT_TIMEOUT_CONFIG,
+    RequestData,
+    RequestFiles,
+    VerifyTypes,
+    BaseTransport,
+    Limits,
+    DEFAULT_MAX_REDIRECTS,
+    DEFAULT_LIMITS,
+    EventHook
+)
+from httpx._client import UseClientDefault, USE_CLIENT_DEFAULT
 
-# TODO: check if this the right way to define expected DataType
-DataType = Union[Dict, List, bytes, Any]
 
-restclient = None
+class SplightResponse(httpx.Response):
+    # Currently, this class is a copy of httpx.Response.
 
-
-class SplightResponse(requests.Response):
-
-    def raise_for_status(self):
-        """Raises an HTTPError if the response status code indicates an error (4xx or 5xx).
-
-        Args:
-            response (SplightResponse): The response object to check for errors.
-
-        Raises:
-            HTTPError: If the response status code indicates an error.
-        """
-        return self.raise_for_status()
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
 class SplightRestClient:
+    """A REST client for making HTTP requests.
+
+    Currently, this client is a copy of httpx.Client.
+
+    Class initialization parameters.
+
+    1. Compatible with requests interface.
+    * verify (optional) SSL certificates (a.k.a CA bundle) used to verify the
+    identity of requested hosts. Either `True` (default CA bundle), a path to an
+    SSL certificate file, an `ssl.SSLContext`, or `False` (which will disable
+    verification).
+    * cert (optional) An SSL certificate used by the requested host to
+    authenticate the client. Either a path to an SSL certificate file, or
+    two-tuple of (certificate file, key file), or a three-tuple of (certificate
+    file, key file, password).
+    * proxies (optional) A dictionary mapping proxy keys to proxy URLs.
+    * allow_redirects (optional) If set, automatically follow redirects. Default
+    False.
+
+    2. Added by httpx.
+    * http1 (optional) To use HTTP1 protocol.
+    * http2 (optional) To use HTTP2 protocol.
+    * base_url (optional) A URL to use as the base when building request URLs.
+    * limits (optional) The limits for transport configuration to use.
+    Parameters for Limits class are: max_connections and
+    max_keepalive_connections
+    * max_redirects (optional) The maximum number of redirect responses that
+    should be followed.
+    * transport (optional) A transport class to use for sending requests over
+    the network.
+    * app (optional) An WSGI application to send requests to, rather than
+    sending actual network requests.
+    * trust_env (optional) Enables or disables usage of environment variables
+    for configuration.
+    * default_encoding (optional) The default encoding to use for decoding
+    response text, if no charset information is included in a response
+    Content-Type header. Set to a callable for automatic character set
+    detection. Default: "utf-8".
+    * event_hooks: used to run hooks for requests and responses.
+
+    For ALL client methods. (Compatible with requests interface)
+    * url URL to send the request.
+    * auth (optional) An authentication class to use when sending requests.
+    * params (optional) Query parameters to include in request URLs, as a
+    string, dictionary, or sequence of two-tuples.
+    * headers (optional) Dictionary of HTTP headers to include when sending
+    requests.
+    * cookies (optional) Dictionary of Cookie items to include when sending
+    requests.
+    * timeout (optional) The timeout configuration to use when sending requests.
+
+    For POST, PUT and PATCH methods. (Compatible with requests interface)
+    * data (optional) Dictionary, list of tuples, bytes, or file-like object to
+    send in the body of the request.
+    * files (optional) Iterable of files to send into the request.
+    * json (optional) A JSON serializable Python object to send in the request 
+    body.
     """
-    A REST client for making HTTP requests.
 
-    # TODO: update docstring to clean the folling kwargs
-
-    For each `SplightResClient` method kwargs could be:
-        - params: (optional) Dictionary, list of tuples or bytes to
-            send in the query string for the request.
-        - data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the request.
-        - json: (optional) A JSON serializable Python object to send in the
-            body of the request.
-        - headers: (optional) Dictionary of HTTP Headers to send with the
-            request.
-        - cookies: (optional) Dict or CookieJar object to send with the
-            request.
-        - files: (optional) Dictionary of ``'name': file-like-objects``
-            (or ``{'name': file-tuple}``) for multipart encoding upload.
-            ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``,
-            3-tuple ``('filename', fileobj, 'content_type')``
-            or a 4-tuple ``('filename', fileobj, 'content_type',
-            custom_headers)``, where ``'content-type'`` is a string
-            defining the content type of the given file and ``custom_headers``
-            a dict-like object containing additional headers to add for the
-            file.
-        - auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
-        - timeout: (optional) How many seconds to wait for the server to send 
-            data before giving up, as a float, or a :ref:`(connect timeout,
-            read timeout) <timeouts>` tuple.
-        - timeout: float or tuple
-        - allow_redirects: (optional) Boolean. Enable/disable
-            GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to
-            ``True``.
-        - proxies: (optional) Dictionary mapping protocol to the URL of the
-            proxy.
-        - verify: (optional) Either a boolean, in which case it controls
-            whether we verify the server's TLS certificate, or a string, in
-            which case it must be a path to a CA bundle to use. Defaults to
-            ``True``.
-        - stream: (optional) if ``False``, the response content will be
-            immediately downloaded.
-        - cert: (optional) if String, path to ssl client cert file (.pem).
-            If Tuple, ('cert', 'key') pair.
-    """
-
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        # params compatibles with requests interface
+        auth: Optional[AuthTypes] = None,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        timeout: TimeoutTypes = DEFAULT_TIMEOUT_CONFIG,
+        verify: VerifyTypes = True,
+        cert: Optional[CertTypes] = None,
+        proxies: Optional[ProxiesTypes] = None,
+        allow_redirects: bool = False,
+        # extra params defined in httpx (not in requests)
+        http1: bool = True,
+        http2: bool = False,
+        base_url: str = "",
+        limits: Limits = DEFAULT_LIMITS,
+        max_redirects: int = DEFAULT_MAX_REDIRECTS,
+        transport: Optional[BaseTransport] = None,
+        app: Optional[Callable[..., Any]] = None,
+        trust_env: bool = True,
+        default_encoding: Union[str, Callable[[bytes], str]] = "utf-8",
+        event_hooks: Optional[Mapping[str, List[EventHook]]] = None,
+    ):
         """Initialize the SplightRestClient.
-
-        # TODO: check arguments
+        
+        Parameters: See class docstring.
         """
-        self._session = Session()
-        # self.__dict__.update(**kwargs)
+        # Client is the httpx Session impl
+        # in httpx.Client allow_redirects is named follow_redirects
+        self._client = httpx.Client(
+            auth=auth,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            http1=http1,
+            http2=http2,
+            proxies=proxies,
+            follow_redirects=allow_redirects,
+            base_url=base_url,
+            limits=limits,
+            max_redirects=max_redirects,
+            transport=transport,
+            app=app,
+            trust_env=trust_env,
+            default_encoding=default_encoding,
+            event_hooks=event_hooks
+        )
 
     @property
     def headers(self):
-        # while using Session
-        return self._session.headers
+        return self._client.headers
 
     def get(
-        self, url: str, params: Optional[DataType] = None, **kwargs
+        self,
+        url: str,
+        *,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
     ) -> SplightResponse:
         """Send a GET request to the specified URL.
 
-        Args:
-            url (str): The URL to send the GET request to.
-            params (DataType, optional): The query parameters for the GET
-                request.
-            **kwargs: Additional arguments to pass to the GET request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the GET request.
+        Parameters: See class docstring.
         """
-        response = self._session.get(url, params=params, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "GET",
+            url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
-    def options(self, url: str, **kwargs) -> SplightResponse:
+    def options(
+        self,
+        url: str,
+        *,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+    ) -> SplightResponse:
         """Send an OPTIONS request to the specified URL.
 
-        Args:
-            url (str): The URL to send the OPTIONS request to.
-            **kwargs: Additional arguments to pass to the OPTIONS request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the OPTIONS request.
+        Parameters: See class docstring.
         """
-        response = self._session.options(url, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "OPTIONS",
+            url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
-    def head(self, url: str, **kwargs) -> SplightResponse:
+    def head(
+        self,
+        url: str,
+        *,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+    ) -> SplightResponse:
         """Send a HEAD request to the specified URL.
 
-        Args:
-            url (str): The URL to send the HEAD request to.
-            **kwargs: Additional arguments to pass to the HEAD request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the HEAD request.
+        Parameters: See class docstring.
         """
-        response = self._session.head(url, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "HEAD",
+            url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
     def post(
         self,
         url: str,
-        data: Optional[DataType] = None,
-        json: Optional[Dict] = None,
-        **kwargs
+        *,
+        data: Optional[RequestData] = None,
+        files: Optional[RequestFiles] = None,
+        json: Optional[Any] = None,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
     ) -> SplightResponse:
         """Send a POST request to the specified URL.
 
-        # TODO: check data type, and json type (itsn't dict)
-
-        Args:
-            url (str): The URL to send the POST request to.
-            data (DataType, optional): The data to send in the POST request.
-            json (dict, optional): Dictionary, list of tuples, bytes, or
-                file-like object to send in the POST request body.
-            **kwargs: Additional arguments to pass to the POST request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the POST request.
+        Parameters: See class docstring.
         """
-        response = self._session.post(url, data=data, json=json, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "POST",
+            url,
+            data=data,
+            files=files,
+            json=json,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
     def put(
         self,
         url: str,
-        data: Optional[DataType] = None,
-        **kwargs
+        *,
+        data: Optional[RequestData] = None,
+        files: Optional[RequestFiles] = None,
+        json: Optional[Any] = None,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
     ) -> SplightResponse:
         """Send a PUT request to the specified URL.
 
-        Args:
-            url (str): The URL to send the PUT request to.
-            data (DataType, optional): The data to send in the PUT request.
-            **kwargs: Additional arguments to pass to the PUT request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the PUT request.
+        Parameters: See class docstring.
         """
-        response = self._session.put(url, data=data, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "PUT",
+            url,
+            data=data,
+            files=files,
+            json=json,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
     def patch(
         self,
         url: str,
-        data: Optional[DataType] = None,
-        **kwargs
+        *,
+        data: Optional[RequestData] = None,
+        files: Optional[RequestFiles] = None,
+        json: Optional[Any] = None,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
     ) -> SplightResponse:
         """Send a PATCH request to the specified URL.
 
-        Args:
-            url (str): The URL to send the PATCH request to.
-            data (DataType, optional): The data to send in the PATCH request.
-            **kwargs: Additional arguments to pass to the PATCH request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the PATCH request.
+        Parameters: See class docstring.
         """
-        response = self._session.patch(url, data=data, **kwargs)
-        return response
+        raw_response = self._client.request(
+            "PATCH",
+            url,
+            data=data,
+            files=files,
+            json=json,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
 
-    def delete(self, url: str, **kwargs) -> SplightResponse:
+    def delete(
+        self,
+        url: str,
+        *,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
+        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+    ) -> SplightResponse:
         """Send a DELETE request to the specified URL.
 
-        Args:
-            url (str): The URL to send the DELETE request to.
-            **kwargs: Additional arguments to pass to the DELETE request,
-                such as headers or authentication. To know available
-                values, check class docstring.
-
-        Returns:
-            SplightResponse: The response from the DELETE request.
+        Parameters: See class docstring.
         """
-        response = self._session.delete(url, **kwargs)
-        return response
-
-
-def get_restclient():
-    # uses restclient singleton
-    global restclient
-    if restclient is None:
-        restclient = SplightRestClient()
-    return restclient
+        raw_response = self._client.request(
+            "DELETE",
+            url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse(**vars(raw_response))
