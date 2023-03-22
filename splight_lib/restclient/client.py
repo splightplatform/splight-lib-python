@@ -1,24 +1,49 @@
 import httpx
-from typing import Optional, Union, Callable, Any, Mapping, List
+from typing import Optional, Callable, Any, Union, Mapping, List
+
 from splight_lib.restclient.types import (
     AuthTypes,
     QueryParamTypes,
     HeaderTypes,
     CookieTypes,
-    CertTypes,
-    ProxiesTypes,
     TimeoutTypes,
     DEFAULT_TIMEOUT_CONFIG,
-    RequestData,
-    RequestFiles,
     VerifyTypes,
-    BaseTransport,
+    CertTypes,
+    ProxiesTypes,
     Limits,
-    DEFAULT_MAX_REDIRECTS,
     DEFAULT_LIMITS,
-    EventHook
+    DEFAULT_MAX_REDIRECTS,
+    BaseTransport,
+    EventHook,
+    URLTypes,
+    RequestData,
+    RequestFiles
 )
-from httpx._client import UseClientDefault, USE_CLIENT_DEFAULT
+
+
+class DefaultClient(httpx._client.UseClientDefault):
+    """
+    For some parameters such as `auth=...` and `timeout=...` we need to be able
+    to indicate the default "unset" state, in a way that is distinctly different
+    to using `None`.
+
+    The default "unset" state indicates that whatever default is set on the
+    client should be used. This is different to setting `None`, which
+    explicitly disables the parameter, possibly overriding a client default.
+
+    For example we use `timeout=DEFAULT_CLIENT`. Omitting the `timeout`
+    parameter will send a request using whatever default timeout has been
+    configured on the client. Including `timeout=None` will ensure no timeout is
+    used.
+
+    Note that user code shouldn't need to use the `DEFAULT_CLIENT` constant,
+    but it is used internally when a parameter is not included.
+    """
+    # Currently, this class is a copy of httpx._client.UseClientDefault.
+
+
+DEFAULT_CLIENT = DefaultClient()
 
 
 class SplightResponse(httpx.Response):
@@ -32,7 +57,7 @@ class SplightResponse(httpx.Response):
 class SplightRestClient:
     """A REST client for making HTTP requests.
 
-    Currently, this client is a copy of httpx.Client.
+    Currently, this client is based on httpx.Client.
 
     Class initialization parameters.
 
@@ -148,14 +173,14 @@ class SplightRestClient:
 
     def get(
         self,
-        url: str,
+        url: URLTypes,
         *,
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a GET request to the specified URL.
 
@@ -175,14 +200,14 @@ class SplightRestClient:
 
     def options(
         self,
-        url: str,
+        url: URLTypes,
         *,
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send an OPTIONS request to the specified URL.
 
@@ -202,14 +227,14 @@ class SplightRestClient:
 
     def head(
         self,
-        url: str,
+        url: URLTypes,
         *,
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a HEAD request to the specified URL.
 
@@ -229,7 +254,7 @@ class SplightRestClient:
 
     def post(
         self,
-        url: str,
+        url: URLTypes,
         *,
         data: Optional[RequestData] = None,
         files: Optional[RequestFiles] = None,
@@ -237,9 +262,9 @@ class SplightRestClient:
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a POST request to the specified URL.
 
@@ -262,7 +287,7 @@ class SplightRestClient:
 
     def put(
         self,
-        url: str,
+        url: URLTypes,
         *,
         data: Optional[RequestData] = None,
         files: Optional[RequestFiles] = None,
@@ -270,9 +295,9 @@ class SplightRestClient:
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a PUT request to the specified URL.
 
@@ -295,7 +320,7 @@ class SplightRestClient:
 
     def patch(
         self,
-        url: str,
+        url: URLTypes,
         *,
         data: Optional[RequestData] = None,
         files: Optional[RequestFiles] = None,
@@ -303,9 +328,9 @@ class SplightRestClient:
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a PATCH request to the specified URL.
 
@@ -328,14 +353,14 @@ class SplightRestClient:
 
     def delete(
         self,
-        url: str,
+        url: URLTypes,
         *,
         params: Optional[QueryParamTypes] = None,
         headers: Optional[HeaderTypes] = None,
         cookies: Optional[CookieTypes] = None,
-        auth: Union[AuthTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
-        allow_redirects: Union[bool, UseClientDefault] = USE_CLIENT_DEFAULT,
-        timeout: Union[TimeoutTypes, UseClientDefault] = USE_CLIENT_DEFAULT,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
     ) -> SplightResponse:
         """Send a DELETE request to the specified URL.
 
