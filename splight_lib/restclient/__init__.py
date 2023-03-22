@@ -1,13 +1,13 @@
 from splight_lib.restclient.client import SplightRestClient
 from splight_lib.restclient.exceptions import (
-    ConnectionError,
-    Timeout,
     HTTPError,
+    ConnectError,
+    Timeout
 )
 
 __all__ = [
     "SplightRestClient",
-    "ConnectionError",
-    "Timeout",
     "HTTPError",
+    "ConnectError",
+    "Timeout"
 ]
