@@ -168,9 +168,8 @@ class SplightRestClient(CachedObject):
             event_hooks=event_hooks
         )
 
-    @property
-    def headers(self):
-        return self._client.headers
+    def update_headers(self, new_headers: HeaderTypes):
+        self._client.headers = self._client._merge_headers(new_headers)
 
     def get(
         self,

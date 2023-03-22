@@ -36,7 +36,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
         self._restclient = SplightRestClient()
-        self._restclient.headers.update(token.header)
+        self._restclient.update_headers(token.header)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_save(
