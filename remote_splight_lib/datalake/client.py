@@ -17,11 +17,11 @@ from retry import retry
 
 from splight_lib.restclient import (
     SplightRestClient,
-    ConnectionError,
+    HTTPError,
     Timeout,
-    HTTPError
+    ConnectError
 )
-REQUEST_EXCEPTIONS = (ConnectionError, Timeout, HTTPError)
+REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
 
 
 class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
