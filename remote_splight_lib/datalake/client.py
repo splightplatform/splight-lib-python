@@ -16,7 +16,7 @@ from splight_models import Query, DatalakeModel
 from retry import retry
 
 from splight_lib.restclient import (
-    get_restclient,
+    SplightRestClient,
     ConnectionError,
     Timeout,
     HTTPError
@@ -35,7 +35,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._restclient = get_restclient()
+        self._restclient = SplightRestClient()
         self._restclient.headers.update(token.header)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
