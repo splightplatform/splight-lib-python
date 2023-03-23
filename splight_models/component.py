@@ -18,7 +18,7 @@ from enum import Enum, auto
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
 from pydantic import BaseModel, create_model, Field, AnyUrl, ValidationError, validator
 from copy import copy
-from functools import cached_property, partial
+from functools import cached_property
 import inspect
 from strenum import LowercaseStrEnum
 
