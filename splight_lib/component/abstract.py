@@ -4,7 +4,6 @@ import splight_models as spmodels
 import uuid
 from functools import partial
 from abc import abstractmethod
-from enum import Enum
 from tempfile import NamedTemporaryFile
 from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
 from mergedeep import merge, Strategy as mergeStrategy
