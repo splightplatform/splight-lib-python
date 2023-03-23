@@ -16,11 +16,22 @@ from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
 from enum import Enum, auto
 from typing import Type, List, Dict, Tuple, Optional, Any, Union
-from pydantic import BaseModel, create_model, Field, AnyUrl
+from pydantic import BaseModel, create_model, Field, AnyUrl, ValidationError, validator
 from copy import copy
 from functools import cached_property
 import inspect
 from strenum import LowercaseStrEnum
+
+
+def choices_validator(cls, value, field):
+    parameter = getattr(cls.SpecFields, field.name, None)
+    if parameter is None:
+        return value
+
+    valid_choices = parameter.choices
+    if value not in valid_choices:
+        raise ValidationError(f"{field.name} value not in valid choices.")
+    return value
 
 
 class Action(LowercaseStrEnum):
@@ -289,6 +300,7 @@ class ComponentModelsFactory:
             collection_name = str(self._component_id)
 
         fields_dict: Dict[str, Tuple] = copy(extra_fields)
+        validators = {}
         for field in fields:
             setattr(SpecFields, field.name, field)
             type = self._type_map[field.type]
@@ -297,7 +309,11 @@ class ComponentModelsFactory:
             required = getattr(field, "required", True)
 
             if choices:
-                type = Enum(f"{field.name}-choices", {str(p): p for p in field.choices})
+                validators.update({
+                    "choices_validator": validator(
+                        field.name, pre=True, allow_reuse=True
+                     )(choices_validator)
+                })
 
             if multiple:
                 type = List[type]
@@ -310,7 +326,7 @@ class ComponentModelsFactory:
             fields_dict[field.name] = (type, value)
 
         model = create_model(
-            name, **fields_dict, __base__=base
+            name, **fields_dict, __base__=base, __validators__=validators
         )
         model.SpecFields = SpecFields
         model.Meta = Meta
