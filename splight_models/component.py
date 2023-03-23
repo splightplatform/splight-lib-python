@@ -310,7 +310,9 @@ class ComponentModelsFactory:
 
             if choices:
                 validators.update({
-                    "choices_validator": validator(field.name, pre=True)(choices_validator)
+                    "choices_validator": validator(
+                        field.name, pre=True, allow_reuse=True
+                     )(choices_validator)
                 })
 
             if multiple:
