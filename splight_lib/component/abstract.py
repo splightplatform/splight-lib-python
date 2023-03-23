@@ -528,3 +528,4 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             **self.blockchain_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
+
