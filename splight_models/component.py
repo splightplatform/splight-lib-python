@@ -24,10 +24,11 @@ from strenum import LowercaseStrEnum
 
 
 def choices_validator(cls, value, field):
-    valid_choices = cls.SpecFields.__getattribute__(
-        cls.SpecFields, field.name
-    ).choices
+    parameter = getattr(cls.SpecFields, field.name, None)
+    if parameter is None:
+        return value
 
+    valid_choices = parameter.choices
     if value not in valid_choices:
         raise ValidationError(f"{field.name} value not in valid choices.")
     return value
