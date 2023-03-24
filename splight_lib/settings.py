@@ -45,11 +45,8 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
 class SplightBaseSettings(BaseSettings):
     # TODO move all the private use only clients to private lib. Not need to define here those without remote implementation
     AUTH_CLIENT: str = 'fake_splight_lib.auth.FakeAuthClient'
-    BLOCKCHAIN_CLIENT: str = 'fake_splight_lib.blockchain.FakeBlockchainClient'
     DATABASE_CLIENT: str = 'fake_splight_lib.database.FakeDatabaseClient'
     DATALAKE_CLIENT: str = 'fake_splight_lib.datalake.FakeDatalakeClient'
-    DEPLOYMENT_CLIENT: str = 'fake_splight_lib.deployment.FakeDeploymentClient'
-    CACHE_CLIENT: str = 'fake_splight_lib.cache.FakeCacheClient'
     COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
     NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
     HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
@@ -59,12 +56,8 @@ class SplightBaseSettings(BaseSettings):
     def importables(self):
         return [
             'AUTH_CLIENT',
-            'BILLING_CLIENT',
-            'BLOCKCHAIN_CLIENT',
             'DATABASE_CLIENT',
             'DATALAKE_CLIENT',
-            'DEPLOYMENT_CLIENT',
-            'CACHE_CLIENT',
             'NOTIFICATION_CLIENT',
             'HUB_CLIENT',
             'COMMUNICATION_CLIENT',
