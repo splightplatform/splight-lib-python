@@ -515,17 +515,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
             namespace=self.namespace,
             **self.datalake_client_kwargs
         )
-        self.deployment_client = self.setup.DEPLOYMENT_CLIENT(
-            namespace=self.namespace,
-            **self.deployment_client_kwargs
-        )
         self.communication_client = self.setup.COMMUNICATION_CLIENT(
             namespace=self.namespace,
             **self.communication_client_kwargs
         )
-        self.blockchain_client = self.setup.BLOCKCHAIN_CLIENT(
-            namespace=self.namespace,
-            **self.blockchain_client_kwargs
-        )
         self.execution_client = ExecutionClient(namespace=self.namespace)
-
