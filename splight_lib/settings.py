@@ -1,14 +1,16 @@
-import yaml
-# TODO MOVE THIS STUFF
-from typing import Type, Dict, Tuple, Any, Optional
-from pydantic import BaseSettings, Extra
-from importlib import import_module
-from pydantic.env_settings import SettingsSourceCallable
 import os
 import sys
+from importlib import import_module
+
+# TODO MOVE THIS STUFF
+from typing import Any, Dict, Optional, Tuple, Type
+
+import yaml
+from pydantic import BaseSettings, Extra
+from pydantic.env_settings import SettingsSourceCallable
 
 TESTING = "test" in sys.argv or "pytest" in sys.argv
-SPLIGHT_HOME = os.path.join(os.getenv('HOME'), '.splight')
+SPLIGHT_HOME = os.path.join(os.getenv("HOME"), ".splight")
 USE_TZ = True
 # EOTODO
 
@@ -43,24 +45,23 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
 
 
 class SplightBaseSettings(BaseSettings):
-    # TODO move all the private use only clients to private lib. Not need to define here those without remote implementation
-    AUTH_CLIENT: str = 'fake_splight_lib.auth.FakeAuthClient'
-    DATABASE_CLIENT: str = 'fake_splight_lib.database.FakeDatabaseClient'
-    DATALAKE_CLIENT: str = 'fake_splight_lib.datalake.FakeDatalakeClient'
-    COMMUNICATION_CLIENT: str = 'fake_splight_lib.communication.FakeCommunicationClient'
-    NOTIFICATION_CLIENT: str = 'fake_splight_lib.notification.FakeNotificationClient'  # TODO deprecate this
-    HUB_CLIENT: str = 'fake_splight_lib.hub.FakeHubClient'
+    DATABASE_CLIENT: str = "remote_splight_lib.database.DatabaseClient"
+    DATALAKE_CLIENT: str = "remote_splight_lib.datalake.DatalakeClient"
+    COMMUNICATION_CLIENT: str = (
+        "remote_splight_lib.communication.CommunicationClient"
+    )
+    HUB_CLIENT: str = "remote_splight_lib.hub.SplightHubClient"
     NAMESPACE: str = "NO_NAMESPACE"
 
     @property
     def importables(self):
         return [
-            'AUTH_CLIENT',
-            'DATABASE_CLIENT',
-            'DATALAKE_CLIENT',
-            'NOTIFICATION_CLIENT',
-            'HUB_CLIENT',
-            'COMMUNICATION_CLIENT',
+            "AUTH_CLIENT",
+            "DATABASE_CLIENT",
+            "DATALAKE_CLIENT",
+            "NOTIFICATION_CLIENT",
+            "HUB_CLIENT",
+            "COMMUNICATION_CLIENT",
         ]
 
     class Config:
@@ -83,17 +84,20 @@ def import_string(dotted_path):
     last name in the path. Raise ImportError if the import failed.
     """
     try:
-        module_path, class_name = dotted_path.rsplit('.', 1)
+        module_path, class_name = dotted_path.rsplit(".", 1)
     except ValueError as err:
-        raise ImportError("%s doesn't look like a module path" % dotted_path) from err
+        raise ImportError(
+            "%s doesn't look like a module path" % dotted_path
+        ) from err
 
     module = import_module(module_path)
 
     try:
         return getattr(module, class_name)
     except AttributeError as err:
-        raise ImportError('Module "%s" does not define a "%s" attribute/class' % (
-            module_path, class_name)
+        raise ImportError(
+            'Module "%s" does not define a "%s" attribute/class'
+            % (module_path, class_name)
         ) from err
 
 
@@ -118,13 +122,21 @@ def import_from_string(val, setting_name):
     try:
         return import_string(val)
     except ImportError as e:
-        msg = "Could not import '%s' for API setting '%s'. %s: %s." % (val, setting_name, e.__class__.__name__, e)
+        msg = "Could not import '%s' for API setting '%s'. %s: %s." % (
+            val,
+            setting_name,
+            e.__class__.__name__,
+            e,
+        )
         raise ImportError(msg)
 
 
 class SplightSettings:
-
-    def __init__(self, user_settings={}, base_settings_model: Type[SplightBaseSettings] = SplightBaseSettings):
+    def __init__(
+        self,
+        user_settings={},
+        base_settings_model: Type[SplightBaseSettings] = SplightBaseSettings,
+    ):
         self._cached_attrs = set()
         self._base_settings_model = base_settings_model
         self._base_settings = self._base_settings_model()
@@ -160,7 +172,9 @@ class SplightSettings:
         for key, value in user_settings.items():
             os.environ[key] = value
         # Reload settings
-        self._base_settings = self._base_settings_model.parse_obj(user_settings)
+        self._base_settings = self._base_settings_model.parse_obj(
+            user_settings
+        )
         return self
 
 
