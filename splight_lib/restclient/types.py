@@ -3,6 +3,7 @@ Type definitions for type checking purposes.
 """
 
 import ssl
+from furl import furl
 from http.cookiejar import CookieJar
 from typing import (
     Optional,
@@ -74,7 +75,7 @@ CertTypes = Union[
 ]
 
 # for now is just a string. In the future could be httpx._urls.URL too.
-URLTypes = str
+URLTypes = Union[str, furl]
 
 ProxiesTypes = Union[
     URLTypes,

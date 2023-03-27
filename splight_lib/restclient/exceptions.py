@@ -16,20 +16,20 @@ class HTTPError(Exception):
         self._request = None
 
     @property
-    def request(self) -> "Request":
+    def request(self) -> Request:
         if self._request is None:
             raise RuntimeError("The .request property has not been set.")
         return self._request
 
     @request.setter
-    def request(self, request: "Request") -> None:
+    def request(self, request: Request) -> None:
         self._request = request
 
 
 class RequestError(HTTPError):
 
     def __init__(
-        self, message: str, *, request: Optional["Request"] = None
+        self, message: str, *, request: Optional[Request] = None
     ) -> None:
         super().__init__(message)
         self._request = request

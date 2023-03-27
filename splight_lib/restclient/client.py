@@ -115,6 +115,14 @@ class SplightRestClient(CachedObject):
     body.
     """
 
+    _GET_METHOD = "GET"
+    _OPTIONS_METHOD = "OPTIONS"
+    _HEAD_METHOD = "HEAD"
+    _POST_METHOD = "POST"
+    _PUT_METHOD = "PUT"
+    _PATCH_METHOD = "PATCH"
+    _DELETE_METHOD = "DELETE"
+
     def __init__(
         self,
         *,
@@ -187,8 +195,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "GET",
-            url,
+            self._GET_METHOD,
+            str(url),
             params=params,
             headers=headers,
             cookies=cookies,
@@ -214,8 +222,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "OPTIONS",
-            url,
+            self._OPTIONS_METHOD,
+            str(url),
             params=params,
             headers=headers,
             cookies=cookies,
@@ -241,8 +249,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "HEAD",
-            url,
+            self._HEAD_METHOD,
+            str(url),
             params=params,
             headers=headers,
             cookies=cookies,
@@ -271,8 +279,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "POST",
-            url,
+            self._POST_METHOD,
+            str(url),
             data=data,
             files=files,
             json=json,
@@ -304,8 +312,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "PUT",
-            url,
+            self._PUT_METHOD,
+            str(url),
             data=data,
             files=files,
             json=json,
@@ -337,8 +345,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "PATCH",
-            url,
+            self._PATCH_METHOD,
+            str(url),
             data=data,
             files=files,
             json=json,
@@ -367,8 +375,8 @@ class SplightRestClient(CachedObject):
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
-            "DELETE",
-            url,
+            self._DELETE_METHOD,
+            str(url),
             params=params,
             headers=headers,
             cookies=cookies,
