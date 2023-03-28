@@ -52,9 +52,7 @@ class SplightResponse(httpx.Response):
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> "SplightResponse":
-        import ipdb; ipdb.set_trace()
         obj_cls = cls(status_code=response.status_code)
-
         # copy attributes created out of __init__
         # we need a runtime copy not just attributes create at initialization
         for attr in response.__dict__.keys():
