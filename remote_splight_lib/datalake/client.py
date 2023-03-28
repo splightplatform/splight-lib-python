@@ -7,7 +7,6 @@ import pandas as pd
 import json
 from furl import furl
 from pydantic import BaseModel
-from requests import Session
 
 from remote_splight_lib.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
@@ -16,12 +15,13 @@ from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_
 from splight_models import Query, DatalakeModel
 from retry import retry
 
-from requests.exceptions import (
-    ConnectionError,
-    Timeout,
+from splight_lib.restclient import (
+    SplightRestClient,
     HTTPError,
+    Timeout,
+    ConnectError
 )
-REQUEST_EXCEPTIONS = (ConnectionError, Timeout, HTTPError)
+REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
 
 
 class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
@@ -35,8 +35,8 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._session = Session()
-        self._session.headers.update(token.header)
+        self._restclient = SplightRestClient()
+        self._restclient.update_headers(token.header)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_save(
@@ -46,7 +46,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     ) -> List[DatalakeModel]:
         url = self._base_url / f"{self._PREFIX}/save/"
         data = [json.loads(model.json()) for model in instances]
-        response = self._session.post(
+        response = self._restclient.post(
             url, params={"source": collection}, json=data
         )
         response.raise_for_status()
@@ -82,7 +82,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         if group_fields:
             valid_kwargs.update({"group_fields": group_fields})
         params = self._parse_params(**valid_kwargs)
-        response = self._session.get(url, params=params)
+        response = self._restclient.get(url, params=params)
         response.raise_for_status()
         output = [
             resource_type.parse_obj(item)
@@ -95,7 +95,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         # DELETE /datalake/delete/
         url = self._base_url / f"{self._PREFIX}/delete/"
         params = {"source": collection}
-        response = self._session.delete(url, params=params, json=kwargs)
+        response = self._restclient.delete(url, params=params, json=kwargs)
         response.raise_for_status()
 
     @validate_resource_type
@@ -132,7 +132,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         collection = resource_type.Meta.collection_name
         kwargs.update({"source": collection})
         params = self._parse_params(**kwargs)
-        response = self._session.get(url, params=params)
+        response = self._restclient.get(url, params=params)
         response.raise_for_status()
 
         df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
@@ -171,7 +171,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         with open(tmp_file.name, "wb") as fid:
             dataframe.to_csv(fid)
         collection = resource_type.Meta.collection_name
-        response = self._session.post(
+        response = self._restclient.post(
             url,
             data={"source": collection},
             files={"file": open(tmp_file.name)},
@@ -188,7 +188,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         # POST /datalake/index/
         url = self._base_url / f"{self._PREFIX}/index/"
         data = {"source": collection, "index": index}
-        response = self._session.post(url, json=data)
+        response = self._restclient.post(url, json=data)
         response.raise_for_status()
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
@@ -199,6 +199,6 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         url = self._base_url / f"{self._PREFIX}/aggregate/"
         params = {"source": collection}
         data = {"pipeline": pipeline}
-        response = self._session.post(url, params=params, data=data)
+        response = self._restclient.post(url, params=params, data=data)
         response.raise_for_status()
         return response.json()
