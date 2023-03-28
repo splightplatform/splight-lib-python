@@ -7,5 +7,4 @@ from splight_abstract.datalake import *
 from splight_abstract.deployment import *
 from splight_abstract.hub import *
 from splight_abstract.client import *
-from splight_abstract.blockchain import *
 from splight_abstract.remote import *
