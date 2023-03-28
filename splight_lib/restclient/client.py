@@ -50,9 +50,18 @@ DEFAULT_CLIENT = DefaultClient()
 class SplightResponse(httpx.Response):
     # Currently, this class is a copy of httpx.Response.
 
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    @classmethod
+    def from_response(cls, response: httpx.Response) -> "SplightResponse":
+        import ipdb; ipdb.set_trace()
+        obj_cls = cls(status_code=response.status_code)
+
+        # copy attributes created out of __init__
+        # we need a runtime copy not just attributes create at initialization
+        for attr in response.__dict__.keys():
+            response_attr = getattr(response, attr)
+            setattr(obj_cls, attr, response_attr)
+
+        return obj_cls
 
 
 class SplightRestClient(CachedObject):
@@ -204,7 +213,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def options(
         self,
@@ -231,7 +240,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def head(
         self,
@@ -258,7 +267,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def post(
         self,
@@ -291,7 +300,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def put(
         self,
@@ -324,7 +333,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def patch(
         self,
@@ -357,7 +366,7 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
 
     def delete(
         self,
@@ -384,4 +393,4 @@ class SplightRestClient(CachedObject):
             follow_redirects=allow_redirects,
             timeout=timeout,
         )
-        return SplightResponse(**vars(raw_response))
+        return SplightResponse.from_response(raw_response)
