@@ -5,7 +5,7 @@ import uuid
 from functools import partial
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable
+from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable, Union
 from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
 from pydantic import BaseModel, main
@@ -159,10 +159,11 @@ class HooksMixin:
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
         # Database
         self.database_client.add_pre_hook("save", self.__hook_transform_from_custom_instances)
-        self.database_client.add_pre_hook("get", self.__hook_transform_from_custom_resource_type)
+        self.database_client.add_pre_hook("_get", self.__hook_transform_from_custom_resource_type)
         self.database_client.add_pre_hook("delete", self.__hook_transform_from_custom_resource_type)
         self.database_client.add_pre_hook("count", self.__hook_transform_from_custom_resource_type)
-        self.database_client.add_post_hook("get", self.__hook_transform_to_custom_instances)
+        self.database_client.add_post_hook("_get", self.__hook_transform_to_custom_instances)
+        self.database_client.add_post_hook("save", self.__hook_transform_to_custom_instances)
 
     def __hook_insert_origin_save(self, *args, **kwargs):
         instances = kwargs.get("instances", [])
@@ -199,8 +200,12 @@ class HooksMixin:
             kwargs["instance"] = parsed_instance
         return args, kwargs
 
-    def __hook_transform_to_custom_instances(self, result: List[BaseModel]):
+    def __hook_transform_to_custom_instances(
+        self, result: Union[BaseModel, List[BaseModel]]
+    ):
         parsed_result = []
+        convert_to_list = not isinstance(result, list)
+        result = [result] if convert_to_list else result
         for object in result:
             if isinstance(object, ComponentObject):
                 custom_object_data: List[InputParameter] = object.data
@@ -212,6 +217,8 @@ class HooksMixin:
                 parsed_component_object = self.parse_parameters(custom_object_data)
                 object = custom_object_model(**parsed_component_object)
             parsed_result.append(object)
+
+        parsed_result = parsed_result[0] if convert_to_list else parsed_result
         return parsed_result
 
 
@@ -335,7 +342,6 @@ class ParametersMixin:
                     name=field.name,
                     value=value,
                     type=field.type,
-                    action=field.action,
                     multiple=field.multiple,
                     required=field.required,
                     choices=field.choices,
