@@ -1,2 +1,0 @@
-class ShortcutException(Exception):
-    pass
