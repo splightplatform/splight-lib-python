@@ -1,45 +1,36 @@
 import pytest
 import requests
+from httpx import Client
 from requests import Session
+from splight_lib.restclient import SplightRestClient
 
-from splight_lib.restclient.client import SplightRestClient
 
-    
+# This is an integration test. To run it, remove decorator
 @pytest.mark.skip
-def test_get_method_have_equal_response():
-    url = ""
-    kwargs = {}
-    expected_response = {}
-
-    _requests = requests
+@pytest.mark.parametrize(
+    "method", ["get", "options", "head", "post", "put", "patch", "delete"]
+)
+@pytest.mark.parametrize(
+    "attr", ["status_code", "text", "content", "cookies"]
+)
+def test_all_splight_restclient_methods_have_equal_response_to_other_libraries(
+    method, attr
+):
+    url = "https://jsonplaceholder.typicode.com/posts"
+    _restclient = SplightRestClient()
+    _httpx = Client()
     _session = Session()
-    _resclient = SplightRestClient()
+    _requests = requests
 
-    requests_response = _requests.get(url, kwargs).json()
-    session_response = _session.get(url, kwargs).json()
-    restclient_response = _resclient.get(url, kwargs).json()
+    restclient_response = getattr(_restclient, method)(url)
+    httpx_response = getattr(_httpx, method)(url)
+    session_response = getattr(_session, method)(url)
+    requests_response = getattr(_requests, method)(url)
 
     assert (
-        expected_response == requests_response ==
-        session_response == restclient_response
-    )
-
-
-@pytest.mark.skip
-def test_options_method_have_equal_response():
-    url = ""
-    kwargs = {}
-    expected_response = {}
-
-    _requests = requests
-    _session = Session()
-    _resclient = SplightRestClient()
-
-    requests_response = _requests.options(url, kwargs).json()
-    session_response = _session.options(url, kwargs).json()
-    restclient_response = _resclient.options(url, kwargs).json()
-
-    assert (
-        expected_response == requests_response ==
-        session_response == restclient_response
+        getattr(restclient_response, attr) ==
+        getattr(httpx_response, attr) ==
+        getattr(session_response, attr) ==
+        getattr(requests_response, attr),
+        f"Error in {attr} atributte."
     )
