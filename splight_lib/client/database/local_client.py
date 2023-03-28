@@ -1,0 +1,125 @@
+import json
+import os
+from functools import partial
+from tempfile import NamedTemporaryFile
+from typing import Any, Dict, List, Tuple, Type
+from uuid import uuid4
+
+from pydantic import BaseModel
+
+from splight_abstract.database import AbstractDatabaseClient
+from splight_lib.client.database.exceptions import InstanceNotFound
+
+
+def filter_fun(name: str, value: Any, item: Tuple[str, Dict]):
+    satisfied = False
+    if "__icontains" in name:
+        variable_name = name.split("__")[0]
+        satisfied = value in item[1].get(variable_name, None)
+    elif "__in" in name:
+        variable_name = name.split("__in")[0]
+        satisfied = item[1].get(variable_name, None) in value
+    else:
+        satisfied = item[1].get(name, None) == value
+    return satisfied
+
+
+class LocalDatabaseClient(AbstractDatabaseClient):
+    def __init__(self, namespace: str, path: str, *args, **kwargs):
+        super().__init__(namespace)
+        self._db_file = os.path.join(path, "splight-db.json")
+
+        if not os.path.exists(self._db_file):
+            self._save_db(self._db_file, {})
+
+    def save(self, instance: BaseModel) -> BaseModel:
+        model_class = type(instance)
+        model_name = model_class.__name__.lower()
+        if instance.id:
+            new_instance = self._update(model_name, instance)
+        else:
+            new_instance = self._create(model_name, instance)
+        return new_instance
+
+    def delete(self, resource_type: Type, id: str):
+        model_name = resource_type.__name__.lower()
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
+
+        if id not in db_instances:
+            raise InstanceNotFound(model_name, id)
+
+        _ = db_instances.pop(id)
+        self._save_db(self._db_file, db)
+
+    def _get(
+        self,
+        resource_type: Type,
+        first: bool = False,
+        limit_: int = -1,
+        skip_: int = 0,
+        page_size: int = -1,
+        deleted: bool = False,
+        **kwargs,
+    ) -> List[BaseModel]:
+        db = self._load_db_file(self._db_file)
+        model_name = resource_type.__name__.lower()
+        db_instances = db.get(model_name, {})
+
+        resource_id = kwargs.pop("id", None)
+        instances = db_instances
+        if resource_id:
+            instances = {resource_id: db_instances.get(resource_id, {})}
+
+        filtered = self._filter(instances, filters=kwargs)
+        parsed = [resource_type.parse_obj(item) for item in filtered.values()]
+        if first:
+            return parsed[0] if parsed else None
+        return parsed
+
+    def count(self, resource_type: Type, **kwargs) -> int:
+        pass
+
+    def download(
+        self, instances: BaseModel, decrtypt: bool = True, **kwargs
+    ) -> NamedTemporaryFile:
+        raise NotImplementedError()
+
+    def _create(self, model_name: str, instance: BaseModel) -> BaseModel:
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
+        instance.id = str(uuid4())
+        db_instances.update({instance.id: instance.dict()})
+        db[model_name] = db_instances
+        self._save_db(self._db_file, db)
+        return instance
+
+    def _update(self, model_name: str, instance: BaseModel) -> BaseModel:
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
+
+        if instance.id not in db_instances:
+            raise InstanceNotFound(model_name, instance.id)
+        db_instances[instance.id] = instance.dict()
+        self._save_db(self._db_file, db)
+        return instance
+
+    def _filter(
+        self, instances: Dict[str, BaseModel], filters: Dict
+    ) -> Dict[str, BaseModel]:
+        filtered = instances
+        for key, value in filters.items():
+            filtered = filter(
+                partial(filter_fun, key, value), filtered.items()
+            )
+            filtered = {item[0]: item[1] for item in filtered}
+        return filtered
+
+    def _load_db_file(self, file_path: str) -> Dict:
+        with open(file_path, "r") as fid:
+            data = json.load(fid)
+        return data
+
+    def _save_db(self, file_path: str, db: Dict):
+        with open(file_path, "w") as fid:
+            json.dump(db, fid, indent=2)
