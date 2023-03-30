@@ -26,7 +26,7 @@ from httpx._transports.base import BaseTransport  # used in client
 
 # Currently, this types are based on httpx._types.
 
-DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=5.0)
+DEFAULT_TIMEOUT_CONFIG = Timeout(timeout=60.0)
 DEFAULT_LIMITS = Limits(max_connections=100, max_keepalive_connections=20)
 DEFAULT_MAX_REDIRECTS = 20
 
