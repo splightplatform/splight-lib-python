@@ -91,7 +91,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return output
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _raw_delete(self, collection: DatalakeModel, **kwargs) -> None:
+    def _raw_delete(self, collection: str, **kwargs) -> None:
         # DELETE /datalake/delete/
         url = self._base_url / f"{self._PREFIX}/delete/"
         params = {"source": collection}
@@ -111,9 +111,10 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         kwargs["resource_type"] = resource_type
         return QuerySet(self, *args, **kwargs)
 
-    def get_output(self, query: Query) -> List[Dict]:
+    def get_output(self, resource_type: DatalakeModel, query: Query) -> List[Dict]:
         # TODO: Add add_fields, project and renaming
         return self._raw_get(
+            resource_type=resource_type,
             collection=query.source,
             limit_=query.limit,
             skip_=query.skip,
@@ -142,12 +143,18 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         df.set_index("timestamp", inplace=True)
         return df
 
-    def get_dataset(self, queries: List[Dict]) -> pd.DataFrame:
+    def get_dataset(
+        self, resource_type: DatalakeModel, queries: List[Dict]
+    ) -> pd.DataFrame:
         # TODO this should be
         # def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
-        dfs = [self.get_dataframe(**query) for query in queries]
-        df = pd.concat(dfs, axis=1)
-        return df
+        dfs = [
+            self.get_dataframe(resource_type=resource_type, **query)
+            for query in queries
+        ]
+        if dfs:
+            return pd.concat(dfs, axis=1)
+        return pd.DataFrame(dfs)
 
     @validate_instance_type
     def save(
@@ -174,7 +181,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response = self._restclient.post(
             url,
             data={"source": collection},
-            files={"file": open(tmp_file.name)},
+            files={"file": open(tmp_file.name, mode="rb")},
         )
         response.raise_for_status()
 
@@ -184,10 +191,10 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return self._raw_delete(collection=collection, **kwargs)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def create_index(self, collection: str, index: list) -> None:
+    def create_index(self, collection: str, indexes: List[Dict]) -> None:
         # POST /datalake/index/
         url = self._base_url / f"{self._PREFIX}/index/"
-        data = {"source": collection, "index": index}
+        data = {"source": collection, "index": indexes}
         response = self._restclient.post(url, json=data)
         response.raise_for_status()
 
