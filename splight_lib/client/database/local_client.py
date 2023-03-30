@@ -2,13 +2,14 @@ import json
 import os
 from functools import partial
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, Union
 from uuid import uuid4
-
-from pydantic import BaseModel
 
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.database.exceptions import InstanceNotFound
+from splight_models import SplightBaseModel
+
+ResourceType = Type[SplightBaseModel]
 
 
 def filter_fun(name: str, value: Any, item: Tuple[str, Dict]):
@@ -25,6 +26,10 @@ def filter_fun(name: str, value: Any, item: Tuple[str, Dict]):
 
 
 class LocalDatabaseClient(AbstractDatabaseClient):
+    """Database Client implementation for a local database that uses a
+    JSON file.
+    """
+
     def __init__(self, namespace: str, path: str, *args, **kwargs):
         super().__init__(namespace)
         self._db_file = os.path.join(path, "splight-db.json")
@@ -32,7 +37,19 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         if not os.path.exists(self._db_file):
             self._save_db(self._db_file, {})
 
-    def save(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: SplightBaseModel) -> SplightBaseModel:
+        """Saves an instance in the local database, if the instance has an id
+        will try to update the instance, otherwise it will create a new one.
+
+        Parameters
+        ----------
+        instance : SplightBaseModel
+            The instance to be saved in the database.
+
+        Returns
+        -------
+        SplightBaseModel: The instances saved in the database.
+        """
         model_class = type(instance)
         model_name = model_class.__name__.lower()
         if instance.id:
@@ -41,7 +58,20 @@ class LocalDatabaseClient(AbstractDatabaseClient):
             new_instance = self._create(model_name, instance)
         return new_instance
 
-    def delete(self, resource_type: Type, id: str):
+    def delete(self, resource_type: ResourceType, id: str):
+        """Deletes an object in the database based on the type and the id.
+
+        Parameters
+        ----------
+        resource_type: ResourceType
+            The type of the object to be deleted.
+        id: str
+            The object's id to delete.
+
+        Raises
+        ------
+        InstanceNotFound if the object with the given id is not in the database
+        """
         model_name = resource_type.__name__.lower()
         db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
@@ -54,14 +84,15 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
     def _get(
         self,
-        resource_type: Type,
+        resource_type: ResourceType,
         first: bool = False,
         limit_: int = -1,
         skip_: int = 0,
         page_size: int = -1,
         deleted: bool = False,
         **kwargs,
-    ) -> List[BaseModel]:
+    ) -> Union[SplightBaseModel, List[SplightBaseModel]]:
+        """Reads one or multiple objects in the database."""
         db = self._load_db_file(self._db_file)
         model_name = resource_type.__name__.lower()
         db_instances = db.get(model_name, {})
@@ -75,17 +106,19 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         parsed = [resource_type.parse_obj(item) for item in filtered.values()]
         if first:
             return parsed[0] if parsed else None
-        return parsed
+        return parsed[skip_:limit_]
 
-    def count(self, resource_type: Type, **kwargs) -> int:
-        pass
+    def count(self, resource_type: ResourceType, **kwargs) -> int:
+        raise NotImplementedError()
 
     def download(
-        self, instances: BaseModel, decrtypt: bool = True, **kwargs
+        self, instances: SplightBaseModel, decrtypt: bool = True, **kwargs
     ) -> NamedTemporaryFile:
         raise NotImplementedError()
 
-    def _create(self, model_name: str, instance: BaseModel) -> BaseModel:
+    def _create(
+        self, model_name: str, instance: SplightBaseModel
+    ) -> SplightBaseModel:
         db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
         instance.id = str(uuid4())
@@ -94,7 +127,9 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         self._save_db(self._db_file, db)
         return instance
 
-    def _update(self, model_name: str, instance: BaseModel) -> BaseModel:
+    def _update(
+        self, model_name: str, instance: SplightBaseModel
+    ) -> SplightBaseModel:
         db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
 
@@ -105,8 +140,8 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         return instance
 
     def _filter(
-        self, instances: Dict[str, BaseModel], filters: Dict
-    ) -> Dict[str, BaseModel]:
+        self, instances: Dict[str, SplightBaseModel], filters: Dict
+    ) -> Dict[str, SplightBaseModel]:
         filtered = instances
         for key, value in filters.items():
             filtered = filter(
