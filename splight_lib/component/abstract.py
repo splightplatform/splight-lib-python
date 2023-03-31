@@ -13,7 +13,6 @@ from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging import getLogger, LogTags
 from splight_lib.settings import setup as default_setup
-from splight_lib.client.database import DatabaseClientBuilder
 from splight_models import (
     CustomType,
     Deployment,
