@@ -533,7 +533,7 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
 
     def _load_clients(self, database_config: Dict):
-        self.database_client = DatabaseClientBuilder.build(
+        self.database_client = self.setup.DATABASE_CLIENT(
             namespace=self.namespace,
             **database_config
         )
