@@ -26,7 +26,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     to the Splight API.
     """
 
-    def __init__(self, namespace: str = "default"):
+    def __init__(self, namespace: str = "default", *args, **kwargs):
         super().__init__(namespace=namespace)
         self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
