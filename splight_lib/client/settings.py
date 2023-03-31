@@ -8,10 +8,10 @@ class SplightRemoteSettings(BaseSettings):
         env=["SPLIGHT_PLATFORM_API_HOST", "SPLIGHT_API_HOST"],
     )
     SPLIGHT_ACCESS_ID: str = Field(
-        ..., env=["SPLIGHT_ACCESS_ID", "SPLIGHT_AUTH_ACCESS_ID"]
+        "", env=["SPLIGHT_ACCESS_ID", "SPLIGHT_AUTH_ACCESS_ID"]
     )
     SPLIGHT_SECRET_KEY: str = Field(
-        ..., env=["SPLIGHT_SECRET_KEY", "SPLIGHT_AUTH_SECRET_KEY"]
+        "", env=["SPLIGHT_SECRET_KEY", "SPLIGHT_AUTH_SECRET_KEY"]
     )
 
 
