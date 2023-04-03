@@ -10,22 +10,16 @@ from pydantic import BaseModel
 from retry import retry
 
 from remote_splight_lib.auth import SplightAuthToken
-from remote_splight_lib.settings import settings
 from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import (
     AbstractDatalakeClient,
     validate_instance_type,
     validate_resource_type,
 )
-from splight_lib.restclient import (
-    ConnectError,
-    HTTPError,
-    SplightRestClient,
-    Timeout,
-)
+from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
+from splight_lib.client.settings import settings_remote as settings
+from splight_lib.restclient import SplightRestClient
 from splight_models import DatalakeModel, Query
-
-REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
 
 
 class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
@@ -42,7 +36,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_save(
         self,
         collection: str,
@@ -56,7 +50,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response.raise_for_status()
         return instances
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_get(
         self,
         resource_type: DatalakeModel,
@@ -94,7 +88,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         ]
         return output
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_delete(self, collection: str, **kwargs) -> None:
         # DELETE /datalake/delete/
         url = self._base_url / f"{self._PREFIX}/delete/"
@@ -131,7 +125,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             **query.filters,
         )
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     @validate_resource_type
     def get_dataframe(
         self, resource_type: DatalakeModel, **kwargs
@@ -176,7 +170,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         collection = resource_type.Meta.collection_name
         return self._raw_save(collection=collection, instances=instances)
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     @validate_resource_type
     def save_dataframe(
         self, resource_type: DatalakeModel, dataframe: pd.DataFrame
@@ -200,7 +194,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         collection = resource_type.Meta.collection_name
         return self._raw_delete(collection=collection, **kwargs)
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def create_index(self, collection: str, indexes: List[Dict]) -> None:
         # POST /datalake/index/
         url = self._base_url / f"{self._PREFIX}/index/"
@@ -208,7 +202,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response = self._restclient.post(url, json=data)
         response.raise_for_status()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
