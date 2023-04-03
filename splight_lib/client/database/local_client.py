@@ -109,7 +109,10 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         return parsed[skip_:limit_]
 
     def count(self, resource_type: ResourceType, **kwargs) -> int:
-        raise NotImplementedError()
+        db = self._load_db_file(self._db_file)
+        model_name = resource_type.__name__.lower()
+        db_instances = db.get(model_name, {})
+        return len(db_instances)
 
     def download(
         self, instances: SplightBaseModel, decrtypt: bool = True, **kwargs
