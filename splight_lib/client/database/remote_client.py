@@ -8,12 +8,12 @@ from requests import Session
 from requests.exceptions import ConnectionError, Timeout
 from retry import retry
 
-from splight_lib.client.settings import settings_remote as settings
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.database.classmap import CLASSMAP
 from splight_lib.client.database.exceptions import InvalidModel
+from splight_lib.client.settings import settings_remote as settings
 from splight_lib.encryption import EncryptionClient
 from splight_models import File
 
@@ -99,18 +99,10 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     ) -> List[BaseModel]:
         model_data = self._get_model_data(resource_type)
         path = model_data["path"]
-        response = self._list(
-            path,
-            limit_=limit_,
-            skip_=skip_,
-            deleted=deleted,
-            page_size=page_size,
-            **kwargs,
-        )
-        parsed = [
-            resource_type.parse_obj(resource)
-            for resource in response["results"]
-        ]
+        instances = []
+        for page in self._pages(path, page=1, deleted=deleted, **kwargs):
+            instances.extend(page["results"])
+        parsed = [resource_type.parse_obj(item) for item in instances]
         if first:
             return parsed[0] if parsed else None
         return parsed
@@ -189,6 +181,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         params = self._parse_params(**kwargs)
         response = self._session.get(url, params=params)
         response.raise_for_status()
+        # __import__('ipdb').set_trace()
         return response.json()
 
     @staticmethod
