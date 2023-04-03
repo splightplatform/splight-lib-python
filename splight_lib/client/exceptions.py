@@ -1,6 +1,12 @@
 from requests.exceptions import ConnectionError, Timeout
+from splight_lib.restclient import (
+    ConnectError,
+    HTTPError,
+    Timeout as TimeoutError,
+)
 
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
+SPLIGHT_REQUEST_EXCEPTIONS = (HTTPError, TimeoutError, ConnectError)
 
 
 class InvalidModel(Exception):
