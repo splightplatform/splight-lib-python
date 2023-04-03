@@ -1,3 +1,8 @@
+from requests.exceptions import ConnectionError, Timeout
+
+REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
+
+
 class InvalidModel(Exception):
     def __init__(self, model_name: str):
         self._msg = f"Model {model_name} is not a valid database model"
