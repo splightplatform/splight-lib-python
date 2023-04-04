@@ -6,7 +6,7 @@ from typing import Dict, List, Type, Union
 from uuid import uuid4
 
 from splight_abstract.database import AbstractDatabaseClient
-from splight_lib.client.database.exceptions import InstanceNotFound
+from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter
 from splight_models import SplightBaseModel
 
