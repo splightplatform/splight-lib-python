@@ -1,7 +1,8 @@
+import json
 import os
 from datetime import timedelta, timezone
-from typing import Dict, List, Type, Union
 from functools import partial
+from typing import Dict, List, Type, Union
 
 import pandas as pd
 
@@ -46,17 +47,20 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
         documents = [
-            resource_type.parse_raw(doc)
-            for doc in handler.read(skip=skip_, limit=limit_)
+            json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
         ]
+
+        filters = kwargs
+        filters.update({"output_format": resource_type.__name__})
+        documents = self._filter(documents, filters=filters)
+
         reverse = False
         if "__desc" not in sort:
             reverse = True
-        documents.sort(key=lambda x: x.timestamp, reverse=reverse)
-        documents = self._filter(documents, filters=kwargs)
+        documents.sort(key=lambda x: x["timestamp"], reverse=reverse)
 
         # TODO: review how to apply grouping
-        return documents
+        return [resource_type.parse_obj(doc) for doc in documents]
 
     def get(
         self,
@@ -90,8 +94,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def get_dataframe(
         self, resource_type: Type, freq: str = "H", **kwargs
     ) -> pd.DataFrame:
-        """Reads documents and returns a dataframe
-        """
+        """Reads documents and returns a dataframe"""
         documents = self._raw_get(resource_type, **kwargs)
         df = pd.DataFrame([x.dict() for x in documents])
         if not df.empty:
@@ -142,9 +145,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     ) -> List[DLResource]:
         filtered = instances
         for key, value in filters.items():
-            filtered = filter(
-                partial(value_filter, key, value), filtered.items()
-            )
+            filtered = filter(partial(value_filter, key, value), filtered)
             filtered = list(filtered)
         return filtered
 
