@@ -148,8 +148,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def get_dataset(
         self, resource_type: DatalakeModel, queries: List[Dict]
     ) -> pd.DataFrame:
-        # TODO this should be
-        # def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
         dfs = [
             self.get_dataframe(resource_type=resource_type, **query)
             for query in queries

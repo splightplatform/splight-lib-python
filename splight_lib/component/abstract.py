@@ -494,7 +494,8 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
         self._load_instance_kwargs_for_clients()
         self._load_clients(
-            database_config=kwargs.get("database_config", {})
+            database_config=kwargs.get("database_config", {}),
+            datalake_config=kwargs.get("datalake_config", {}),
         )
         self._load_spec_models()
         self._load_input_model()
@@ -531,14 +532,14 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         parsed_input_parameters = self.parse_parameters(raw_spec["input"])
         self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
 
-    def _load_clients(self, database_config: Dict):
+    def _load_clients(self, database_config: Dict, datalake_config: Dict):
         self.database_client = self.setup.DATABASE_CLIENT(
             namespace=self.namespace,
             **database_config
         )
         self.datalake_client = self.setup.DATALAKE_CLIENT(
             namespace=self.namespace,
-            **self.datalake_client_kwargs
+            **datalake_config
         )
         self.communication_client = self.setup.COMMUNICATION_CLIENT(
             namespace=self.namespace,
