@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
-from splight_lib.client.filter import value_filter
+from splight_lib.client.filter import value_filter_on_tuple
 from splight_models import SplightBaseModel
 
 ResourceType = Type[SplightBaseModel]
@@ -136,7 +136,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         filtered = instances
         for key, value in filters.items():
             filtered = filter(
-                partial(value_filter, key, value), filtered.items()
+                partial(value_filter_on_tuple, key, value), filtered.items()
             )
             filtered = {item[0]: item[1] for item in filtered}
         return filtered
