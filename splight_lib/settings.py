@@ -46,7 +46,7 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
 
 class SplightBaseSettings(BaseSettings):
     DATABASE_CLIENT: str = "splight_lib.client.database.RemoteDatabaseClient"
-    DATALAKE_CLIENT: str = "remote_splight_lib.datalake.DatalakeClient"
+    DATALAKE_CLIENT: str = "splight_lib.client.datalake.RemoteDatalakeClient"
     COMMUNICATION_CLIENT: str = (
         "remote_splight_lib.communication.CommunicationClient"
     )
