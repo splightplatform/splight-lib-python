@@ -2,27 +2,15 @@ import json
 import os
 from functools import partial
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Dict, List, Type, Union
 from uuid import uuid4
 
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.database.exceptions import InstanceNotFound
+from splight_lib.client.filter import value_filter
 from splight_models import SplightBaseModel
 
 ResourceType = Type[SplightBaseModel]
-
-
-def filter_fun(name: str, value: Any, item: Tuple[str, Dict]):
-    satisfied = False
-    if "__icontains" in name:
-        variable_name = name.split("__")[0]
-        satisfied = value in item[1].get(variable_name, None)
-    elif "__in" in name:
-        variable_name = name.split("__in")[0]
-        satisfied = item[1].get(variable_name, None) in value
-    else:
-        satisfied = item[1].get(name, None) == value
-    return satisfied
 
 
 class LocalDatabaseClient(AbstractDatabaseClient):
@@ -148,7 +136,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         filtered = instances
         for key, value in filters.items():
             filtered = filter(
-                partial(filter_fun, key, value), filtered.items()
+                partial(value_filter, key, value), filtered.items()
             )
             filtered = {item[0]: item[1] for item in filtered}
         return filtered
