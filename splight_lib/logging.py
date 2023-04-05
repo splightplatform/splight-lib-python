@@ -1,9 +1,9 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import time
 import os
 import sys
 from typing import Dict
+from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 
 TAGS_KEY = "tags"
@@ -98,7 +98,7 @@ class SplightDevLogger(BaseSplightLogger):
         filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
         max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e+6))  # 5MB
         backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 100))
-        handler = RotatingFileHandler(
+        handler = ConcurrentRotatingFileHandler(
             filename=filename, maxBytes=max_bytes, backupCount=backup_count
         )
         handler.setFormatter(self.formatter)
@@ -120,7 +120,7 @@ class ComponentLogger(BaseSplightLogger):
         filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
         max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e+6))  # 5MB
         backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 100))
-        handler = RotatingFileHandler(
+        handler = ConcurrentRotatingFileHandler(
             filename=filename, maxBytes=max_bytes, backupCount=backup_count
         )
         handler.setFormatter(self.formatter)
@@ -131,4 +131,10 @@ class ComponentLogger(BaseSplightLogger):
 
 
 def getLogger(name=None, dev=False):
-    return SplightDevLogger(name) if dev else ComponentLogger(name)
+    if dev:
+        logger = SplightDevLogger(name)
+    else:
+        logger = ComponentLogger(name)
+    # Add handlers to root logger and his childrens
+    logging.basicConfig(handlers=logger.logger.handlers)
+    return logger
