@@ -11,7 +11,7 @@ from collections import defaultdict
 from pydantic import BaseModel, main
 from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
-from splight_lib.logging import logging
+from splight_lib.logging import getLogger
 from splight_lib.settings import setup as default_setup
 from splight_models import (
     CustomType,
@@ -47,8 +47,17 @@ from splight_models.setpoint import (
 )
 import re
 
+# TODO: pasar a lazy: ("Error while handling setpoint create: %s", e.message)
+# TODO: cambiar las info por debugs
+# TODO: sacar los errors al cuete.
+# TODO: dejar el restcliennt para el ultimo
+# TODO: el logger siempre logea el filename donde esta implementado el mismo logger...
+# TODO: quitar centecimas al logger
 
-logger = logging.getLogger()
+
+log_tags = {key: key.upper() for key in ["bindings", "setpoints", "runtime", "networking", "commands", "reads"]}
+
+logger = getLogger(dev=True)
 
 
 class SecretValueParser:
@@ -98,9 +107,9 @@ class RunnableMixin:
         self.terminated = False
         while not self.terminated:
             if not self.execution_client.healthcheck():
-                logger.error("A task has failed")
+                logger.error("A task has failed", tags=log_tags["runtime"])
                 self.health_file.close()
-                logger.error(f"Healthcheck file removed: {self.health_file}")
+                logger.error("Healthcheck file removed: %s", self.health_file, tags=log_tags["bindings"])
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
@@ -235,7 +244,7 @@ class BindingsMixin:
                 binding.object_type,
                 binding.object_action
             )
-            logger.info(f"Binding event: {binding_event_name}")
+            logger.info("Binding event: %s.", binding_event_name, tags=log_tags["bindings"])
             binding_handler = self.__handle_native_object_trigger
             if binding_model == ComponentObject:
                 binding_handler = self.__handle_component_object_trigger
@@ -250,7 +259,7 @@ class BindingsMixin:
                     binding.object_type
                 )
             )
-            logger.info(f"Binded event: {binding_event_name}")
+            logger.info("Binded event: %s", binding_event_name, tags=log_tags["bindings"])
 
     def __handle_setpoint_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         try:
@@ -269,8 +278,8 @@ class BindingsMixin:
             setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
             self.communication_client.trigger(setpoint_callback_event)
         except Exception as e:
-            logger.error(f"Error while handling setpoint create: {e}")
-            logger.exception(e)
+            logger.error("Error while handling setpoint create: %s", e, tags=log_tags["bindings"])
+            logger.exception(e, tags=log_tags["bindings"])
 
     def __handle_native_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
@@ -280,8 +289,8 @@ class BindingsMixin:
             binding_kwargs = object_model(**object_event.data)
             binding_function(binding_kwargs)
         except Exception as e:
-            logger.error(f"Error while handling native object trigger: {e}")
-            logger.exception(e)
+            logger.error("Error while handling native object trigger: %s", e, tags=log_tags["bindings"])
+            logger.exception(e, tags=log_tags["bindings"])
 
     def __handle_component_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
