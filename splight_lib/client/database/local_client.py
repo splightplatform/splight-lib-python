@@ -94,7 +94,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         parsed = [resource_type.parse_obj(item) for item in filtered.values()]
         if first:
             return parsed[0] if parsed else None
-        return parsed[skip_:limit_]
+        return parsed
 
     def count(self, resource_type: ResourceType, **kwargs) -> int:
         db = self._load_db_file(self._db_file)
