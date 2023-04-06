@@ -121,7 +121,7 @@ class CommunicationClient(AbstractCommunicationClient):
         self._status = CommunicationClientStatus.FAILED
 
     def __on_error(self, data):
-        logger.error("Error on message", data, tags=log_tags["communication_client"])
+        logger.error("Error on message %s", data, tags=log_tags["communication_client"])
 
     def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))

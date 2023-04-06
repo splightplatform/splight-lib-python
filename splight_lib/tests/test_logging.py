@@ -1,20 +1,25 @@
 from distutils.log import WARN
 from logging import WARNING
 from unittest import TestCase
+from splight_lib.logging import getLogger
+import pytest
 
 
 class TestLogging(TestCase):
-    def test_import_logging(self):
-        from splight_lib import logging
-        logger = logging.BaseSplightLogger()
-        logger.debug("DEBUG MESSAGE")
-        logger.info("INFO MESSAGE")
-        logger.warning("WARNING MESSAGE")
-        logger.critical("CRITICAL MESSAGE")
-        try:
-            raise Exception("EXCEPTION MESSAGE")
-        except Exception as e:
-            logger.exception(e)
+
+    def test_get_logger_different(self):
+        assert getLogger(dev=True).logger.name != getLogger().logger.name
+
+    def test_log_formatter_and_tags(logger):
+        for logger in (getLogger(dev=True), getLogger()):
+            logger.debug("%s", "Hello World", tags="context")
+            logger.info("%s", "Hello World", tags=["context"])
+            logger.warning("%s", "Hello World", tags={"context": "CONTEXT"})
+            logger.critical("%s", "Hello World", tags="context")
+            try:
+                raise Exception("Some error.")
+            except Exception as e:
+                logger.exception("%s", e, tags="context")
 
     def test_logger_message_present(self):
         from splight_lib import logging
