@@ -2,7 +2,6 @@ from distutils.log import WARN
 from logging import WARNING
 from unittest import TestCase
 from splight_lib.logging import getLogger
-import pytest
 
 
 class TestLogging(TestCase):
