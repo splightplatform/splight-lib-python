@@ -90,7 +90,8 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         if resource_id:
             instances = {resource_id: db_instances.get(resource_id, {})}
 
-        filtered = self._filter(instances, filters=kwargs)
+        filters = self._validate_filters(kwargs)
+        filtered = self._filter(instances, filters=filters)
         parsed = [resource_type.parse_obj(item) for item in filtered.values()]
         if first:
             return parsed[0] if parsed else None
@@ -149,3 +150,11 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     def _save_db(self, file_path: str, db: Dict):
         with open(file_path, "w") as fid:
             json.dump(db, fid, indent=2)
+
+    def _validate_filters(self, filters_raw: Dict):
+        invalid_filters = ["ignore_hook"]
+        return {
+            key: value
+            for key, value in filters_raw.items()
+            if key not in invalid_filters
+        }
