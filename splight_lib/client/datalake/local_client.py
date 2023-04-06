@@ -100,7 +100,6 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         if not df.empty:
             df.drop_duplicates(subset="timestamp", keep="last", inplace=True)
             df.set_index("timestamp", inplace=True, verify_integrity=True)
-            df = df.asfreq(freq, fill_value=None)
         return df
 
     def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
@@ -108,6 +107,9 @@ class LocalDatalakeClient(AbstractDatalakeClient):
 
     def save(self, instances: List[DatalakeModel]) -> List[DatalakeModel]:
         documents = [instance.json() for instance in instances]
+        if not instances:
+            return instances
+
         collection = instances[0].Meta.collection_name
 
         file_path = os.path.join(
