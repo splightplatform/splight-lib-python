@@ -48,7 +48,7 @@ from splight_models.setpoint import (
 import re
 
 
-log_tags = {key: key.upper() for key in ["bindings", "setpoints", "runtime", "networking", "commands", "reads"]}
+log_tags = {key: key.upper() for key in ["bindings", "runtime"]}
 
 logger = getLogger(dev=True)
 
