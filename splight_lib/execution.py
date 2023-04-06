@@ -12,10 +12,11 @@ from threading import (
 from subprocess import Popen as DefaultPopen
 from functools import wraps
 from splight_abstract.client.abstract import AbstractClient
-from splight_lib import logging
+from splight_lib.logging import getLogger
 
 
-logger = logging.getLogger()
+logger = getLogger(dev=True)
+log_tags = {key: key.upper() for key in ["runtime"]}
 
 
 class Empty(object):
@@ -312,18 +313,18 @@ class ExecutionClient(AbstractClient):
             return self._stop_task(job)
 
     def _start_process(self, job: Popen) -> None:
-        logger.debug(f"Starting process {job}")
+        logger.debug("Starting process %s", job, log_tags=["runtime"])
         self.processes.append(job)
         return
 
     def _start_thread(self, job: Thread) -> None:
-        logger.debug(f"Starting Thread {job}")
+        logger.debug("Starting Thread %s", job, log_tags=["runtime"])
         self.threads.append(job)
         job.start()
         return
 
     def _start_task(self, job: Task) -> None:
-        logger.debug(f"Starting Task {job}")
+        logger.debug("Starting Task %s", job, log_tags=["runtime"])
         if not getattr(self, '_scheduler', None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
@@ -332,7 +333,7 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.schedule(job)
 
     def _stop_task(self, job: Task) -> None:
-        logger.debug(f"Stopping Task {job}")
+        logger.debug("Stopping Task %s", job, log_tags["runtime"])
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):

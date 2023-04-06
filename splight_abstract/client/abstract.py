@@ -3,12 +3,13 @@ from pydantic import BaseModel
 from typing import List, Type, Callable
 from functools import wraps
 from abc import ABC
-from splight_lib import logging
+from splight_lib.logging import getLogger
 from .filter import FilterMixin
 from .hooks import HooksMixin
 
 
-logger = logging.getLogger()
+logger = getLogger(dev=True)
+log_tags = {key: key.upper() for key in ["abstract_client"]}
 
 
 class empty:
