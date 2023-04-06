@@ -313,18 +313,18 @@ class ExecutionClient(AbstractClient):
             return self._stop_task(job)
 
     def _start_process(self, job: Popen) -> None:
-        logger.debug("Starting process %s", job, log_tags=["runtime"])
+        logger.debug("Starting process %s", job, tags=log_tags["runtime"])
         self.processes.append(job)
         return
 
     def _start_thread(self, job: Thread) -> None:
-        logger.debug("Starting Thread %s", job, log_tags=["runtime"])
+        logger.debug("Starting Thread %s", job, tags=log_tags["runtime"])
         self.threads.append(job)
         job.start()
         return
 
     def _start_task(self, job: Task) -> None:
-        logger.debug("Starting Task %s", job, log_tags=["runtime"])
+        logger.debug("Starting Task %s", job, tags=log_tags["runtime"])
         if not getattr(self, '_scheduler', None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
@@ -333,7 +333,7 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.schedule(job)
 
     def _stop_task(self, job: Task) -> None:
-        logger.debug("Stopping Task %s", job, log_tags["runtime"])
+        logger.debug("Stopping Task %s", job, tags=log_tags["runtime"])
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
