@@ -47,13 +47,6 @@ from splight_models.setpoint import (
 )
 import re
 
-# TODO: pasar a lazy: ("Error while handling setpoint create: %s", e.message)
-# TODO: cambiar las info por debugs
-# TODO: sacar los errors al cuete.
-# TODO: dejar el restcliennt para el ultimo
-# TODO: el logger siempre logea el filename donde esta implementado el mismo logger...
-# TODO: quitar centecimas al logger
-
 
 log_tags = {key: key.upper() for key in ["bindings", "setpoints", "runtime", "networking", "commands", "reads"]}
 
@@ -109,7 +102,7 @@ class RunnableMixin:
             if not self.execution_client.healthcheck():
                 logger.error("A task has failed", tags=log_tags["runtime"])
                 self.health_file.close()
-                logger.error("Healthcheck file removed: %s", self.health_file, tags=log_tags["bindings"])
+                logger.error("Healthcheck file removed: %s", self.health_file, tags=log_tags["runtime"])
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
@@ -126,7 +119,7 @@ class IndexMixin:
         indexes: List[Tuple[str, int]] = self.__get_indexes()
         collections: List[str] = self.__get_collections()
         for col in collections:
-            logger.debug(f"Adding indexes: {indexes} for collection {col}")
+            logger.debug("Adding indexes: %s for collection %s", indexes , col)
             self.datalake_client.create_index(
                 col,
                 indexes
