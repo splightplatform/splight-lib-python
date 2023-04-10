@@ -179,7 +179,6 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         params = self._parse_params(**kwargs)
         response = self._session.get(url, params=params)
         response.raise_for_status()
-        # __import__('ipdb').set_trace()
         return response.json()
 
     @staticmethod
