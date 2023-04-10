@@ -136,5 +136,6 @@ def getLogger(name: Optional[str] = None, dev: bool = False):
     else:
         logger = ComponentLogger(name)
     # Add handlers to root logger and his childrens
-    logging.basicConfig(handlers=logger.logger.handlers)
+    # force=True to force override
+    logging.basicConfig(handlers=logger.logger.handlers, force=True)
     return logger
