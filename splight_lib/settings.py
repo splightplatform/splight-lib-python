@@ -45,8 +45,8 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
 
 
 class SplightBaseSettings(BaseSettings):
-    DATABASE_CLIENT: str = "remote_splight_lib.database.DatabaseClient"
-    DATALAKE_CLIENT: str = "remote_splight_lib.datalake.DatalakeClient"
+    DATABASE_CLIENT: str = "splight_lib.client.database.RemoteDatabaseClient"
+    DATALAKE_CLIENT: str = "splight_lib.client.datalake.RemoteDatalakeClient"
     COMMUNICATION_CLIENT: str = (
         "remote_splight_lib.communication.CommunicationClient"
     )
@@ -56,7 +56,6 @@ class SplightBaseSettings(BaseSettings):
     @property
     def importables(self):
         return [
-            "AUTH_CLIENT",
             "DATABASE_CLIENT",
             "DATALAKE_CLIENT",
             "NOTIFICATION_CLIENT",

@@ -476,13 +476,16 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
         self._load_instance_kwargs_for_clients()
-        self._load_clients()
+        self._load_clients(
+            database_config=kwargs.get("database_config", {}),
+            datalake_config=kwargs.get("datalake_config", {}),
+        )
         self._load_spec_models()
         self._load_input_model()
         self._load_client_indexes()
         self._load_client_hooks()
         self._load_client_bindings()
-        super().__init__(*args, **kwargs)  # This is calling RunnableMixin.init() only
+        super().__init__()  # This is calling RunnableMixin.init() only
 
     @property
     def spec(self) -> Deployment:
@@ -512,14 +515,14 @@ class AbstractComponent(RunnableMixin, HooksMixin, IndexMixin, BindingsMixin, Pa
         parsed_input_parameters = self.parse_parameters(raw_spec["input"])
         self.input: BaseModel = self._spec.input_model(**parsed_input_parameters)
 
-    def _load_clients(self):
+    def _load_clients(self, database_config: Dict, datalake_config: Dict):
         self.database_client = self.setup.DATABASE_CLIENT(
             namespace=self.namespace,
-            **self.database_client_kwargs
+            **database_config
         )
         self.datalake_client = self.setup.DATALAKE_CLIENT(
             namespace=self.namespace,
-            **self.datalake_client_kwargs
+            **datalake_config
         )
         self.communication_client = self.setup.COMMUNICATION_CLIENT(
             namespace=self.namespace,
