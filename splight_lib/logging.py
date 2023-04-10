@@ -2,7 +2,7 @@ import logging
 import time
 import os
 import sys
-from typing import Dict
+from typing import Dict, Optional
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 
@@ -130,7 +130,7 @@ class ComponentLogger(BaseSplightLogger):
         self.logger.propagate = False
 
 
-def getLogger(name=None, dev=False):
+def getLogger(name: Optional[str] = None, dev: bool = False):
     if dev:
         logger = SplightDevLogger(name)
     else:
