@@ -3,7 +3,7 @@ import requests
 from furl import furl
 from retry import retry
 from typing import Callable, Dict
-from splight_lib.logging import getLogger
+from splight_lib.logging import getLogger, LogTags
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
@@ -17,7 +17,6 @@ from remote_splight_lib.communication.classmap import CLASSMAP
 
 
 logger = getLogger(dev=True)
-log_tags = {key: key.upper() for key in ["communication_client"]}
 
 
 class CommunicationFactory:
@@ -66,8 +65,9 @@ class CommunicationClient(AbstractCommunicationClient):
             self.__load_client()
             self.__check_readiness()
         except Exception as e:
-            logger.exception(e, tags=log_tags["communication_client"])
-            logger.warning("Failed to start communication client. Moving forward without remote commands.", tags=log_tags["communication_client"])
+            logger.warning(
+                "Failed to start communication client due to exception %s. Moving forward without remote commands.",
+                e, exc_info=True, tags=LogTags.COMMUNICATION)
             self._status = CommunicationClientStatus.ERROR
 
     @property
@@ -121,12 +121,12 @@ class CommunicationClient(AbstractCommunicationClient):
         self._status = CommunicationClientStatus.FAILED
 
     def __on_error(self, data):
-        logger.error("Error on message %s", data, tags=log_tags["communication_client"])
+        logger.error("Error on message %s", data, tags=LogTags.COMMUNICATION)
 
     def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))
         if self.status != CommunicationClientStatus.READY:
-            logger.warning("Bind events failed due to comm client is not ready", tags=log_tags["communication_client"])
+            logger.warning("Bind events failed due to comm client is not ready", tags=LogTags.COMMUNICATION)
             return
         self._channel.bind(event_name, event_handler)
         self._private_room_channel.bind(event_name, event_handler)
