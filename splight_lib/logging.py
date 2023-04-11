@@ -4,7 +4,21 @@ import time
 import os
 import sys
 from typing import Dict
+from enum import auto
+from strenum import UppercaseStrEnum
 
+
+class LogTags(UppercaseStrEnum):
+    RUNTIME = auto()
+    BINDING = auto()
+    COMMUNICATION = auto()
+    INDEX = auto()
+    SECRET = auto()
+    HOOK = auto()
+    SETPOINT = auto()
+    COMMAND = auto()
+    PARAMETER = auto()
+    COMPONENT = auto()
 
 TAGS_KEY = "tags"
 
