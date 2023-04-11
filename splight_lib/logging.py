@@ -2,10 +2,10 @@ import logging
 import time
 import os
 import sys
+from concurrent_log_handler import ConcurrentRotatingFileHandler
+from typing import Dict, Optional
 from enum import auto
 from strenum import UppercaseStrEnum
-from typing import Dict, Optional
-from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 
 class LogTags(UppercaseStrEnum):
