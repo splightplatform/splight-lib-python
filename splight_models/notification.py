@@ -17,7 +17,6 @@ class TargetType(str, Enum):
     asset = 'Asset'
     attribute = 'Attribute'
     file_ = 'File'
-    graph = 'Graph'
     query = 'Query'
 
 
