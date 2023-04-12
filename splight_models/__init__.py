@@ -8,7 +8,6 @@ from splight_models.credential import *
 from splight_models.datalake import *
 from splight_models.deployment import *
 from splight_models.file import *
-from splight_models.geometry import Geometry, GeometryCollection
 from splight_models.graph import *
 from splight_models.hub import *
 from splight_models.namespace import *
