@@ -4,12 +4,9 @@ from splight_models import (
     Asset,
     Attribute,
     File,
-    Edge,
-    Graph,
     Component,
     Notification,
     Query,
-    Node,
     BlockchainContract,
     HubComponent,
     ComponentObject,
@@ -35,20 +32,11 @@ CLASSMAP = {
     Attribute: {
         "path": "v2/engine/attributes"
     },
-    Edge: {
-        "path": "v2/engine/graph/edges"
-    },
     File: {
         "path": "v2/engine/files"
     },
-    Graph: {
-        "path": "v2/engine/graph/graphs"
-    },
     Notification: {
         "path": "v2/account/notifications"
-    },
-    Node: {
-        "path": "v2/engine/graph/nodes"
     },
     BlockchainContract: {
         "path": "v2/backoffice/blockchain/contracts"
