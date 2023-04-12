@@ -1,7 +1,7 @@
 from .base import SplightBaseModel
 from typing import List, Optional
 from .attribute import Attribute
-from .geometry import GeometryCollection
+from geojson_pydantic import GeometryCollection
 
 
 class Asset(SplightBaseModel):
