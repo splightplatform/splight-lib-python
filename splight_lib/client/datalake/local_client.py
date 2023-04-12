@@ -98,8 +98,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         documents = self._raw_get(resource_type, **kwargs)
         df = pd.DataFrame([x.dict() for x in documents])
         if not df.empty:
-            df.drop_duplicates(subset="timestamp", keep="last", inplace=True)
-            df.set_index("timestamp", inplace=True, verify_integrity=True)
+            df.set_index("timestamp", inplace=True, verify_integrity=False)
         return df
 
     def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
