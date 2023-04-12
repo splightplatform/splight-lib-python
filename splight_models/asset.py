@@ -1,6 +1,7 @@
 from .base import SplightBaseModel
 from typing import List, Optional
 from .attribute import Attribute
+from geojson_pydantic import GeometryCollection
 
 
 class Asset(SplightBaseModel):
@@ -13,3 +14,4 @@ class Asset(SplightBaseModel):
     tags: List[str] = []
     attributes: List[Attribute] = []
     verified: bool = False
+    geometry: Optional[GeometryCollection]
