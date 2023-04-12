@@ -10,7 +10,6 @@ from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
 from splight_models.file import File
 from splight_models.datalake import DatalakeModel
-from splight_models.graph import Graph
 from splight_models.query import Query
 from splight_models import EventActions, EventNames, CommunicationEvent
 from datetime import datetime
@@ -223,7 +222,6 @@ DATABASE_TYPES = {
     "Asset": Asset,
     "Attribute": Attribute,
     "File": File,
-    "Graph": Graph,
     "Query": Query,
 }
 
@@ -312,7 +310,7 @@ class ComponentModelsFactory:
                 validators.update({
                     "choices_validator": validator(
                         field.name, pre=True, allow_reuse=True
-                     )(choices_validator)
+                    )(choices_validator)
                 })
 
             if multiple:
