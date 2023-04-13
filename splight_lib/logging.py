@@ -18,7 +18,10 @@ class LogTags(UppercaseStrEnum):
     SETPOINT = auto()
     COMMAND = auto()
     PARAMETER = auto()
-    COMPONENT = auto()
+    COMPONENT = auto() # TODO: not used yet.
+    DATABASE = auto()
+    DATALAKE = auto()
+    CACHE = auto()
 
 TAGS_KEY = "tags"
 
