@@ -12,12 +12,10 @@ from threading import (
 from subprocess import Popen as DefaultPopen
 from functools import wraps
 from splight_abstract.client.abstract import AbstractClient
-from splight_lib.logging import getLogger
+from splight_lib.logging import getLogger, LogTags
 
 
 logger = getLogger(dev=True)
-log_tags = {key: key.upper() for key in ["runtime"]}
-
 
 class Empty(object):
     pass
@@ -278,6 +276,7 @@ class ExecutionClient(AbstractClient):
 
         self._register_exit_functions()
         super(ExecutionClient, self).__init__(*args, **kwargs)
+        logger.info("Execution client initialized.", tags=LogTags.RUNTIME)
 
     def _register_exit_functions(self) -> None:
         excepthook = sys.excepthook
@@ -297,6 +296,8 @@ class ExecutionClient(AbstractClient):
             p.terminate()
 
     def start(self, job=Union[Popen, Thread, Task]):
+        logger.info("Starting execution client...", tags=LogTags.RUNTIME)
+
         if isinstance(job, Popen):
             return self._start_process(job)
         if isinstance(job, Thread):
@@ -313,18 +314,18 @@ class ExecutionClient(AbstractClient):
             return self._stop_task(job)
 
     def _start_process(self, job: Popen) -> None:
-        logger.debug("Starting process %s", job, tags=log_tags["runtime"])
+        logger.debug("Starting process %s", job, tags=LogTags.RUNTIME)
         self.processes.append(job)
         return
 
     def _start_thread(self, job: Thread) -> None:
-        logger.debug("Starting Thread %s", job, tags=log_tags["runtime"])
+        logger.debug("Starting Thread %s", job, tags=LogTags.RUNTIME)
         self.threads.append(job)
         job.start()
         return
 
     def _start_task(self, job: Task) -> None:
-        logger.debug("Starting Task %s", job, tags=log_tags["runtime"])
+        logger.debug("Starting Task %s", job, tags=LogTags.RUNTIME)
         if not getattr(self, '_scheduler', None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
@@ -333,7 +334,7 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.schedule(job)
 
     def _stop_task(self, job: Task) -> None:
-        logger.debug("Stopping Task %s", job, tags=log_tags["runtime"])
+        logger.debug("Stopping Task %s", job, tags=LogTags.RUNTIME)
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
