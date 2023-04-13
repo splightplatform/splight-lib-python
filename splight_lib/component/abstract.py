@@ -94,13 +94,15 @@ class RunnableMixin:
             prefix=self._STARTUP_FILE_PREFIX
         )
         logger.info("Healthcheck file at: %s", self.health_file.name, tags=LogTags.RUNTIME)
+        logger.info("Startup file at: %s", self.startup_file.name, tags=LogTags.RUNTIME)
+
         self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
         self.terminated = False
         while not self.terminated:
             if not self.execution_client.healthcheck():
-                logger.error("Healthcheck task failed", tags=LogTags.RUNTIME)
+                logger.error("Healthcheck task failed.", tags=LogTags.RUNTIME)
                 self.health_file.close()
                 logger.error("Healthcheck file removed: %s", self.health_file, tags=LogTags.RUNTIME)
                 sys.exit()
