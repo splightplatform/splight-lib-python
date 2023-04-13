@@ -64,6 +64,7 @@ class CommunicationClient(AbstractCommunicationClient):
             self.__load_context()
             self.__load_client()
             self.__check_readiness()
+            logger.info("Communication client started.", tags=LogTags.COMMUNICATION)
         except Exception as e:
             logger.warning(
                 "Failed to start communication client due to exception %s. Moving forward without remote commands.",
