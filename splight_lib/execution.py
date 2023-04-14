@@ -296,7 +296,7 @@ class ExecutionClient(AbstractClient):
             p.terminate()
 
     def start(self, job=Union[Popen, Thread, Task]):
-        logger.info("Starting execution client...", tags=LogTags.RUNTIME)
+        logger.info("Executing new job.", tags=LogTags.RUNTIME)
 
         if isinstance(job, Popen):
             return self._start_process(job)
