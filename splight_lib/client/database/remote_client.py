@@ -11,11 +11,15 @@ from retry import retry
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
+from splight_lib.logging import getLogger, LogTags
 from splight_lib.client.database.classmap import CLASSMAP
 from splight_lib.client.exceptions import REQUEST_EXCEPTIONS, InvalidModel
 from splight_lib.client.settings import settings_remote as settings
 from splight_lib.encryption import EncryptionClient
 from splight_models import File
+
+
+logger = getLogger(dev=True)
 
 
 class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
@@ -33,6 +37,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         )
         self._session = Session()
         self._session.headers.update(token.header)
+        logger.info("Remote database client initialized.", tags=LogTags.DATABASE)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def save(self, instance: BaseModel) -> BaseModel:
@@ -52,6 +57,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModel thrown when the model name is not correct.
         """
+        logger.debug("Saving instance %s.", instance.id, tags=LogTags.DATABASE)
+
         constructor = type(instance)
         model_data = self._get_model_data(constructor)
 
@@ -78,6 +85,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModel thrown when the model name is not correct.
         """
+        logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         model_data = self._get_model_data(resource_type)
         path = model_data["path"]
         url = self._base_url / f"{path}/{id}/"
@@ -126,6 +134,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
+        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
@@ -160,6 +169,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if decrypt and instance.encrypted:
             encryption_manager = EncryptionClient()
             encryption_manager.decrypt_file(path=f.name)
+        logger.debug("Downloaded instance %s.", id, tags=LogTags.DATABASE)
         return f
 
     def _pages(self, path: str, **kwargs):

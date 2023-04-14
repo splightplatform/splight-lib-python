@@ -19,7 +19,10 @@ from splight_abstract.datalake import (
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.client.settings import settings_remote as settings
 from splight_lib.restclient import SplightRestClient
+from splight_lib.logging import getLogger, LogTags
 from splight_models import DatalakeModel, Query
+
+logger = getLogger(dev=True)
 
 
 class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
@@ -35,6 +38,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
+        logger.info("Remote datalake client initialized.", tags=LogTags.DATALAKE)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_save(
@@ -103,6 +107,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         *args,
         **kwargs,
     ) -> List[BaseModel]:
+        logger.debug("Retrieving object of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
         kwargs["collection"] = resource_type.Meta.collection_name
@@ -113,6 +118,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self, resource_type: DatalakeModel, query: Query
     ) -> List[Dict]:
         # TODO: Add add_fields, project and renaming
+        logger.debug("Retrieving output of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
         return self._raw_get(
             resource_type=resource_type,
             collection=query.source,
@@ -137,6 +143,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         params = self._parse_params(**kwargs)
         response = self._restclient.get(url, params=params)
         response.raise_for_status()
+        logger.debug("Retrieving dataframe from datalake.", tags=LogTags.DATALAKE)
 
         df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
         if df.empty:
@@ -148,6 +155,8 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def get_dataset(
         self, resource_type: DatalakeModel, queries: List[Dict]
     ) -> pd.DataFrame:
+        logger.debug("Retrieving dataset from datalake.", tags=LogTags.DATALAKE)
+
         dfs = [
             self.get_dataframe(resource_type=resource_type, **query)
             for query in queries
@@ -162,6 +171,8 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         instances: List[DatalakeModel],
     ) -> List[DatalakeModel]:
         # POST /datalake/save/
+        logger.debug("Saving instances %s.",
+                    [instance.id for instance in instances], tags=LogTags.DATALAKE)
         if not instances:
             return instances
         resource_type = instances[0].__class__
@@ -173,6 +184,8 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def save_dataframe(
         self, resource_type: DatalakeModel, dataframe: pd.DataFrame
     ) -> None:
+        logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
+
         # POST /datalake/loaddata/
         url = self._base_url / f"{self._PREFIX}/loaddata/"
 
@@ -189,12 +202,15 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
     @validate_resource_type
     def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
+        logger.debug("Deleting resources of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+
         collection = resource_type.Meta.collection_name
         return self._raw_delete(collection=collection, **kwargs)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def create_index(self, collection: str, indexes: List[Dict]) -> None:
         # POST /datalake/index/
+        logger.debug("Creating index for collection: %s.", collection, tags=LogTags.DATALAKE)
         url = self._base_url / f"{self._PREFIX}/index/"
         data = {"source": collection, "index": indexes}
         response = self._restclient.post(url, json=data)
@@ -204,6 +220,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
+        logger.debug("Aggregate on datalake collection: %s.", collection, tags=LogTags.DATALAKE)
         # POST /datalake/aggregate/?source=collection
         url = self._base_url / f"{self._PREFIX}/aggregate/"
         params = {"source": collection}
