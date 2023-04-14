@@ -18,7 +18,6 @@ from splight_lib.client.settings import settings_remote as settings
 from splight_lib.encryption import EncryptionClient
 from splight_models import File
 
-
 logger = getLogger(dev=True)
 
 
