@@ -3,12 +3,8 @@ from pydantic import BaseModel
 from typing import List, Type, Callable
 from functools import wraps
 from abc import ABC
-from splight_lib import logging
 from .filter import FilterMixin
 from .hooks import HooksMixin
-
-
-logger = logging.getLogger()
 
 
 class empty:

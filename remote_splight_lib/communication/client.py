@@ -3,7 +3,7 @@ import requests
 from furl import furl
 from retry import retry
 from typing import Callable, Dict
-from splight_lib.logging import logging
+from splight_lib.logging import getLogger, LogTags
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
@@ -16,7 +16,7 @@ from remote_splight_lib.settings import settings
 from remote_splight_lib.communication.classmap import CLASSMAP
 
 
-logger = logging.getLogger()
+logger = getLogger(dev=True)
 
 
 class CommunicationFactory:
@@ -64,9 +64,11 @@ class CommunicationClient(AbstractCommunicationClient):
             self.__load_context()
             self.__load_client()
             self.__check_readiness()
+            logger.info("Communication client started.", tags=LogTags.COMMUNICATION)
         except Exception as e:
-            logger.exception(e)
-            logger.warning("Failed to start communication client. Moving forward without remote commands.")
+            logger.warning(
+                "Failed to start communication client due to exception %s. Moving forward without remote commands.",
+                e, exc_info=True, tags=LogTags.COMMUNICATION)
             self._status = CommunicationClientStatus.ERROR
 
     @property
@@ -120,12 +122,12 @@ class CommunicationClient(AbstractCommunicationClient):
         self._status = CommunicationClientStatus.FAILED
 
     def __on_error(self, data):
-        logger.error("Error on message", data)
+        logger.error("Error on message %s", data, tags=LogTags.COMMUNICATION)
 
     def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))
         if self.status != CommunicationClientStatus.READY:
-            logger.warning("Bind events failed due to comm client is not ready")
+            logger.warning("Bind events failed due to comm client is not ready", tags=LogTags.COMMUNICATION)
             return
         self._channel.bind(event_name, event_handler)
         self._private_room_channel.bind(event_name, event_handler)

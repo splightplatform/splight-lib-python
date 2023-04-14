@@ -11,7 +11,7 @@ from collections import defaultdict
 from pydantic import BaseModel, main
 from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
-from splight_lib.logging import logging
+from splight_lib.logging import getLogger, LogTags
 from splight_lib.settings import setup as default_setup
 from splight_models import (
     CustomType,
@@ -48,7 +48,7 @@ from splight_models.setpoint import (
 import re
 
 
-logger = logging.getLogger()
+logger = getLogger(dev=True)
 
 
 class SecretValueParser:
@@ -57,6 +57,7 @@ class SecretValueParser:
         self.utils = utils
 
     def get_value(self, name: str) -> Any:
+        logger.info("Obtaining secret: %s", name, tags=LogTags.SECRET)
         secret = self.utils.database_client.get(Secret, name=name, first=True)
         return secret.decrypt()
 
@@ -92,15 +93,18 @@ class RunnableMixin:
         self.startup_file = NamedTemporaryFile(
             prefix=self._STARTUP_FILE_PREFIX
         )
+        logger.info("Healthcheck file at: %s", self.health_file.name, tags=LogTags.RUNTIME)
+        logger.info("Startup file at: %s", self.startup_file.name, tags=LogTags.RUNTIME)
+
         self.execution_client.start(Thread(self.healthcheck))
 
     def healthcheck(self) -> None:
         self.terminated = False
         while not self.terminated:
             if not self.execution_client.healthcheck():
-                logger.error("A task has failed")
+                logger.error("Healthcheck task failed.", tags=LogTags.RUNTIME)
                 self.health_file.close()
-                logger.error(f"Healthcheck file removed: {self.health_file}")
+                logger.error("Healthcheck file removed: %s", self.health_file, tags=LogTags.RUNTIME)
                 sys.exit()
             time.sleep(self.healthcheck_interval)
 
@@ -117,7 +121,7 @@ class IndexMixin:
         indexes: List[Tuple[str, int]] = self.__get_indexes()
         collections: List[str] = self.__get_collections()
         for col in collections:
-            logger.debug(f"Adding indexes: {indexes} for collection {col}")
+            logger.info("Adding indexes: %s for collection %s", indexes , col, tags=LogTags.INDEX)
             self.datalake_client.create_index(
                 col,
                 indexes
@@ -154,6 +158,9 @@ class IndexMixin:
 
 class HooksMixin:
     def _load_client_hooks(self):
+
+        logger.info("Adding pre-hooks for database and datalake clients.", tags=LogTags.HOOK)
+
         # Datalake
         self.datalake_client.add_pre_hook("save", self.__hook_insert_origin_save)
         self.datalake_client.add_pre_hook("save_dataframe", self.__hook_insert_origin_save_dataframe)
@@ -166,6 +173,7 @@ class HooksMixin:
         self.database_client.add_post_hook("save", self.__hook_transform_to_custom_instances)
 
     def __hook_insert_origin_save(self, *args, **kwargs):
+        logger.info("Datalake save pre-hook.", tags=LogTags.HOOK)
         instances = kwargs.get("instances", [])
         for instance in instances:
             if not isinstance(instance, DatalakeModel):
@@ -175,6 +183,7 @@ class HooksMixin:
         return args, kwargs
 
     def __hook_insert_origin_save_dataframe(self, *args, **kwargs):
+        logger.info("Datalake dataframe save pre-hook.", tags=LogTags.HOOK)
         dataframe = kwargs.get("dataframe")
         dataframe["instance_id"] = self.instance_id
         dataframe["instance_type"] = self.instance_type.__name__
@@ -182,6 +191,7 @@ class HooksMixin:
         return args, kwargs
 
     def __hook_transform_from_custom_resource_type(self, *args, **kwargs):
+        logger.info("Transform from custom type pre-hook.", tags=LogTags.HOOK)
         resource_type = kwargs["resource_type"]
         if resource_type and hasattr(self.custom_types, resource_type.__name__):
             kwargs["resource_type"] = ComponentObject
@@ -190,6 +200,7 @@ class HooksMixin:
         return args, kwargs
 
     def __hook_transform_from_custom_instances(self, *args, **kwargs):
+        logger.info("Transform from custom instances pre-hook.", tags=LogTags.HOOK)
         instance = kwargs["instance"]
         if getattr(self.custom_types, type(instance).__name__, None):
             parsed_instance = ComponentObject(
@@ -203,6 +214,7 @@ class HooksMixin:
     def __hook_transform_to_custom_instances(
         self, result: Union[BaseModel, List[BaseModel]]
     ):
+        logger.info("Transform to custom instances pre-hook.", tags=LogTags.HOOK)
         parsed_result = []
         convert_to_list = not isinstance(result, list)
         result = [result] if convert_to_list else result
@@ -235,7 +247,7 @@ class BindingsMixin:
                 binding.object_type,
                 binding.object_action
             )
-            logger.info(f"Binding event: {binding_event_name}")
+            logger.info("Binding event: %s.", binding_event_name, tags=LogTags.BINDING)
             binding_handler = self.__handle_native_object_trigger
             if binding_model == ComponentObject:
                 binding_handler = self.__handle_component_object_trigger
@@ -250,10 +262,11 @@ class BindingsMixin:
                     binding.object_type
                 )
             )
-            logger.info(f"Binded event: {binding_event_name}")
+            logger.info("Binded event: %s", binding_event_name, tags=LogTags.BINDING)
 
     def __handle_setpoint_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         try:
+            logger.debug("Setpoint triggered.", tags=LogTags.SETPOINT)
             object_event = SetPointCreateEvent.parse_raw(data)
             setpoint = object_event.data
             response_status = SetPointResponseStatus(binding_function(setpoint))
@@ -269,22 +282,22 @@ class BindingsMixin:
             setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
             self.communication_client.trigger(setpoint_callback_event)
         except Exception as e:
-            logger.error(f"Error while handling setpoint create: {e}")
-            logger.exception(e)
+            logger.error("Error while handling setpoint create: %s", e, exc_info=True, tags=LogTags.SETPOINT)
 
     def __handle_native_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
         try:
+            logger.info("Binding for native object of type %s triggered.", binding_object_type, tags=LogTags.BINDING)
             object_event = CommunicationEvent.parse_raw(data)
             object_model = getattr(spmodels, binding_object_type)
             binding_kwargs = object_model(**object_event.data)
             binding_function(binding_kwargs)
         except Exception as e:
-            logger.error(f"Error while handling native object trigger: {e}")
-            logger.exception(e)
+            logger.error("Error while handling native object trigger: %s", e, exc_info=True, tags=LogTags.BINDING)
 
     def __handle_component_object_trigger(self, binding_function: Callable, binding_object_type: str, data: str):
         assert self.bindings, "Please define .bindings to start."
+        logger.info("Binding for component object of type %s triggered.", binding_object_type, tags=LogTags.BINDING)
         component_object_event = CommunicationEvent.parse_raw(data)
         component_object: ComponentObject = ComponentObject(**component_object_event.data)
         custom_object_data = component_object.data
@@ -302,6 +315,7 @@ class BindingsMixin:
         component_command_event = ComponentCommandTriggerEvent.parse_raw(data)
         component_command: ComponentCommand = component_command_event.data
         command: Command = component_command.command
+        logger.info("Binding for component command '%s' triggered.", command.name, tags=LogTags.COMMAND)
         try:
             command_function = getattr(self, command.name)
             command_kwargs_model = getattr(self.commands, command.name)
@@ -314,6 +328,7 @@ class BindingsMixin:
             component_command.response.return_value = str(command_function(**command_kwargs))
             component_command.status = ComponentCommandStatus.SUCCESS
         except Exception as e:
+            logger.error("Error while handling component command trigger: %s", e, exc_info=True, tags=LogTags.COMMAND)
             component_command.response.error_detail = str(e)
             component_command.status = ComponentCommandStatus.ERROR
         component_command_callback_event = ComponentCommandUpdateEvent(data=component_command)
@@ -322,6 +337,7 @@ class BindingsMixin:
 
 class ParametersMixin:
     def unparse_parameters(self, instance: Dict) -> List[Dict]:
+        logger.debug("Unparsing parameters for an instance of %s", type(instance).__name__, tags=LogTags.PARAMETER)
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
             raise NotImplementedError
@@ -352,6 +368,7 @@ class ParametersMixin:
         return {"data": fields, **reserved_parameters}
 
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
+        logger.debug("Parsing parameters %s", parameters, tags=LogTags.PARAMETER)
         parameters = self._fetch_and_reload_component_objects_parameters(parameters)
         object_ids: Dict[str, Dict[str, List]] = self._get_object_ids(parameters)
         objects: Dict[str, BaseModel] = self._fetch_objects(object_ids)
