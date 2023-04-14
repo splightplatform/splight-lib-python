@@ -11,8 +11,11 @@ from splight_abstract.datalake import AbstractDatalakeClient
 from splight_lib.client.file_handler import FixedLineNumberFileHandler
 from splight_lib.client.filter import value_filter
 from splight_models import DatalakeModel, Query
+from splight_lib.logging import getLogger, LogTags
 
 DLResource = Type[DatalakeModel]
+
+logger = getLogger(dev=True)
 
 
 class LocalDatalakeClient(AbstractDatalakeClient):
@@ -27,6 +30,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def __init__(self, namespace: str, path: str):
         super().__init__(namespace=namespace)
         self._base_path = path
+        logger.info("Local datalake client initialized.", tags=LogTags.DATALAKE)
 
     def _raw_get(
         self,
@@ -73,6 +77,8 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         tzinfo: timezone = timezone(timedelta()),
         **kwargs,
     ) -> QuerySet:
+        logger.debug("Retrieving object of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
         kwargs["collection"] = resource_type.Meta.collection_name
@@ -95,6 +101,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         self, resource_type: Type, freq: str = "H", **kwargs
     ) -> pd.DataFrame:
         """Reads documents and returns a dataframe"""
+        logger.debug("Retrieving dataframe from datalake.", tags=LogTags.DATALAKE)
         documents = self._raw_get(resource_type, **kwargs)
         df = pd.DataFrame([x.dict() for x in documents])
         if not df.empty:
@@ -108,6 +115,9 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         documents = [instance.json() for instance in instances]
         if not instances:
             return instances
+
+        logger.debug("Saving instances %s.",
+                    [instance.id for instance in instances], tags=LogTags.DATALAKE)
 
         collection = instances[0].Meta.collection_name
 
@@ -123,6 +133,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def save_dataframe(
         self, resource_type: DLResource, dataframe: pd.DataFrame
     ) -> None:
+        logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
 
         instances = dataframe.apply(
             lambda x: resource_type.parse_obj(x.to_dict()), axis=1
@@ -131,14 +142,17 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         _ = self.save(instances)
 
     def delete(self, resource_type: DLResource, **kwargs) -> None:
-        pass
+        logger.debug("Deleting resources of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+        raise NotImplementedError()
 
     def create_index(self, collection: str, index: list) -> None:
-        pass
+        logger.debug("Creating index for collection: %s.", collection, tags=LogTags.DATALAKE)
+        raise NotImplementedError()
 
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
+        logger.debug("Aggregate on datalake collection: %s.", collection, tags=LogTags.DATALAKE)
         raise NotImplementedError()
 
     def _filter(

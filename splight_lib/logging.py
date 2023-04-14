@@ -2,9 +2,26 @@ import logging
 import time
 import os
 import sys
-from typing import Dict, Optional
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+from typing import Dict, Optional
+from enum import auto
+from strenum import UppercaseStrEnum
 
+
+class LogTags(UppercaseStrEnum):
+    RUNTIME = auto()
+    BINDING = auto()
+    COMMUNICATION = auto()
+    INDEX = auto()
+    SECRET = auto()
+    HOOK = auto()
+    SETPOINT = auto()
+    COMMAND = auto()
+    PARAMETER = auto()
+    COMPONENT = auto() # TODO: not used yet.
+    DATABASE = auto()
+    DATALAKE = auto()
+    CACHE = auto()
 
 TAGS_KEY = "tags"
 

@@ -3,11 +3,10 @@ from functools import wraps
 from typing import Callable, List
 from abc import abstractmethod
 from splight_abstract.client import AbstractClient
-from splight_lib import logging
+from splight_lib.logging import getLogger, LogTags
 
 
-logger = logging.getLogger()
-
+logger = getLogger(dev=True)
 
 class AbstractCacheClient(AbstractClient):
 
@@ -46,10 +45,10 @@ def get_cache(client: AbstractCacheClient, cache_key: str, cache_key_args: str o
             try:
                 cached_data = client.get(final_cache_key)
             except Exception:
-                logger.error(f'Error getting cache for {final_cache_key}')
+                logger.error('Error getting cache for %s', final_cache_key, tags=LogTags.CACHE)
 
             if isinstance(cached_data, bytes):
-                logger.info(f'Cache hit for {final_cache_key}')
+                logger.info('Cache hit for %s', final_cache_key, tags=LogTags.CACHE)
 
                 return json.loads(cached_data.decode('utf-8'))
             else:
@@ -57,9 +56,9 @@ def get_cache(client: AbstractCacheClient, cache_key: str, cache_key_args: str o
 
                 try:
                     client.set(final_cache_key, json.dumps(cached_data), ex=3600)
-                    logger.info(f'Cache update for {final_cache_key}')
+                    logger.info('Cache update for %s', final_cache_key, tags=LogTags.CACHE)
                 except Exception:
-                    logger.error(f'Error getting cache for {final_cache_key}')
+                    logger.error('Error getting cache for %s', final_cache_key, tags=LogTags.CACHE)
 
                 return cached_data
         return wrapper
@@ -84,9 +83,9 @@ def flush_cache(client: AbstractCacheClient, cache_key: str, cache_key_args: str
                 if prefix_match:
                     final_cache_key += '*'
                 client.delete(final_cache_key)
-                logger.info(f'Cache flush for {final_cache_key}')
+                logger.info('Cache flush for %s', final_cache_key, tags=LogTags.CACHE)
             except Exception:
-                logger.error(f'Error flushing cache for {final_cache_key}')
+                logger.error('Error flushing cache for %s', final_cache_key, tags=LogTags.CACHE)
 
             return func(*args, **kwargs)
         return wrapper
