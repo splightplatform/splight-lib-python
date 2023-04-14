@@ -78,6 +78,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         **kwargs,
     ) -> QuerySet:
         logger.debug("Retrieving object of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
         kwargs["collection"] = resource_type.Meta.collection_name
