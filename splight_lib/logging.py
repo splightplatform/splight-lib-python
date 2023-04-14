@@ -1,4 +1,16 @@
-import logging
+from logging import (
+    Formatter,
+    Logger,
+    NOTSET,
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    CRITICAL,
+    Handler,
+    StreamHandler,
+    basicConfig,
+)
 import time
 import os
 import sys
@@ -26,8 +38,10 @@ class LogTags(UppercaseStrEnum):
 TAGS_KEY = "tags"
 
 
-class SplightFormatter(logging.Formatter):
-    DEFAULT_FMT: str = "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(message)s"
+class SplightFormatter(Formatter):
+    DEFAULT_FMT: str = (
+        "%(levelname)s | %(asctime)s | %(filename)s:%(lineno)d | %(message)s"
+    )
 
     def format(self, record):
         fmt = self.DEFAULT_FMT
@@ -36,43 +50,28 @@ class SplightFormatter(logging.Formatter):
                 fmt = " | ".join([fmt, "%(tags)s"])
         except AttributeError:
             pass  # tags aren't present
-        formatter = logging.Formatter(fmt=fmt)
+        formatter = Formatter(fmt=fmt)
         formatter.converter = time.gmtime
         return formatter.format(record)
 
 
-class BaseSplightLogger:
+class SplightLogger(Logger):
 
     def __init__(self, name: str = None) -> None:
         # this is to avoid adding handlers to root logger
         # and interfering with third party app logs
         self.name = name if name is not None else "splight"
-        self.logger = logging.getLogger(self.name)
-        self.logger.setLevel(self.log_level)
-
-        # hasHandlers returns True when self parent
-        # have a handler so, don"t use method
-        if not self.logger.handlers:
-            self.load_handlers()
-
-    def __repr__(self) -> str:
-        level = logging.getLevelName(self.logger.getEffectiveLevel())
-        return '<%s %s (%s)>' % (self.__class__.__name__, self.name, level)
+        level = int(os.getenv("LOG_LEVEL", INFO))
+        super().__init__(name, level)
+        # TODO: check what exactly do function.__code__.co_filename
+        # this attr is defined to decide which is the caller filename
+        self._srcfile = os.path.normcase(
+            standard_output_handler.__code__.co_filename
+        )
 
     @property
-    def log_level(self) -> int:
-        return int(os.getenv("LOG_LEVEL", logging.DEBUG))
-
-    @property
-    def formatter(self) -> logging.Formatter:
+    def formatter(self) -> Formatter:
         return SplightFormatter()
-
-    def load_handlers(self) -> None:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(self.formatter)
-        handler.setLevel(self.log_level)
-        self.logger.addHandler(handler)
-        self.logger.propagate = False
 
     @staticmethod
     def _update_kwargs(kwargs: Dict) -> Dict:
@@ -81,78 +80,142 @@ class BaseSplightLogger:
             kwargs.update({"extra": {TAGS_KEY: tags}})
         return kwargs
 
+    def _log(self, level, msg, args, exc_info=None, extra=None,
+             stack_info=False, stacklevel=1):
+        """
+        This is a copy from logging._log, where where it only changes the
+        `_srcfile` variable to use `self._scrfile` because we need to update it
+        for current file, i.e, splight_lib.logging.py to show the correct log
+        caller file in formatter.
+        """
+        sinfo = None
+        if self._srcfile:
+            #IronPython doesn't track Python frames, so findCaller raises an
+            #exception on some versions of IronPython. We trap it here so that
+            #IronPython can use logging.
+            try:
+                fn, lno, func, sinfo = self.findCaller(stack_info, stacklevel)
+            except ValueError: # pragma: no cover
+                fn, lno, func = "(unknown file)", 0, "(unknown function)"
+        else: # pragma: no cover
+            fn, lno, func = "(unknown file)", 0, "(unknown function)"
+        if exc_info:
+            if isinstance(exc_info, BaseException):
+                exc_info = (type(exc_info), exc_info, exc_info.__traceback__)
+            elif not isinstance(exc_info, tuple):
+                exc_info = sys.exc_info()
+        record = self.makeRecord(self.name, level, fn, lno, msg, args,
+                                 exc_info, func, extra, sinfo)
+        self.handle(record)
+
+    def setLevel(self, level, update_handlers=True):
+        super().setLevel(level)
+        if update_handlers:
+            for h in self.handlers:
+                h.setLevel(level)
+
     def debug(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.debug(msg, *args, **kwargs)
+        if self.isEnabledFor(DEBUG):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(DEBUG, msg, args, **kwargs)
 
     def info(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.info(msg, *args, **kwargs)
+        if self.isEnabledFor(INFO):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(INFO, msg, args, **kwargs)
 
     def warning(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.warning(msg, *args, **kwargs)
+        if self.isEnabledFor(WARNING):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(WARNING, msg, args, **kwargs)
 
     def error(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.error(msg, *args, **kwargs)
+        if self.isEnabledFor(ERROR):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(ERROR, msg, args, **kwargs)
 
-    def exception(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.exception(msg, *args, **kwargs)
+    def exception(self, msg: str, *args, exc_info=True, **kwargs):
+        if self.isEnabledFor(ERROR):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(ERROR, msg, args, exc_info=exc_info, **kwargs)
 
     def critical(self, msg: str, *args, **kwargs):
-        kwargs = self._update_kwargs(kwargs)
-        self.logger.critical(msg, *args, **kwargs)
+        if self.isEnabledFor(CRITICAL):
+            kwargs = self._update_kwargs(kwargs)
+            self._log(CRITICAL, msg, args, **kwargs)
 
 
-class SplightDevLogger(BaseSplightLogger):
-    def __init__(self, name: str = None) -> None:
-        name = name if name is not None else "splight-dev"
-        super().__init__(name)
-
-    def load_handlers(self) -> None:
-        filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
-        max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e+6))  # 5MB
-        backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 100))
-        handler = ConcurrentRotatingFileHandler(
-            filename=filename, maxBytes=max_bytes, backupCount=backup_count
-        )
-        handler.setFormatter(self.formatter)
-        handler.setLevel(self.log_level)
-
-        self.logger.addHandler(handler)
-        self.logger.propagate = False
+def standard_output_handler(
+    formatter: Optional[Formatter] = SplightFormatter(),
+    log_level: Optional[str] = INFO
+) -> Handler:
+    handler = StreamHandler(sys.stdout)
+    handler.setFormatter(formatter)
+    handler.setLevel(log_level)
+    return handler
 
 
-class ComponentLogger(BaseSplightLogger):
+def splight_dev_file_handler(
+    formatter: Optional[Formatter] = SplightFormatter(),
+    log_level: Optional[str] = INFO
+) -> Handler:
+    filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
+    max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e+6))  # 5MB
+    backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 100))
 
-    def __init__(self, name: str = None) -> None:
-        name = name if name is not None else "component"
-        super().__init__(name)
-
-    def load_handlers(self) -> None:
-        super().load_handlers()  # to load stdout handler
-        # adding file handler
-        filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
-        max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e+6))  # 5MB
-        backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 100))
-        handler = ConcurrentRotatingFileHandler(
-            filename=filename, maxBytes=max_bytes, backupCount=backup_count
-        )
-        handler.setFormatter(self.formatter)
-
-        handler.setLevel(self.log_level)
-        self.logger.addHandler(handler)
-        self.logger.propagate = False
+    handler = ConcurrentRotatingFileHandler(
+        filename=filename, maxBytes=max_bytes, backupCount=backup_count
+    )
+    handler.setFormatter(formatter)
+    handler.setLevel(log_level)
+    return handler
 
 
-def getLogger(name: Optional[str] = None, dev: bool = False):
+def component_file_handler(
+    formatter: Optional[Formatter] = SplightFormatter(),
+    log_level: Optional[str] = INFO
+) -> Handler:
+    filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
+    max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e+6))  # 5MB
+    backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 100))
+
+    handler = ConcurrentRotatingFileHandler(
+        filename=filename, maxBytes=max_bytes, backupCount=backup_count
+    )
+    handler.setFormatter(formatter)
+    handler.setLevel(log_level)
+    return handler
+
+
+def getSplightLogger(name: Optional[str] = None):
+    if name is None:
+        name = "splight-dev"
+    logger = SplightLogger(name=name)
+    logger.propagate = False
+    handler = splight_dev_file_handler(log_level=logger.level)
+    logger.addHandler(handler)
+    return logger
+
+
+def getComponentLogger(name: Optional[str] = None):
+    if name is None:
+        name = "component"
+    logger = SplightLogger(name=name)
+    logger.propagate = False
+    stdout_handler = standard_output_handler(log_level=logger.level)
+    logger.addHandler(stdout_handler)
+    file_handler = component_file_handler(log_level=logger.level)
+    logger.addHandler(file_handler)
+    return logger
+
+
+def getLogger(name: Optional[str] = None, dev: Optional[bool] = False):
     if dev:
-        logger = SplightDevLogger(name)
+        logger = getSplightLogger(name)
     else:
-        logger = ComponentLogger(name)
+        logger = getComponentLogger(name)
     # Add handlers to root logger and his childrens
+    # Add logger.level to root logger
     # force=True to force override
-    logging.basicConfig(handlers=logger.logger.handlers, force=True)
+    basicConfig(handlers=logger.handlers, level=logger.level, force=True)
     return logger
