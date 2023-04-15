@@ -32,7 +32,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
     _PREFIX = "v2/engine/datalake"
 
-    def __init__(self, namespace: str = "default", **kwargs):
+    def __init__(self, namespace: str = "default"):
         super(DatalakeClient, self).__init__(namespace=namespace)
         self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         token = SplightAuthToken(
