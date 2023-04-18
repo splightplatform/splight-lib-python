@@ -4,7 +4,6 @@ from typing import Dict, List, Type
 
 from furl import furl
 from pydantic import BaseModel
-from requests import Session
 
 from retry import retry
 
@@ -15,6 +14,7 @@ from splight_lib.logging import getLogger, LogTags
 from splight_lib.client.database.classmap import CLASSMAP
 from splight_lib.client.exceptions import REQUEST_EXCEPTIONS, InvalidModel
 from splight_lib.client.settings import settings_remote as settings
+from splight_lib.restclient import SplightRestClient
 from splight_lib.encryption import EncryptionClient
 from splight_models import File
 
@@ -34,8 +34,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._session = Session()
-        self._session.headers.update(token.header)
+        self._restclient = SplightRestClient()
+        self._restclient.update_headers(token.header)
         logger.info("Remote database client initialized.", tags=LogTags.DATABASE)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
@@ -88,7 +88,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         model_data = self._get_model_data(resource_type)
         path = model_data["path"]
         url = self._base_url / f"{path}/{id}/"
-        response = self._session.delete(url)
+        response = self._restclient.delete(url)
         response.raise_for_status()
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
@@ -160,7 +160,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         model_data = self._get_model_data(constructor)
         path = model_data["path"]
         url = self._base_url / f"{path}/{instance.id}/download"
-        response = self._session.get(url)
+        response = self._restclient.get(url)
         response.raise_for_status()
         f = NamedTemporaryFile("wb+")
         f.write(response.content)
@@ -186,7 +186,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def _list(self, path: str, **kwargs):
         url = self._base_url / f"{path}/"
         params = self._parse_params(**kwargs)
-        response = self._session.get(url, params=params)
+        response = self._restclient.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
@@ -203,16 +203,16 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if isinstance(instance, File):
             with open(instance.file, "rb") as f:
                 file = {"file": f}
-                response = self._session.post(url, data=data, files=file)
+                response = self._restclient.post(url, data=data, files=file)
         else:
-            response = self._session.post(url, json=data)
+            response = self._restclient.post(url, json=data)
 
         response.raise_for_status()
         return response.json()
 
     def _update(self, path: str, resource_id: str, data: BaseModel) -> Dict:
         url = self._base_url / f"{path}/{resource_id}/"
-        response = self._session.put(
+        response = self._restclient.put(
             url, json=json.loads(data.json(exclude_none=True))
         )
         response.raise_for_status()
