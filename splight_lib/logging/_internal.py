@@ -1,7 +1,11 @@
 import os
 from typing import Optional
-from logging import Formatter, Handler, INFO, basicConfig
-from .logging import SplightFormatter, SplightLogger, standard_output_handler
+from logging import Formatter, Handler, INFO
+from splight_lib.logging.logging import (
+    SplightFormatter,
+    SplightLogger,
+    standard_output_handler,
+)
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 from enum import auto
 from strenum import UppercaseStrEnum
@@ -17,7 +21,7 @@ class LogTags(UppercaseStrEnum):
     SETPOINT = auto()
     COMMAND = auto()
     PARAMETER = auto()
-    COMPONENT = auto() # TODO: not used yet.
+    COMPONENT = auto()  # TODO: not used yet.
     DATABASE = auto()
     DATALAKE = auto()
     CACHE = auto()
@@ -26,10 +30,10 @@ class LogTags(UppercaseStrEnum):
 # don't used now
 def splight_dev_file_handler(
     formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO
+    log_level: Optional[str] = INFO,
 ) -> Handler:
     filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
-    max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e+6))  # 5MB
+    max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e6))  # 5MB
     backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 100))
 
     handler = ConcurrentRotatingFileHandler(
