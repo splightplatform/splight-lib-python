@@ -10,5 +10,5 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: sudo python setup.py install
-      - run: sudo pytest .
+      - run: sudo make install
+      - run: sudo make test
