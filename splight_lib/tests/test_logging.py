@@ -3,7 +3,14 @@ import pytest
 import os
 import logging
 from splight_lib.logging.logging import SplightLogger, standard_output_handler
-from splight_lib.logging import getLogger, DEBUG, INFO, WARNING, ERROR, CRITICAL
+from splight_lib.logging import (
+    getLogger,
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    CRITICAL,
+)
 from splight_lib.logging._internal import get_splight_logger
 from splight_lib.logging.component import get_component_logger
 
@@ -36,16 +43,16 @@ def _get_log_tags(caplog, msg):
     return None
 
 
-@pytest.mark.parametrize("logger", [
-    SplightLogger("test"), getLogger(), get_splight_logger()
-])
+@pytest.mark.parametrize(
+    "logger", [SplightLogger("test"), getLogger(), get_splight_logger()]
+)
 def test_default_log_level_INFO(logger):
     assert logger.level == INFO
 
 
-@pytest.mark.parametrize("fun", [
-    "debug", "info", "warning", "error", "critical", "exception"
-])
+@pytest.mark.parametrize(
+    "fun", ["debug", "info", "warning", "error", "critical", "exception"]
+)
 def test_filename_in_formatter(caplog, logger, fun):
     log = getattr(logger, fun)
     log("Testing filename")
@@ -61,9 +68,9 @@ def test_exception_filename_in_formatter(caplog, logger):
     assert "test_logging.py" in caplog.text
 
 
-@pytest.mark.parametrize("fun", [
-    "debug", "info", "warning", "error", "critical"
-])
+@pytest.mark.parametrize(
+    "fun", ["debug", "info", "warning", "error", "critical"]
+)
 def test_log_message_and_tags_are_present(caplog, logger, fun):
     msg = f"Testing {fun} level log"
     tags = {"level": fun}
@@ -124,19 +131,24 @@ def test_no_splight_logger_log_to_stdout(caplog):
     assert msg in caplog.text
 
 
-@pytest.mark.parametrize("logger_fun", [
-    getLogger, get_component_logger, get_splight_logger
-])
+@pytest.mark.parametrize(
+    "logger_fun", [getLogger, get_component_logger, get_splight_logger]
+)
 @pytest.mark.parametrize("level", [DEBUG, INFO, WARNING, ERROR, CRITICAL])
 def test_no_splight_logger_change_level_with_splight_logger(level, logger_fun):
     root_logger = logging.getLogger()
     no_root_logger = logging.getLogger("no_root")
 
     # check default level
-    assert root_logger.getEffectiveLevel() == no_root_logger.getEffectiveLevel()
+    assert (
+        root_logger.getEffectiveLevel() == no_root_logger.getEffectiveLevel()
+    )
 
     # check level change with splight logger
     logger = logger_fun()
     logger.setLevel(level)
-    assert logger.level == root_logger.getEffectiveLevel() \
+    assert (
+        logger.level
+        == root_logger.getEffectiveLevel()
         == no_root_logger.getEffectiveLevel()
+    )

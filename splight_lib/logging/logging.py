@@ -13,7 +13,7 @@ from logging import (
     CRITICAL,
     Handler,
     StreamHandler,
-    root as rootLogger
+    root as rootLogger,
 )
 
 TAGS_KEY = "tags"
@@ -37,7 +37,6 @@ class SplightFormatter(Formatter):
 
 
 class SplightLogger(Logger):
-
     def __init__(self, name: str = None) -> None:
         # import ipdb; ipdb.set_trace()
         # this is to avoid adding handlers to root logger
@@ -63,8 +62,16 @@ class SplightLogger(Logger):
             kwargs.update({"extra": {TAGS_KEY: tags}})
         return kwargs
 
-    def _log(self, level, msg, args, exc_info=None, extra=None,
-             stack_info=False, stacklevel=1):
+    def _log(
+        self,
+        level,
+        msg,
+        args,
+        exc_info=None,
+        extra=None,
+        stack_info=False,
+        stacklevel=1,
+    ):
         """
         This is a copy from logging._log, where it only changes the `_srcfile`
         variable to use `self._scrfile` because we need to update it for current
@@ -73,22 +80,23 @@ class SplightLogger(Logger):
         """
         sinfo = None
         if self._srcfile:
-            #IronPython doesn't track Python frames, so findCaller raises an
-            #exception on some versions of IronPython. We trap it here so that
-            #IronPython can use logging.
+            # IronPython doesn't track Python frames, so findCaller raises an
+            # exception on some versions of IronPython. We trap it here so that
+            # IronPython can use logging.
             try:
                 fn, lno, func, sinfo = self.findCaller(stack_info, stacklevel)
-            except ValueError: # pragma: no cover
+            except ValueError:  # pragma: no cover
                 fn, lno, func = "(unknown file)", 0, "(unknown function)"
-        else: # pragma: no cover
+        else:  # pragma: no cover
             fn, lno, func = "(unknown file)", 0, "(unknown function)"
         if exc_info:
             if isinstance(exc_info, BaseException):
                 exc_info = (type(exc_info), exc_info, exc_info.__traceback__)
             elif not isinstance(exc_info, tuple):
                 exc_info = sys.exc_info()
-        record = self.makeRecord(self.name, level, fn, lno, msg, args,
-                                 exc_info, func, extra, sinfo)
+        record = self.makeRecord(
+            self.name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
+        )
         self.handle(record)
 
     def setLevel(self, level, update_handlers=True):
@@ -132,7 +140,7 @@ class SplightLogger(Logger):
 
 def standard_output_handler(
     formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO
+    log_level: Optional[str] = INFO,
 ) -> Handler:
     handler = StreamHandler(sys.stdout)
     handler.setFormatter(formatter)

@@ -1,16 +1,20 @@
 import os
 from typing import Optional
 from logging import Formatter, Handler, INFO, basicConfig
-from .logging import SplightFormatter, SplightLogger, standard_output_handler
+from splight_lib.logging.logging import (
+    SplightFormatter,
+    SplightLogger,
+    standard_output_handler,
+)
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 
 def component_file_handler(
     formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO
+    log_level: Optional[str] = INFO,
 ) -> Handler:
     filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
-    max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e+6))  # 5MB
+    max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e6))  # 5MB
     backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 100))
 
     handler = ConcurrentRotatingFileHandler(
