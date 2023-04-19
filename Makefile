@@ -31,7 +31,7 @@ test: ## run tests with pytest
 	pytest splight_lib/tests
 
 lint:  ## run linter
-	flake8 --append-config=.hooks/flake8.toml .
+	flake8 --config=.hooks/flake8.toml .
 
 coverage: ## run coverage
 	coverage run --source=. -m pytest; coverage report -m
