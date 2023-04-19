@@ -116,8 +116,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         if not instances:
             return instances
 
-        logger.debug("Saving instances %s.",
-                    [instance.id for instance in instances], tags=LogTags.DATALAKE)
+        logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
 
         collection = instances[0].Meta.collection_name
 

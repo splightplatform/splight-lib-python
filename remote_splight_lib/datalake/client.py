@@ -173,8 +173,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         instances: List[DatalakeModel],
     ) -> List[DatalakeModel]:
         # POST /datalake/save/
-        logger.debug("Saving instances %s.",
-                    [instance.id for instance in instances], tags=LogTags.DATALAKE)
+        logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
         if not instances:
             return instances
         resource_type = instances[0].__class__
