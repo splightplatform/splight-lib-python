@@ -1,81 +1,133 @@
-import os
 import pytest
+
+import os
 import logging
-from splight_lib.logging import (
-    SplightLogger,
-    getLogger,
-    getSplightLogger,
-    getComponentLogger,
-    standard_output_handler,
-)
+from splight_lib.logging.logging import SplightLogger, standard_output_handler
+from splight_lib.logging import getLogger, DEBUG, INFO, WARNING, ERROR, CRITICAL
+from splight_lib.logging._internal import get_splight_logger
+from splight_lib.logging.component import get_component_logger
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def logger():
     """This is just a common logger with stdout handler."""
-    name = "test"
-    level = logging.DEBUG
+    # setup logger
+    name, level = "test", DEBUG
     logger = SplightLogger(name=name)
     logger.setLevel(level)
-    logger.addHandler(standard_output_handler(log_level=level))
-    return logger
+    logger.addHandler(standard_output_handler(log_level=logger.level))
+
+    yield logger
+
+    # clean logger
+    logger.setLevel(INFO)
 
 
-def test_default_log_level_INFO():
-    logger = SplightLogger()
-    assert logger.level == logging.INFO
+@pytest.fixture(autouse=True)
+def setup_caplog(caplog, logger):
+    logger.addHandler(caplog.handler)
 
 
-@pytest.mark.skip
+@pytest.mark.parametrize("logger", [
+    SplightLogger("test"), getLogger(), get_splight_logger()
+])
+def test_default_log_level_INFO(logger):
+    assert logger.level == INFO
+
+
+@pytest.mark.parametrize("fun", [
+    "debug", "info", "warning", "error", "critical", "exception"
+])
+def test_filename_in_formatter(caplog, logger, fun):
+    log = getattr(logger, fun)
+    log("Testing filename")
+    assert "test_logging.py" in caplog.text
+
+
+def test_exception_filename_in_formatter(caplog, logger):
+    msg = "Testing filename forcing exception"
+    try:
+        raise Exception(msg)
+    except Exception as e:
+        logger.exception(e)
+    assert "test_logging.py" in caplog.text
+
+
 @pytest.mark.parametrize("fun", [
     "debug", "info", "warning", "error", "critical"
 ])
 def test_log_massage_and_tags_are_present(caplog, logger, fun):
     msg = f"Testing {fun} level log"
-    tags = {fun: "testing"}
-    getattr(logger, fun)(msg, tags=tags)
-    # TODO: check how to capture log with caplog
+    tags = {"level": fun}
+    log = getattr(logger, fun)
+    log(msg, tags=tags)
     assert msg in caplog.text
-    assert tags in caplog.text
+    assert tags == caplog.records[-1].tags
 
 
-def test_exception_log_message_tags_and_trace():
-    pass
+def test_exception_log_message_tags_and_trace(caplog, logger):
+    msg = "Forcing exception just to test"
+    tags = {"level": "exception"}
+    try:
+        raise Exception(msg)
+    except Exception as e:
+        logger.exception(e, tags=tags)
+    assert msg in caplog.text
+    assert tags == caplog.records[-1].tags
 
 
-def test_splight_logger_log_to_file(tmpdir):
-    file = tmpdir.mkdir("tmp").join("splight-dev.log")
-    os.environ = {"SPLIGHT_DEVELOPER_LOG_FILE": file}
-
-    logger = getSplightLogger()
+def test_splight_logger_log_to_stdout(caplog):
+    logger = get_splight_logger()
+    logger.addHandler(caplog.handler)
     msg = "Testing splight dev file handler"
     logger.info(msg)
-
-    with open(file, "r") as f:
-        assert msg in f.readline()
+    assert msg in caplog.text
 
 
-def test_component_log_to_stdout_and_file(tmpdir):
+@pytest.mark.parametrize("logger_fun", [getLogger, get_component_logger])
+def test_component_logger_log_to_stdout_and_file(tmpdir, caplog, logger_fun):
     file = tmpdir.mkdir("tmp").join("components.log")
     os.environ = {"SPLIGHT_COMPONENT_LOG_FILE": file}
 
-    logger = getComponentLogger()
-    msg = "Testing splight dev file handler"
-    logger.info(msg)
+    logger = logger_fun()
+    logger.addHandler(caplog.handler)
+    msg = "Testing splight components file handler"
+    tags = {"foo": "bar"}
+    logger.info(msg, tags=tags)
 
     # check stdout
-    # TODO: check how to capture log with caplog
+    assert msg in caplog.text
+    assert tags == caplog.records[-1].tags
 
     # check file
     with open(file, "r") as f:
-        assert msg in f.readline()
+        line = f.readline()
+        assert msg in line
+        assert str(tags) in line
 
 
-# @pytest.mark.parametrize("dev", [True, False])
-def test_no_splight_logger_log_to_current_used_file():
-    component_logger = getLogger("splight")
-    external_logger = logging.getLogger("external")
+def test_no_splight_logger_log_to_stdout(caplog):
+    logger = logging.getLogger()
+    logger.setLevel(INFO)
+    logger.addHandler(caplog.handler)
+    msg = "Test log"
+    logger.info(msg)
+    assert msg in caplog.text
 
 
-def test_not_splight_logger_log_with_splight_log_level():
-    pass
+@pytest.mark.parametrize("logger_fun", [
+    getLogger, get_component_logger, get_splight_logger
+])
+@pytest.mark.parametrize("level", [DEBUG, INFO, WARNING, ERROR, CRITICAL])
+def test_no_splight_logger_change_level_with_splight_logger(level, logger_fun):
+    root_logger = logging.getLogger()
+    no_root_logger = logging.getLogger("no_root")
+
+    # check default level
+    assert root_logger.getEffectiveLevel() == no_root_logger.getEffectiveLevel()
+
+    # check level change with splight logger
+    logger = logger_fun()
+    logger.setLevel(level)
+    assert logger.level == root_logger.getEffectiveLevel() \
+        == no_root_logger.getEffectiveLevel()

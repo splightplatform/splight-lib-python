@@ -1,3 +1,7 @@
+import time
+import os
+import sys
+from typing import Dict, Optional
 from logging import (
     Formatter,
     Logger,
@@ -9,31 +13,8 @@ from logging import (
     CRITICAL,
     Handler,
     StreamHandler,
-    basicConfig,
+    root as rootLogger
 )
-import time
-import os
-import sys
-from concurrent_log_handler import ConcurrentRotatingFileHandler
-from typing import Dict, Optional
-from enum import auto
-from strenum import UppercaseStrEnum
-
-
-class LogTags(UppercaseStrEnum):
-    RUNTIME = auto()
-    BINDING = auto()
-    COMMUNICATION = auto()
-    INDEX = auto()
-    SECRET = auto()
-    HOOK = auto()
-    SETPOINT = auto()
-    COMMAND = auto()
-    PARAMETER = auto()
-    COMPONENT = auto() # TODO: not used yet.
-    DATABASE = auto()
-    DATALAKE = auto()
-    CACHE = auto()
 
 TAGS_KEY = "tags"
 
@@ -58,6 +39,7 @@ class SplightFormatter(Formatter):
 class SplightLogger(Logger):
 
     def __init__(self, name: str = None) -> None:
+        # import ipdb; ipdb.set_trace()
         # this is to avoid adding handlers to root logger
         # and interfering with third party app logs
         self.name = name if name is not None else "splight"
@@ -75,6 +57,7 @@ class SplightLogger(Logger):
 
     @staticmethod
     def _update_kwargs(kwargs: Dict) -> Dict:
+        """Format log method tags and save into `extra` logging argument."""
         tags = kwargs.pop(TAGS_KEY, None)
         if tags is not None:
             kwargs.update({"extra": {TAGS_KEY: tags}})
@@ -83,10 +66,10 @@ class SplightLogger(Logger):
     def _log(self, level, msg, args, exc_info=None, extra=None,
              stack_info=False, stacklevel=1):
         """
-        This is a copy from logging._log, where where it only changes the
-        `_srcfile` variable to use `self._scrfile` because we need to update it
-        for current file, i.e, splight_lib.logging.py to show the correct log
-        caller file in formatter.
+        This is a copy from logging._log, where it only changes the `_srcfile`
+        variable to use `self._scrfile` because we need to update it for current
+        file, i.e, splight_lib.logging.py to show the correct log caller file in
+        formatter.
         """
         sinfo = None
         if self._srcfile:
@@ -113,6 +96,8 @@ class SplightLogger(Logger):
         if update_handlers:
             for h in self.handlers:
                 h.setLevel(level)
+        # Add logger.level to root logger
+        rootLogger.setLevel(level)
 
     def debug(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(DEBUG):
@@ -153,69 +138,3 @@ def standard_output_handler(
     handler.setFormatter(formatter)
     handler.setLevel(log_level)
     return handler
-
-
-def splight_dev_file_handler(
-    formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO
-) -> Handler:
-    filename = os.getenv("SPLIGHT_DEVELOPER_LOG_FILE", "/tmp/splight-dev.log")
-    max_bytes = int(os.getenv("SPLIGHT_DEVELOPER_MAX_BYTES", 5e+6))  # 5MB
-    backup_count = int(os.getenv("SPLIGHT_DEVELOPER_BACKUP_COUNT", 100))
-
-    handler = ConcurrentRotatingFileHandler(
-        filename=filename, maxBytes=max_bytes, backupCount=backup_count
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(log_level)
-    return handler
-
-
-def component_file_handler(
-    formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO
-) -> Handler:
-    filename = os.getenv("SPLIGHT_COMPONENT_LOG_FILE", "/tmp/components.log")
-    max_bytes = int(os.getenv("SPLIGHT_COMPONENT_MAX_BYTES", 5e+6))  # 5MB
-    backup_count = int(os.getenv("SPLIGHT_COMPONENT_BACKUP_COUNT", 100))
-
-    handler = ConcurrentRotatingFileHandler(
-        filename=filename, maxBytes=max_bytes, backupCount=backup_count
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(log_level)
-    return handler
-
-
-def getSplightLogger(name: Optional[str] = None):
-    if name is None:
-        name = "splight-dev"
-    logger = SplightLogger(name=name)
-    logger.propagate = False
-    handler = splight_dev_file_handler(log_level=logger.level)
-    logger.addHandler(handler)
-    return logger
-
-
-def getComponentLogger(name: Optional[str] = None):
-    if name is None:
-        name = "component"
-    logger = SplightLogger(name=name)
-    logger.propagate = False
-    stdout_handler = standard_output_handler(log_level=logger.level)
-    logger.addHandler(stdout_handler)
-    file_handler = component_file_handler(log_level=logger.level)
-    logger.addHandler(file_handler)
-    return logger
-
-
-def getLogger(name: Optional[str] = None, dev: Optional[bool] = False):
-    if dev:
-        logger = getSplightLogger(name)
-    else:
-        logger = getComponentLogger(name)
-    # Add handlers to root logger and his childrens
-    # Add logger.level to root logger
-    # force=True to force override
-    basicConfig(handlers=logger.handlers, level=logger.level, force=True)
-    return logger
