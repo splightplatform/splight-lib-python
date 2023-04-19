@@ -64,7 +64,7 @@ def test_exception_filename_in_formatter(caplog, logger):
 @pytest.mark.parametrize("fun", [
     "debug", "info", "warning", "error", "critical"
 ])
-def test_log_massage_and_tags_are_present(caplog, logger, fun):
+def test_log_message_and_tags_are_present(caplog, logger, fun):
     msg = f"Testing {fun} level log"
     tags = {"level": fun}
     log = getattr(logger, fun)
