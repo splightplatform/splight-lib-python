@@ -4,7 +4,7 @@
 
 For development
 
-- `python setup.py develop`
+- `make install`
 
 For productive envs.
 
@@ -13,5 +13,5 @@ For productive envs.
 ## Tests
 
 ```
-pytest splight_lib/tests
+make test
 ```
