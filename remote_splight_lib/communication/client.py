@@ -3,7 +3,7 @@ import requests
 from furl import furl
 from retry import retry
 from typing import Callable, Dict
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
@@ -16,7 +16,7 @@ from remote_splight_lib.settings import settings
 from remote_splight_lib.communication.classmap import CLASSMAP
 
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 
 class CommunicationFactory:

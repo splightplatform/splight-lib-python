@@ -3,10 +3,10 @@ from functools import wraps
 from typing import Callable, List
 from abc import abstractmethod
 from splight_abstract.client import AbstractClient
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 class AbstractCacheClient(AbstractClient):
 
