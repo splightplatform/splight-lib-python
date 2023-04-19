@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 from pytest import MonkeyPatch
 from splight_models import Asset
@@ -9,6 +10,7 @@ MonkeyPatch().setenv("SPLIGHTD_WEBHOOK_SECRET", "SECRETNOTSECRET")
 
 class TestShortcut(TestCase):
     def setUp(self) -> None:
+        os.environ["SPLIGHTD_WEBHOOK_SECRET"] = "fake_secret"
         self._client = WebhookClient()
         return super().setUp()
 
