@@ -1,5 +1,0 @@
-# Test's requirements
--r requirements.txt
-
-pytest==7.1.2
-mock==4.0.3

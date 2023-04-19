@@ -1,9 +1,0 @@
-# Development requirements
--r requirements-test.txt
-
-flake8==6.0.0
-ipython==8.12.0
-ipdb==0.13.13
-pre-commit==3.2.2
-black==23.3.0
-isort==5.12.0
