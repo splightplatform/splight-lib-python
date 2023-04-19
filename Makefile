@@ -37,7 +37,7 @@ coverage: ## run coverage
 	coverage run --source=. -m pytest; coverage report -m
 
 install: clean ## install the package to the active Python's site-packages
-	pip install -r requirements-dev.txt
+	pip install -e ".[dev]"
 	pre-commit install
 
 black: ## run black formatter
