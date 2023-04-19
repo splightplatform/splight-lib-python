@@ -28,6 +28,14 @@ def setup_caplog(caplog, logger):
     logger.addHandler(caplog.handler)
 
 
+def _get_log_tags(caplog, msg):
+    for record in caplog.records:
+        print(record)
+        if msg in record.message:
+            return record.tags
+    return None
+
+
 @pytest.mark.parametrize("logger", [
     SplightLogger("test"), getLogger(), get_splight_logger()
 ])
@@ -73,7 +81,8 @@ def test_exception_log_message_tags_and_trace(caplog, logger):
     except Exception as e:
         logger.exception(e, tags=tags)
     assert msg in caplog.text
-    assert tags == caplog.records[-1].tags
+    assert tags == _get_log_tags(caplog, msg)
+    assert "Traceback (most recent call last):" in caplog.text
 
 
 def test_splight_logger_log_to_stdout(caplog):
@@ -97,7 +106,7 @@ def test_component_logger_log_to_stdout_and_file(tmpdir, caplog, logger_fun):
 
     # check stdout
     assert msg in caplog.text
-    assert tags == caplog.records[-1].tags
+    assert tags == _get_log_tags(caplog, msg)
 
     # check file
     with open(file, "r") as f:
