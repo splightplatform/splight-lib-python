@@ -9,11 +9,11 @@ from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
 from splight_models import SplightBaseModel
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 
 ResourceType = Type[SplightBaseModel]
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 
 class LocalDatabaseClient(AbstractDatabaseClient):

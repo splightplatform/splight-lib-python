@@ -7,7 +7,7 @@ from splight_models import File
 from remote_splight_lib.settings import settings
 from remote_splight_lib.exceptions import InvalidModel
 from remote_splight_lib.auth import SplightAuthToken
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_lib.encryption import EncryptionClient
 from typing import Dict, List, Type
 
@@ -21,7 +21,7 @@ from requests.exceptions import (
 from tempfile import NamedTemporaryFile
 
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 

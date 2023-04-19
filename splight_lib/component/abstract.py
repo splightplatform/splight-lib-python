@@ -11,7 +11,7 @@ from collections import defaultdict
 from pydantic import BaseModel, main
 from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_lib.settings import setup as default_setup
 from splight_models import (
     CustomType,
@@ -48,7 +48,7 @@ from splight_models.setpoint import (
 import re
 
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 
 class SecretValueParser:

@@ -9,7 +9,7 @@ from furl import furl
 from pydantic import BaseModel
 
 from remote_splight_lib.auth import SplightAuthToken
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from remote_splight_lib.settings import settings
 from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import AbstractDatalakeClient, validate_resource_type, validate_instance_type
@@ -23,7 +23,7 @@ from splight_lib.restclient import (
     ConnectError
 )
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
 

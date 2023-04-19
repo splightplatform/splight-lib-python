@@ -12,10 +12,10 @@ from threading import (
 from subprocess import Popen as DefaultPopen
 from functools import wraps
 from splight_abstract.client.abstract import AbstractClient
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 class Empty(object):
     pass

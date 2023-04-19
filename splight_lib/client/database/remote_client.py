@@ -11,14 +11,14 @@ from retry import retry
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_lib.client.database.classmap import CLASSMAP
 from splight_lib.client.exceptions import REQUEST_EXCEPTIONS, InvalidModel
 from splight_lib.client.settings import settings_remote as settings
 from splight_lib.encryption import EncryptionClient
 from splight_models import File
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 
 class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
