@@ -14,7 +14,7 @@ test_requires = [
 
 setup(
     name="splight-lib",
-    version="2.2.11",
+    version="2.2.12",
     author="Splight",
     author_email="factory@splight-ae.com",
     packages=find_packages(),
