@@ -171,8 +171,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         instances: List[DatalakeModel],
     ) -> List[DatalakeModel]:
         # POST /datalake/save/
-        logger.debug("Saving instances %s.",
-                    [instance.id for instance in instances], tags=LogTags.DATALAKE)
+        logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
 
         if not instances:
             return instances
@@ -186,7 +185,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self, resource_type: DatalakeModel, dataframe: pd.DataFrame
     ) -> None:
         logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
-        
+
         # POST /datalake/loaddata/
         url = self._base_url / f"{self._PREFIX}/loaddata/"
 
@@ -212,7 +211,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def create_index(self, collection: str, indexes: List[Dict]) -> None:
         # POST /datalake/index/
         logger.debug("Creating index for collection: %s.", collection, tags=LogTags.DATALAKE)
-        
+
         url = self._base_url / f"{self._PREFIX}/index/"
         data = {"source": collection, "index": indexes}
         response = self._restclient.post(url, json=data)
