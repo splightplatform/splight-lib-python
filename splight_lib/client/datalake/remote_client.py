@@ -19,10 +19,10 @@ from splight_abstract.datalake import (
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.client.settings import settings_remote as settings
 from splight_lib.restclient import SplightRestClient
-from splight_lib.logging import getLogger, LogTags
+from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_models import DatalakeModel, Query
 
-logger = getLogger(dev=True)
+logger = get_splight_logger()
 
 
 class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
