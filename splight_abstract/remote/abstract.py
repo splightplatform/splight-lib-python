@@ -8,5 +8,5 @@ class AbstractRemoteClient(AbstractClient):
         for key, value in kwargs.items():
             params[key] = value
             if isinstance(value, list):
-                params[key] = ','.join(value)
+                params[key] = ",".join(value)
         return params

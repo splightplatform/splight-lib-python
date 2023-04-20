@@ -1,4 +1,5 @@
 from pytest import MonkeyPatch
+
 MonkeyPatch().setenv("SPLIGHT_ACCESS_ID", "access_id")
 MonkeyPatch().setenv("SPLIGHT_SECRET_KEY", "secret_key")
 
@@ -42,7 +43,6 @@ class MockPaginatedResponse:
 
 
 class TestDatabaseClient(TestCase):
-
     def get_client(self):
         client = DatabaseClient()
         return client

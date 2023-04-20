@@ -36,7 +36,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         )
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
-        logger.info("Remote database client initialized.", tags=LogTags.DATABASE)
+        logger.info(
+            "Remote database client initialized.", tags=LogTags.DATABASE
+        )
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def save(self, instance: BaseModel) -> BaseModel:
@@ -133,7 +135,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)

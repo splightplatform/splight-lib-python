@@ -10,7 +10,6 @@ from httpx._models import Request
 
 
 class HTTPError(Exception):
-
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self._request = None
@@ -27,7 +26,6 @@ class HTTPError(Exception):
 
 
 class RequestError(HTTPError):
-
     def __init__(
         self, message: str, *, request: Optional[Request] = None
     ) -> None:

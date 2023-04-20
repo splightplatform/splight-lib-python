@@ -18,10 +18,10 @@ class TestExecutionClient(TestCase):
 
     @staticmethod
     def function_nok() -> None:
-        raise Exception('Test exception')
+        raise Exception("Test exception")
 
     def function_to_schedule(self, arg1, arg2) -> None:
-        self.executions.append(('function_to_schedule', arg1, arg2))
+        self.executions.append(("function_to_schedule", arg1, arg2))
 
     def test_thread_healthcheck_ok(self) -> None:
         client = ExecutionClient()
@@ -37,22 +37,22 @@ class TestExecutionClient(TestCase):
 
     def test_process_healthcheck_ok(self) -> None:
         client = ExecutionClient()
-        file_path = os.path.join(self.base_dir, 'tests/FakeProc.py')
-        client.start(Popen(["python", file_path, 'exit_ok']))
+        file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
+        client.start(Popen(["python", file_path, "exit_ok"]))
         time.sleep(self.sleep_time)
         self.assertTrue(client.healthcheck())
 
     def test_process_healthcheck_fail(self) -> None:
         client = ExecutionClient()
-        file_path = os.path.join(self.base_dir, 'tests/FakeProc.py')
-        client.start(Popen(["python", file_path, 'exit_fail']))
+        file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
+        client.start(Popen(["python", file_path, "exit_fail"]))
         time.sleep(self.sleep_time)
         self.assertFalse(client.healthcheck())
 
     def test_terminate_all(self) -> None:
         client = ExecutionClient()
-        file_path = os.path.join(self.base_dir, 'tests/FakeProc.py')
-        client.start(Popen(["python", file_path, 'run_forever']))
+        file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
+        client.start(Popen(["python", file_path, "run_forever"]))
         time.sleep(self.sleep_time)
         self.assertTrue(client.healthcheck())
         client.terminate_all()
@@ -61,7 +61,12 @@ class TestExecutionClient(TestCase):
 
     def test_scheduled_task(self) -> None:
         client = ExecutionClient()
-        task = Task(handler=self.function_to_schedule, args=("arg1", 2), period=1, hash="WTF")
+        task = Task(
+            handler=self.function_to_schedule,
+            args=("arg1", 2),
+            period=1,
+            hash="WTF",
+        )
         self.assertEqual(len(self.executions), 0)
         # Start task
         client.start(task)
@@ -70,7 +75,9 @@ class TestExecutionClient(TestCase):
         prev_count = len(self.executions)
         time.sleep(0.99)
         self.assertEqual(len(self.executions), prev_count + 1)
-        self.assertEqual(self.executions[-1], ("function_to_schedule", "arg1", 2))
+        self.assertEqual(
+            self.executions[-1], ("function_to_schedule", "arg1", 2)
+        )
 
         # Stop task
         client.stop(task)

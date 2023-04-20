@@ -1,7 +1,10 @@
 from typing import Dict, List, Optional
 from splight_models.base import SplightBaseModel
 from splight_models.constants import (
-    ComponentSize, DeploymentStatus, LogginLevel, RestartPolicy
+    ComponentSize,
+    DeploymentStatus,
+    LogginLevel,
+    RestartPolicy,
 )
 from splight_models.component import BaseComponent
 

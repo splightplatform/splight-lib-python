@@ -10,9 +10,7 @@ from splight_lib.restclient import SplightRestClient
 @pytest.mark.parametrize(
     "method", ["get", "options", "head", "post", "put", "patch", "delete"]
 )
-@pytest.mark.parametrize(
-    "attr", ["status_code", "text", "content", "cookies"]
-)
+@pytest.mark.parametrize("attr", ["status_code", "text", "content", "cookies"])
 def test_all_splight_restclient_methods_have_equal_response_to_other_libraries(
     method, attr
 ):
@@ -28,9 +26,9 @@ def test_all_splight_restclient_methods_have_equal_response_to_other_libraries(
     requests_response = getattr(_requests, method)(url)
 
     assert (
-        getattr(restclient_response, attr) ==
-        getattr(httpx_response, attr) ==
-        getattr(session_response, attr) ==
-        getattr(requests_response, attr),
-        f"Error in {attr} atributte."
+        getattr(restclient_response, attr)
+        == getattr(httpx_response, attr)
+        == getattr(session_response, attr)
+        == getattr(requests_response, attr),
+        f"Error in {attr} atributte.",
     )

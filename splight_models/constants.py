@@ -9,12 +9,12 @@ class ChoiceMixin(str, Enum):
 
 
 class SeverityType(ChoiceMixin):
-    system = 'system'
-    info = 'info'
-    low = 'low'
-    medium = 'medium'
-    high = 'high'
-    critical = 'critical'
+    system = "system"
+    info = "info"
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
 
 
 class AlertStatus(ChoiceMixin):
@@ -79,10 +79,10 @@ class DeploymentStatus(str, Enum):
 
 
 class MinComponentCapacity(ChoiceMixin):
-    SMALL = 'small'
-    MEDIUM = 'medium'
-    LARGE = 'large'
-    VERY_LARGE = 'very_large'
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
+    VERY_LARGE = "very_large"
 
 
 class ComponentStatus(ChoiceMixin):

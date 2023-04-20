@@ -131,7 +131,6 @@ class _SplightHubGenericClient(AbstractHubSubClient):
 
 
 class SplightHubClient(AbstractHubClient):
-
     def __init__(
         self, headers: Optional[Dict[str, str]] = {}, *args, **kwargs
     ) -> None:

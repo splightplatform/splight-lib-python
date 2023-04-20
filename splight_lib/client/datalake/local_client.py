@@ -30,7 +30,9 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def __init__(self, namespace: str, path: str):
         super().__init__(namespace=namespace)
         self._base_path = path
-        logger.info("Local datalake client initialized.", tags=LogTags.DATALAKE)
+        logger.info(
+            "Local datalake client initialized.", tags=LogTags.DATALAKE
+        )
 
     def _raw_get(
         self,
@@ -77,7 +79,11 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         tzinfo: timezone = timezone(timedelta()),
         **kwargs,
     ) -> QuerySet:
-        logger.debug("Retrieving object of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+        logger.debug(
+            "Retrieving object of type %s from datalake.",
+            resource_type,
+            tags=LogTags.DATALAKE,
+        )
 
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
@@ -101,7 +107,9 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         self, resource_type: Type, freq: str = "H", **kwargs
     ) -> pd.DataFrame:
         """Reads documents and returns a dataframe"""
-        logger.debug("Retrieving dataframe from datalake.", tags=LogTags.DATALAKE)
+        logger.debug(
+            "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
+        )
         documents = self._raw_get(resource_type, **kwargs)
         df = pd.DataFrame([x.dict() for x in documents])
         if not df.empty:
@@ -141,17 +149,29 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         _ = self.save(instances)
 
     def delete(self, resource_type: DLResource, **kwargs) -> None:
-        logger.debug("Deleting resources of type %s from datalake.", resource_type, tags=LogTags.DATALAKE)
+        logger.debug(
+            "Deleting resources of type %s from datalake.",
+            resource_type,
+            tags=LogTags.DATALAKE,
+        )
         raise NotImplementedError()
 
     def create_index(self, collection: str, index: list) -> None:
-        logger.debug("Creating index for collection: %s.", collection, tags=LogTags.DATALAKE)
+        logger.debug(
+            "Creating index for collection: %s.",
+            collection,
+            tags=LogTags.DATALAKE,
+        )
         raise NotImplementedError()
 
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
-        logger.debug("Aggregate on datalake collection: %s.", collection, tags=LogTags.DATALAKE)
+        logger.debug(
+            "Aggregate on datalake collection: %s.",
+            collection,
+            tags=LogTags.DATALAKE,
+        )
         raise NotImplementedError()
 
     def _filter(
