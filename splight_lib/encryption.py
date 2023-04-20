@@ -37,9 +37,9 @@ class EncryptionClient:
     def encrypt_file(self, path: str):
         if not self.key:
             return None
-        with open(path, 'rb+') as f:
+        with open(path, "rb+") as f:
             original = f.read()
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.seek(0)
             encrypted = self.fernet.encrypt(original)
             f.write(encrypted)
@@ -47,9 +47,9 @@ class EncryptionClient:
     def decrypt_file(self, path: str):
         if not self.key:
             return
-        with open(path, 'rb+') as f:
+        with open(path, "rb+") as f:
             original = f.read()
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.seek(0)
             decrypted = self.fernet.decrypt(original)
             f.write(decrypted)

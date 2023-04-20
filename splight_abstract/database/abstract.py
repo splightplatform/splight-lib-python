@@ -6,19 +6,20 @@ from tempfile import NamedTemporaryFile
 
 
 class AbstractDatabaseClient(AbstractClient):
-
     @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:
         pass
 
     @abstractmethod
-    def _get(self,
-             resource_type: Type,
-             first: bool = False,
-             limit_: int = -1,
-             skip_: int = 0,
-             deleted: bool = False,
-             **kwargs) -> List[BaseModel]:
+    def _get(
+        self,
+        resource_type: Type,
+        first: bool = False,
+        limit_: int = -1,
+        skip_: int = 0,
+        deleted: bool = False,
+        **kwargs
+    ) -> List[BaseModel]:
         pass
 
     def get(self, resource_type: Type, *args, **kwargs) -> QuerySet:

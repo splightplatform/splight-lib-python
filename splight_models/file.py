@@ -16,8 +16,8 @@ class File(SplightBaseModel):
 
     @validator("file", pre=True)
     def validate_file(cls, v):
-        v = v.replace('/', os.sep)
-        v = v.replace('\\', os.sep)
+        v = v.replace("/", os.sep)
+        v = v.replace("\\", os.sep)
         return v
 
     @property

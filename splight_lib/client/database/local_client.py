@@ -27,7 +27,9 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
         if not os.path.exists(self._db_file):
             self._save_db(self._db_file, {})
-        logger.info("Local database client initialized.", tags=LogTags.DATABASE)
+        logger.info(
+            "Local database client initialized.", tags=LogTags.DATABASE
+        )
 
     def save(self, instance: SplightBaseModel) -> SplightBaseModel:
         """Saves an instance in the local database, if the instance has an id
@@ -108,7 +110,12 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         db = self._load_db_file(self._db_file)
         model_name = resource_type.__name__.lower()
         db_instances = db.get(model_name, {})
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return len(db_instances)
 
     def download(

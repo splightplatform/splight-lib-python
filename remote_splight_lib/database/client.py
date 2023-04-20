@@ -14,10 +14,7 @@ from typing import Dict, List, Type
 from furl import furl
 from pydantic import BaseModel
 from requests import Session
-from requests.exceptions import (
-    ConnectionError,
-    Timeout
-)
+from requests.exceptions import ConnectionError, Timeout
 from tempfile import NamedTemporaryFile
 
 
@@ -147,11 +144,18 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def download(self, instance: BaseModel, decrypt: bool = True, **kwargs) -> NamedTemporaryFile:
+    def download(
+        self, instance: BaseModel, decrypt: bool = True, **kwargs
+    ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -213,7 +217,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         url = self._base_url / f"{path}/"
         data = json.loads(instance.json(exclude_none=True))
         if isinstance(instance, File):
-            with open(instance.file, 'rb') as f:
+            with open(instance.file, "rb") as f:
                 file = {"file": f}
                 response = self._session.post(url, data=data, files=file)
         else:

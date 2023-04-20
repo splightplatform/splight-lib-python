@@ -1,4 +1,3 @@
-
 from enum import Enum
 from typing import Dict, Optional
 from pydantic import Field
@@ -17,13 +16,13 @@ class EventActions(str, Enum):
 
 class EventNames(str, Enum):
     # TODO make this use EventActions.
-    COMPONENT_COMMAND_TRIGGER = 'componentcommand-trigger'
-    COMPONENT_COMMAND_CREATE = 'componentcommand-create'
-    COMPONENT_COMMAND_UPDATE = 'componentcommand-update'
+    COMPONENT_COMMAND_TRIGGER = "componentcommand-trigger"
+    COMPONENT_COMMAND_CREATE = "componentcommand-create"
+    COMPONENT_COMMAND_UPDATE = "componentcommand-update"
     # TODO add Asset Attribute and all shared objects
 
-    SETPOINT_CREATE = 'setpoint-create'
-    SETPOINT_UPDATE = 'setpoint-update'
+    SETPOINT_CREATE = "setpoint-create"
+    SETPOINT_UPDATE = "setpoint-update"
 
 
 class CommunicationEvent(SplightBaseModel):
@@ -31,7 +30,11 @@ class CommunicationEvent(SplightBaseModel):
     id: Optional[str] = None
     instance_id: Optional[str] = None
     socket_id: Optional[str] = None
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))  # pusher cannot json serialize datetime objects
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
+    )  # pusher cannot json serialize datetime objects
     display_text: Optional[str] = None
     user: Optional[User] = None
     data: Dict

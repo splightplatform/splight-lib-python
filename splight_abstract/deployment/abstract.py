@@ -13,12 +13,26 @@ class AbstractDeploymentClient(AbstractClient):
         return QuerySet(self, *args, **kwargs)
 
     @abstractmethod
-    def _get(self, resource_type: Type, id: str = '', first=False, limit_: int = -1, skip_: int = 0, **kwargs) -> List[BaseModel]:
+    def _get(
+        self,
+        resource_type: Type,
+        id: str = "",
+        first=False,
+        limit_: int = -1,
+        skip_: int = 0,
+        **kwargs
+    ) -> List[BaseModel]:
         pass
 
     @abstractmethod
     def delete(self, resource_type: Type, id: str) -> None:
         pass
 
-    def get_deployment_logs(self, id: str, limit: Optional[int] = None, since: Optional[str] = None, previous: bool = False) -> List[str]:
+    def get_deployment_logs(
+        self,
+        id: str,
+        limit: Optional[int] = None,
+        since: Optional[str] = None,
+        previous: bool = False,
+    ) -> List[str]:
         pass

@@ -14,12 +14,12 @@ class TestVariable(TestCase):
 
     @staticmethod
     def a_plus(*args, **kwargs):
-        kwargs['a'] += 1
+        kwargs["a"] += 1
         return args, kwargs
 
     @staticmethod
     def b_minus(*args, **kwargs):
-        kwargs['b'] -= 1
+        kwargs["b"] -= 1
         return args, kwargs
 
     @staticmethod
@@ -33,12 +33,12 @@ class TestVariable(TestCase):
         return return_value
 
     def test_post_hook(self):
-        self.instance.add_post_hook('test', self.join_return_values)
+        self.instance.add_post_hook("test", self.join_return_values)
         return_value = self.instance.test(1, 2, c=3)
-        self.assertEqual(return_value, {"a": 1, "b":2 , "c":3})
+        self.assertEqual(return_value, {"a": 1, "b": 2, "c": 3})
 
     def test_1_hook(self):
-        self.instance.add_pre_hook('test', self.a_plus)
+        self.instance.add_pre_hook("test", self.a_plus)
 
         a, b, kwargs = self.instance.test(1, 2)
         self.assertEqual(a, 2)
@@ -46,8 +46,8 @@ class TestVariable(TestCase):
         self.assertEqual(kwargs, {})
 
     def test_2_hook(self):
-        self.instance.add_pre_hook('test', self.a_plus)
-        self.instance.add_pre_hook('test', self.b_minus)
+        self.instance.add_pre_hook("test", self.a_plus)
+        self.instance.add_pre_hook("test", self.b_minus)
 
         a, b, kwargs = self.instance.test(1, 2)
         self.assertEqual(a, 2)
@@ -55,8 +55,8 @@ class TestVariable(TestCase):
         self.assertEqual(kwargs, {})
 
     def test_kwargs(self):
-        self.instance.add_pre_hook('test', self.a_plus)
+        self.instance.add_pre_hook("test", self.a_plus)
 
         a, b, kwargs = self.instance.test(1, 2, p=3, q=4)
         self.assertEqual(a, 2)
-        self.assertEqual(kwargs, {'p': 3, 'q': 4})
+        self.assertEqual(kwargs, {"p": 3, "q": 4})

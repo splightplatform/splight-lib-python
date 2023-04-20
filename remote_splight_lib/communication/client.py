@@ -9,7 +9,11 @@ from splight_abstract.communication import (
     ClientNotReady,
 )
 import logging
-from splight_models.communication import CommunicationClientStatus, CommunicationContext, CommunicationEvent
+from splight_models.communication import (
+    CommunicationClientStatus,
+    CommunicationContext,
+    CommunicationEvent,
+)
 
 from remote_splight_lib.auth.auth import SplightAuthToken
 from remote_splight_lib.settings import settings
@@ -20,7 +24,6 @@ logger = get_splight_logger()
 
 
 class CommunicationFactory:
-
     def __init__(self, model):
         self._model = model
 
@@ -36,26 +39,36 @@ class CommunicationFactory:
         return auth_token.header
 
     def create(self, data: Dict):
-        response = requests.post(self.get_url(), json=data, headers=self.get_headers())
-        assert response.status_code == 201, f"Cant create communication {self._model}."
+        response = requests.post(
+            self.get_url(), json=data, headers=self.get_headers()
+        )
+        assert (
+            response.status_code == 201
+        ), f"Cant create communication {self._model}."
         return self._model.parse_obj(response.json())
 
     def get(self, params=None):
-        response = requests.get(self.get_url(), params=params, headers=self.get_headers())
-        assert response.status_code == 200, f"Cant fetch communication {self._model}."
+        response = requests.get(
+            self.get_url(), params=params, headers=self.get_headers()
+        )
+        assert (
+            response.status_code == 200
+        ), f"Cant fetch communication {self._model}."
         data = response.json()
         return self._model.parse_obj(data)
 
 
 class CommunicationClient(AbstractCommunicationClient):
-
     def __init__(self, daemon: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._status = CommunicationClientStatus.STOPPED
         self._channel_bindings = []
         self._client, self._context = None, None
         self._system_bindings = [
-            ("pusher:connection_established", self.__on_connection_established),
+            (
+                "pusher:connection_established",
+                self.__on_connection_established,
+            ),
             ("pusher:connection_failed", self.__on_connection_failed),
             ("pusher:error", self.__on_error),
         ]
@@ -64,11 +77,16 @@ class CommunicationClient(AbstractCommunicationClient):
             self.__load_context()
             self.__load_client()
             self.__check_readiness()
-            logger.info("Communication client started.", tags=LogTags.COMMUNICATION)
+            logger.info(
+                "Communication client started.", tags=LogTags.COMMUNICATION
+            )
         except Exception as e:
             logger.warning(
                 "Failed to start communication client due to exception %s. Moving forward without remote commands.",
-                e, exc_info=True, tags=LogTags.COMMUNICATION)
+                e,
+                exc_info=True,
+                tags=LogTags.COMMUNICATION,
+            )
             self._status = CommunicationClientStatus.ERROR
 
     @property
@@ -97,9 +115,11 @@ class CommunicationClient(AbstractCommunicationClient):
             key=self._context.key,
             auth_endpoint=self._context.auth_endpoint,
             auth_endpoint_headers=self._context.auth_headers,
-            user_data=self._context.channel_data.dict() if self.context.channel_data else None,
+            user_data=self._context.channel_data.dict()
+            if self.context.channel_data
+            else None,
             daemon=self._daemon,
-            log_level=logging.WARNING
+            log_level=logging.WARNING,
         )
         self.__bind_system_events()
         self._client.connect()
@@ -112,7 +132,9 @@ class CommunicationClient(AbstractCommunicationClient):
 
     def __on_connection_established(self, data):
         self._channel = self._client.subscribe(self._context.channel)
-        self._private_room_channel = self._client.subscribe(self._context.private_room_channel)
+        self._private_room_channel = self._client.subscribe(
+            self._context.private_room_channel
+        )
         for event_name, event_handler in self._channel_bindings:
             self._channel.bind(event_name, event_handler)
             self._private_room_channel.bind(event_name, event_handler)
@@ -127,7 +149,10 @@ class CommunicationClient(AbstractCommunicationClient):
     def bind(self, event_name: str, event_handler: Callable) -> None:
         self._channel_bindings.append((event_name, event_handler))
         if self.status != CommunicationClientStatus.READY:
-            logger.warning("Bind events failed due to comm client is not ready", tags=LogTags.COMMUNICATION)
+            logger.warning(
+                "Bind events failed due to comm client is not ready",
+                tags=LogTags.COMMUNICATION,
+            )
             return
         self._channel.bind(event_name, event_handler)
         self._private_room_channel.bind(event_name, event_handler)
@@ -137,7 +162,11 @@ class CommunicationClient(AbstractCommunicationClient):
         raise NotImplementedError
 
     def trigger(self, event: CommunicationEvent):
-        return CommunicationFactory(CommunicationEvent).create(data=event.dict())
+        return CommunicationFactory(CommunicationEvent).create(
+            data=event.dict()
+        )
 
-    def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> Dict:
+    def authenticate(
+        self, channel_name: str, socket_id: str, custom_data: Dict = None
+    ) -> Dict:
         raise NotImplementedError

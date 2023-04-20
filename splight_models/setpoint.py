@@ -40,7 +40,7 @@ class SetPoint(SplightBaseModel):
     value: Union[str, bool, float]
     responses: List[SetPointResponse] = []
 
-    @validator('value')
+    @validator("value")
     def cast_value(cls, v, values, **kwargs):
         if not "type" in values:
             raise ValueError("type is required")

@@ -5,7 +5,6 @@ from splight_abstract.client import AbstractClient, QuerySet
 
 
 class AbstractStorageClient(AbstractClient):
-
     @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:
         pass
@@ -16,7 +15,15 @@ class AbstractStorageClient(AbstractClient):
         return QuerySet(self, *args, **kwargs)
 
     @abstractmethod
-    def _get(self, resource_type: Type, first=False, prefix: Optional[str] = None, limit_: int = -1, skip_: int = 0, **kwargs) -> List[BaseModel]:
+    def _get(
+        self,
+        resource_type: Type,
+        first=False,
+        prefix: Optional[str] = None,
+        limit_: int = -1,
+        skip_: int = 0,
+        **kwargs
+    ) -> List[BaseModel]:
         pass
 
     @abstractmethod

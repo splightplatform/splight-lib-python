@@ -15,7 +15,7 @@ from typing import (
     Sequence,
     Dict,
     List,
-    Any
+    Any,
 )
 
 from httpx._auth import Auth
@@ -55,7 +55,9 @@ HeaderTypes = Union[
     Sequence[Tuple[bytes, bytes]],
 ]
 
-CookieTypes = Union["Cookies", CookieJar, Dict[str, str], List[Tuple[str, str]]]
+CookieTypes = Union[
+    "Cookies", CookieJar, Dict[str, str], List[Tuple[str, str]]
+]
 
 TimeoutTypes = Union[
     Optional[float],
@@ -78,9 +80,7 @@ CertTypes = Union[
 URLTypes = Union[str, furl]
 
 ProxiesTypes = Union[
-    URLTypes,
-    "Proxy",
-    Dict[URLTypes, Union[None, URLTypes, "Proxy"]]
+    URLTypes, "Proxy", Dict[URLTypes, Union[None, URLTypes, "Proxy"]]
 ]
 
 EventHook = Callable[..., Any]

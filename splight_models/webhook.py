@@ -7,7 +7,11 @@ import splight_models as spmodels
 
 
 class WebhookEvent(SplightBaseModel):
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))  # pusher cannot json serialize datetime objects
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
+    )  # pusher cannot json serialize datetime objects
     event_name: str
     object_type: Optional[str] = None
     object_id: Optional[str] = None

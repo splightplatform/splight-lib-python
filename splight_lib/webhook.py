@@ -35,8 +35,6 @@ class WebhookClient:
         )
 
     def get_signature(self, payload: bytes) -> str:
-        hmac = HmacSignature(
-            secret=self._settings.SPLIGHTD_WEBHOOK_SECRET
-        )
+        hmac = HmacSignature(secret=self._settings.SPLIGHTD_WEBHOOK_SECRET)
         signature = hmac.compute_header_signature(payload)
         return signature

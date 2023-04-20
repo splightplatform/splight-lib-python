@@ -3,7 +3,7 @@ from pydantic import validator
 from splight_models.component import BaseComponent
 from typing import List
 
-VERIFICATION_CHOICES = ['verified', 'unverified', 'official']
+VERIFICATION_CHOICES = ["verified", "unverified", "official"]
 
 
 class HubComponent(BaseComponent):
@@ -25,10 +25,10 @@ class HubComponent(BaseComponent):
     min_component_capacity: Optional[str]
     usage_count: int = 0
 
-    @validator('verification', pre=True, always=True)
+    @validator("verification", pre=True, always=True)
     def set_verification_now(cls, v):
         if v:
-            assert v in VERIFICATION_CHOICES, 'Verification value not allowed.'
+            assert v in VERIFICATION_CHOICES, "Verification value not allowed."
         return v
 
 
