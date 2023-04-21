@@ -38,14 +38,13 @@ class SplightFormatter(Formatter):
 
 class SplightLogger(Logger):
     def __init__(self, name: str = None) -> None:
-        # import ipdb; ipdb.set_trace()
         # this is to avoid adding handlers to root logger
         # and interfering with third party app logs
         self.name = name if name is not None else "splight"
         level = int(os.getenv("LOG_LEVEL", INFO))
         super().__init__(name, level)
-        # TODO: check what exactly do function.__code__.co_filename
-        # this attr is defined to decide which is the caller filename
+        # the co_filename attribute is a property of the code object that
+        # specifies the name of the file from which the code was compiled
         self._srcfile = os.path.normcase(
             standard_output_handler.__code__.co_filename
         )
