@@ -144,6 +144,13 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def get_dataframe(
         self, resource_type: DatalakeModel, **kwargs
     ) -> pd.DataFrame:
+
+        # Add this parameter to the request in order to make
+        # the Mongo query work faster.
+        # It should be the same as the resource_type.
+        if "output_format" not in kwargs:
+            kwargs["output_format"] = resource_type.class_name()
+
         # GET /datalake/dumpdata/?source=collection
         url = self._base_url / f"{self._PREFIX}/dumpdata/"
         collection = resource_type.Meta.collection_name
