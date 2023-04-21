@@ -1,6 +1,7 @@
-from pydantic import Field
-from typing import Optional
 from datetime import datetime, timezone
+from typing import Optional
+
+from pydantic import Field
 from splight_models.base import SplightBaseModel
 
 

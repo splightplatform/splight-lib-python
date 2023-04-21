@@ -1,7 +1,7 @@
 import inspect
 from enum import Enum
-from typing import Callable, List, Dict
 from functools import wraps
+from typing import Callable, Dict, List
 
 
 class HooksStage(str, Enum):

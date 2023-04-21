@@ -1,8 +1,10 @@
-from collections import UserList
-from pydantic import BaseModel
-from typing import List, Type, Callable
-from functools import wraps
 from abc import ABC
+from collections import UserList
+from functools import wraps
+from typing import Callable, List, Type
+
+from pydantic import BaseModel
+
 from .filter import FilterMixin
 from .hooks import HooksMixin
 

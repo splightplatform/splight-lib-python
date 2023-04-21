@@ -1,18 +1,18 @@
-import pytest
-
-import os
 import logging
-from splight_lib.logging.logging import SplightLogger, standard_output_handler
+import os
+
+import pytest
 from splight_lib.logging import (
-    getLogger,
+    CRITICAL,
     DEBUG,
+    ERROR,
     INFO,
     WARNING,
-    ERROR,
-    CRITICAL,
+    getLogger,
 )
 from splight_lib.logging._internal import get_splight_logger
 from splight_lib.logging.component import get_component_logger
+from splight_lib.logging.logging import SplightLogger, standard_output_handler
 
 
 @pytest.fixture(scope="session")

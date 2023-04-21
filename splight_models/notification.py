@@ -1,7 +1,8 @@
-from pydantic import Field
 from datetime import datetime, timezone
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from pydantic import Field
 from splight_models import SplightBaseModel
 
 

@@ -1,18 +1,15 @@
-import time
 import atexit
 import sys
+import time
 import uuid
-from typing import List, Callable, Union, Tuple, Any
-from threading import (
-    Thread as DefaultThread,
-    Event,
-    Lock,
-)
-from subprocess import Popen as DefaultPopen
 from functools import wraps
-from splight_abstract.client.abstract import AbstractClient
-from splight_lib.logging._internal import get_splight_logger, LogTags
+from subprocess import Popen as DefaultPopen
+from threading import Event, Lock
+from threading import Thread as DefaultThread
+from typing import Any, Callable, List, Tuple, Union
 
+from splight_abstract.client.abstract import AbstractClient
+from splight_lib.logging._internal import LogTags, get_splight_logger
 
 logger = get_splight_logger()
 

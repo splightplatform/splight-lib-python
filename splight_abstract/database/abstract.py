@@ -1,8 +1,9 @@
 from abc import abstractmethod
-from pydantic import BaseModel
-from typing import Type, List
-from splight_abstract.client import AbstractClient, QuerySet
 from tempfile import NamedTemporaryFile
+from typing import List, Type
+
+from pydantic import BaseModel
+from splight_abstract.client import AbstractClient, QuerySet
 
 
 class AbstractDatabaseClient(AbstractClient):

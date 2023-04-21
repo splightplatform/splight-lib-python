@@ -1,52 +1,51 @@
+import re
 import sys
 import time
-import splight_models as spmodels
 import uuid
-from functools import partial
 from abc import abstractmethod
-from tempfile import NamedTemporaryFile
-from typing import Optional, Type, List, Dict, Tuple, Set, Any, Callable, Union
-from mergedeep import merge, Strategy as mergeStrategy
 from collections import defaultdict
+from functools import cached_property, partial
+from tempfile import NamedTemporaryFile
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
+
+import splight_models as spmodels
+from mergedeep import Strategy as mergeStrategy
+from mergedeep import merge
 from pydantic import BaseModel, main
-from functools import cached_property
 from splight_lib.execution import ExecutionClient, Thread
-from splight_lib.logging._internal import get_splight_logger, LogTags
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.settings import setup as default_setup
 from splight_models import (
-    CustomType,
-    Deployment,
-    DatalakeModel,
-    Component,
-    Command,
     Binding,
-    ComponentObject,
     Boolean,
-    String,
+    Command,
+    CommunicationEvent,
+    Component,
+    ComponentCommandTriggerEvent,
+    ComponentCommandUpdateEvent,
+    ComponentObject,
+    CustomType,
+    DatalakeModel,
+    Deployment,
+    EventNames,
     Number,
     Secret,
+    String,
 )
-from splight_models import (
-    EventNames,
-    ComponentCommandUpdateEvent,
-    ComponentCommandTriggerEvent,
-    CommunicationEvent,
-)
-from splight_models.component import ComponentCommand, ComponentCommandStatus
 from splight_models.component import (
     DATABASE_TYPES,
     NATIVE_TYPES,
+    ComponentCommand,
+    ComponentCommandStatus,
     InputParameter,
 )
 from splight_models.setpoint import (
     SetPoint,
+    SetPointCreateEvent,
     SetPointResponse,
     SetPointResponseStatus,
-    SetPointCreateEvent,
     SetPointUpdateEvent,
 )
-import re
-
 
 logger = get_splight_logger()
 

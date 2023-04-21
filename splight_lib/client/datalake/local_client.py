@@ -5,13 +5,12 @@ from functools import partial
 from typing import Dict, List, Type, Union
 
 import pandas as pd
-
 from splight_abstract.client import QuerySet
 from splight_abstract.datalake import AbstractDatalakeClient
 from splight_lib.client.file_handler import FixedLineNumberFileHandler
 from splight_lib.client.filter import value_filter
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models import DatalakeModel, Query
-from splight_lib.logging._internal import get_splight_logger, LogTags
 
 DLResource = Type[DatalakeModel]
 

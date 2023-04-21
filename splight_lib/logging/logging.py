@@ -1,20 +1,20 @@
-import time
 import os
 import sys
-from typing import Dict, Optional
+import time
 from logging import (
-    Formatter,
-    Logger,
-    NOTSET,
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR,
     CRITICAL,
+    DEBUG,
+    ERROR,
+    INFO,
+    NOTSET,
+    WARNING,
+    Formatter,
     Handler,
+    Logger,
     StreamHandler,
-    root as rootLogger,
 )
+from logging import root as rootLogger
+from typing import Dict, Optional
 
 TAGS_KEY = "tags"
 

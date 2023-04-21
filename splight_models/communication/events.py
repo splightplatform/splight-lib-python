@@ -1,9 +1,10 @@
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, Optional
+
 from pydantic import Field
 from splight_models.base import SplightBaseModel
 from splight_models.user import User
-from datetime import datetime, timezone
 
 
 class EventActions(str, Enum):

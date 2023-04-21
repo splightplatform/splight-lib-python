@@ -3,18 +3,17 @@ from splight_models import (
     AlertCondition,
     Asset,
     Attribute,
-    File,
+    BlockchainContract,
     Component,
+    ComponentCommand,
+    ComponentObject,
+    File,
+    HubComponent,
     Notification,
     Query,
-    BlockchainContract,
-    HubComponent,
-    ComponentObject,
-    ComponentCommand,
     Secret,
     SetPoint,
 )
-
 
 CLASSMAP = {
     Component: {"path": "v2/engine/component/components"},

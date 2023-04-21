@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from splight_abstract.client.hooks import HooksMixin
 
 

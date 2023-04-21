@@ -1,4 +1,5 @@
-from typing import Type, List
+from typing import List, Type
+
 from splight_abstract.client import AbstractClient
 
 

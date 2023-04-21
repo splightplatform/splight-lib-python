@@ -1,5 +1,6 @@
-from .base import SplightBaseModel
 from typing import Optional
+
+from .base import SplightBaseModel
 
 
 class Attribute(SplightBaseModel):

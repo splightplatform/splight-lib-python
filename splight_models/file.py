@@ -1,8 +1,10 @@
-from .base import SplightBaseModel
-from typing import Optional, Dict
-from pydantic import validator
 import json
 import os
+from typing import Dict, Optional
+
+from pydantic import validator
+
+from .base import SplightBaseModel
 
 
 class File(SplightBaseModel):

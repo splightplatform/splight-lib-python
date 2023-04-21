@@ -3,11 +3,11 @@ from pytest import MonkeyPatch
 MonkeyPatch().setenv("SPLIGHT_ACCESS_ID", "access_id")
 MonkeyPatch().setenv("SPLIGHT_SECRET_KEY", "secret_key")
 
-from requests import Session
 from unittest import TestCase
 from unittest.mock import patch
 
 from remote_splight_lib.database import DatabaseClient
+from requests import Session
 from splight_models import Attribute
 
 ATTR_ID = "fb3ae667-aa77-4064-b7b4-8181e0fd5477"

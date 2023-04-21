@@ -1,11 +1,12 @@
 from abc import abstractmethod
-from pydantic import BaseModel
-from typing import Type, List, Dict, Union, Callable
-from datetime import timezone, timedelta
-from splight_models import DatalakeModel, Query
-from splight_abstract.client import AbstractClient, QuerySet
+from datetime import timedelta, timezone
 from functools import wraps
+from typing import Callable, Dict, List, Type, Union
+
 import pandas as pd
+from pydantic import BaseModel
+from splight_abstract.client import AbstractClient, QuerySet
+from splight_models import DatalakeModel, Query
 
 
 def validate_resource_type(func: Callable) -> Callable:
