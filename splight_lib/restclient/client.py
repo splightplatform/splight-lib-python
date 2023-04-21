@@ -1,24 +1,24 @@
-import httpx
-from typing import Optional, Callable, Any, Union, Mapping, List
+from typing import Any, Callable, List, Mapping, Optional, Union
 
+import httpx
 from splight_lib.restclient.types import (
-    AuthTypes,
-    QueryParamTypes,
-    HeaderTypes,
-    CookieTypes,
-    TimeoutTypes,
-    DEFAULT_TIMEOUT_CONFIG,
-    VerifyTypes,
-    CertTypes,
-    ProxiesTypes,
-    Limits,
     DEFAULT_LIMITS,
     DEFAULT_MAX_REDIRECTS,
+    DEFAULT_TIMEOUT_CONFIG,
+    AuthTypes,
     BaseTransport,
+    CertTypes,
+    CookieTypes,
     EventHook,
-    URLTypes,
+    HeaderTypes,
+    Limits,
+    ProxiesTypes,
+    QueryParamTypes,
     RequestData,
-    RequestFiles
+    RequestFiles,
+    TimeoutTypes,
+    URLTypes,
+    VerifyTypes,
 )
 
 
@@ -40,6 +40,7 @@ class DefaultClient(httpx._client.UseClientDefault):
     Note that user code shouldn't need to use the `DEFAULT_CLIENT` constant,
     but it is used internally when a parameter is not included.
     """
+
     # Currently, this class is a copy of httpx._client.UseClientDefault.
 
 
@@ -117,7 +118,7 @@ class SplightRestClient:
     * data (optional) Dictionary, list of tuples, bytes, or file-like object to
     send in the body of the request.
     * files (optional) Iterable of files to send into the request.
-    * json (optional) A JSON serializable Python object to send in the request 
+    * json (optional) A JSON serializable Python object to send in the request
     body.
     """
 
@@ -155,7 +156,7 @@ class SplightRestClient:
         event_hooks: Optional[Mapping[str, List[EventHook]]] = None,
     ):
         """Initialize the SplightRestClient.
-        
+
         Parameters: See class docstring.
         """
         # Client is the httpx Session impl
@@ -179,7 +180,7 @@ class SplightRestClient:
             app=app,
             trust_env=trust_env,
             default_encoding=default_encoding,
-            event_hooks=event_hooks
+            event_hooks=event_hooks,
         )
 
     def update_headers(self, new_headers: HeaderTypes):

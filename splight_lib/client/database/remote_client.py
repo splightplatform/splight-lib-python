@@ -4,18 +4,16 @@ from typing import Dict, List, Type
 
 from furl import furl
 from pydantic import BaseModel
-
 from retry import retry
-
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
-from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_lib.client.database.classmap import CLASSMAP
 from splight_lib.client.exceptions import REQUEST_EXCEPTIONS, InvalidModel
 from splight_lib.client.settings import settings_remote as settings
-from splight_lib.restclient import SplightRestClient
 from splight_lib.encryption import EncryptionClient
+from splight_lib.logging._internal import LogTags, get_splight_logger
+from splight_lib.restclient import SplightRestClient
 from splight_models import File
 
 logger = get_splight_logger()
@@ -36,7 +34,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         )
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
-        logger.info("Remote database client initialized.", tags=LogTags.DATABASE)
+        logger.info(
+            "Remote database client initialized.", tags=LogTags.DATABASE
+        )
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
     def save(self, instance: BaseModel) -> BaseModel:
@@ -133,7 +133,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)

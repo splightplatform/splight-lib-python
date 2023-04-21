@@ -4,7 +4,6 @@ from typing import List, Optional, Union
 from uuid import UUID
 
 from pydantic import EmailStr, Field, validator
-
 from splight_models.base import SplightBaseModel
 from splight_models.constants import (
     AlertOperator,

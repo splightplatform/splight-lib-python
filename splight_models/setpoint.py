@@ -1,10 +1,12 @@
-from splight_models import EventNames, CommunicationEvent
-from pydantic import Field, validator, ValidationError
-from typing import Union, Optional, List
-from .base import SplightBaseModel
 from datetime import datetime
 from enum import auto
-from strenum import PascalCaseStrEnum, LowercaseStrEnum
+from typing import List, Optional, Union
+
+from pydantic import Field, ValidationError, validator
+from splight_models import CommunicationEvent, EventNames
+from strenum import LowercaseStrEnum, PascalCaseStrEnum
+
+from .base import SplightBaseModel
 
 
 class SetPointType(PascalCaseStrEnum):
@@ -40,7 +42,7 @@ class SetPoint(SplightBaseModel):
     value: Union[str, bool, float]
     responses: List[SetPointResponse] = []
 
-    @validator('value')
+    @validator("value")
     def cast_value(cls, v, values, **kwargs):
         if not "type" in values:
             raise ValueError("type is required")

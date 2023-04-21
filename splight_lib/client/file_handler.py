@@ -14,7 +14,7 @@ class FixedLineNumberFileHandler:
 
         all_lines.extend(lines)
 
-        lines = all_lines[-self._total_lines:]
+        lines = all_lines[-self._total_lines :]
         lines = [f"{x}\n" for x in lines]
         self._write_file(lines)
 

@@ -1,8 +1,10 @@
-from .base import SplightBaseModel
-from typing import Optional, Dict
-from pydantic import validator
 import json
 import os
+from typing import Dict, Optional
+
+from pydantic import validator
+
+from .base import SplightBaseModel
 
 
 class File(SplightBaseModel):
@@ -16,8 +18,8 @@ class File(SplightBaseModel):
 
     @validator("file", pre=True)
     def validate_file(cls, v):
-        v = v.replace('/', os.sep)
-        v = v.replace('\\', os.sep)
+        v = v.replace("/", os.sep)
+        v = v.replace("\\", os.sep)
         return v
 
     @property

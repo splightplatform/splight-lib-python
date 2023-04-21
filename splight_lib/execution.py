@@ -1,21 +1,18 @@
-
-import time
 import atexit
 import sys
+import time
 import uuid
-from typing import List, Callable, Union, Tuple, Any
-from threading import (
-    Thread as DefaultThread,
-    Event,
-    Lock,
-)
-from subprocess import Popen as DefaultPopen
 from functools import wraps
-from splight_abstract.client.abstract import AbstractClient
-from splight_lib.logging._internal import get_splight_logger, LogTags
+from subprocess import Popen as DefaultPopen
+from threading import Event, Lock
+from threading import Thread as DefaultThread
+from typing import Any, Callable, List, Tuple, Union
 
+from splight_abstract.client.abstract import AbstractClient
+from splight_lib.logging._internal import LogTags, get_splight_logger
 
 logger = get_splight_logger()
+
 
 class Empty(object):
     pass
@@ -24,7 +21,13 @@ class Empty(object):
 class Task:
     """A periodic task for the scheduler."""
 
-    def __init__(self, handler: Callable[[Any], None], args: Tuple, period: int, hash: str = None) -> None:
+    def __init__(
+        self,
+        handler: Callable[[Any], None],
+        args: Tuple,
+        period: int,
+        hash: str = None,
+    ) -> None:
         if hash is None:
             hash = str(uuid.uuid4())
         self.hash = hash
@@ -53,7 +56,7 @@ class TaskSet:
             self.next_event += min(self._periods)
         else:
             # 2**16 is enough to wait and don't overflow.
-            self.next_event = time.time() + 2 ** 16
+            self.next_event = time.time() + 2**16
 
     def in_time(self, now: float) -> bool:
         """
@@ -244,6 +247,7 @@ class Thread(DefaultThread):
         def wrapper(*args, **kwargs):
             self.result = func(*args, **kwargs)
             return self.result
+
         return wrapper
 
     def exit_ok(self) -> bool:
@@ -257,7 +261,6 @@ class Thread(DefaultThread):
 
 
 class Popen(DefaultPopen):
-
     def __init__(self, args: List[str]) -> None:
         self.args: List[str] = args
         super(Popen, self).__init__(args)
@@ -326,7 +329,7 @@ class ExecutionClient(AbstractClient):
 
     def _start_task(self, job: Task) -> None:
         logger.debug("Starting Task %s", job, tags=LogTags.RUNTIME)
-        if not getattr(self, '_scheduler', None):
+        if not getattr(self, "_scheduler", None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
             self._start_thread(Thread(target=self._scheduler.start))
@@ -338,4 +341,9 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
-        return all([p.is_alive() or p.exit_ok() for p in self.processes + self.threads])
+        return all(
+            [
+                p.is_alive() or p.exit_ok()
+                for p in self.processes + self.threads
+            ]
+        )
