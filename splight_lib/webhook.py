@@ -1,6 +1,7 @@
 import json
-from typing import Tuple
 from functools import cached_property
+from typing import Tuple
+
 from pydantic import BaseSettings
 from splight_lib.auth import HmacSignature
 from splight_models import WebhookEvent
@@ -35,8 +36,6 @@ class WebhookClient:
         )
 
     def get_signature(self, payload: bytes) -> str:
-        hmac = HmacSignature(
-            secret=self._settings.SPLIGHTD_WEBHOOK_SECRET
-        )
+        hmac = HmacSignature(secret=self._settings.SPLIGHTD_WEBHOOK_SECRET)
         signature = hmac.compute_header_signature(payload)
         return signature

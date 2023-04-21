@@ -1,24 +1,32 @@
-from splight_models.constants import (
-    ComponentSize,
-    RestartPolicy,
-    LogginLevel,
-    ComponentStatus,
-    ComponentType
+import inspect
+from copy import copy
+from datetime import datetime
+from enum import Enum, auto
+from functools import cached_property
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    Field,
+    ValidationError,
+    create_model,
+    validator,
 )
+from splight_models import CommunicationEvent, EventActions, EventNames
 from splight_models.asset import Asset
 from splight_models.attribute import Attribute
 from splight_models.base import SplightBaseModel
-from splight_models.file import File
+from splight_models.constants import (
+    ComponentSize,
+    ComponentStatus,
+    ComponentType,
+    LogginLevel,
+    RestartPolicy,
+)
 from splight_models.datalake import DatalakeModel
+from splight_models.file import File
 from splight_models.query import Query
-from splight_models import EventActions, EventNames, CommunicationEvent
-from datetime import datetime
-from enum import Enum, auto
-from typing import Type, List, Dict, Tuple, Optional, Any, Union
-from pydantic import BaseModel, create_model, Field, AnyUrl, ValidationError, validator
-from copy import copy
-from functools import cached_property
-import inspect
 from strenum import LowercaseStrEnum
 
 
@@ -41,7 +49,7 @@ class Action(LowercaseStrEnum):
 
 class Parameter(SplightBaseModel):
     name: str
-    description: str = ''
+    description: str = ""
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -56,7 +64,7 @@ class InputParameter(Parameter):
 
 class OutputParameter(SplightBaseModel):
     name: str
-    description: str = ''
+    description: str = ""
     type: str
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
@@ -166,26 +174,28 @@ class BaseComponent(SplightBaseModel):
     def input_model(self) -> Type:
         custom_type_model = self.custom_types_model
         custom_types = inspect.getmembers(custom_type_model)
-        custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
+        custom_types_dict = {
+            a[0]: a[1] for a in custom_types if not a[0].startswith("__")
+        }
         return ComponentModelsFactory(
-            type_map=custom_types_dict,
-            component_id=self.id
+            type_map=custom_types_dict, component_id=self.id
         ).get_input_model(self.input)
 
     @cached_property
     def output_model(self) -> Type:
-        return ComponentModelsFactory(
-            component_id=self.id
-        ).get_output_model(self.output)
+        return ComponentModelsFactory(component_id=self.id).get_output_model(
+            self.output
+        )
 
     @cached_property
     def commands_model(self) -> Type:
         custom_type_model = self.custom_types_model
         custom_types = inspect.getmembers(custom_type_model)
-        custom_types_dict = {a[0]: a[1] for a in custom_types if not a[0].startswith('__')}
+        custom_types_dict = {
+            a[0]: a[1] for a in custom_types if not a[0].startswith("__")
+        }
         return ComponentModelsFactory(
-            type_map=custom_types_dict,
-            component_id=self.id
+            type_map=custom_types_dict, component_id=self.id
         ).get_commands_model(self.commands)
 
 
@@ -230,12 +240,13 @@ SIMPLE_TYPES = list(NATIVE_TYPES.keys()) + list(DATABASE_TYPES.keys())
 
 
 class ComponentModelsFactory:
-    def __init__(self, type_map: Dict[str, Type] = {}, component_id: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        type_map: Dict[str, Type] = {},
+        component_id: Optional[str] = None,
+    ) -> None:
         self._component_id = component_id
-        self._type_map = {
-            **type_map,
-            **self._load_type_map()
-        }
+        self._type_map = {**type_map, **self._load_type_map()}
 
     @staticmethod
     def _load_type_map() -> Dict[str, Type]:
@@ -270,26 +281,27 @@ class ComponentModelsFactory:
             output_format_field = {
                 "output_format": Field(output.name, const=True),
             }
-            output_models[output.name] = self._create_model(output.name,
-                                                            output.fields,
-                                                            output_format_field,
-                                                            DatalakeModel)
+            output_models[output.name] = self._create_model(
+                output.name, output.fields, output_format_field, DatalakeModel
+            )
 
         return type("Output", (), output_models)
 
     def get_commands_model(self, commands: List) -> BaseModel:
         command_models: Dict[str, BaseModel] = {}
         for command in commands:
-            command_models[command.name] = self._create_model(command.name,
-                                                              command.fields)
+            command_models[command.name] = self._create_model(
+                command.name, command.fields
+            )
         return type("Commands", (), command_models)
 
-    def _create_model(self,
-                      name: str,
-                      fields: List[Parameter],
-                      extra_fields: Dict = {},
-                      base: Type = SplightBaseModel) -> Type:
-
+    def _create_model(
+        self,
+        name: str,
+        fields: List[Parameter],
+        extra_fields: Dict = {},
+        base: Type = SplightBaseModel,
+    ) -> Type:
         # Inline classes for meta attrs
         class SpecFields:
             pass
@@ -307,11 +319,13 @@ class ComponentModelsFactory:
             required = getattr(field, "required", True)
 
             if choices:
-                validators.update({
-                    "choices_validator": validator(
-                        field.name, pre=True, allow_reuse=True
-                    )(choices_validator)
-                })
+                validators.update(
+                    {
+                        "choices_validator": validator(
+                            field.name, pre=True, allow_reuse=True
+                        )(choices_validator)
+                    }
+                )
 
             if multiple:
                 type = List[type]

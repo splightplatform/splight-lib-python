@@ -64,7 +64,6 @@ class SplightBaseSettings(BaseSettings):
         ]
 
     class Config:
-
         extra = Extra.ignore
 
         @classmethod

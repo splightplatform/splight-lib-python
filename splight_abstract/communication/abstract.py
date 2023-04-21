@@ -1,15 +1,16 @@
+from abc import abstractmethod, abstractproperty
 from enum import Enum
 from typing import Callable, Dict
-from abc import abstractmethod, abstractproperty
+
 from splight_abstract.client import AbstractClient
 from splight_models import CommunicationContext, CommunicationEvent
 
 
 class CommunicationClientStatus(str, Enum):
-    STARTING = 'starting'
-    READY = 'ready'
-    FAILED = 'failed'
-    ERROR =  'error'
+    STARTING = "starting"
+    READY = "ready"
+    FAILED = "failed"
+    ERROR = "error"
 
 
 class AbstractCommunicationClient(AbstractClient):
@@ -20,7 +21,7 @@ class AbstractCommunicationClient(AbstractClient):
     @abstractproperty
     def context(self) -> CommunicationContext:
         pass
-    
+
     @abstractproperty
     def status(self):
         pass
@@ -38,5 +39,7 @@ class AbstractCommunicationClient(AbstractClient):
         pass
 
     @abstractmethod
-    def authenticate(self, channel_name: str, socket_id: str, custom_data: Dict = None) -> dict:
+    def authenticate(
+        self, channel_name: str, socket_id: str, custom_data: Dict = None
+    ) -> dict:
         pass

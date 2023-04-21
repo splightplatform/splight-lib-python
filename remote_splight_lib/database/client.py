@@ -1,25 +1,22 @@
 import json
-from .classmap import CLASSMAP
-from retry import retry
-from splight_abstract.remote import AbstractRemoteClient
-from splight_abstract.database import AbstractDatabaseClient
-from splight_models import File
-from remote_splight_lib.settings import settings
-from remote_splight_lib.exceptions import InvalidModel
-from remote_splight_lib.auth import SplightAuthToken
-from splight_lib.logging._internal import get_splight_logger, LogTags
-from splight_lib.encryption import EncryptionClient
+from tempfile import NamedTemporaryFile
 from typing import Dict, List, Type
 
 from furl import furl
 from pydantic import BaseModel
+from remote_splight_lib.auth import SplightAuthToken
+from remote_splight_lib.exceptions import InvalidModel
+from remote_splight_lib.settings import settings
 from requests import Session
-from requests.exceptions import (
-    ConnectionError,
-    Timeout
-)
-from tempfile import NamedTemporaryFile
+from requests.exceptions import ConnectionError, Timeout
+from retry import retry
+from splight_abstract.database import AbstractDatabaseClient
+from splight_abstract.remote import AbstractRemoteClient
+from splight_lib.encryption import EncryptionClient
+from splight_lib.logging._internal import LogTags, get_splight_logger
+from splight_models import File
 
+from .classmap import CLASSMAP
 
 logger = get_splight_logger()
 
@@ -147,11 +144,18 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         path = model_data["path"]
         kwargs["page"] = 1  # Always start from the first page
         response = self._list(path, **kwargs)
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return response["count"]
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def download(self, instance: BaseModel, decrypt: bool = True, **kwargs) -> NamedTemporaryFile:
+    def download(
+        self, instance: BaseModel, decrypt: bool = True, **kwargs
+    ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
         Parameters
@@ -213,7 +217,7 @@ class DatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         url = self._base_url / f"{path}/"
         data = json.loads(instance.json(exclude_none=True))
         if isinstance(instance, File):
-            with open(instance.file, 'rb') as f:
+            with open(instance.file, "rb") as f:
                 file = {"file": f}
                 response = self._session.post(url, data=data, files=file)
         else:

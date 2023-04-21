@@ -1,7 +1,8 @@
-import six
 import hmac
 import time
 from hashlib import sha256
+
+import six
 from splight_lib.auth.exceptions import SignatureVerificationError
 
 
@@ -46,7 +47,9 @@ class HmacSignature(object):
         return timestamp, signatures
 
     @classmethod
-    def verify_header(cls, payload, header, secret, tolerance=DEFAULT_TOLERANCE):
+    def verify_header(
+        cls, payload, header, secret, tolerance=DEFAULT_TOLERANCE
+    ):
         if hasattr(payload, "decode"):
             payload = payload.decode("utf-8")
 
@@ -71,7 +74,10 @@ class HmacSignature(object):
 
         signed_payload = "%d.%s" % (timestamp, payload)
         expected_sig = cls._compute_signature(signed_payload, secret)
-        if not any(hmac.compare_digest(utf8(expected_sig), utf8(s)) for s in signatures):
+        if not any(
+            hmac.compare_digest(utf8(expected_sig), utf8(s))
+            for s in signatures
+        ):
             raise SignatureVerificationError(
                 "No signatures found matching the expected signature for "
                 "payload",

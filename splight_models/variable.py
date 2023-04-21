@@ -1,6 +1,8 @@
 # TODO rename this file or move it to datalake
-from pydantic import Field
 from typing import Union
+
+from pydantic import Field
+
 from .asset import Asset
 from .attribute import Attribute
 from .datalake import DatalakeModel

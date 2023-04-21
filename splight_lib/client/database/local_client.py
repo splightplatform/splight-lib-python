@@ -8,8 +8,8 @@ from uuid import uuid4
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models import SplightBaseModel
-from splight_lib.logging._internal import get_splight_logger, LogTags
 
 ResourceType = Type[SplightBaseModel]
 
@@ -27,7 +27,9 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
         if not os.path.exists(self._db_file):
             self._save_db(self._db_file, {})
-        logger.info("Local database client initialized.", tags=LogTags.DATABASE)
+        logger.info(
+            "Local database client initialized.", tags=LogTags.DATABASE
+        )
 
     def save(self, instance: SplightBaseModel) -> SplightBaseModel:
         """Saves an instance in the local database, if the instance has an id
@@ -108,7 +110,12 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         db = self._load_db_file(self._db_file)
         model_name = resource_type.__name__.lower()
         db_instances = db.get(model_name, {})
-        logger.debug("Counted %s objects of type: %s.", response["count"], resource_type, tags=LogTags.DATABASE)
+        logger.debug(
+            "Counted %s objects of type: %s.",
+            response["count"],
+            resource_type,
+            tags=LogTags.DATABASE,
+        )
         return len(db_instances)
 
     def download(

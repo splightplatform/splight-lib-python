@@ -1,6 +1,7 @@
-from splight_models.base import SplightBaseModel
-from pydantic import validator
 from typing import Dict
+
+from pydantic import validator
+from splight_models.base import SplightBaseModel
 
 
 def namespace_transform(raw: str) -> str:
@@ -10,9 +11,10 @@ def namespace_transform(raw: str) -> str:
 class Namespace(SplightBaseModel):
     id: str
     environment: Dict = {}
-    _extract_id = validator('id', pre=True, allow_reuse=True)(namespace_transform)
+    _extract_id = validator("id", pre=True, allow_reuse=True)(
+        namespace_transform
+    )
 
     @property
     def secret_name(self):
         return f"{self.id}-secrets"
-

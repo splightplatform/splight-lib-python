@@ -3,26 +3,26 @@ Type definitions for type checking purposes.
 """
 
 import ssl
-from furl import furl
 from http.cookiejar import CookieJar
 from typing import (
-    Optional,
-    Union,
-    Tuple,
-    Callable,
-    Mapping,
     IO,
-    Sequence,
+    Any,
+    Callable,
     Dict,
     List,
-    Any
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
 )
 
+from furl import furl
 from httpx._auth import Auth
-from httpx._urls import QueryParams
-from httpx._models import Request, Headers, Cookies
-from httpx._config import Timeout, Proxy, Limits
+from httpx._config import Limits, Proxy, Timeout
+from httpx._models import Cookies, Headers, Request
 from httpx._transports.base import BaseTransport  # used in client
+from httpx._urls import QueryParams
 
 # Currently, this types are based on httpx._types.
 
@@ -55,7 +55,9 @@ HeaderTypes = Union[
     Sequence[Tuple[bytes, bytes]],
 ]
 
-CookieTypes = Union["Cookies", CookieJar, Dict[str, str], List[Tuple[str, str]]]
+CookieTypes = Union[
+    "Cookies", CookieJar, Dict[str, str], List[Tuple[str, str]]
+]
 
 TimeoutTypes = Union[
     Optional[float],
@@ -78,9 +80,7 @@ CertTypes = Union[
 URLTypes = Union[str, furl]
 
 ProxiesTypes = Union[
-    URLTypes,
-    "Proxy",
-    Dict[URLTypes, Union[None, URLTypes, "Proxy"]]
+    URLTypes, "Proxy", Dict[URLTypes, Union[None, URLTypes, "Proxy"]]
 ]
 
 EventHook = Callable[..., Any]

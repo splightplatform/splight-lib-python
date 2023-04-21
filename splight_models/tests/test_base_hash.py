@@ -52,11 +52,11 @@ class TestNamespaceHash(AbstractBaseHash, TestCase):
 class TestNotificationHash(AbstractBaseHash, TestCase):
     class_model = Notification
     args = {
-        "message": "1", 
+        "message": "1",
         "created_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
         "seen": False,
         "volatile": False,
-        }
+    }
     rand_str_arg = "redirect_url"
 
 
