@@ -1,6 +1,7 @@
-from splight_models.base import SplightBaseModel
-from pydantic import validator
 from typing import Dict
+
+from pydantic import validator
+from splight_models.base import SplightBaseModel
 
 
 def namespace_transform(raw: str) -> str:

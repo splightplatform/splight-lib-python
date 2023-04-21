@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod, abstractproperty
-from typing import Dict, List, Type, Tuple
+from typing import Dict, List, Tuple, Type
 
 from pydantic import BaseModel
-
 from splight_abstract.client import AbstractClient, QuerySet
 
 

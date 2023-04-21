@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Dict, Union, List, Optional
+from typing import Dict, List, Optional, Union
+
 from pydantic import validator
 from splight_models.base import SplightBaseModel
 

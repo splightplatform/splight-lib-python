@@ -1,10 +1,11 @@
 # TODO remove this models from here.
-import re
 import json
+import re
 from datetime import datetime, timezone
 from typing import Optional, Union
-from pydantic import validator, Json, Field, validator
+
 from hexbytes import HexBytes
+from pydantic import Field, Json, validator
 from splight_models.base import SplightBaseModel
 
 

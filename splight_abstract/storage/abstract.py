@@ -1,6 +1,7 @@
 from abc import abstractmethod
+from typing import List, Optional, Type
+
 from pydantic import BaseModel
-from typing import Optional, Type, List
 from splight_abstract.client import AbstractClient, QuerySet
 
 

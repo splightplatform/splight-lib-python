@@ -1,8 +1,9 @@
-from unittest import TestCase
-from splight_lib.execution import ExecutionClient, Task, Thread, Popen
-from pathlib import Path
-import time
 import os
+import time
+from pathlib import Path
+from unittest import TestCase
+
+from splight_lib.execution import ExecutionClient, Popen, Task, Thread
 
 
 class TestExecutionClient(TestCase):

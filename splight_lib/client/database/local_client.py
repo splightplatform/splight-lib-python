@@ -8,8 +8,8 @@ from uuid import uuid4
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models import SplightBaseModel
-from splight_lib.logging._internal import get_splight_logger, LogTags
 
 ResourceType = Type[SplightBaseModel]
 

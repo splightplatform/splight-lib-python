@@ -1,24 +1,23 @@
+import logging
+from typing import Callable, Dict
+
 import pysher
 import requests
 from furl import furl
+from remote_splight_lib.auth.auth import SplightAuthToken
+from remote_splight_lib.communication.classmap import CLASSMAP
+from remote_splight_lib.settings import settings
 from retry import retry
-from typing import Callable, Dict
-from splight_lib.logging._internal import get_splight_logger, LogTags
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
-import logging
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models.communication import (
     CommunicationClientStatus,
     CommunicationContext,
     CommunicationEvent,
 )
-
-from remote_splight_lib.auth.auth import SplightAuthToken
-from remote_splight_lib.settings import settings
-from remote_splight_lib.communication.classmap import CLASSMAP
-
 
 logger = get_splight_logger()
 

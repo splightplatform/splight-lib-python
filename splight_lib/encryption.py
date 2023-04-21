@@ -1,6 +1,7 @@
 from functools import cached_property
-from cryptography.fernet import Fernet as Branca
 from typing import Optional
+
+from cryptography.fernet import Fernet as Branca
 from pydantic import BaseSettings
 
 

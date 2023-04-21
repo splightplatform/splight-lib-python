@@ -1,13 +1,14 @@
 import os
+from enum import auto
+from logging import INFO, Formatter, Handler
 from typing import Optional
-from logging import Formatter, Handler, INFO
+
+from concurrent_log_handler import ConcurrentRotatingFileHandler
 from splight_lib.logging.logging import (
     SplightFormatter,
     SplightLogger,
     standard_output_handler,
 )
-from concurrent_log_handler import ConcurrentRotatingFileHandler
-from enum import auto
 from strenum import UppercaseStrEnum
 
 

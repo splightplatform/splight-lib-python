@@ -1,9 +1,10 @@
-from typing import Optional, Dict
-from pydantic import Field
 from datetime import datetime, timezone
+from typing import Dict, Optional
+
+import splight_models as spmodels
+from pydantic import Field
 from splight_models import SplightBaseModel, User
 from splight_models.exception import InvalidModel
-import splight_models as spmodels
 
 
 class WebhookEvent(SplightBaseModel):

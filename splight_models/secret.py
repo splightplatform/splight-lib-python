@@ -1,7 +1,9 @@
-from .base import SplightBaseModel
 from typing import Optional
+
 from pydantic import BaseSettings
 from splight_lib.encryption import EncryptionClient
+
+from .base import SplightBaseModel
 
 
 class Secret(SplightBaseModel):

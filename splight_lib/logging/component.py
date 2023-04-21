@@ -1,12 +1,13 @@
 import os
+from logging import INFO, Formatter, Handler, basicConfig
 from typing import Optional
-from logging import Formatter, Handler, INFO, basicConfig
+
+from concurrent_log_handler import ConcurrentRotatingFileHandler
 from splight_lib.logging.logging import (
     SplightFormatter,
     SplightLogger,
     standard_output_handler,
 )
-from concurrent_log_handler import ConcurrentRotatingFileHandler
 
 
 def component_file_handler(

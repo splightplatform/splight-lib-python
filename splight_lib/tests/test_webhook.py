@@ -1,9 +1,9 @@
 import os
 from unittest import TestCase
-from pytest import MonkeyPatch
-from splight_models import Asset
-from splight_lib.webhook import WebhookClient, WebhookEvent
 
+from pytest import MonkeyPatch
+from splight_lib.webhook import WebhookClient, WebhookEvent
+from splight_models import Asset
 
 MonkeyPatch().setenv("SPLIGHTD_WEBHOOK_SECRET", "SECRETNOTSECRET")
 

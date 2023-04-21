@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
+
 from pydantic import validator
 from splight_models.component import BaseComponent
-from typing import List
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
 

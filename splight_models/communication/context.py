@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Dict, Optional
+
 from splight_models import SplightBaseModel
 from splight_models.user import User
 

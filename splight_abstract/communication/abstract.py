@@ -1,6 +1,7 @@
+from abc import abstractmethod, abstractproperty
 from enum import Enum
 from typing import Callable, Dict
-from abc import abstractmethod, abstractproperty
+
 from splight_abstract.client import AbstractClient
 from splight_models import CommunicationContext, CommunicationEvent
 
