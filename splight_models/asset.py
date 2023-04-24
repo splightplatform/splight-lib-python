@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
 
@@ -17,3 +17,4 @@ class Asset(SplightBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
+    centroid_coordinates: Optional[Tuple[float]]
