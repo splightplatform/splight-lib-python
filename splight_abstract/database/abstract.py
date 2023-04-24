@@ -1,39 +1,28 @@
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
-from typing import List, Type
+from typing import Dict, List, Union
 
-from pydantic import BaseModel
 from splight_abstract.client import AbstractClient, QuerySet
 
 
 class AbstractDatabaseClient(AbstractClient):
     @abstractmethod
-    def save(self, instance: BaseModel) -> BaseModel:
+    def save(self, resource_name: str, instance: Dict) -> Dict:
         pass
 
     @abstractmethod
     def _get(
-        self,
-        resource_type: Type,
-        first: bool = False,
-        limit_: int = -1,
-        skip_: int = 0,
-        deleted: bool = False,
-        **kwargs
-    ) -> List[BaseModel]:
+        self, resource_name: str, first: bool = False, **kwargs
+    ) -> Union[Dict, List[Dict]]:
         pass
 
-    def get(self, resource_type: Type, *args, **kwargs) -> QuerySet:
-        return QuerySet(self, resource_type, *args, **kwargs)
+    def get(self, resource_name: str, *args, **kwargs) -> QuerySet:
+        return QuerySet(self, resource_name, *args, **kwargs)
 
     @abstractmethod
-    def delete(self, resource_type: Type, id: str) -> None:
+    def delete(self, resource_name: str, id: str) -> None:
         pass
 
     @abstractmethod
-    def count(self, resource_type: Type, **kwargs) -> int:
-        pass
-
-    @abstractmethod
-    def download(self, instance: BaseModel) -> NamedTemporaryFile:
+    def download(self, instance: Dict) -> NamedTemporaryFile:
         pass
