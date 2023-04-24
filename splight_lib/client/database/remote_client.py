@@ -143,7 +143,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def download(
-        self, instance: Dict, decrypt: bool = True, **kwargs
+        self,
+        resource_name: str,
+        instance: Dict,
+        decrypt: bool = True,
+        **kwargs,
     ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
@@ -161,10 +165,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModel thrown when the model name is not correct.
         """
-        constructor = type(instance)
-        model_data = self._get_model_data(constructor)
-        path = model_data["path"]
-        url = self._base_url / f"{path}/{instance.id}/download"
+        api_path = self._get_api_path(resource_name)
+        resource_id = instance.get("id")
+        url = self._base_url / api_path / f"{resource_id}/download/"
         response = self._restclient.get(url)
         response.raise_for_status()
         f = NamedTemporaryFile("wb+")
@@ -197,11 +200,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return response.json()
 
     def _create(self, resource_name: str, instance: Dict) -> Dict:
+        model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
-        # TODO: Review file
-        if isinstance(instance, File):
-            with open(instance.file, "rb") as f:
+        if model_name == "file":
+            with open(instance["file"], "rb") as f:
                 file = {"file": f}
                 response = self._restclient.post(
                     url, data=instance, files=file
