@@ -12,6 +12,8 @@ from splight_lib.logging.logging import (
 from strenum import UppercaseStrEnum
 
 
+
+# TODO: add more tags
 class LogTags(UppercaseStrEnum):
     RUNTIME = auto()
     BINDING = auto()
@@ -22,7 +24,7 @@ class LogTags(UppercaseStrEnum):
     SETPOINT = auto()
     COMMAND = auto()
     PARAMETER = auto()
-    COMPONENT = auto()  # TODO: not used yet.
+    COMPONENT = auto()
     DATABASE = auto()
     DATALAKE = auto()
     CACHE = auto()
