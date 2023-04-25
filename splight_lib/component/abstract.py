@@ -760,4 +760,7 @@ class AbstractComponent(
                 raise DuplicatedComponentException(
                     f"Component with id {self.instance_id} is already running."
                 )
-        # TODO: what should we do if this call fails?
+        else:
+            raise Exception(
+                f"Error checking if component is already running. Status: {response.status_code}"
+            )
