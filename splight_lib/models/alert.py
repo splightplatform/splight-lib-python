@@ -10,6 +10,7 @@ class AlertStatus(str, Enum):
     ALERT = "alert"
     NO_ALERT = "no_alert"
     NO_DATA = "no_data"
+    DISABLED = "disabled"
 
 
 class AlertOperator(str, Enum):
