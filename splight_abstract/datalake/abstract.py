@@ -9,7 +9,7 @@ from splight_abstract.client import AbstractClient, QuerySet
 from splight_models import DatalakeModel, Query
 
 
-def validate_resource_type(func: Callable) -> Callable:
+def validate_datalake_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def inner(self, resource_type, *args, **kwargs):
         if not issubclass(resource_type, DatalakeModel):
@@ -21,7 +21,7 @@ def validate_resource_type(func: Callable) -> Callable:
     return inner
 
 
-def validate_instance_type(func: Callable) -> Callable:
+def validate_datalake_instance_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, instances: List[BaseModel], *args, **kwargs):
         if instances:

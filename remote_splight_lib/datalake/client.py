@@ -13,8 +13,8 @@ from retry import retry
 from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import (
     AbstractDatalakeClient,
-    validate_instance_type,
-    validate_resource_type,
+    validate_datalake_instance_type,
+    validate_datalake_resource_type,
 )
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import (
@@ -104,7 +104,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response = self._restclient.delete(url, params=params, json=kwargs)
         response.raise_for_status()
 
-    @validate_resource_type
+    @validate_datalake_resource_type
     def get(
         self,
         resource_type: DatalakeModel,
@@ -144,7 +144,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
+    @validate_datalake_resource_type
     def get_dataframe(
         self, resource_type: DatalakeModel, **kwargs
     ) -> pd.DataFrame:
@@ -183,7 +183,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             return pd.concat(dfs, axis=1)
         return pd.DataFrame(dfs)
 
-    @validate_instance_type
+    @validate_datalake_instance_type
     def save(
         self,
         instances: List[DatalakeModel],
@@ -197,7 +197,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return self._raw_save(collection=collection, instances=instances)
 
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
+    @validate_datalake_resource_type
     def save_dataframe(
         self, resource_type: DatalakeModel, dataframe: pd.DataFrame
     ) -> None:
@@ -217,7 +217,7 @@ class DatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         response.raise_for_status()
 
-    @validate_resource_type
+    @validate_datalake_resource_type
     def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
         logger.debug(
             "Deleting resources of type %s from datalake.",
