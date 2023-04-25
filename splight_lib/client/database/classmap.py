@@ -5,4 +5,5 @@ MODEL_NAME_MAP = {
     "asset": f"{ENGINE_PREFIX}/assets/",
     "attribute": f"{ENGINE_PREFIX}/attributes/",
     "file": f"{ENGINE_PREFIX}/files/",
+    "query": f"{ENGINE_PREFIX}/queries/",
 }
