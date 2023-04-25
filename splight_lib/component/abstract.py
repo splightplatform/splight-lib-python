@@ -7,6 +7,7 @@ from collections import defaultdict
 from functools import cached_property, partial
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
+from retry import retry
 
 import splight_models as spmodels
 from mergedeep import Strategy as mergeStrategy
@@ -55,6 +56,7 @@ from splight_lib.restclient import (
 )
 
 logger = get_splight_logger()
+REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
 
 
 class SecretValueParser:
@@ -738,6 +740,7 @@ class AbstractComponent(
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
 
+    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _check_duplicated_component(self):
         """
             Validates that there are no other connections to communication client
