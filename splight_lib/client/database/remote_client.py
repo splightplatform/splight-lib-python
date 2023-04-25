@@ -1,4 +1,3 @@
-# import json
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Generator, List, Optional, TypedDict, Union
 
@@ -17,7 +16,6 @@ from splight_lib.client.exceptions import (
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
-from splight_models import File
 
 logger = get_splight_logger()
 
