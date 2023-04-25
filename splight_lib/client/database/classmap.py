@@ -6,4 +6,5 @@ MODEL_NAME_MAP = {
     "attribute": f"{ENGINE_PREFIX}/attributes/",
     "file": f"{ENGINE_PREFIX}/files/",
     "query": f"{ENGINE_PREFIX}/queries/",
+    "secret": f"{ENGINE_PREFIX}/secrets/",
 }
