@@ -46,6 +46,13 @@ from splight_models.setpoint import (
     SetPointResponseStatus,
     SetPointUpdateEvent,
 )
+from remote_splight_lib.auth import SplightAuthToken
+from splight_lib.restclient import (
+    ConnectError,
+    HTTPError,
+    SplightRestClient,
+    Timeout,
+)
 
 logger = get_splight_logger()
 
@@ -640,6 +647,10 @@ class ParametersMixin:
         return parameters_dict
 
 
+class DuplicatedComponentException(Exception):
+    pass
+
+
 class AbstractComponent(
     RunnableMixin,
     HooksMixin,
@@ -672,6 +683,7 @@ class AbstractComponent(
         self.deployment_id = run_spec.pop("id", None)
 
         self._spec: Deployment = Deployment(id=self.instance_id, **run_spec)
+        self._check_duplicated_component()
         self._load_instance_kwargs_for_clients()
         self._load_clients(
             database_config=kwargs.get("database_config", {}),
@@ -725,3 +737,24 @@ class AbstractComponent(
             namespace=self.namespace, **self.communication_client_kwargs
         )
         self.execution_client = ExecutionClient(namespace=self.namespace)
+
+    def _check_duplicated_component(self):
+        """
+            Validates that there are no other connections to communication client
+        """
+        token = SplightAuthToken(
+            access_key=self._setup.SPLIGHT_ACCESS_ID,
+            secret_key=self._setup.SPLIGHT_SECRET_KEY,
+        )
+        restclient = SplightRestClient()
+        restclient.update_headers(token.header)
+        response = restclient.get(
+            f"{self._setup.SPLIGHT_API_URL}/component/components/{self.instance_id}/connections"
+        )
+        if response.status_code == 200:
+            connections = response.json()['connections']
+            if int(connections) > 0:
+                raise DuplicatedComponentException(
+                    f"Component with id {self.instance_id} is already running."
+                )
+        # TODO: what should we do if this call fails?
