@@ -210,7 +210,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                     url, data=instance, files=file
                 )
         else:
-            response = self._restclient.post(url, data=instance)
+            response = self._restclient.post(url, json=instance)
 
         response.raise_for_status()
         return response.json()
