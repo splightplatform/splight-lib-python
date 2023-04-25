@@ -8,4 +8,5 @@ MODEL_NAME_MAP = {
     "file": f"{ENGINE_PREFIX}/files/",
     "query": f"{ENGINE_PREFIX}/queries/",
     "secret": f"{ENGINE_PREFIX}/secrets/",
+    "setpoint": f"{ENGINE_PREFIX}/setpoints/",
 }
