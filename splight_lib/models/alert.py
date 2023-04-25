@@ -5,8 +5,6 @@ from pydantic import BaseModel, EmailStr, Field
 
 from splight_lib.models.base import SplightDatabaseBaseModel
 
-# from uuid import UUID
-
 
 class AlertStatus(str, Enum):
     ALERT = "alert"
