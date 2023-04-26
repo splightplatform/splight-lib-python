@@ -29,13 +29,23 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         )
 
     def save(self, resource_name: str, instance: Dict) -> Dict:
-        """Saves an instance in the local database, if the instance has an id
-        will try to update the instance, otherwise it will create a new one.
+        """Creates or updates a resource depending on the name if
+        it contains the id or not.
 
         Parameters
         ----------
-        instance : SplightBaseModel
-            The instance to be saved in the database.
+        resource_name: str
+            The name of the resource to be created or updated.
+        instance : Dict
+            A dictionary with resource to be created or updated
+
+        Returns
+        -------
+        Dict with the created or updated resource.
+
+        Raises
+        ------
+        InvalidModel thrown when the model name is not correct.
         """
         logger.debug("Saving instance", tags=LogTags.DATABASE)
 
@@ -47,18 +57,18 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         return saved_instance
 
     def delete(self, resource_name: str, id: str):
-        """Deletes an object in the database based on the type and the id.
+        """Deletes a resource from the database
 
         Parameters
         ----------
-        resource_type: ResourceType
-            The type of the object to be deleted.
-        id: str
-            The object's id to delete.
+        resource_name : str
+            The resource name
+        id : str
+            The resource's id.
 
         Raises
         ------
-        InstanceNotFound if the object with the given id is not in the database
+        InvalidModel thrown when the model name is not correct.
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         model_name = resource_name.lower()
@@ -80,7 +90,20 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         first: bool = False,
         **kwargs,
     ) -> Union[Dict, List[Dict]]:
-        """Reads one or multiple objects in the database."""
+        """Retrieves one or multiple resources. If the parameter id is passed
+        as a kwarg, the instance with that id will be retrieved.
+
+        Parameters
+        ----------
+        resource_name : str
+            The name of the resource.
+        first: bool
+            Whether to retrieve first element or not.
+
+        Returns
+        -------
+        Union[Dict, List[Dict]] list of resource or single resource.
+        """
         db = self._load_db_file(self._db_file)
         model_name = resource_name.lower()
         db_instances = db.get(model_name, {})
