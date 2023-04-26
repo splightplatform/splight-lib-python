@@ -750,9 +750,9 @@ class AbstractComponent(
             access_key=remote_settings.SPLIGHT_ACCESS_ID,
             secret_key=remote_settings.SPLIGHT_SECRET_KEY,
         )
-        restclient = SplightRestClient()
-        restclient.update_headers(token.header)
-        response = restclient.get(
+        rest_client = SplightRestClient()
+        rest_client.update_headers(token.header)
+        response = rest_client.get(
             f"{remote_settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
         )
         if response.status_code == 200:
