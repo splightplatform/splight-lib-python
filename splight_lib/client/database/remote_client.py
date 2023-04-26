@@ -7,12 +7,16 @@ from retry import retry
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.database.classmap import MODEL_NAME_MAP
+from splight_lib.client.database.classmap import (
+    CUSTOM_PATHS_MAP,
+    MODEL_NAME_MAP,
+)
 from splight_lib.client.exceptions import (
     SPLIGHT_REQUEST_EXCEPTIONS,
     InstanceNotFound,
     InvalidModel,
 )
+from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
@@ -114,6 +118,16 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 resource_name, first=first, **kwargs
             )
         return instances
+
+    def operate(self, resource_name: str, instance: Dict) -> Dict:
+        api_path = CUSTOM_PATHS_MAP.get(resource_name.lower())
+        if not api_path:
+            raise InvalidModel(resource_name.lower())
+        api_path = api_path.format_map({"prefix": ENGINE_PREFIX, **instance})
+        url = self._base_url / api_path
+        response = self._restclient.post(url, json=instance)
+        response.raise_for_status()
+        return response.json()
 
     def _retrieve_multiple(
         self, resource_name: str, first: bool = False, **kwargs
