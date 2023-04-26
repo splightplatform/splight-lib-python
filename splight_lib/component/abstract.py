@@ -752,9 +752,8 @@ class AbstractComponent(
         )
         rest_client = SplightRestClient()
         rest_client.update_headers(token.header)
-        response = rest_client.get(
-            f"{remote_settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
-        )
+        api_url = f"{remote_settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
+        response = rest_client.get(api_url)
         if response.status_code == 200:
             connections = response.json()['subscription_count']
             if int(connections) > 0:
