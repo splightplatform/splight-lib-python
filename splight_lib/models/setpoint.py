@@ -59,3 +59,12 @@ class SetPoint(SplightDatabaseBaseModel):
         except ValueError as exc:
             raise ValidationError(f"value must be a {str(type)}") from exc
         return parsed_value
+
+    def save(self):
+        new_value = self.asset.set_attribute(
+            attribute=self.attribute,
+            value=self.value,
+            value_type=self.type
+        )
+        if not self.id:
+            self.id = new_value["id"]
