@@ -12,8 +12,8 @@ from retry import retry
 from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import (
     AbstractDatalakeClient,
-    validate_instance_type,
-    validate_resource_type,
+    validate_datalake_instance_type,
+    validate_datalake_resource_type,
 )
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.client.settings import settings_remote as settings
@@ -100,7 +100,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response = self._restclient.delete(url, params=params, json=kwargs)
         response.raise_for_status()
 
-    @validate_resource_type
+    @validate_datalake_resource_type
     def get(
         self,
         resource_type: DatalakeModel,
@@ -140,11 +140,10 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
+    @validate_datalake_resource_type
     def get_dataframe(
         self, resource_type: DatalakeModel, **kwargs
     ) -> pd.DataFrame:
-
         # Add this parameter to the request in order to make
         # the Mongo query work faster.
         # It should be the same as the resource_type.
@@ -184,7 +183,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
             return pd.concat(dfs, axis=1)
         return pd.DataFrame(dfs)
 
-    @validate_instance_type
+    @validate_datalake_instance_type
     def save(
         self,
         instances: List[DatalakeModel],
@@ -199,7 +198,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return self._raw_save(collection=collection, instances=instances)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    @validate_resource_type
+    @validate_datalake_resource_type
     def save_dataframe(
         self, resource_type: DatalakeModel, dataframe: pd.DataFrame
     ) -> None:
@@ -219,7 +218,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         response.raise_for_status()
 
-    @validate_resource_type
+    @validate_datalake_resource_type
     def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
         logger.debug(
             "Deleting resources of type %s from datalake.",

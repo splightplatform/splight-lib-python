@@ -8,7 +8,7 @@ from remote_splight_lib.settings import settings
 from splight_abstract import (
     AbstractHubClient,
     AbstractHubSubClient,
-    validate_resource_type,
+    validate_client_resource_type,
 )
 from splight_models import HubComponent, HubComponentVersion
 
@@ -56,7 +56,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
 
-    @validate_resource_type
+    @validate_client_resource_type
     def _get(
         self,
         resource_type: Type,
@@ -99,7 +99,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
             response.status_code == 204
         ), f"Failed to delete component {response.content}"
 
-    @validate_resource_type
+    @validate_client_resource_type
     def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
         url = self._get_url(resource_type, id)
         response = self._session.put(url, json=data)
@@ -108,7 +108,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to update component. {response.content}"
         return resource_type(**response.json())
 
-    @validate_resource_type
+    @validate_client_resource_type
     def partial_update(
         self, resource_type: Type, id: str, data: Dict
     ) -> BaseModel:
@@ -119,7 +119,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to update component. {response.content}"
         return resource_type.parse_obj(response.json())
 
-    @validate_resource_type
+    @validate_client_resource_type
     def rebuild(self, resource_type: Type, id: str) -> None:
         url = self._get_url(resource_type, id)
         url = url / "rebuild/"
