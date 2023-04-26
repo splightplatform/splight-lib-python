@@ -54,6 +54,7 @@ from splight_lib.restclient import (
     SplightRestClient,
     Timeout,
 )
+from remote_splight_lib.settings import settings as remote_settings
 
 logger = get_splight_logger()
 REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
@@ -745,19 +746,17 @@ class AbstractComponent(
         """
             Validates that there are no other connections to communication client
         """
-        import ipdb
-        ipdb.set_trace()
         token = SplightAuthToken(
-            access_key=self._setup.SPLIGHT_ACCESS_ID,
-            secret_key=self._setup.SPLIGHT_SECRET_KEY,
+            access_key=remote_settings.SPLIGHT_ACCESS_ID,
+            secret_key=remote_settings.SPLIGHT_SECRET_KEY,
         )
         restclient = SplightRestClient()
         restclient.update_headers(token.header)
         response = restclient.get(
-            f"{self._setup.SPLIGHT_API_URL}/component/components/{self.instance_id}/connections"
+            f"{remote_settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
         )
         if response.status_code == 200:
-            connections = response.json()['connections']
+            connections = response.json()['subscription_count']
             if int(connections) > 0:
                 raise DuplicatedComponentException(
                     f"Component with id {self.instance_id} is already running."
