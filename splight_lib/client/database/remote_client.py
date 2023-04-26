@@ -58,18 +58,20 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         )
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def save(self, resource_name: str, instance: Dict):
-        """Creates or updates a new resource depending on the model if
+    def save(self, resource_name: str, instance: Dict) -> Dict:
+        """Creates or updates a resource depending on the name if
         it contains the id or not.
 
         Parameters
         ----------
-        instance : BaseModel
-            The instance of the model to be created or updated
+        resource_name: str
+            The name of the resource to be created or updated.
+        instance : Dict
+            A dictionary with resource to be created or updated
 
         Returns
         -------
-        BaseModel with the created or updated resource.
+        Dict with the created or updated resource.
 
         Raises
         ------
@@ -89,9 +91,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         Parameters
         ----------
-        resource_type : Type
-            The resource type to be deleted
-        resource_id : str
+        resource_name : str
+            The resource name
+        id : str
             The resource's id.
 
         Raises
@@ -111,6 +113,20 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         first: bool = False,
         **kwargs,
     ) -> Union[Dict, List[Dict]]:
+        """Retrieves one or multiple resources. If the parameter id is passed
+        as a kwarg, the instance with that id will be retrieved.
+
+        Parameters
+        ----------
+        resource_name : str
+            The name of the resource.
+        first: bool
+            Whether to retrieve first element or not.
+
+        Returns
+        -------
+        Union[Dict, List[Dict]] list of resource or single resource.
+        """
         if "id" in kwargs:
             instances = self._retrieve_single(resource_name, id=kwargs["id"])
         else:
