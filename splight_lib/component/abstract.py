@@ -745,6 +745,8 @@ class AbstractComponent(
         """
             Validates that there are no other connections to communication client
         """
+        import ipdb
+        ipdb.set_trace()
         token = SplightAuthToken(
             access_key=self._setup.SPLIGHT_ACCESS_ID,
             secret_key=self._setup.SPLIGHT_SECRET_KEY,
