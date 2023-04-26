@@ -10,3 +10,8 @@ MODEL_NAME_MAP = {
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
 }
+
+CUSTOM_PATHS_MAP = {
+    "set-asset-attribute": "{prefix}/assets/{asset}/set-attribute/",
+    "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
+}
