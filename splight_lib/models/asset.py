@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
 
@@ -18,6 +18,7 @@ class Asset(SplightDatabaseBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
+    centroid_coordinates: Optional[Tuple[float]]
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
@@ -26,8 +27,8 @@ class Asset(SplightDatabaseBaseModel):
                 "asset": self.id,
                 "attribute": attribute.id,
                 "value": value,
-                "type": value_type
-            }
+                "type": value_type,
+            },
         )
         return new_value
 
@@ -37,7 +38,7 @@ class Asset(SplightDatabaseBaseModel):
             instance={
                 "asset": self.id,
                 "attribute": attribute.id,
-                "type": value_type
-            }
+                "type": value_type,
+            },
         )
         return new_value
