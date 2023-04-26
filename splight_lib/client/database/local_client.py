@@ -10,12 +10,6 @@ from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
 from splight_lib.logging._internal import LogTags, get_splight_logger
 
-# from splight_lib.models.base import SplightBaseModel
-
-# from splight_models import SplightBaseModel
-
-# ResourceType = Type[SplightBaseModel]
-
 logger = get_splight_logger()
 
 
@@ -76,6 +70,9 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
         _ = db_instances.pop(id)
         self._save_db(self._db_file, db)
+
+    def operate(self, resource_name: str, instance: Dict) -> Dict:
+        raise NotImplementedError("Method not allowed for Local Database")
 
     def _get(
         self,
