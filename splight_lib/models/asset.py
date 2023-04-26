@@ -1,9 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from geojson_pydantic import GeometryCollection
 
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
+
+ENGINE_PREFIX = "v2"
 
 
 class Asset(SplightDatabaseBaseModel):
@@ -16,3 +18,26 @@ class Asset(SplightDatabaseBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
+
+    def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
+        new_value = self._db_client.operate(
+            resource_name="set-asset-attribute",
+            instance={
+                "asset": self.id,
+                "attribute": attribute.id,
+                "value": value,
+                "type": value_type
+            }
+        )
+        return new_value
+
+    def get_attribute(self, attribute: Attribute, value_type: str):
+        new_value = self._db_client.operate(
+            resource_name="get-asset-attribute",
+            instance={
+                "asset": self.id,
+                "attribute": attribute.id,
+                "type": value_type
+            }
+        )
+        return new_value
