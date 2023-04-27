@@ -248,7 +248,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     ) -> Dict:
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{resource_id}/"
-        response = self._restclient.put(url, data=instance)
+        response = self._restclient.put(url, json=instance)
         response.raise_for_status()
         return response.json()
 
