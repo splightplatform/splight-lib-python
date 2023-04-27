@@ -54,7 +54,7 @@ from splight_lib.restclient import (
     SplightRestClient,
     Timeout,
 )
-from remote_splight_lib.settings import settings as remote_settings
+from splight_lib.client.settings import settings_remote
 
 logger = get_splight_logger()
 REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
@@ -747,12 +747,12 @@ class AbstractComponent(
             Validates that there are no other connections to communication client
         """
         token = SplightAuthToken(
-            access_key=remote_settings.SPLIGHT_ACCESS_ID,
-            secret_key=remote_settings.SPLIGHT_SECRET_KEY,
+            access_key=settings_remote.SPLIGHT_ACCESS_ID,
+            secret_key=settings_remote.SPLIGHT_SECRET_KEY,
         )
         rest_client = SplightRestClient()
         rest_client.update_headers(token.header)
-        api_url = f"{remote_settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
+        api_url = f"{settings_remote.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
         response = rest_client.get(api_url)
         if response.status_code == 200:
             connections = response.json()['subscription_count']
