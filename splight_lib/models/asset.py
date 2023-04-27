@@ -18,7 +18,7 @@ class Asset(SplightDatabaseBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
-    centroid_coordinates: Optional[Tuple[float]]
+    centroid_coordinates: Optional[Tuple[float, float]]
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
