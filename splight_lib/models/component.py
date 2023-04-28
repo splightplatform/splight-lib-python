@@ -164,6 +164,8 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
     def save(self):
         component_obj = self.to_component_object()
         component_obj.save()
+        if not self.id:
+            self.id = component_obj.id
 
     def delete(self):
         component_obj = self.to_component_object()
@@ -171,6 +173,8 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
 
     @classmethod
     def list(cls, **params: Dict) -> List["ComponentObjectInstance"]:
+        # TODO: Add param type always
+        params.update({"type": cls.__name__})
         instances = ComponentObject.list(**params)
         return [cls.from_component_object(instance) for instance in instances]
 
@@ -221,6 +225,7 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             parameters.append(param)
         return parameters
 
+    # TODO: Check how to minimize call to this method
     @classmethod
     def model_class_from_component_object(
         cls, instance: ComponentObject
