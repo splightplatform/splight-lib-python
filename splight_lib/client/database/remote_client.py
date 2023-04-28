@@ -14,7 +14,7 @@ from splight_lib.client.database.classmap import (
 from splight_lib.client.exceptions import (
     SPLIGHT_REQUEST_EXCEPTIONS,
     InstanceNotFound,
-    InvalidModel,
+    InvalidModelName,
 )
 from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
@@ -75,7 +75,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Saving instance", tags=LogTags.DATABASE)
 
@@ -98,11 +98,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         api_path = self._get_api_path(resource_name)
-        url = self._base_url / api_path / f"{id}/"
+        url = self._base_url / api_path / id
         response = self._restclient.delete(url)
         response.raise_for_status()
 
@@ -127,7 +127,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         -------
         Union[Dict, List[Dict]] list of resource or single resource.
         """
-        if "id" in kwargs:
+        if kwargs.get("id"):
             instances = self._retrieve_single(resource_name, id=kwargs["id"])
         else:
             instances = self._retrieve_multiple(
@@ -136,9 +136,10 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return instances
 
     def operate(self, resource_name: str, instance: Dict) -> Dict:
-        api_path = CUSTOM_PATHS_MAP.get(resource_name.lower())
+        model_name = resource_name.lower()
+        api_path = CUSTOM_PATHS_MAP.get(model_name)
         if not api_path:
-            raise InvalidModel(resource_name.lower())
+            raise InvalidModelName(model_name)
         api_path = api_path.format_map({"prefix": ENGINE_PREFIX, **instance})
         url = self._base_url / api_path
         response = self._restclient.post(url, json=instance)
@@ -191,7 +192,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")
@@ -254,7 +255,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
     @staticmethod
     def _get_api_path(resource_name: str) -> str:
-        api_path = MODEL_NAME_MAP.get(resource_name.lower())
+        model_name = resource_name.lower()
+        api_path = MODEL_NAME_MAP.get(model_name)
         if not api_path:
-            raise InvalidModel(resource_name.lower())
+            raise InvalidModelName(model_name)
         return api_path
