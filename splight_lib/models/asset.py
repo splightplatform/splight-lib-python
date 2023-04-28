@@ -5,8 +5,6 @@ from geojson_pydantic import GeometryCollection
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 
-ENGINE_PREFIX = "v2"
-
 
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str]
