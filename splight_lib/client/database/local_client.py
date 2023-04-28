@@ -45,7 +45,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Saving instance", tags=LogTags.DATABASE)
 
@@ -68,7 +68,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         model_name = resource_name.lower()
