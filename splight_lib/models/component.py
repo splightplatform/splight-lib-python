@@ -1,20 +1,19 @@
+import warnings
 from datetime import datetime
 from enum import auto
-from typing import Any, Dict, List, Optional, Type, TypedDict
+from typing import Any, ClassVar, Dict, List, Optional, Type
 
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    PrivateAttr,
-    create_model_from_typeddict,
-)
+from pydantic import AnyUrl, BaseModel, PrivateAttr, create_model
 from strenum import LowercaseStrEnum
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.exceptions import InvalidComponentObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
+
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class ComponentType(LowercaseStrEnum):
@@ -126,9 +125,7 @@ TYPE_MAPPING = {**NATIVE_TYPES, **DATABASE_TYPES}
 
 
 def get_field_value(field: InputParameter):
-    # choices = field.choices
     multiple = field.multiple
-    # required = field.required
 
     value = field.value
     if field.type in NATIVE_TYPES:
@@ -142,24 +139,27 @@ def get_field_value(field: InputParameter):
         )
     else:
         value = (
-            ComponentObjectInstance.retrieve(field.value)
-            if not multiple
-            else [
-                ComponentObjectInstance.retrieve(item) for item in field.value
-            ]
+            ComponentObject.list(id__in=field.value)
+            if multiple
+            else ComponentObject.retrieve(field.value)
         )
+        model_class = ComponentObjectInstance.from_component_object(value[0])
+        value = [
+            model_class.parse_component_object(instance) for instance in value
+        ]
     return value
 
 
 class ComponentObjectInstance(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str = ""
-    component_id: str
     description: Optional[str]
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
     )
+    _schema: ClassVar[Optional[CustomType]] = None
+    _component_id: ClassVar[Optional[str]] = None
 
     def save(self):
         component_obj = self.to_component_object()
@@ -173,78 +173,106 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
 
     @classmethod
     def list(cls, **params: Dict) -> List["ComponentObjectInstance"]:
-        # TODO: Add param type always
-        params.update({"type": cls.__name__})
+        if not cls._schema or not cls._component_id:
+            print(cls._schema, cls._component_id)
+            raise InvalidComponentObjectInstance(
+                (
+                    "Missing schema or component_id attributes in "
+                    "ComponentObjectInstance"
+                )
+            )
+        params.update(
+            {"type": cls.__name__, "component_id": cls._component_id}
+        )
         instances = ComponentObject.list(**params)
-        return [cls.from_component_object(instance) for instance in instances]
+        return [cls.parse_component_object(instance) for instance in instances]
 
     @classmethod
     def retrieve(cls, resource_id: str) -> "ComponentObjectInstance":
+        if not cls._schema or not cls._component_id:
+            raise InvalidComponentObjectInstance(
+                (
+                    "Missing schema or component_id attributes in "
+                    "ComponentObjectInstance"
+                )
+            )
         instance = ComponentObject.retrieve(resource_id)
-        return cls.from_component_object(instance)
+        return cls.parse_component_object(instance)
 
     def to_component_object(self) -> ComponentObject:
+        schema = self._schema
+        parameters = [
+            self._convert_to_input_parameter(field, getattr(self, field.name))
+            for field in schema.fields
+        ]
+        for param in schema.fields:
+            parameter = InputParameter.parse_obj(param.dict())
+            value = getattr(self, param.name)
+            if param.type not in NATIVE_TYPES:
+                value = (
+                    [item.id for item in value] if param.multiple else value.id
+                )
+            parameter.value = value
+            parameters.append(parameter)
         instance = ComponentObject(
             id=self.id,
             name=self.name,
-            component_id=self.component_id,
+            component_id=self._component_id,
             description=self.description,
             type=self.__class__.__name__,
-            data=self._get_input_parameters(),
+            data=parameters,
         )
         return instance
 
-    def _get_input_parameters(self) -> List[InputParameter]:
-        attributes = {
-            name: value
-            for name, value in self.__dict__.items()
-            if name not in self._default_attrs
-        }
-        parameters = []
-        for name, value in attributes.items():
-            field = self.__fields__.get(name)
-            multiple = False
-            if isinstance(value, list):
-                multiple = True
-
-            param_type = (
-                type(value[0]).__name__ if multiple else type(value).__name__
+    @staticmethod
+    def _convert_to_input_parameter(
+        field: Parameter, field_value: Any
+    ) -> InputParameter:
+        value = field_value
+        if field.type not in NATIVE_TYPES:
+            value = (
+                [item.id for item in field_value]
+                if field.multiple
+                else field_value.id
             )
-            param_value = value
-            if param_type not in NATIVE_TYPES:
-                param_value = (
-                    [item.id for item in value] if multiple else value.id
-                )
-            param = InputParameter(
-                name=name,
-                value=param_value,
-                type=param_type,
-                required=field.required,
-                multiple=multiple,
-            )
-            parameters.append(param)
-        return parameters
+        parameter = field.dict()
+        parameter.update({"value": value})
+        return InputParameter.parse_obj(parameter)
 
-    # TODO: Check how to minimize call to this method
     @classmethod
-    def model_class_from_component_object(
-        cls, instance: ComponentObject
+    def from_custom_type(
+        cls, custom_type: CustomType, component_id: str
     ) -> Type["ComponentObjectInstance"]:
         fields = {}
-        for field in instance.data:
+        for field in custom_type.fields:
             field_type = TYPE_MAPPING.get(field.type, cls)
             field_type = List[field_type] if field.multiple else field_type
-            fields.update({field.name: field_type})
-        model_class = create_model_from_typeddict(
-            TypedDict(instance.type, fields), __base__=cls
+            fields.update({field.name: (field_type, ...)})
+        fields.update(
+            {
+                "_schema": (
+                    ClassVar[Optional[CustomType]],
+                    PrivateAttr(custom_type),
+                ),
+                "_component_id": (ClassVar[Optional[str]], component_id),
+            }
         )
+        model_class = create_model(custom_type.name, **fields, __base__=cls)
         return model_class
 
     @classmethod
-    def from_component_object(
+    def from_component_object(cls, instance: ComponentObject):
+        instance_dict = instance.dict()
+        instance_dict["fields"] = instance_dict.pop("data")
+        instance_dict["name"] = instance_dict.pop("type")
+        return cls.from_custom_type(
+            CustomType.parse_obj(instance_dict), instance.component_id
+        )
+
+    @classmethod
+    def parse_component_object(
         cls, instance: ComponentObject
     ) -> "ComponentObjectInstance":
-        model_class = cls.model_class_from_component_object(instance)
         params_dict = {
             field.name: get_field_value(field) for field in instance.data
         }
@@ -252,8 +280,8 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             {
                 "id": instance.id,
                 "name": instance.name,
-                "component_id": instance.component_id,
+                # "component_id": instance.component_id,
                 "description": instance.description,
             }
         )
-        return model_class.parse_obj(params_dict)
+        return cls.parse_obj(params_dict)
