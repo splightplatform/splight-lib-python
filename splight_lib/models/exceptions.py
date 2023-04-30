@@ -1,0 +1,2 @@
+class InvalidComponentObjectInstance(Exception):
+    pass
