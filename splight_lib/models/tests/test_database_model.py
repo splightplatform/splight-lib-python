@@ -124,5 +124,5 @@ def test_delete(instance_dict):
         resource = Resource.parse_obj(instance_dict)
         resource.delete()
         mock.assert_called_with(
-            Resource.__name__, resource.id
+            resource_name=Resource.__name__, id=resource.id
         )
