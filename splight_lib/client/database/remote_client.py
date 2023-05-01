@@ -1,6 +1,7 @@
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Generator, List, Optional, TypedDict, Union
 
+from httpx._status_codes import codes
 from furl import furl
 from retry import retry
 
@@ -164,7 +165,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{id}/"
         response = self._restclient.get(url)
-        if response.status_code == 404:
+        if response.status_code == codes.NOT_FOUND:
             raise InstanceNotFound(resource_name, id)
         else:
             response.raise_for_status()
