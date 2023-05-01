@@ -252,7 +252,7 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             {
                 "_schema": (
                     ClassVar[Optional[CustomType]],
-                    PrivateAttr(custom_type),
+                    custom_type,
                 ),
                 "_component_id": (ClassVar[Optional[str]], component_id),
             }
@@ -280,7 +280,6 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             {
                 "id": instance.id,
                 "name": instance.name,
-                # "component_id": instance.component_id,
                 "description": instance.description,
             }
         )
