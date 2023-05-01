@@ -37,7 +37,7 @@ class SplightSettings(BaseSettings, Singleton):
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str]
 
-    @root_validator
+    @root_validator(allow_reuse=True)
     def validate_local_environment(cls, values: Dict):
         local_dev = values.get("LOCAL_ENVIRONMENT")
         if local_dev:
