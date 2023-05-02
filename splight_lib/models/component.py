@@ -174,7 +174,6 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
     @classmethod
     def list(cls, **params: Dict) -> List["ComponentObjectInstance"]:
         if not cls._schema or not cls._component_id:
-            print(cls._schema, cls._component_id)
             raise InvalidComponentObjectInstance(
                 (
                     "Missing schema or component_id attributes in "
