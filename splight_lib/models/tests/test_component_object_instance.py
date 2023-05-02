@@ -34,7 +34,7 @@ def test_invalid_component_object_instance():
         ComponentObjectInstance.retrieve("1234")
 
 
-def test_from_custom_type():
+def test_from_custom_type_create_model_class_as_expected():
     component_id = str(uuid4())
     model_class = ComponentObjectInstance.from_custom_type(
         MY_CUSTOM_TYPE,
