@@ -1,0 +1,57 @@
+name: "Verify version"
+on:
+  pull_request:
+    types:
+      [opened, synchronize]
+    branches:
+      - '*'
+jobs:
+  verify_pypi_version:
+    runs-on: ubuntu-latest
+    name: Verify version is higher than PyPi package
+    steps:
+      - name: Check out to feature branch
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: Install requirements
+        run: pip install -r .github/workflows/scripts/requirements.txt
+
+      - name: Get version from feature branch
+        run: echo "LOCAL_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Run script
+        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.LOCAL_VERSION }} "splight-lib"
+
+  verify_branch_version:
+    runs-on: ubuntu-latest
+    name: Verify version is higher than master
+    steps:
+      - name: Check out to master
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Get version from master branch
+        run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Check out to feature branch
+        uses: actions/checkout@v3
+
+      - name: Get version from feature branch
+        run: echo "BRANCH_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: Install requirements
+        run: pip install -r .github/workflows/scripts/requirements.txt
+
+      - name: Run script
+        run: python .github/workflows/scripts/check_branch_version.py ${{ env.MASTER_VERSION }} ${{ env.BRANCH_VERSION }}
