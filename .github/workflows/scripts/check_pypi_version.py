@@ -1,7 +1,7 @@
 import json
 import sys
+import urllib.request
 
-import urllib3
 from pkg_resources import parse_version as parse
 
 
@@ -13,10 +13,9 @@ class PypiVersionError(Exception):
 
 def get_pypi_version(project_name: str):
     url = f"https://pypi.org/pypi/{project_name}/json"
-    http = urllib3.PoolManager()
-    response = http.request("GET", url)
-    version = json.loads(response.data)["info"]["version"]
-    return version
+    response = urllib.request.urlopen(url)
+    version = json.loads(response.read())["info"]["version"]
+    return parse(version)
 
 
 if __name__ == "__main__":
