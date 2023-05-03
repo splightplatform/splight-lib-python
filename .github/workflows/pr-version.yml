@@ -4,7 +4,7 @@ on:
     types:
       [opened, synchronize]
     branches:
-      - 'feature/*'
+      - '*'
 jobs:
   verify_pypi_version:
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
       - name: Check out to master
         uses: actions/checkout@v3
         with:
-          ref: master
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Get version from master branch
         run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
