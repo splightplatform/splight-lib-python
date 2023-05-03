@@ -34,12 +34,12 @@ class SplightSettings(BaseSettings, Singleton):
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     # Parameters for local environment
-    LOCAL_DEV: bool = False
+    LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str]
 
     @root_validator
     def validate_local_environment(cls, values: Dict):
-        local_dev = values.get("LOCAL_DEV")
+        local_dev = values.get("LOCAL_ENVIRONMENT")
         if local_dev:
             values["CURRENT_DIR"] = os.getcwd()
         return values

@@ -17,4 +17,4 @@ class Asset(SplightBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
-    centroid_coordinates: Optional[Tuple[float]]
+    centroid_coordinates: Optional[Tuple[float, float]]
