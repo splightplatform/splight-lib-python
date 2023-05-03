@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    types:
+      [opened, synchronize]
+    branches:
+      - '*'
+
 jobs:
   upload:
     runs-on: ubuntu-latest
