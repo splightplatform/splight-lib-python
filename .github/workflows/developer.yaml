@@ -38,6 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Verify version is a valid developer version and is higher than last PyPi package and master version
     steps:
+      - name: Check out to master
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Get version from master branch
+        run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
       - name: Check out to feature branch
         uses: actions/checkout@v3
 
@@ -54,14 +62,6 @@ jobs:
 
       - name: Verify version is greater than last pypi uploaded version
         run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
-
-      - name: Check out to master
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-
-      - name: Get version from master branch
-        run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
     # TODO: remove step
       - name: check scripts permissions
