@@ -4,7 +4,7 @@ on:
     types:
       [opened, synchronize]
     branches:
-      - '*'
+      - "*"
 
 jobs:
   run_tests_and_coding_style:
@@ -25,6 +25,7 @@ jobs:
       - name: Run tests
         run: make test
 
+      # TODO: discuss about following steps
       # - name: Run flake8
       #   run: make flake8
 
@@ -62,10 +63,6 @@ jobs:
 
       - name: Verify version is greater than last pypi uploaded version
         run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
-
-    # TODO: remove step
-      - name: check scripts permissions
-        run: ls -la .github/workflows/scripts/
 
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
