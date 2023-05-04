@@ -9,12 +9,15 @@ class FixedLineNumberFileHandler:
             self._write_file([])
         self._total_lines = total_lines
 
-    def write(self, lines: List[str]):
+    def write(self, lines: List[str], override=False):
         all_lines = self._read_file()
 
-        all_lines.extend(lines)
+        if override:
+            all_lines = lines
+        else:
+            all_lines.extend(lines)
 
-        lines = all_lines[-self._total_lines :]
+        lines = all_lines[-self._total_lines:]
         lines = [f"{x}\n" for x in lines]
         self._write_file(lines)
 

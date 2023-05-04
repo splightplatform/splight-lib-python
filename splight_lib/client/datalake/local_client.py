@@ -51,6 +51,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         handler = FixedLineNumberFileHandler(
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
+        # TODO: fix skip and limit to make filter after mongo filters
         documents = [
             json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
         ]
@@ -153,7 +154,23 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             resource_type,
             tags=LogTags.DATALAKE,
         )
-        raise NotImplementedError()
+        collection = resource_type.Meta.collection_name
+        file_path = os.path.join(
+            self._base_path, self._get_file_name(collection)
+        )
+        handler = FixedLineNumberFileHandler(
+            file_path=file_path, total_lines=self._TOTAL_DOCS
+        )
+        # TODO: fix skip and limit to make filter after mongo filters
+        documents = [
+            json.loads(doc) for doc in handler.read(limit=1000)
+        ]
+        id = kwargs.get("instance_id")
+        if id:
+            documents = [d for d in documents if d["instance_id"] != id]
+        # jsonify python dicts
+        documents = [json.loads(json.dumps(d)) for d in documents]
+        handler.write(documents, override=True)
 
     def create_index(self, collection: str, index: list) -> None:
         logger.debug(
