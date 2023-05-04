@@ -63,6 +63,10 @@ jobs:
       - name: Get version from master branch
         run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
+    # TODO: remove step
+      - name: check scripts permissions
+        run: ls -la .github/workflows/scripts/
+
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
 
