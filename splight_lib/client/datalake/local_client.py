@@ -157,21 +157,15 @@ class LocalDatalakeClient(AbstractDatalakeClient):
 
     def create_index(self, collection: str, index: list) -> None:
         logger.debug(
-            "Creating index for collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
+            "Skipping index creation when using Local datalake client."
         )
-        raise NotImplementedError()
 
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
     ) -> List[Dict]:
         logger.debug(
-            "Aggregate on datalake collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
+            "Skipping raw aggregation when using Local datalake client."
         )
-        raise NotImplementedError()
 
     def _filter(
         self, instances: List[DLResource], filters: Dict
