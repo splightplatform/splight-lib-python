@@ -69,6 +69,7 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     name: Upload developer library version to pypi
+    needs: [run_tests_and_coding_style, verify_version]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
