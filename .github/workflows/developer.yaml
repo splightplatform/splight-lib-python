@@ -20,7 +20,7 @@ jobs:
           python-version: "3.8"
 
       - name: Install requirements
-        run: python setup.py install -e ".[test]"
+        run: python setup.py install easy_install "splight-lib[test]"
 
       - name: Run tests
         run: make test
