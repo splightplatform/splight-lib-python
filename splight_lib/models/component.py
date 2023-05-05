@@ -21,6 +21,7 @@ class ComponentType(LowercaseStrEnum):
     NETWORK = auto()
     CONNECTOR = auto()
     SIMULATOR = auto()
+    OTHER = auto()
 
 
 class Action(LowercaseStrEnum):
