@@ -1,12 +1,17 @@
-from typing import Optional
-from unittest.mock import patch
-from uuid import uuid4
+import os
 
-import pytest
+os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
+os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
 
-from splight_lib.client.database.local_client import LocalDatabaseClient
-from splight_lib.models.base import SplightDatabaseBaseModel
-from splight_lib.settings import settings
+from typing import Optional  # noqa: E402
+from unittest.mock import patch   # noqa: E402
+from uuid import uuid4  # noqa: E402
+
+import pytest  # noqa: E402
+
+from splight_lib.client.database.local_client import LocalDatabaseClient  # noqa: E402
+from splight_lib.models.base import SplightDatabaseBaseModel  # noqa: E402
+from splight_lib.settings import settings  # noqa: E402
 
 settings.configure(LOCAL_ENVIRONMENT=True)
 
