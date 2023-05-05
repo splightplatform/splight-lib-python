@@ -1,0 +1,93 @@
+name: "Release scope"
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  run_tests_and_coding_style:
+    runs-on: ubuntu-latest
+    name: Verify library tests and coding style steps success
+    steps:
+      - name: Check out to feature branch
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Install requirements
+        run: pip install -e ".[test]"
+
+      - name: Run tests
+        run: make test
+
+      # TODO: discuss about following steps
+      # - name: Run flake8
+      #   run: make flake8
+
+      # - name: Run isort
+      #   run: make isort
+
+      # - name: Run black
+      #   run: make black
+
+  verify_version:
+    runs-on: ubuntu-latest
+    name: Verify version is a valid developer version and is higher than last PyPi package and master version
+    steps:
+      - name: Check out to master
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Get version from master branch
+        run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Check out to feature branch
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Verify version is a valid release version
+        run: python .github/workflows/scripts/check_release_version.py ${{ env.CURRENT_VERSION }}
+
+      - name: Verify version is greater than last pypi uploaded version
+        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
+
+      - name: Verify version is greater than master version
+        run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
+
+  upload:
+    runs-on: ubuntu-latest
+    name: Upload developer library version to pypi
+    needs: [run_tests_and_coding_style, verify_version]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  cleanup_pypi:
+    runs-on: ubuntu-latest
+    name: Remove all developer versions from pypi
+    needs: [upload]
+    steps:
+      - name: Install requirements
+        run: pip install -r .github/workflows/scripts/requirements.txt
+      - name: Remove all developer versions from pypi
+        run: python .github/workflows/scripts/cleanup_pypi.py "splight-lib" ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
