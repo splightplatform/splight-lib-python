@@ -1,15 +1,20 @@
-from unittest.mock import patch
-from uuid import uuid4
+import os
 
-import pytest
+os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
+os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
 
-from splight_lib.models.component import (
+from unittest.mock import patch  # noqa: E402
+from uuid import uuid4  # noqa: E402
+
+import pytest  # noqa: E402
+
+from splight_lib.models.component import (  # noqa: E402
     ComponentObject,
     ComponentObjectInstance,
     CustomType,
 )
-from splight_lib.models.exceptions import InvalidComponentObjectInstance
-from splight_lib.settings import settings
+from splight_lib.models.exceptions import InvalidComponentObjectInstance  # noqa: E402
+from splight_lib.settings import settings  # noqa: E402
 
 settings.configure(LOCAL_ENVIRONMENT=True)
 
