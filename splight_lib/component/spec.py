@@ -1,12 +1,20 @@
-# from enum import auto
+from enum import Enum
 from typing import Dict, List, Optional, Set
 
-# from cli.constants import VALID_DEPENDS_ON, VALID_PARAMETER_VALUES
-from pydantic import AnyUrl, BaseModel, Field, ValidationError, validator
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    Field,
+    ValidationError,
+    create_model,
+    validator,
+)
 
-from splight_lib.models.component import ComponentType  # Parameter,
 from splight_lib.models.component import (
+    TYPE_MAPPING,
     Command,
+    ComponentObjectInstance,
+    ComponentType,
     CustomType,
     Endpoint,
     InputParameter,
@@ -106,7 +114,9 @@ class Spec(BaseModel):
 
     @validator("input")
     def validate_parameters(
-        cls, input: List[InputParameter], values: Dict,
+        cls,
+        input: List[InputParameter],
+        values: Dict,
     ) -> List[InputParameter]:
         try:
             check_unique_values([item.name for item in input])
@@ -139,3 +149,41 @@ class Spec(BaseModel):
     @classmethod
     def from_file(cls, file_path: str) -> "Spec":
         return cls.parse_file(file_path)
+
+    def get_input(self) -> BaseModel:
+        class Config:
+            use_enum_values = True
+
+        custom_type_dict = {
+            ct.name: ComponentObjectInstance.from_custom_type(
+                ct, component_id=None
+            )
+            for ct in self.custom_types
+        }
+        fields = {}
+        for parameter in self.input:
+            name = parameter.name
+            choices = parameter.choices
+            multiple = parameter.multiple
+            required = parameter.required
+
+            single_param_type = TYPE_MAPPING.get(parameter.type, None)
+            if not single_param_type:
+                single_param_type = custom_type_dict.get(parameter.type)
+
+            if choices:
+                valid_choices = Enum(
+                    f"{name.title()}Choices",
+                    {item.upper(): item for item in choices},
+                )
+                single_param_type = valid_choices
+
+            param_type = (
+                List[single_param_type] if multiple else single_param_type
+            )
+            param_type = param_type if required else Optional[param_type]
+
+            value = Ellipsis if required else None
+            fields[name] = (param_type, value)
+        model = create_model("Input", **fields, __config__=Config)
+        return model
