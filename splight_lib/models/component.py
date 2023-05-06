@@ -16,6 +16,14 @@ from splight_lib.models.query import Query
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
+<<<<<<< HEAD
+=======
+class PrivacyPolicy(LowercaseStrEnum):
+    PUBLIC = auto()
+    PRIVATE = auto()
+
+
+>>>>>>> a8367a2 (fix conflict)
 class ComponentType(LowercaseStrEnum):
     ALGORITHM = auto()
     NETWORK = auto()
@@ -64,6 +72,11 @@ class CustomType(BaseModel):
     action: Optional[Action]
     fields: List[Parameter]
 
+<<<<<<< HEAD
+=======
+    _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
+
+>>>>>>> a8367a2 (fix conflict)
 
 class Command(BaseModel):
     name: str
@@ -139,15 +152,19 @@ def get_field_value(field: InputParameter):
             else [model_class.retrieve(item) for item in field.value]
         )
     else:
-        value = (
+        value_as_list = (
             ComponentObject.list(id__in=field.value)
             if multiple
-            else ComponentObject.retrieve(field.value)
+            else [ComponentObject.retrieve(field.value)]
         )
-        model_class = ComponentObjectInstance.from_component_object(value[0])
-        value = [
-            model_class.parse_component_object(instance) for instance in value
+        model_class = ComponentObjectInstance.from_component_object(
+            value_as_list[0]
+        )
+        value_as_list = [
+            model_class.parse_component_object(instance)
+            for instance in value_as_list
         ]
+        value = value_as_list if multiple else value_as_list[0]
     return value
 
 
@@ -241,7 +258,9 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
 
     @classmethod
     def from_custom_type(
-        cls, custom_type: CustomType, component_id: str
+        cls,
+        custom_type: CustomType,
+        component_id: Optional[str] = None,
     ) -> Type["ComponentObjectInstance"]:
         fields = {}
         for field in custom_type.fields:
