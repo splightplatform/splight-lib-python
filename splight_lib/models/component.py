@@ -16,14 +16,11 @@ from splight_lib.models.query import Query
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
-<<<<<<< HEAD
-=======
 class PrivacyPolicy(LowercaseStrEnum):
     PUBLIC = auto()
     PRIVATE = auto()
 
 
->>>>>>> a8367a2 (fix conflict)
 class ComponentType(LowercaseStrEnum):
     ALGORITHM = auto()
     NETWORK = auto()
@@ -72,11 +69,8 @@ class CustomType(BaseModel):
     action: Optional[Action]
     fields: List[Parameter]
 
-<<<<<<< HEAD
-=======
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
 
->>>>>>> a8367a2 (fix conflict)
 
 class Command(BaseModel):
     name: str
