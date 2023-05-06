@@ -1,18 +1,13 @@
 from enum import Enum
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Type
 
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    Field,
-    ValidationError,
-    create_model,
-    validator,
-)
+from pydantic import AnyUrl, BaseModel, Field, create_model, validator
 
 from splight_lib.models.component import (
     TYPE_MAPPING,
+    Binding,
     Command,
+    Component,
     ComponentObjectInstance,
     ComponentType,
     CustomType,
@@ -20,6 +15,7 @@ from splight_lib.models.component import (
     InputParameter,
     Output,
     PrivacyPolicy,
+    get_field_value,
 )
 
 VALID_PARAMETER_VALUES = {
@@ -79,6 +75,7 @@ class Spec(BaseModel):
     custom_types: List[CustomType] = []
     input: List[InputParameter] = []
     output: List[Output] = []
+    bindings: List[Binding] = []
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
 
@@ -150,7 +147,7 @@ class Spec(BaseModel):
     def from_file(cls, file_path: str) -> "Spec":
         return cls.parse_file(file_path)
 
-    def get_input(self) -> BaseModel:
+    def get_input_model(self) -> Type[BaseModel]:
         class Config:
             use_enum_values = True
 
@@ -187,3 +184,11 @@ class Spec(BaseModel):
             fields[name] = (param_type, value)
         model = create_model("Input", **fields, __config__=Config)
         return model
+
+    def component_input(self, component_id: str) -> BaseModel:
+        input_model = self.get_input_model()
+        component = Component.retrieve(component_id)
+        values = {
+            param.name: get_field_value(param) for param in component.input
+        }
+        return input_model.parse_obj(values)
