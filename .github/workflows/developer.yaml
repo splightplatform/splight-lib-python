@@ -6,12 +6,15 @@ on:
     branches:
       - "*"
 
+env:
+  LIBRARY_NAME: "splight-lib"
+
 jobs:
   run_tests_and_coding_style:
     runs-on: ubuntu-latest
     name: Verify library tests and coding style
     steps:
-      - name: Check out to feature branch
+      - name: Checkout to feature branch
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -40,16 +43,16 @@ jobs:
     name: Verify version is higher than last PyPi package and master version
     steps:
       # get master version
-      - name: Check out to master
+      - name: Checkout to master
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: master
 
       - name: Get version from master branch
         run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
       # get current branch version
-      - name: Check out to feature branch
+      - name: Checkout to feature branch
         uses: actions/checkout@v3
 
       - name: Get version from feature branch
@@ -62,7 +65,7 @@ jobs:
 
       # validate versions
       - name: Verify version is greater than last pypi uploaded version
-        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
+        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} $LIBRARY_NAME
 
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
@@ -72,7 +75,7 @@ jobs:
     name: Upload developer library version to pypi
     needs: [run_tests_and_coding_style, verify_version]
     steps:
-      - name: Check out repository code
+      - name: Checkout repository code
         uses: actions/checkout@v3
 
       - name: Get version from feature branch
