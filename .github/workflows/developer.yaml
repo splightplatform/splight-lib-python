@@ -75,7 +75,7 @@ jobs:
     name: Upload developer library version to pypi
     needs: [run_tests_and_coding_style, verify_version]
     steps:
-      - name: Checkout repository code
+      - name: Checkout to feature branch
         uses: actions/checkout@v3
 
       - name: Get version from feature branch
