@@ -14,9 +14,11 @@ from splight_lib.models.component import (
     Endpoint,
     InputParameter,
     Output,
+    Parameter,
     PrivacyPolicy,
     get_field_value,
 )
+from splight_lib.utils.custom_model import create_custom_model
 
 VALID_PARAMETER_VALUES = {
     "int": int,
@@ -157,32 +159,12 @@ class Spec(BaseModel):
             )
             for ct in self.custom_types
         }
-        fields = {}
-        for parameter in self.input:
-            name = parameter.name
-            choices = parameter.choices
-            multiple = parameter.multiple
-            required = parameter.required
-
-            single_param_type = TYPE_MAPPING.get(parameter.type, None)
-            if not single_param_type:
-                single_param_type = custom_type_dict.get(parameter.type)
-
-            if choices:
-                valid_choices = Enum(
-                    f"{name.title()}Choices",
-                    {item.upper(): item for item in choices},
-                )
-                single_param_type = valid_choices
-
-            param_type = (
-                List[single_param_type] if multiple else single_param_type
-            )
-            param_type = param_type if required else Optional[param_type]
-
-            value = Ellipsis if required else None
-            fields[name] = (param_type, value)
-        model = create_model("Input", **fields, __config__=Config)
+        model = create_custom_model(
+            model_name="Input",
+            parameters=self.input,
+            custom_types=custom_type_dict,
+            config_class=Config,
+        )
         return model
 
     def component_input(self, component_id: str) -> BaseModel:
@@ -192,3 +174,14 @@ class Spec(BaseModel):
             param.name: get_field_value(param) for param in component.input
         }
         return input_model.parse_obj(values)
+
+    def get_output_models(self) -> Type[BaseModel]:
+        fields = {}
+        for output in self.output:
+            model_class = create_custom_model(
+                model_name=output.name,
+                parameters=output.fields,
+            )
+            fields.update({output.name: (Type[model_class], model_class)})
+        output_model = create_model("Output", **fields)
+        return output_model()
