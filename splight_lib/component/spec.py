@@ -1,10 +1,12 @@
-from enum import Enum
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, create_model, validator
 
+from splight_lib.component.exceptions import (
+    DuplicatedValuesError,
+    ParameterDependencyError,
+)
 from splight_lib.models.component import (
-    TYPE_MAPPING,
     Binding,
     Command,
     Component,
@@ -14,7 +16,6 @@ from splight_lib.models.component import (
     Endpoint,
     InputParameter,
     Output,
-    Parameter,
     PrivacyPolicy,
     get_field_value,
 )
@@ -37,14 +38,6 @@ VALID_PARAMETER_VALUES = {
 VALID_DEPENDS_ON = [
     ("Attribute", "Asset"),
 ]
-
-
-class DuplicatedValuesError(Exception):
-    pass
-
-
-class ParameterDependencyError(Exception):
-    pass
 
 
 def check_unique_values(values: List[str]):
