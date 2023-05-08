@@ -4,7 +4,7 @@ on:
     types:
       [opened, synchronize]
     branches:
-      - "*"
+      - test
 
 jobs:
   run_tests_and_coding_style:
