@@ -17,11 +17,11 @@ class FixedLineNumberFileHandler:
         else:
             all_lines.extend(lines)
 
-        lines = all_lines[-self._total_lines:]
+        lines = all_lines[-self._total_lines :]
         lines = [f"{x}\n" for x in lines]
         self._write_file(lines)
 
-    def read(self, skip: int = 0, limit: int = -1) -> List[str]:
+    def read(self, skip: int = 0, limit: int = 1000) -> List[str]:
         all_lines = self._read_file()
         return all_lines[skip:limit]
 

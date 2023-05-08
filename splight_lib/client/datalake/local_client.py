@@ -36,7 +36,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def _raw_get(
         self,
         resource_type: DLResource,
-        limit_: int = -1,
+        limit_: int = 1000,
         skip_: int = 0,
         sort: Union[List, str] = ["timestamp__desc"],
         group_id: Union[List, str] = [],
@@ -51,7 +51,6 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         handler = FixedLineNumberFileHandler(
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
-        # TODO: fix skip and limit to make filter after mongo filters
         documents = [
             json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
         ]
@@ -161,10 +160,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         handler = FixedLineNumberFileHandler(
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
-        # TODO: fix skip and limit to make filter after mongo filters
-        documents = [
-            json.loads(doc) for doc in handler.read(limit=1000)
-        ]
+        documents = [json.loads(doc) for doc in handler.read()]
         id = kwargs.get("instance_id")
         if id:
             documents = [d for d in documents if d["instance_id"] != id]
