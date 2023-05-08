@@ -2,7 +2,8 @@ name: "Release scope"
 on:
   push:
     branches:
-      - master
+      # - master
+      - feature/upload-dev-versions-to-pypi
 
 jobs:
   verify_version:
@@ -36,6 +37,22 @@ jobs:
 
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
+
+  tags_version:
+    runs-on: ubuntu-latest
+    name: Upload developer library version to pypi
+    needs: [verify_version]
+    steps:
+      - name: Check out to feature branch
+        uses: actions/checkout@v3
+
+      - name: Create tag
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.CURRENT_VERSION }}
+          release_name: Release ${{ env.CURRENT_VERSION }}
 
   upload:
     runs-on: ubuntu-latest
