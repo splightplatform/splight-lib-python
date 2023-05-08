@@ -51,9 +51,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         handler = FixedLineNumberFileHandler(
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
-        documents = [
-            json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
-        ]
+        documents = [json.loads(doc) for doc in handler.read()]
 
         filters = kwargs
         filters.update({"output_format": resource_type.__name__})
@@ -65,7 +63,10 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         documents.sort(key=lambda x: x["timestamp"], reverse=reverse)
 
         # TODO: review how to apply grouping
-        return [resource_type.parse_obj(doc) for doc in documents]
+        return [
+            resource_type.parse_obj(doc)
+            for doc in documents[skip_ : limit_ + 1]
+        ]
 
     def get(
         self,
