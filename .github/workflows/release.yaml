@@ -13,7 +13,8 @@ jobs:
       - name: Check out to master
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          # ref: ${{ github.event.pull_request.base.ref }}
+          ref: master
 
       - name: Get version from master branch
         run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
