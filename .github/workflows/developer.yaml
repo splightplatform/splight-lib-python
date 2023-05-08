@@ -75,6 +75,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
       - name: Verify version is a valid developer version
         run: python .github/workflows/scripts/check_dev_version.py ${{ env.CURRENT_VERSION }}
         id: verify_dev_version
