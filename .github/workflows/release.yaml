@@ -29,6 +29,9 @@ jobs:
       - name: Get version from feature branch
         run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
+      - name: (TEST) print master and current versions
+        run: echo MASTER VERSION ${{ env.MASTER_VERSION }}, CURRENT VERSION ${{ env.CURRENT_VERSION }}
+
       - name: Verify version is a valid release version
         run: python .github/workflows/scripts/check_release_version.py ${{ env.CURRENT_VERSION }}
 

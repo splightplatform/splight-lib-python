@@ -60,6 +60,9 @@ jobs:
         with:
           python-version: "3.8"
 
+      - name: (TEST) print master and current versions
+        run: echo MASTER VERSION ${{ env.MASTER_VERSION }}, CURRENT VERSION ${{ env.CURRENT_VERSION }}
+
       # validate versions
       - name: Verify version is greater than last pypi uploaded version
         run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
