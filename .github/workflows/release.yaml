@@ -5,37 +5,9 @@ on:
       - master
 
 jobs:
-  run_tests_and_coding_style:
-    runs-on: ubuntu-latest
-    name: Verify library tests and coding style steps success
-    steps:
-      - name: Check out to feature branch
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
-
-      - name: Install requirements
-        run: pip install -e ".[test]"
-
-      - name: Run tests
-        run: make test
-
-      # TODO: discuss about following steps
-      # - name: Run flake8
-      #   run: make flake8
-
-      # - name: Run isort
-      #   run: make isort
-
-      # - name: Run black
-      #   run: make black
-
   verify_version:
     runs-on: ubuntu-latest
-    name: Verify version is a valid developer version and is higher than last PyPi package and master version
+    name: Verify version is a valid release version and is higher than last PyPi package and master version
     steps:
       - name: Check out to master
         uses: actions/checkout@v3

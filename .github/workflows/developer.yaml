@@ -37,8 +37,9 @@ jobs:
 
   verify_version:
     runs-on: ubuntu-latest
-    name: Verify version is a valid developer version and is higher than last PyPi package and master version
+    name: Verify version is higher than last PyPi package and master version
     steps:
+      # get master version
       - name: Check out to master
         uses: actions/checkout@v3
         with:
@@ -47,39 +48,44 @@ jobs:
       - name: Get version from master branch
         run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
+      # get current branch version
       - name: Check out to feature branch
         uses: actions/checkout@v3
+
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: "3.8"
 
-      - name: Get version from feature branch
-        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
-
-      - name: Verify version is a valid developer version
-        run: python .github/workflows/scripts/check_dev_version.py ${{ env.CURRENT_VERSION }}
-
+      # validate versions
       - name: Verify version is greater than last pypi uploaded version
         run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} "splight-lib"
 
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
 
-  upload:
+  upload_dev_version:
     runs-on: ubuntu-latest
-    name: Upload developer library version to pypi
+    name: Upload only developer library version to pypi
     needs: [run_tests_and_coding_style, verify_version]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
 
+      - name: Verify version is a valid developer version
+        run: python .github/workflows/scripts/check_dev_version.py ${{ env.CURRENT_VERSION }}
+        id: verify_dev_version
+
       - name: Build package
+        if: steps.verify_dev_version.outcome == 'success'
         run: python setup.py sdist bdist_wheel
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: steps.verify_dev_version.outcome == 'success'
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
