@@ -30,9 +30,6 @@ jobs:
       - name: Get version from feature branch
         run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
-      - name: (TEST) print master and current versions
-        run: echo MASTER VERSION ${{ env.MASTER_VERSION }}, CURRENT VERSION ${{ env.CURRENT_VERSION }}
-
       - name: Verify version is a valid release version
         run: python .github/workflows/scripts/check_release_version.py ${{ env.CURRENT_VERSION }}
 
@@ -42,9 +39,9 @@ jobs:
       - name: Verify version is greater than master version
         run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
 
-  tags_version:
+  tag_version:
     runs-on: ubuntu-latest
-    name: Upload developer library version to pypi
+    name: Create tag version on github repository
     needs: [verify_version]
     steps:
       - name: Check out to feature branch
@@ -61,9 +58,9 @@ jobs:
           tag_name: ${{ env.CURRENT_VERSION }}
           release_name: Release ${{ env.CURRENT_VERSION }}
 
-  upload:
+  upload_release_to_pypi:
     runs-on: ubuntu-latest
-    name: Upload developer library version to pypi
+    name: Upload release library version to pypi
     needs: [verify_version, tags_version]
     steps:
       - name: Check out repository code
@@ -81,7 +78,7 @@ jobs:
   cleanup_pypi:
     runs-on: ubuntu-latest
     name: Remove all developer versions from pypi
-    needs: [upload]
+    needs: [upload_to_pypi]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
