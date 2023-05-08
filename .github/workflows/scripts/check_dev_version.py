@@ -1,10 +1,12 @@
 import sys
 
-import pkg_resources
-
 
 class InvalidDeveloperVersion(Exception):
     """Raised when the version is not a valid developer version."""
+
+
+def is_developer_version(str_version: str) -> bool:
+    return "dev" in str_version
 
 
 if __name__ == "__main__":
@@ -12,18 +14,18 @@ if __name__ == "__main__":
 
     Example:
         - x.y.z-dev0: it's OK.
-        - x.y.x: raises VersionError
+        - x.y.x: raises InvalidDeveloperVersion
 
     Args:
         version (arg 1) (str): current lib version number (x.y.z-dev0)
     Raises:
-        VersionError: if the current version is not a developer version.
+        InvalidDeveloperVersion: if the current version is not a developer
+        version.
     """
     string_version = sys.argv[1]
-    version = pkg_resources.parse_version(string_version)
 
-    if not version.is_prerelease:
+    if not is_developer_version(string_version):
         raise InvalidDeveloperVersion(
             f"Current library version {string_version} is not a valid "
-            "developer version"
+            "developer version."
         )

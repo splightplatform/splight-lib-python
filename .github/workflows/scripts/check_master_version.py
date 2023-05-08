@@ -3,10 +3,9 @@ import sys
 from pkg_resources import parse_version as parse
 
 
-class MasterVersionError(Exception):
-    """Raised when the feature version is not greater than the master version."""
-
-    pass
+class VersionError(Exception):
+    """Raised when the feature version is not greater than the master
+    version."""
 
 
 if __name__ == "__main__":
@@ -25,7 +24,7 @@ if __name__ == "__main__":
     project_version = parse(new_version_line)
 
     if project_version <= master_version:
-        raise MasterVersionError(
+        raise VersionError(
             f"Feature version {project_version} is not greater than "
             f"master version {master_version}"
         )
