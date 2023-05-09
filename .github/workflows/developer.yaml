@@ -66,6 +66,8 @@ jobs:
         run: |
           echo env.PUBLISH_PACKAGE ${{ env.PUBLISH_PACKAGE }}
           echo $ PUBLISH_PACKAGE $PUBLISH_PACKAGE
+          echo ${{ env.PUBLISH_PACKAGE }} == "true"
+          echo ${{ env.PUBLISH_PACKAGE }} == "false"
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
