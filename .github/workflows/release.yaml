@@ -7,6 +7,9 @@ on:
     branches:
       - "master"
 
+env:
+  LIBRARY_NAME: "splight-lib"
+
 jobs:
   tag_version:
     runs-on: ubuntu-latest
@@ -54,6 +57,9 @@ jobs:
       # install requests and pypi-cleanup
       - name: Install requirements
         run: pip install -r .github/workflows/scripts/requirements.txt
+
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
       - name: Remove all developer versions from pypi
         run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
