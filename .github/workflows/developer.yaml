@@ -68,7 +68,21 @@ jobs:
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-        if: ${{ env.PUBLISH_PACKAGE }} == 'true'
+        if: ${{ env.PUBLISH_PACKAGE == 'true'}} 
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ env.PUBLISH_PACKAGE == true}} 
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ fromJSON(env.PUBLISH_PACKAGE) }} 
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
