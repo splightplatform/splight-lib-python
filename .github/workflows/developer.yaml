@@ -1,0 +1,70 @@
+name: "Developer"
+on:
+  push:
+    branches:
+      - "feature/**"
+
+env:
+  LIBRARY_NAME: "splight-lib"
+
+jobs:
+  verify_version:
+    runs-on: ubuntu-latest
+    name: Verify version is higher than last PyPi package and master version
+    steps:
+      # get master version
+      - name: Checkout to master
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Get version from master branch
+        run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      # get current branch version
+      - name: Checkout to feature branch
+        uses: actions/checkout@v3
+
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      # validate versions
+      - name: Verify version is greater than last pypi uploaded version
+        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} $LIBRARY_NAME
+
+      - name: Verify version is greater than master version
+        run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
+
+  upload_developer_to_pypi:
+    runs-on: ubuntu-latest
+    name: Upload the version to pypi only if it's a developer version
+    needs: [verify_version]
+    steps:
+      - name: Checkout to feature branch
+        uses: actions/checkout@v3
+
+      - name: Get version from feature branch
+        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+
+      - name: Load variable to decide whether to publish package
+        run: |
+          if [[ $CURRENT_VERSION =~ "dev" ]]; then
+              echo "PUBLISH_PACKAGE=true" >> "$GITHUB_ENV"
+          else
+              echo "PUBLISH_PACKAGE=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
