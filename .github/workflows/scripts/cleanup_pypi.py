@@ -49,7 +49,7 @@ def delete_developer_versions(
         for version in to_delete:
             logging.info(f"Deleting {package_name} version {version}")
             form_action = f"/manage/project/{package_name}/release/{version}/"
-            form_url = f"https://pypi.org/{form_action}"
+            form_url = f"https://pypi.org{form_action}"
             with session.get(form_url) as response:
                 response.raise_for_status()
                 parser = CsfrParser(form_action, "confirm_delete_version")
