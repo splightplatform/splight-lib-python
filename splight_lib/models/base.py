@@ -27,8 +27,8 @@ class SplightDatabaseBaseModel(BaseModel):
         self._db_client = self.__get_database_client()
 
     @staticmethod
-    def get_event_name(type: str, action: str) -> str:
-        return f"{type.lower()}-{action.lower()}"
+    def get_event_name(type_: str, action: str) -> str:
+        return f"{type_.lower()}-{action.lower()}"
 
     def save(self):
         saved = self._db_client.save(
