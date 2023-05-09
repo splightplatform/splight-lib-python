@@ -1,29 +1,42 @@
 from datetime import datetime, timezone
-from enum import Enum
+from enum import auto
 from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
+from strenum import KebabCaseStrEnum, SnakeCaseStrEnum, UppercaseStrEnum
 
-# from splight_models.user import User
-
-
-class EventActions(str, Enum):
-    CREATE = "CREATE"
-    UPDATE = "UPDATE"
-    DELETE = "DELETE"
-    TRIGGER = "TRIGGER"
-    READ = "READ"
+from splight_lib.models.component import Command
 
 
-class EventNames(str, Enum):
+class EventActions(UppercaseStrEnum):
+    CREATE = auto()
+    UPDATE = auto()
+    DELETE = auto()
+    TRIGGER = auto()
+    READ = auto()
+
+
+class EventNames(KebabCaseStrEnum):
     # TODO make this use EventActions.
-    COMPONENT_COMMAND_TRIGGER = "componentcommand-trigger"
-    COMPONENT_COMMAND_CREATE = "componentcommand-create"
-    COMPONENT_COMMAND_UPDATE = "componentcommand-update"
+    COMPONENT_COMMAND_TRIGGER = auto()
+    COMPONENT_COMMAND_CREATE = auto()
+    COMPONENT_COMMAND_UPDATE = auto()
     # TODO add Asset Attribute and all shared objects
 
-    SETPOINT_CREATE = "setpoint-create"
-    SETPOINT_UPDATE = "setpoint-update"
+    SETPOINT_CREATE = auto()
+    SETPOINT_UPDATE = auto()
+
+
+class ComponentCommandStatus(SnakeCaseStrEnum):
+    NOT_SENT = auto()
+    PENDING = auto()
+    SUCCESS = auto()
+    ERROR = auto()
+
+
+class ComponentCommandResponse(BaseModel):
+    return_value: Optional[str]
+    error_detail: Optional[str]
 
 
 class CommunicationEvent(BaseModel):
@@ -39,3 +52,18 @@ class CommunicationEvent(BaseModel):
     display_text: Optional[str] = None
     # user: Optional[User] = None
     data: Dict
+
+
+class ComponentCommand(BaseModel):
+    id: Optional[str]
+    command: Command
+    status: ComponentCommandStatus
+    response: ComponentCommandResponse = ComponentCommandResponse()
+
+    def get_event_name(self, action: EventActions) -> str:
+        return f"componentcommand_{action}"
+
+
+class ComponentCommandTriggerEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    data: ComponentCommand
