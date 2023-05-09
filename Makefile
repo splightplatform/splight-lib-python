@@ -30,7 +30,7 @@ clean-test: ## remove test and coverage artifacts
 test: ## run tests with pytest
 	pytest splight_lib/tests
 
-lint:  ## run linter
+flake8:  ## run flake8 linter
 	flake8 --config=.hooks/flake8.toml .
 
 coverage: ## run coverage
