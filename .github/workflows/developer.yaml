@@ -62,6 +62,11 @@ jobs:
               echo "PUBLISH_PACKAGE=false" >> "$GITHUB_ENV"
           fi
 
+      - name: test, TODO Remove
+        run: |
+          echo env.PUBLISH_PACKAGE ${{ env.PUBLISH_PACKAGE }}
+          echo $ PUBLISH_PACKAGE $PUBLISH_PACKAGE
+
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         if: ${{ env.PUBLISH_PACKAGE }} == "true"
