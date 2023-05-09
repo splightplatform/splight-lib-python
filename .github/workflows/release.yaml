@@ -4,8 +4,7 @@ on:
     types:
       [opened, synchronize]
     branches:
-      # - "*"
-      - feature/upload-dev-versions-to-pypi
+      - "*"
 
 env:
   LIBRARY_NAME: "splight-lib"
