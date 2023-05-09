@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel, create_model
 
-from splight_lib.models.component import TYPE_MAPPING, Parameter
+from splight_lib.models.component import DB_MODEL_TYPE_MAPPING, Parameter
 
 
 def create_custom_model(
@@ -38,7 +38,7 @@ def create_custom_model(
         multiple = getattr(param, "multiple", False)
         required = getattr(param, "required", True)
 
-        single_param_type = TYPE_MAPPING.get(param.type, None)
+        single_param_type = DB_MODEL_TYPE_MAPPING.get(param.type, None)
         if not single_param_type:
             single_param_type = custom_type_dict.get(param.type)
 
