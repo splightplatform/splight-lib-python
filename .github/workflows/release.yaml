@@ -8,6 +8,9 @@ on:
       # - "master"
       - "feature/**"
 
+env:
+  LIBRARY_NAME: "splight-lib"
+
 jobs:
   # tag_version:
   #   runs-on: ubuntu-latest
@@ -61,7 +64,7 @@ jobs:
 
       - name: debug
         run: |
-          echo ${{ env.LIBRARY_NAME }} ${{ env.CURRENT_VERSION }}
+          echo 1 ${{ env.LIBRARY_NAME }} 2 ${{ env.CURRENT_VERSION }} 3 ${{ secrets.PYPI_USERNAME }}
 
       - name: Remove all developer versions from pypi
         run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
