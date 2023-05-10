@@ -4,14 +4,14 @@ from typing import Callable, Dict
 import pysher
 import requests
 from furl import furl
-from remote_splight_lib.auth.auth import SplightAuthToken
-from remote_splight_lib.communication.classmap import CLASSMAP
 from remote_splight_lib.settings import settings
 from retry import retry
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
+from splight_lib.auth import SplightAuthToken
+from splight_lib.client.communication.classmap import CLASSMAP
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models.communication import (
     CommunicationClientStatus,
@@ -57,7 +57,7 @@ class CommunicationFactory:
         return self._model.parse_obj(data)
 
 
-class CommunicationClient(AbstractCommunicationClient):
+class RemoteCommunicationClient(AbstractCommunicationClient):
     def __init__(self, daemon: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._status = CommunicationClientStatus.STOPPED
@@ -81,7 +81,8 @@ class CommunicationClient(AbstractCommunicationClient):
             )
         except Exception as e:
             logger.warning(
-                "Failed to start communication client due to exception %s. Moving forward without remote commands.",
+                "Failed to start communication client due to exception %s. "
+                "Moving forward without remote commands.",
                 e,
                 exc_info=True,
                 tags=LogTags.COMMUNICATION,
