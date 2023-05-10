@@ -4,7 +4,6 @@ from typing import Callable, Dict
 import pysher
 import requests
 from furl import furl
-from remote_splight_lib.settings import settings
 from retry import retry
 from splight_abstract.communication import (
     AbstractCommunicationClient,
@@ -12,6 +11,7 @@ from splight_abstract.communication import (
 )
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication.classmap import CLASSMAP
+from splight_lib.client.settings import settings_remote as settings
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_models.communication import (
     CommunicationClientStatus,
