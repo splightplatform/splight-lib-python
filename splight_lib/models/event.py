@@ -3,9 +3,16 @@ from enum import auto
 from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
-from strenum import KebabCaseStrEnum, SnakeCaseStrEnum, UppercaseStrEnum
+from strenum import (
+    KebabCaseStrEnum,
+    LowercaseStrEnum,
+    PascalCaseStrEnum,
+    SnakeCaseStrEnum,
+    UppercaseStrEnum,
+)
 
 from splight_lib.models.component import Command
+from splight_lib.models.setpoint import SetPoint
 
 
 class EventActions(UppercaseStrEnum):
@@ -18,9 +25,9 @@ class EventActions(UppercaseStrEnum):
 
 class EventNames(KebabCaseStrEnum):
     # TODO make this use EventActions.
-    COMPONENT_COMMAND_TRIGGER = auto()
-    COMPONENT_COMMAND_CREATE = auto()
-    COMPONENT_COMMAND_UPDATE = auto()
+    COMPONENTCOMMAND_TRIGGER = auto()
+    COMPONENTCOMMAND_CREATE = auto()
+    COMPONENTCOMMAND_UPDATE = auto()
     # TODO add Asset Attribute and all shared objects
 
     SETPOINT_CREATE = auto()
@@ -65,5 +72,50 @@ class ComponentCommand(BaseModel):
 
 
 class ComponentCommandTriggerEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENT_COMMAND_TRIGGER, const=True)
+    event_name: str = Field(EventNames.COMPONENTCOMMAND_TRIGGER, const=True)
     data: ComponentCommand
+
+
+class ComponentCommandCreateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENTCOMMAND_CREATE, const=True)
+    data: ComponentCommand
+
+
+class ComponentCommandUpdateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.COMPONENTCOMMAND_UPDATE, const=True)
+    data: ComponentCommand
+
+
+class SetPointType(PascalCaseStrEnum):
+    Number = auto()
+    String = auto()
+    Boolean = auto()
+
+    def __str__(self):
+        return self.value
+
+
+class SetPointResponseStatus(LowercaseStrEnum):
+    SUCCESS = auto()
+    ERROR = auto()
+    IGNORE = auto()
+
+    def __str__(self):
+        return self.value
+
+
+class SetPointResponse(BaseModel):
+    id: Optional[str]
+    component: str
+    status: SetPointResponseStatus
+    created_at: Optional[datetime] = None
+
+
+class SetPointCreateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.SETPOINT_CREATE, const=True)
+    data: SetPoint
+
+
+class SetPointUpdateEvent(CommunicationEvent):
+    event_name: str = Field(EventNames.SETPOINT_UPDATE, const=True)
+    data: SetPoint
