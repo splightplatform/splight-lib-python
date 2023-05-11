@@ -7,6 +7,8 @@ class AbstractRemoteClient(AbstractClient):
     def _parse_params(self, **kwargs):
         params = {}
         for key, value in kwargs.items():
+            if value is None:
+                continue
             params[key] = value
             if isinstance(value, list):
                 params[key] = ",".join(value)
