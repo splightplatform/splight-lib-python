@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Type
 
 from splight_abstract.communication import AbstractCommunicationClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
@@ -35,9 +35,20 @@ class InvalidSetPointResponse(Exception):
 
 def database_object_event_handler(
     binding_function: Callable,
-    binding_object_type: SplightDatabaseBaseModel,
+    binding_object_type: Type[SplightDatabaseBaseModel],
     event_str: str,
 ):
+    """General handler for database events used for Component Bindings.
+
+    Parameters
+    ----------
+    binding_function: Callable
+        Function to be executed.
+    binding_object_type: Type[SplightDatabaseBaseModel]
+        The class for the object associated with the binding event.
+    event_str:
+        The raw event string from pusher client.
+    """
     try:
         logger.info(
             "Binding for native object of type %s triggered.",
@@ -69,6 +80,17 @@ def command_event_handler(
     comm_client: AbstractCommunicationClient,
     event_str: str,
 ):
+    """General handler for component's commands events.
+
+    Parameters
+    ----------
+    binding_function: Callable
+        Function to be executed.
+    comm_client: AbstractCommunicationClient
+        Communication client to send command response.
+    event_str:
+        The raw event string from pusher client.
+    """
     component_command_event = ComponentCommandTriggerEvent.parse_raw(event_str)
     component_command: ComponentCommand = component_command_event.data
     command: Command = component_command.command
@@ -105,9 +127,22 @@ def command_event_handler(
 def setpoint_event_handler(
     binding_function: Callable,
     comm_client: AbstractCommunicationClient,
-    instance_id: str,
+    component_id: str,
     event_str: str,
 ):
+    """General handler for component's setpoint events.
+
+    Parameters
+    ----------
+    binding_function: Callable
+        Function to be executed.
+    comm_client: AbstractCommunicationClient
+        Communication client to send command response.
+    component_id: str
+        The component's id that is reacting to the setpoint event.
+    event_str:
+        The raw event string from pusher client.
+    """
     logger.info("Setpoint triggered.", tags=LogTags.SETPOINT)
     try:
         event = SetPointCreateEvent.parse_raw(event_str)
@@ -119,7 +154,7 @@ def setpoint_event_handler(
         if setpoint_response != SetPointResponseStatus.IGNORE:
             setpoint.responses = [
                 SetPointResponse(
-                    component=instance_id,
+                    component=component_id,
                     status=setpoint_response,
                 )
             ]
