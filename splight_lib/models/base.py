@@ -1,20 +1,13 @@
-from pydantic import BaseModel, PrivateAttr
-from typing import Dict, List
-import json
-import pandas as pd
-from datetime import datetime, timezone
-from splight_lib.settings import settings
-from splight_lib.client.datalake import DatalakeClientBuilder
-from splight_lib.client.database import DatabaseClientBuilder
-from splight_abstract.datalake import AbstractDatalakeClient
-from splight_abstract.database import AbstractDatabaseClient
-from pydantic import BaseModel, PrivateAttr, Field
 from typing import Dict, List, Optional
-<< << << < HEAD
-== == == =
-
-
->>>>>> > feature / new - lib - interface
+from pydantic import BaseModel, PrivateAttr, Field
+from splight_abstract.database import AbstractDatabaseClient
+from splight_abstract.datalake import AbstractDatalakeClient
+from splight_lib.client.database import DatabaseClientBuilder
+from splight_lib.client.datalake import DatalakeClientBuilder
+from splight_lib.settings import settings
+from datetime import datetime, timezone
+import pandas as pd
+import json
 
 
 class SplightDatabaseBaseModel(BaseModel):
