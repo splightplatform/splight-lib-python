@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import Dict, List, Optional, Union
 
+from typing_extensions import TypedDict
 from pydantic import BaseModel, EmailStr, Field
 
 from splight_lib.models.base import SplightDatabaseBaseModel

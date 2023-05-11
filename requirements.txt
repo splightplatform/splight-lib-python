@@ -19,3 +19,4 @@ StrEnum==0.4.9
 httpx==0.23.3
 concurrent-log-handler==0.9.21
 geojson-pydantic==0.5.0
+typing_extensions==4.5.0
