@@ -2,7 +2,7 @@ import json
 import os
 from datetime import timedelta, timezone
 from functools import partial
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Type, Union, Optional
 
 import pandas as pd
 from splight_abstract.client import QuerySet
@@ -26,25 +26,54 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     _PREFIX = "dl_"
     _TOTAL_DOCS = 10000
 
-    def __init__(self, namespace: str, path: str):
-        super().__init__(namespace=namespace)
+    def __init__(self, path: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._base_path = path
         logger.info(
             "Local datalake client initialized.", tags=LogTags.DATALAKE
         )
 
+    def save(
+        self,
+        collection: str,
+        instances: Union[List[Dict], Dict],
+    ) -> List[DatalakeModel]:
+        instances = instances if isinstance(instances, list) else [instances]
+
+        logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
+        instances = [
+            json.dumps(instance)
+            for instance in instances
+        ]
+
+        file_path = os.path.join(
+            self._base_path, self._get_file_name(collection)
+        )
+        handler = FixedLineNumberFileHandler(
+            file_path=file_path, total_lines=self._TOTAL_DOCS
+        )
+        handler.write(instances)
+        return instances
+
     def _raw_get(
         self,
-        resource_type: DLResource,
-        limit_: int = -1,
+        resource_name: str,
+        collection: str,
+        limit_: int = 50,
         skip_: int = 0,
         sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Union[List, str] = [],
-        group_fields: Union[List, str] = [],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
         tzinfo: timezone = timezone(timedelta()),
-        **kwargs,
-    ) -> List[DLResource]:
-        collection = resource_type.Meta.collection_name
+        **filters,
+    ) -> List[Dict]:
+        filters.update(
+            {
+                "output_format": resource_name,
+            }
+        )
+        filters = self._parse_filters(filters)
+
         file_path = os.path.join(
             self._base_path, self._get_file_name(collection)
         )
@@ -54,9 +83,6 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         documents = [
             json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
         ]
-
-        filters = kwargs
-        filters.update({"output_format": resource_type.__name__})
         documents = self._filter(documents, filters=filters)
 
         reverse = False
@@ -64,88 +90,50 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             reverse = True
         documents.sort(key=lambda x: x["timestamp"], reverse=reverse)
 
-        # TODO: review how to apply grouping
-        return [resource_type.parse_obj(doc) for doc in documents]
-
-    def get(
-        self,
-        resource_type: Type,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Union[List, str] = [],
-        group_fields: Union[List, str] = [],
-        tzinfo: timezone = timezone(timedelta()),
-        **kwargs,
-    ) -> QuerySet:
-        logger.debug(
-            "Retrieving object of type %s from datalake.",
-            resource_type,
-            tags=LogTags.DATALAKE,
-        )
-
-        kwargs["get_func"] = "_raw_get"
-        kwargs["count_func"] = "None"
-        kwargs["collection"] = resource_type.Meta.collection_name
-        kwargs["resource_type"] = resource_type
-        return QuerySet(
-            self,
-            limit_,
-            skip_,
-            sort,
-            group_id,
-            group_fields,
-            tzinfo,
-            **kwargs,
-        )
-
-    def get_output(self, query: Query) -> List[Dict]:
-        raise NotImplementedError()
+        return documents
 
     def get_dataframe(
-        self, resource_type: Type, freq: str = "H", **kwargs
+        self,
+        resource_name: str,
+        collection: str,
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
+        tzinfo: timezone = timezone(timedelta()),
+        **filters,
     ) -> pd.DataFrame:
-        """Reads documents and returns a dataframe"""
         logger.debug(
             "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
         )
-        documents = self._raw_get(resource_type, **kwargs)
-        df = pd.DataFrame([x.dict() for x in documents])
+
+        filters.update(
+            {
+                "resource_name": resource_name,
+                "collection": collection,
+                "sort": sort,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                "tzinfo": tzinfo,
+            }
+        )
+
+        documents = self._raw_get(**filters)
+        df = pd.DataFrarame([x.dict() for x in documents])
+
         if not df.empty:
+            df["timestamp"] = pd.to_datetime(df["timestamp"])
             df.set_index("timestamp", inplace=True, verify_integrity=False)
+
         return df
 
-    def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
-        raise NotImplementedError()
-
-    def save(self, instances: List[DatalakeModel]) -> List[DatalakeModel]:
-        documents = [instance.json() for instance in instances]
-        if not instances:
-            return instances
-
-        logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
-
-        collection = instances[0].Meta.collection_name
-
-        file_path = os.path.join(
-            self._base_path, self._get_file_name(collection)
-        )
-        handler = FixedLineNumberFileHandler(
-            file_path=file_path, total_lines=self._TOTAL_DOCS
-        )
-        handler.write(documents)
-        return instances
-
     def save_dataframe(
-        self, resource_type: DLResource, dataframe: pd.DataFrame
+        self, collection: str, dataframe: pd.DataFrame
     ) -> None:
         logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
 
-        instances = dataframe.apply(
-            lambda x: resource_type.parse_obj(x.to_dict()), axis=1
-        )
-        instances = instances.to_list()
-        _ = self.save(instances)
+        dataframe["timestamp"] = dataframe["timestamp"].astype(str)
+        instances = list(dataframe.to_dict("index").values())
+        _ = self.save(collection, instances)
 
     def delete(self, resource_type: DLResource, **kwargs) -> None:
         logger.debug(
@@ -174,13 +162,21 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         raise NotImplementedError()
 
     def _filter(
-        self, instances: List[DLResource], filters: Dict
-    ) -> List[DLResource]:
+        self, instances: List[dict], filters: Dict
+    ) -> List[dict]:
         filtered = instances
         for key, value in filters.items():
             filtered = filter(partial(value_filter, key, value), filtered)
             filtered = list(filtered)
         return filtered
+
+    def _parse_filters(self, filters: List[dict]):
+        new_filters = {}
+        for key, value in filters.items():
+            if value is None:
+                continue
+            new_filters[key] = value
+        return new_filters
 
     def _get_file_name(self, collection: str) -> str:
         return f"{self._PREFIX}{collection}"

@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from datetime import timedelta, timezone
 from functools import wraps
-from typing import Callable, Dict, List, Type, Union
+from typing import Callable, Dict, List, Optional, Union
 
 import pandas as pd
 from pydantic import BaseModel
 from splight_abstract.client import AbstractClient, QuerySet
-from splight_models import DatalakeModel, Query
+from splight_models import DatalakeModel
 
 
 def validate_datalake_resource_type(func: Callable) -> Callable:
@@ -36,68 +36,65 @@ def validate_datalake_instance_type(func: Callable) -> Callable:
 
 
 class AbstractDatalakeClient(AbstractClient):
-    valid_filters = ["in", "contains", "gte", "lte"]
-
-    def _validated_kwargs(self, resource_type: Type, **kwargs):
-        valid_fields: List[str] = list(resource_type.__fields__.keys())
-
-        valid_filter: Dict[str, str] = {
-            key: value
-            for key, value in kwargs.items()
-            if key in valid_fields
-            or any(f"{valid_field}__" in key for valid_field in valid_fields)
-        }
-
-        return valid_filter
+    def get(self, *args, **kwargs) -> QuerySet:
+        kwargs["get_func"] = "_raw_get"
+        kwargs["count_func"] = "None"
+        return QuerySet(self, *args, **kwargs)
 
     @abstractmethod
-    def get(
-        self,
-        resource_type: Type,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Union[List, str] = [],
-        group_fields: Union[List, str] = [],
-        tzinfo: timezone = timezone(timedelta()),
-        **kwargs,
-    ) -> QuerySet:
+    def save(
+        self, collection: str, instances: Union[List[Dict], Dict]
+    ) -> List[DatalakeModel]:
         pass
 
     @abstractmethod
-    def get_output(self, query: Query) -> List[Dict]:
-        pass
-
-    @abstractmethod
-    def get_dataframe(
-        self, resource_type: Type, freq="H", **kwargs
-    ) -> pd.DataFrame:
-        pass
-
-    @abstractmethod
-    def get_dataset(self, queries: List[Query]) -> pd.DataFrame:
-        pass
-
-    @abstractmethod
-    def save(self, instances: List[BaseModel]) -> List[BaseModel]:
-        pass
-
-    @abstractmethod
-    def save_dataframe(
-        self, resource_type: Type, dataframe: pd.DataFrame
+    def delete(
+        self, collection: str, **kwargs
     ) -> None:
         pass
 
     @abstractmethod
-    def delete(self, resource_type: DatalakeModel, **kwargs) -> None:
+    def get_dataframe(
+        self,
+        resource_name: str,
+        collection: str,
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
+        tzinfo: timezone = timezone(timedelta()),
+        **filters,
+    ) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def create_index(self, collection: str, index: list) -> None:
+    def save_dataframe(
+        self, collection: str, dataframe: pd.DataFrame
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def create_index(
+        self, collection: str, indexes: List[Dict]
+    ) -> None:
         pass
 
     @abstractmethod
     def raw_aggregate(
         self, collection: str, pipeline: List[Dict]
+    ) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def _raw_get(
+        self,
+        resource_name: str,
+        collection: str,
+        limit_: int = 50,
+        skip_: int = 0,
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
+        tzinfo: timezone = timezone(timedelta()),
+        **filters,
     ) -> List[Dict]:
         pass
