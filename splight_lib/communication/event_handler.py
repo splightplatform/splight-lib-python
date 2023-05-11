@@ -1,15 +1,36 @@
 from typing import Callable
 
+from splight_abstract.communication import AbstractCommunicationClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.component import (
     DB_MODEL_TYPE_MAPPING,
+    Command,
     ComponentObject,
     ComponentObjectInstance,
+    get_field_value,
 )
-from splight_lib.models.event import CommunicationEvent
+from splight_lib.models.event import (
+    CommunicationEvent,
+    ComponentCommand,
+    ComponentCommandStatus,
+    ComponentCommandTriggerEvent,
+    ComponentCommandUpdateEvent,
+    SetPointCreateEvent,
+    SetPointResponse,
+    SetPointResponseStatus,
+    SetPointUpdateEvent,
+)
 
 logger = get_splight_logger()
+
+
+class InvalidCommandResponse(Exception):
+    pass
+
+
+class InvalidSetPointResponse(Exception):
+    pass
 
 
 def database_object_event_handler(
@@ -43,27 +64,67 @@ def database_object_event_handler(
         )
 
 
-def __handle_setpoint_trigger(
+def command_event_handler(
     binding_function: Callable,
-    binding_object_type: SplightDatabaseBaseModel,
+    comm_client: AbstractCommunicationClient,
     event_str: str,
 ):
+    component_command_event = ComponentCommandTriggerEvent.parse_raw(event_str)
+    component_command: ComponentCommand = component_command_event.data
+    command: Command = component_command.command
+    logger.info(
+        "Binding for component command '%s' triggered.",
+        command.name,
+        tags=LogTags.COMMAND,
+    )
     try:
-        logger.debug("Setpoint triggered.", tags=LogTags.SETPOINT)
-        object_event = SetPointCreateEvent.parse_raw(event_str)
-        setpoint = object_event.data
-        response_status = SetPointResponseStatus(binding_function(setpoint))
-        if response_status == SetPointResponseStatus.IGNORE:
-            return
+        fields = {
+            field.name: get_field_value(field) for field in command.fields
+        }
+        command_output = binding_function(**fields)
+        if not isinstance(command_output, str):
+            raise InvalidCommandResponse("Command output is not a string")
 
-        setpoint.responses = [
-            SetPointResponse(
-                component=self.instance_id,
-                status=response_status,
-            )
-        ]
-        setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
-        self.communication_client.trigger(setpoint_callback_event)
+        component_command.response.return_value = command_output
+        component_command.status = ComponentCommandStatus.SUCCESS
+    except Exception as exc:
+        logger.error(
+            "Error while handling component command trigger: %s",
+            exc,
+            exc_info=True,
+            tags=LogTags.COMMAND,
+        )
+        component_command.response.error_detail = str(exc)
+        component_command.status = ComponentCommandStatus.ERROR
+    component_command_callback_event = ComponentCommandUpdateEvent(
+        data=component_command
+    )
+    comm_client.trigger(component_command_callback_event)
+
+
+def setpoint_event_handler(
+    binding_function: Callable,
+    comm_client: AbstractCommunicationClient,
+    instance_id: str,
+    event_str: str,
+):
+    logger.info("Setpoint triggered.", tags=LogTags.SETPOINT)
+    try:
+        event = SetPointCreateEvent.parse_raw(event_str)
+        setpoint = event.data
+        setpoint_response = binding_function(setpoint)
+        if not isinstance(setpoint_response, SetPointResponseStatus):
+            raise InvalidSetPointResponse("Setpoint response is invalid")
+
+        if setpoint_response != SetPointResponseStatus.IGNORE:
+            setpoint.responses = [
+                SetPointResponse(
+                    component=instance_id,
+                    status=setpoint_response,
+                )
+            ]
+            setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
+            comm_client.trigger(setpoint_callback_event)
     except Exception as exc:
         logger.error(
             "Error while handling setpoint create: %s",
