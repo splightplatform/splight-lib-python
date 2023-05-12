@@ -1,16 +1,23 @@
+import re
 import warnings
 from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type
 
 from pydantic import AnyUrl, BaseModel, PrivateAttr, create_model
+from strenum import LowercaseStrEnum
+
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
-from splight_lib.models.exceptions import InvalidComponentObjectInstance
+from splight_lib.models.exceptions import (
+    InvalidComponentObjectInstance,
+    SecretDecryptionError,
+    SecretNotFound,
+)
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
-from strenum import LowercaseStrEnum
+from splight_lib.models.secret import Secret
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -131,12 +138,35 @@ DATABASE_TYPES = {
 DB_MODEL_TYPE_MAPPING = {**NATIVE_TYPES, **DATABASE_TYPES}
 
 
+def parse_variable_string(raw_value: Optional[str]) -> Any:
+    if raw_value is None:
+        return ""
+    pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
+    match = pattern.search(raw_value)
+    if not match:
+        return raw_value
+    class_key, secret_name = match.groups()
+    secret = Secret.list(name=secret_name, first=True)
+    if not secret:
+        raise SecretNotFound(secret_name)
+
+    try:
+        value = secret[0].decrypt()
+    except Exception as exc:
+        raise SecretDecryptionError() from exc
+    return value
+
+
 def get_field_value(field: InputParameter):
     multiple = field.multiple
 
     value = field.value
     if field.type in NATIVE_TYPES:
-        value = field.value
+        value = (
+            field.value
+            if not isinstance(field.value, str)
+            else parse_variable_string(field.value)
+        )
     elif field.type in DATABASE_TYPES:
         model_class = DATABASE_TYPES[field.type]
         value = (
