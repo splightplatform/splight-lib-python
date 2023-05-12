@@ -3,7 +3,6 @@ import os
 from typing import Dict, Optional
 
 from pydantic import validator
-
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
