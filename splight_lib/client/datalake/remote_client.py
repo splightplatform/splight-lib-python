@@ -1,20 +1,17 @@
 from datetime import timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from furl import furl
 from remote_splight_lib.auth import SplightAuthToken
 from retry import retry
 from splight_abstract import AbstractRemoteClient
-from splight_abstract.datalake import (
-    AbstractDatalakeClient,
-)
+from splight_abstract.datalake import AbstractDatalakeClient
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
-from splight_models import DatalakeModel
 
 logger = get_splight_logger()
 
@@ -23,12 +20,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     _PREFIX = "v2/engine/datalake"
 
     def __init__(
-            self,
-            base_url: str,
-            access_id: str,
-            secret_key: str,
-            *args,
-            **kwargs
+        self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self._base_url = furl(base_url)
@@ -47,7 +39,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         self,
         collection: str,
         instances: Union[List[Dict], Dict],
-    ) -> List[DatalakeModel]:
+    ) -> List[dict]:
         instances = instances if isinstance(instances, list) else [instances]
         url = self._base_url / f"{self._PREFIX}/save/"
         response = self._restclient.post(
@@ -111,7 +103,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         tzinfo: timezone = timezone(timedelta()),
         **filters,
     ) -> pd.DataFrame:
-
         filters.update(
             {
                 "source": collection,
@@ -141,9 +132,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return df
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def save_dataframe(
-        self, collection: str, dataframe: pd.DataFrame
-    ) -> None:
+    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
         logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
 
         # POST /datalake/loaddata/

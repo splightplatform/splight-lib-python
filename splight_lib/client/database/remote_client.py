@@ -1,7 +1,6 @@
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Generator, List, Optional, Union
 
-from httpx._status_codes import codes
 from furl import furl
 from httpx._status_codes import codes
 from retry import retry

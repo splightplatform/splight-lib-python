@@ -1,16 +1,18 @@
-from splight_lib.models.base import SplightDatalakeBaseModel
+from typing import Optional, Union
+
+from pydantic import Field, PrivateAttr
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from pydantic import Field
-from typing import Union
+from splight_lib.models.base import SplightDatalakeBaseModel
 
 
 class NativeOutput(SplightDatalakeBaseModel):
     asset: Union[Asset, str]
     attribute: Union[Attribute, str]
 
-    class Meta:
-        collection_name = "default"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._collection_name = "default"
 
 
 class Number(NativeOutput):
