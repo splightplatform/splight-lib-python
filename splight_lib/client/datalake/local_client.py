@@ -85,20 +85,20 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-        kwargs["get_func"] = "_raw_get"
-        kwargs["count_func"] = "None"
-        kwargs["collection"] = resource_type.Meta.collection_name
-        kwargs["resource_type"] = resource_type
-        return QuerySet(
-            self,
-            limit_,
-            skip_,
-            sort,
-            group_id,
-            group_fields,
-            tzinfo,
-            **kwargs,
-        )
+        new_kwargs = {
+            "get_func": "_raw_get",
+            "count_func": "None",
+            "collection": resource_type.Meta.collection_name,
+            "resource_type": resource_type,
+            "limit_": limit_,
+            "skip_": skip_,
+            "sort": sort,
+            "group_id": group_id,
+            "group_fields": group_fields,
+            "tzinfo": tzinfo,
+        }
+        kwargs.update(new_kwargs)
+        return QuerySet(self, **kwargs)
 
     def get_output(self, query: Query) -> List[Dict]:
         raise NotImplementedError()
