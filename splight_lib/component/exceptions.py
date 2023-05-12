@@ -1,3 +1,9 @@
+class DuplicatedComponentException(Exception):
+    def __init__(self, component_id: str):
+        msg = f"Component with the id {component_id} is running."
+        super().__init__(msg)
+
+
 class DuplicatedValuesError(Exception):
     pass
 
