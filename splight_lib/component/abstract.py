@@ -3,10 +3,10 @@ from functools import partial
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
-from retry import retry
 
 # TODO: Change for splight_lib.client import
 from remote_splight_lib.communication import CommunicationClient
+from retry import retry
 from splight_lib.auth import SplightAuthToken
 from splight_lib.communication.event_handler import (
     command_event_handler,
