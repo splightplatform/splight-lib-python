@@ -7,7 +7,6 @@ from typing import Dict, List, Union
 import pandas as pd
 from furl import furl
 from pydantic import BaseModel
-from remote_splight_lib.auth import SplightAuthToken
 from retry import retry
 from splight_abstract import AbstractRemoteClient, QuerySet
 from splight_abstract.datalake import (
@@ -15,6 +14,7 @@ from splight_abstract.datalake import (
     validate_datalake_instance_type,
     validate_datalake_resource_type,
 )
+from splight_lib.auth import SplightAuthToken
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.client.settings import settings_remote as settings
 from splight_lib.logging._internal import LogTags, get_splight_logger
