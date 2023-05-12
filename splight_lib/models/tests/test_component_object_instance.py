@@ -7,13 +7,14 @@ from unittest.mock import patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
 
 import pytest  # noqa: E402
-
 from splight_lib.models.component import (  # noqa: E402
     ComponentObject,
     ComponentObjectInstance,
     CustomType,
 )
-from splight_lib.models.exceptions import InvalidComponentObjectInstance  # noqa: E402
+from splight_lib.models.exceptions import (  # noqa: E402
+    InvalidComponentObjectInstance,
+)
 from splight_lib.settings import settings  # noqa: E402
 
 settings.configure(LOCAL_ENVIRONMENT=True)
