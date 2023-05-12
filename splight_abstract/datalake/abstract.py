@@ -48,9 +48,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def delete(
-        self, collection: str, **kwargs
-    ) -> None:
+    def delete(self, collection: str, **kwargs) -> None:
         pass
 
     @abstractmethod
@@ -67,15 +65,11 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def save_dataframe(
-        self, collection: str, dataframe: pd.DataFrame
-    ) -> None:
+    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
         pass
 
     @abstractmethod
-    def create_index(
-        self, collection: str, indexes: List[Dict]
-    ) -> None:
+    def create_index(self, collection: str, indexes: List[Dict]) -> None:
         pass
 
     @abstractmethod

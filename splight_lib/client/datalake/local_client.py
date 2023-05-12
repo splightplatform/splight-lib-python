@@ -2,17 +2,14 @@ import json
 import os
 from datetime import timedelta, timezone
 from functools import partial
-from typing import Dict, List, Type, Union, Optional
+from typing import Dict, List, Optional, Type, Union
 
 import pandas as pd
-from splight_abstract.client import QuerySet
 from splight_abstract.datalake import AbstractDatalakeClient
 from splight_lib.client.file_handler import FixedLineNumberFileHandler
 from splight_lib.client.filter import value_filter
 from splight_lib.logging._internal import LogTags, get_splight_logger
-from splight_models import DatalakeModel, Query
 
-DLResource = Type[DatalakeModel]
 
 logger = get_splight_logger()
 
@@ -23,7 +20,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     """
 
     _DEFAULT = "default"
-    _PREFIX = "dl_"
+    _PREFIX = "splight-dl_"
     _TOTAL_DOCS = 10000
 
     def __init__(self, path: str, *args, **kwargs):
@@ -37,14 +34,11 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         self,
         collection: str,
         instances: Union[List[Dict], Dict],
-    ) -> List[DatalakeModel]:
+    ) -> List[Dict]:
         instances = instances if isinstance(instances, list) else [instances]
 
         logger.debug("Saving instances %s.", instances, tags=LogTags.DATALAKE)
-        instances = [
-            json.dumps(instance)
-            for instance in instances
-        ]
+        instances = [json.dumps(instance) for instance in instances]
 
         file_path = os.path.join(
             self._base_path, self._get_file_name(collection)
@@ -81,7 +75,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
         documents = [
-            json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
+            json.loads(doc) for doc in handler.read()[skip_: skip_ + limit_]
         ]
         documents = self._filter(documents, filters=filters)
 
@@ -126,35 +120,17 @@ class LocalDatalakeClient(AbstractDatalakeClient):
 
         return df
 
-    def save_dataframe(
-        self, collection: str, dataframe: pd.DataFrame
-    ) -> None:
+    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
         logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
 
         dataframe["timestamp"] = dataframe["timestamp"].astype(str)
         instances = list(dataframe.to_dict("index").values())
         _ = self.save(collection, instances)
 
-    def delete(self, resource_type: DLResource, **kwargs) -> None:
+    def delete(self, collection: str, **kwargs) -> None:
         logger.debug(
-            "Deleting resources of type %s from datalake.",
-            resource_type,
-            tags=LogTags.DATALAKE,
+            "Skipping deleting objects when using Local datalake client."
         )
-        collection = resource_type.Meta.collection_name
-        file_path = os.path.join(
-            self._base_path, self._get_file_name(collection)
-        )
-        handler = FixedLineNumberFileHandler(
-            file_path=file_path, total_lines=self._TOTAL_DOCS
-        )
-        documents = [json.loads(doc) for doc in handler.read()]
-        id = kwargs.get("instance_id")
-        if id:
-            documents = [d for d in documents if d["instance_id"] != id]
-        # jsonify python dicts
-        documents = [json.loads(json.dumps(d)) for d in documents]
-        handler.write(documents, override=True)
 
     def create_index(self, collection: str, index: list) -> None:
         logger.debug(
@@ -168,9 +144,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             "Skipping raw aggregation when using Local datalake client."
         )
 
-    def _filter(
-        self, instances: List[dict], filters: Dict
-    ) -> List[dict]:
+    def _filter(self, instances: List[dict], filters: Dict) -> List[dict]:
         filtered = instances
         for key, value in filters.items():
             filtered = filter(partial(value_filter, key, value), filtered)
