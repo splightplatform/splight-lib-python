@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel, create_model
-
 from splight_lib.models.component import DB_MODEL_TYPE_MAPPING, Parameter
 
 
