@@ -12,7 +12,6 @@ from splight_lib.logging.logging import (
 from strenum import UppercaseStrEnum
 
 
-
 # TODO: add more tags
 class LogTags(UppercaseStrEnum):
     RUNTIME = auto()

@@ -3,11 +3,10 @@ from enum import auto
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, ValidationError, validator
-from strenum import LowercaseStrEnum, PascalCaseStrEnum
-
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
+from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 
 class SetPointType(PascalCaseStrEnum):
@@ -62,9 +61,7 @@ class SetPoint(SplightDatabaseBaseModel):
 
     def save(self):
         new_value = self.asset.set_attribute(
-            attribute=self.attribute,
-            value=self.value,
-            value_type=self.type
+            attribute=self.attribute, value=self.value, value_type=self.type
         )
         if not self.id:
             self.id = new_value["id"]

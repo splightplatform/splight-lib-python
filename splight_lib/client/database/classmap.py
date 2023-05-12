@@ -1,6 +1,5 @@
 from splight_lib.constants import ENGINE_PREFIX
 
-
 MODEL_NAME_MAP = {
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/assets/",

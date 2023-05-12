@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 from pydantic import BaseModel, PrivateAttr
-
 from splight_abstract.database import AbstractDatabaseClient
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.settings import settings

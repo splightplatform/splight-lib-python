@@ -14,6 +14,6 @@ class SplightBaseModel(BaseModel):
         """Get class name of the model from the repr string
         Class attribute is mapped to the metaclass.
         """
-        clean_path = "".join([c for c in str(cls) if c.isalpha() or c =="."])
+        clean_path = "".join([c for c in str(cls) if c.isalpha() or c == "."])
         class_name = clean_path.split(".")[-1]
         return class_name

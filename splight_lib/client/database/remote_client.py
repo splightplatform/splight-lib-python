@@ -4,8 +4,6 @@ from typing import Any, Dict, Generator, List, Optional, Union
 from furl import furl
 from httpx._status_codes import codes
 from retry import retry
-from typing_extensions import TypedDict
-
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
@@ -22,6 +20,7 @@ from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
+from typing_extensions import TypedDict
 
 logger = get_splight_logger()
 
