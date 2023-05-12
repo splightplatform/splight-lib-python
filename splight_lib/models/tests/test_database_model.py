@@ -4,12 +4,13 @@ os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
 os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
 
 from typing import Optional  # noqa: E402
-from unittest.mock import patch   # noqa: E402
+from unittest.mock import patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
 
 import pytest  # noqa: E402
-
-from splight_lib.client.database.local_client import LocalDatabaseClient  # noqa: E402
+from splight_lib.client.database.local_client import (  # noqa: E402
+    LocalDatabaseClient,
+)
 from splight_lib.models.base import SplightDatabaseBaseModel  # noqa: E402
 from splight_lib.settings import settings  # noqa: E402
 
@@ -112,9 +113,7 @@ def test_save_without_id(instance_dict):
         resource.id = None
         resource_dict = resource.dict(exclude_none=True)
         resource.save()
-        mock.assert_called_with(
-            Resource.__name__, resource_dict
-        )
+        mock.assert_called_with(Resource.__name__, resource_dict)
         assert resource.dict() == instance_dict
 
 
