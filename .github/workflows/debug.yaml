@@ -1,0 +1,24 @@
+name: "Debug to delete"
+on:
+  push:
+    branches:
+      - "feature/**"
+
+jobs:
+    tag_version:
+      runs-on: ubuntu-latest
+      name: Create tag version on github repository
+      steps:
+        - name: Checkout to feature branch
+          uses: actions/checkout@v3
+  
+        - name: Get version from feature branch
+          run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+  
+        - name: Create tag
+          uses: softprops/action-gh-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            name: Release 1.0.0.dev
+            tag_name: 1.0.0.dev
