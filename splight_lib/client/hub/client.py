@@ -129,7 +129,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to rebuild component. {response.content}"
 
 
-class RemoteSplightHubClient(AbstractHubClient):
+class SplightHubClient(AbstractHubClient):
     def __init__(
         self, headers: Optional[Dict[str, str]] = {}, *args, **kwargs
     ) -> None:

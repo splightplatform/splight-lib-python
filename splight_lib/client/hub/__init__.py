@@ -1,7 +1,5 @@
-from splight_lib.client.hub.local_client import LocalSplightHubClient
-from splight_lib.client.hub.remote_client import RemoteSplightHubClient
+from splight_lib.client.hub.client import SplightHubClient
 
 __all__ = [
-    LocalSplightHubClient,
-    RemoteSplightHubClient,
+    SplightHubClient,
 ]
