@@ -22,12 +22,12 @@ jobs:
         run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
       - name: Create tag
-        uses: actions/create-release@v1.1.4
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: Release ${{ env.CURRENT_VERSION }}
           tag_name: ${{ env.CURRENT_VERSION }}
-          release_name: Release ${{ env.CURRENT_VERSION }}
 
   upload_release_to_pypi:
     runs-on: ubuntu-latest
