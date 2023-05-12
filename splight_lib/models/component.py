@@ -4,14 +4,13 @@ from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type
 
 from pydantic import AnyUrl, BaseModel, PrivateAttr, create_model
-from strenum import LowercaseStrEnum
-
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import InvalidComponentObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
+from strenum import LowercaseStrEnum
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 

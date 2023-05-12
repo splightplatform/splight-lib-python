@@ -7,14 +7,22 @@ from collections import defaultdict
 from functools import cached_property, partial
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
-from retry import retry
 
 import splight_models as spmodels
 from mergedeep import Strategy as mergeStrategy
 from mergedeep import merge
 from pydantic import BaseModel, main
+from remote_splight_lib.auth import SplightAuthToken
+from retry import retry
+from splight_lib.client.settings import settings_remote
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging._internal import LogTags, get_splight_logger
+from splight_lib.restclient import (
+    ConnectError,
+    HTTPError,
+    SplightRestClient,
+    Timeout,
+)
 from splight_lib.settings import setup as default_setup
 from splight_models import (
     Binding,
@@ -47,14 +55,6 @@ from splight_models.setpoint import (
     SetPointResponseStatus,
     SetPointUpdateEvent,
 )
-from remote_splight_lib.auth import SplightAuthToken
-from splight_lib.restclient import (
-    ConnectError,
-    HTTPError,
-    SplightRestClient,
-    Timeout,
-)
-from splight_lib.client.settings import settings_remote
 
 logger = get_splight_logger()
 REQUEST_EXCEPTIONS = (HTTPError, Timeout, ConnectError)
@@ -744,7 +744,7 @@ class AbstractComponent(
     @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _check_duplicated_component(self):
         """
-            Validates that there are no other connections to communication client
+        Validates that there are no other connections to communication client
         """
         token = SplightAuthToken(
             access_key=settings_remote.SPLIGHT_ACCESS_ID,
@@ -755,7 +755,7 @@ class AbstractComponent(
         api_url = f"{settings_remote.SPLIGHT_PLATFORM_API_HOST}/v2/engine/component/components/{self.instance_id}/connections/"
         response = rest_client.get(api_url)
         if response.status_code == 200:
-            connections = response.json()['subscription_count']
+            connections = response.json()["subscription_count"]
             if int(connections) > 0:
                 raise DuplicatedComponentException(
                     f"Component with id {self.instance_id} is already running."
