@@ -104,19 +104,31 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         -------
         Union[Dict, List[Dict]] list of resource or single resource.
         """
-        db = self._load_db_file(self._db_file)
+        resource_id = kwargs.pop("id", None)
         model_name = resource_name.lower()
+        if resource_id:
+            result = self._retrieve_single(model_name, resource_id)
+        else:
+            result = self._retrieve_multiple(model_name, first=first, **kwargs)
+        return result
+
+    def _retrieve_single(self, model_name: str, resource_id: str) -> Dict:
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
+        if resource_id not in db_instances:
+            raise InstanceNotFound(model_name, resource_id)
+        # instance = {resource_id: db_instances.get(resource_id, {})}
+        return db_instances.get(resource_id)
+
+    def _retrieve_multiple(
+        self, model_name: str, first: bool = False, **kwargs
+    ) -> List[Dict]:
+
+        db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
 
-        resource_id = kwargs.pop("id", None)
-        raw_instances = db_instances
-        if resource_id:
-            if resource_id not in db_instances:
-                raise InstanceNotFound(model_name, resource_id)
-            raw_instances = {resource_id: db_instances.get(resource_id, {})}
-
         filters = self._validate_filters(kwargs)
-        filtered = self._filter(raw_instances, filters=filters)
+        filtered = self._filter(db_instances, filters=filters)
         instances = list(filtered.values())
         if first:
             return [instances[0]]
