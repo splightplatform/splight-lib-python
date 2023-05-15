@@ -7,6 +7,7 @@ from splight_lib.models.component import (
     ComponentObjectInstance,
 )
 from splight_lib.models.file import File
+from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 from splight_lib.models.setpoint import SetPoint
@@ -16,11 +17,14 @@ __all__ = [
     AlertCondition,
     Asset,
     Attribute,
+    Boolean,
     Component,
     ComponentObject,
     ComponentObjectInstance,
     File,
+    Number,
     Query,
+    String,
     Secret,
     SetPoint,
 ]
