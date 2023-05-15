@@ -1,32 +1,20 @@
-from splight_lib.settings import settings
-from pydantic import BaseModel, PrivateAttr
-from typing import Dict, List
-from splight_lib.client.datalake import DatalakeClientBuilder
-from splight_lib.client.database import DatabaseClientBuilder
-from splight_abstract.datalake import AbstractDatalakeClient
-from splight_abstract.database import AbstractDatabaseClient
-from pydantic import BaseModel, Field, PrivateAttr
-import pandas as pd
-from typing import ClassVar, Dict, List, Optional
-from datetime import datetime, timezone
 import json
-<< << << < HEAD
+from datetime import datetime, timezone
+from typing import ClassVar, Dict, List, Optional
 
-== == == =
-
->>>>>> > feature / new - lib - interface
+import pandas as pd
+from pydantic import BaseModel, Field, PrivateAttr
+from splight_abstract.database import AbstractDatabaseClient
+from splight_abstract.datalake import AbstractDatalakeClient
+from splight_lib.client.database import DatabaseClientBuilder
+from splight_lib.client.datalake import DatalakeClientBuilder
+from splight_lib.settings import settings
 
 
 class SplightDatabaseBaseModel(BaseModel):
+    _db_client: AbstractDatabaseClient = PrivateAttr()
 
-
-<< << << < HEAD
-== == == =
-
->>>>>> > feature / new - lib - interface
-  _db_client: AbstractDatabaseClient = PrivateAttr()
-
-   def __init__(self, **data):
+    def __init__(self, **data):
         super().__init__(**data)
         self._db_client = self.__get_database_client()
 
@@ -81,7 +69,7 @@ class SplightDatalakeBaseModel(BaseModel):
     )
     instance_id: Optional[str] = None
     instance_type: Optional[str] = None
-    _collection_name: ClassVar[str] = PrivateAttr("DatalakeModel")
+    _collection_name: ClassVar[str] = "DatalakeModel"
 
     @property
     def _dl_client(self):

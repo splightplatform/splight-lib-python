@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Union, ClassVar
 
 from pydantic import Field, PrivateAttr
 from splight_lib.models.asset import Asset
@@ -9,10 +9,7 @@ from splight_lib.models.base import SplightDatalakeBaseModel
 class NativeOutput(SplightDatalakeBaseModel):
     asset: Union[Asset, str]
     attribute: Union[Attribute, str]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._collection_name = "default"
+    _collection_name: ClassVar[str] = "default"
 
 
 class Number(NativeOutput):
