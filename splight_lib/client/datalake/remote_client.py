@@ -79,6 +79,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
         params = self._parse_params(**filters)
         response = self._restclient.get(url, params=params)
+        print(url)
         response.raise_for_status()
         output = response.json()["results"]
 
