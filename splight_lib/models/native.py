@@ -1,6 +1,6 @@
 from typing import Union, ClassVar
 
-from pydantic import Field, PrivateAttr
+from pydantic import Field
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatalakeBaseModel
