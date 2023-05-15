@@ -178,7 +178,7 @@ class SplightBaseComponent:
             )
 
     def start(self):
-        raise NotADirectoryError()
+        raise NotImplementedError()
 
     def stop(self):
         raise NotImplementedError()
