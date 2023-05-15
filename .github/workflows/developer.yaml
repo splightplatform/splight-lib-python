@@ -1,11 +1,11 @@
 # used when creating a feature branch for development
 # enabling the creation of dev versions (x.y.z-devN) that are uploaded to pypi
 # if the version is correct, that is, greater than the version of master and pypi
-name: "Developer"
+name: Developer
 on:
   push:
     branches:
-      - "feature/**"
+      - feature/**
 
 env:
   LIBRARY_NAME: "splight-lib"

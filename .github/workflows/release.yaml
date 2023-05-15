@@ -1,11 +1,11 @@
 # used when a new feature has already been merged to master
 # this step creates a new tag in the github repository, pushes the release
 # version to pypi and deletes all dev versions
-name: "Release"
+name: Release
 on:
   push:
     branches:
-      - "master"
+      - master
 
 env:
   LIBRARY_NAME: "splight-lib"
