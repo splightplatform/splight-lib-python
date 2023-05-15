@@ -4,7 +4,7 @@ class InvalidComponentObjectInstance(Exception):
 
 class SecretNotFound(Exception):
     def __init__(self, name: str):
-        msg = f"Secrent {name} not found in database"
+        msg = f"Secret {name} not found in database"
         super().__init__(msg)
 
 
