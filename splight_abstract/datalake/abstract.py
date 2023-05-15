@@ -6,33 +6,6 @@ from typing import Callable, Dict, List, Optional, Union
 import pandas as pd
 from pydantic import BaseModel
 from splight_abstract.client import AbstractClient, QuerySet
-from splight_models import DatalakeModel
-
-
-def validate_datalake_resource_type(func: Callable) -> Callable:
-    @wraps(func)
-    def inner(self, resource_type, *args, **kwargs):
-        if not issubclass(resource_type, DatalakeModel):
-            raise NotImplementedError(
-                f"Not a valid resource_type: {resource_type.__name__}"
-            )
-        return func(self, resource_type, *args, **kwargs)
-
-    return inner
-
-
-def validate_datalake_instance_type(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(self, instances: List[BaseModel], *args, **kwargs):
-        if instances:
-            resource_type = instances[0].__class__
-            if not all([isinstance(i, resource_type) for i in instances]):
-                raise TypeError("All instances must be of the same type")
-            if not issubclass(resource_type, DatalakeModel):
-                raise TypeError("All instances must be of type DatalakeModel")
-        return func(self, instances, *args, **kwargs)
-
-    return wrapper
 
 
 class AbstractDatalakeClient(AbstractClient):
@@ -44,7 +17,7 @@ class AbstractDatalakeClient(AbstractClient):
     @abstractmethod
     def save(
         self, collection: str, instances: Union[List[Dict], Dict]
-    ) -> List[DatalakeModel]:
+    ) -> List[dict]:
         pass
 
     @abstractmethod
