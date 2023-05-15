@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from furl import furl
-from remote_splight_lib.auth import SplightAuthToken
+from splight_lib.auth import SplightAuthToken
 from retry import retry
 from splight_abstract import AbstractRemoteClient
 from splight_abstract.datalake import AbstractDatalakeClient
@@ -79,7 +79,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
         params = self._parse_params(**filters)
         response = self._restclient.get(url, params=params)
-        print(url)
         response.raise_for_status()
         output = response.json()["results"]
 
