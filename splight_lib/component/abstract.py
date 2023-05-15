@@ -12,8 +12,8 @@ import splight_models as spmodels
 from mergedeep import Strategy as mergeStrategy
 from mergedeep import merge
 from pydantic import BaseModel, main
-from remote_splight_lib.auth import SplightAuthToken
 from retry import retry
+from splight_lib.auth import SplightAuthToken
 from splight_lib.client.settings import settings_remote
 from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging._internal import LogTags, get_splight_logger
