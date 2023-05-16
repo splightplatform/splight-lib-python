@@ -4,11 +4,19 @@ from typing import ClassVar, Dict, List, Optional
 
 import pandas as pd
 from pydantic import BaseModel, Field, PrivateAttr
+
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.datalake import AbstractDatalakeClient
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.settings import settings
+
+
+def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
+    new_data = {
+        k: v if not isinstance(v, dict) else v["id"] for k, v in data.items()
+    }
+    return json.dumps(new_data, default=default, **dumps_kwargs)
 
 
 class SplightDatabaseBaseModel(BaseModel):
@@ -70,10 +78,14 @@ class SplightDatalakeBaseModel(BaseModel):
     instance_id: Optional[str] = None
     instance_type: Optional[str] = None
     _collection_name: ClassVar[str] = "DatalakeModel"
+    _dl_client: AbstractDatalakeClient = PrivateAttr()
 
-    @property
-    def _dl_client(self):
-        return self.__get_datalake_client()
+    class Config:
+        json_dumps = datalake_model_serializer
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self._dl_client = self.__get_datalake_client()
 
     @classmethod
     def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
@@ -94,7 +106,6 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=cls._collection_name,
             **params,
         )
-
         return df
 
     def save(self):
@@ -116,9 +127,6 @@ class SplightDatalakeBaseModel(BaseModel):
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()
         }
-
-    def json(self, *args, **kwargs):
-        return json.dumps(self.dict(*args, **kwargs))
 
     @staticmethod
     def __get_datalake_client() -> AbstractDatalakeClient:
