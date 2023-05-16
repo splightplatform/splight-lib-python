@@ -4,6 +4,8 @@ from typing import Any, Dict, Generator, List, Optional, Union
 from furl import furl
 from httpx._status_codes import codes
 from retry import retry
+from typing_extensions import TypedDict
+
 from splight_abstract.database import AbstractDatabaseClient
 from splight_abstract.remote import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
@@ -20,7 +22,6 @@ from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
-from typing_extensions import TypedDict
 
 logger = get_splight_logger()
 
@@ -78,8 +79,6 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModelName thrown when the model name is not correct.
         """
-        logger.debug("Saving instance", tags=LogTags.DATABASE)
-
         if instance.get("id"):
             output = self._update(resource_name, instance["id"], instance)
         else:
@@ -230,6 +229,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return response.json()
 
     def _create(self, resource_name: str, instance: Dict) -> Dict:
+        logger.debug("Saving new instance", tags=LogTags.DATABASE)
         model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
@@ -243,11 +243,16 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             response = self._restclient.post(url, json=instance)
 
         response.raise_for_status()
-        return response.json()
+        instance = response.json()
+        logger.debug(
+            "Instance %s created", instance["id"], tags=LogTags.DATABASE
+        )
+        return instance
 
     def _update(
         self, resource_name: str, resource_id: str, instance: Dict
     ) -> Dict:
+        logger.debug("Saving instance %s", resource_id, tags=LogTags.DATABASE)
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{resource_id}/"
         response = self._restclient.put(url, json=instance)
