@@ -123,7 +123,7 @@ class Spec(BaseModel):
 
         for parameter in input:
             if parameter.type not in valid_types_names:
-                raise ValueError(f"input type {parameter.type} not defined")
+                raise ValueError(f"Input type {parameter.type} not defined")
 
         try:
             check_parameter_dependency(input)
@@ -182,5 +182,5 @@ class Spec(BaseModel):
                 base_class=SplightDatalakeBaseModel,
             )
             fields.update({output.name: (Type[model_class], model_class)})
-        output_model = create_model("Output", **fields)
-        return output_model()
+        output_model_class = create_model("Output", **fields)
+        return output_model_class()

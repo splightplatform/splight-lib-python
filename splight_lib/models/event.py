@@ -56,7 +56,6 @@ class CommunicationEvent(BaseModel):
         )
     )  # pusher cannot json serialize datetime objects
     display_text: Optional[str] = None
-    # user: Optional[User] = None
     data: Dict
 
 
