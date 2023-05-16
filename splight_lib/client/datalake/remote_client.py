@@ -110,7 +110,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
                 "sort": sort,
                 "group_id": group_id,
                 "group_fields": group_fields,
-                # "tzinfo": tzinfo
             }
         )
 

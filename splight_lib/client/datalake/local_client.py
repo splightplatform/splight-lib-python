@@ -2,7 +2,7 @@ import json
 import os
 from datetime import timedelta, timezone
 from functools import partial
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from splight_abstract.datalake import AbstractDatalakeClient
