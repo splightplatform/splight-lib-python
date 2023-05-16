@@ -1,15 +1,25 @@
 from enum import Enum
-from typing import Dict, List, Optional, Type
+from typing import Any, ClassVar, Dict, List, Optional, Type
 
 from pydantic import BaseModel, create_model
+from typing_extensions import TypedDict
+
 from splight_lib.models.component import DB_MODEL_TYPE_MAPPING, Parameter
+
+
+class ClassVarDict(TypedDict):
+    name: str
+    type: str
+    value: Any
 
 
 def create_custom_model(
     model_name: str,
     parameters: List[Parameter],
     custom_types: Optional[Dict] = None,
+    base_class: Optional[Type[BaseModel]] = None,
     config_class: Optional[Type] = None,
+    class_vars: Optional[List[ClassVarDict]] = None,
 ) -> Type[BaseModel]:
     """
     Function to create custom pydantic model specific for components.
@@ -53,4 +63,14 @@ def create_custom_model(
 
         value = Ellipsis if required else None
         fields.update({name: (param_type, value)})
-    return create_model(model_name, **fields, __config__=config_class)
+
+    if class_vars:
+        fields.update(
+            {
+                var["name"]: (ClassVar[var["type"]], var["value"])
+                for var in class_vars
+            }
+        )
+    return create_model(
+        model_name, **fields, __base__=base_class, __config__=config_class
+    )
