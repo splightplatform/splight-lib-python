@@ -1,10 +1,12 @@
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, create_model, validator
+
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
 )
+from splight_lib.models.base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
     Binding,
     Command,
@@ -167,12 +169,17 @@ class Spec(BaseModel):
         }
         return input_model.parse_obj(values)
 
-    def get_output_models(self) -> Type[BaseModel]:
+    def get_output_models(self, component_id: str) -> Type[BaseModel]:
         fields = {}
+        class_vars = [
+            {"name": "_collection_name", "type": str, "value": component_id}
+        ]
         for output in self.output:
             model_class = create_custom_model(
                 model_name=output.name,
                 parameters=output.fields,
+                class_vars=class_vars,
+                base_class=SplightDatalakeBaseModel,
             )
             fields.update({output.name: (Type[model_class], model_class)})
         output_model = create_model("Output", **fields)
