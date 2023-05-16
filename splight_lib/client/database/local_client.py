@@ -117,7 +117,6 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         db_instances = db.get(model_name, {})
         if resource_id not in db_instances:
             raise InstanceNotFound(model_name, resource_id)
-        # instance = {resource_id: db_instances.get(resource_id, {})}
         return db_instances.get(resource_id)
 
     def _retrieve_multiple(
