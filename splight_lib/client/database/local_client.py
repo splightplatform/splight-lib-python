@@ -136,7 +136,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     def download(
         self, instances: Dict, decrtypt: bool = True, **kwargs
     ) -> NamedTemporaryFile:
-        raise NotImplementedError()
+        raise NotImplementedError("Method not implemented for Local Database")
 
     def _create(self, resource_name: str, instance: Dict) -> Dict:
         db = self._load_db_file(self._db_file)
