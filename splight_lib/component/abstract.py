@@ -85,6 +85,10 @@ class SplightBaseComponent:
     def input(self) -> BaseModel:
         return self._input
 
+    @property
+    def output(self) -> BaseModel:
+        return self._output
+
     def _load_spec(self) -> Spec:
         base_path = os.getcwd()
         spec = Spec.from_file(os.path.join(base_path, "spec.json"))
