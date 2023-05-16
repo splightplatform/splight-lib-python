@@ -3,11 +3,11 @@ from functools import partial
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
-
-# TODO: Change for splight_lib.client import
-from remote_splight_lib.communication import CommunicationClient
 from retry import retry
+
 from splight_lib.auth import SplightAuthToken
+# TODO: Use builder pattern
+from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
     database_object_event_handler,
@@ -51,13 +51,14 @@ class SplightBaseComponent:
         settings.configure(LOCAL_ENVIRONMENT=local_environment)
         self._component_id = component_id
 
-        self._comm_client = CommunicationClient(instance_id=component_id)
+        self._comm_client = RemoteCommunicationClient(instance_id=component_id)
         self._execution_engine = ExecutionClient()
         if not local_environment:
             self._check_duplicated_component()
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
+        self._output = self._spec.get_output_models(component_id)
 
         component_objects = {
             ct.name: ComponentObjectInstance.from_custom_type(
