@@ -48,7 +48,7 @@ class SplightDatabaseBaseModel(BaseModel):
         instance = db_client.get(
             resource_name=cls.__name__, id=resource_id, first=True
         )
-        return cls.parse_obj(instance[0]) if instance else None
+        return cls.parse_obj(instance) if instance else None
 
     @classmethod
     def list(cls, **params: Dict) -> List["SplightDatabaseBaseModel"]:
