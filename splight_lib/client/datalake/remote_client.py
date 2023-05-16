@@ -61,7 +61,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         tzinfo: timezone = timezone(timedelta()),
         **filters,
     ) -> List[Dict]:
-        # /datalake/data/
+        # GET /datalake/data/
         url = self._base_url / f"{self._PREFIX}/data/"
 
         filters.update(
