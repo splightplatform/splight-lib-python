@@ -181,6 +181,9 @@ class Spec(BaseModel):
                 class_vars=class_vars,
                 base_class=SplightDatalakeBaseModel,
             )
+            model_class.create_indexes(
+                [param.dict() for param in output.fields]
+            )
             fields.update({output.name: (Type[model_class], model_class)})
         output_model_class = create_model("Output", **fields)
         return output_model_class()
