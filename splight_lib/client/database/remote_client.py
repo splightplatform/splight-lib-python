@@ -102,7 +102,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         api_path = self._get_api_path(resource_name)
-        url = self._base_url / api_path / id
+        url = self._base_url / api_path / f"{id}/"
         response = self._restclient.delete(url)
         response.raise_for_status()
 
