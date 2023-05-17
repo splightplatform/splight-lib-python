@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
+
 # TODO: Use builder pattern
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
@@ -45,15 +46,20 @@ class SplightBaseComponent:
     def __init__(
         self,
         component_id: Optional[str] = None,
-        local_environment: bool = False,
+        # local_environment: bool = False,
     ):
         # TODO settings managment
-        settings.configure(LOCAL_ENVIRONMENT=local_environment)
+        # settings.configure(LOCAL_ENVIRONMENT=local_environment)
         self._component_id = component_id
 
-        self._comm_client = RemoteCommunicationClient(instance_id=component_id)
+        self._comm_client = RemoteCommunicationClient(
+            url=settings.SPLIGHT_PLATFORM_API_HOST,
+            access_id=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            instance_id=component_id,
+        )
         self._execution_engine = ExecutionClient()
-        if not local_environment:
+        if not settings.LOCAL_ENVIRONMENT:
             self._check_duplicated_component()
 
         self._spec = self._load_spec()
