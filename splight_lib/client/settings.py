@@ -4,7 +4,7 @@ from pydantic import BaseSettings, Field
 class SplightRemoteSettings(BaseSettings):
     # TODO: Unify env variables accross all the platform/lib/components
     SPLIGHT_PLATFORM_API_HOST: str = Field(
-        "https://api.splight-ae.com",
+        "https://api.splight-ai.com",
         env=["SPLIGHT_PLATFORM_API_HOST", "SPLIGHT_API_HOST"],
     )
     SPLIGHT_ACCESS_ID: str = Field(
