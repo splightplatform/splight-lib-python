@@ -1,5 +1,9 @@
 import os
+import sys
 from functools import partial
+from tempfile import NamedTemporaryFile
+from threading import Thread
+from time import sleep
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
@@ -23,6 +27,7 @@ from splight_lib.component.exceptions import (
 )
 from splight_lib.component.spec import Spec
 from splight_lib.execution import ExecutionClient
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models.component import (
     DB_MODEL_TYPE_MAPPING,
     Binding,
@@ -40,6 +45,50 @@ from splight_lib.restclient import (
 from splight_lib.settings import settings
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
+
+
+class HealthCheckProcessor:
+    _HEALTHCHECK_INTERVAL = 5
+    _HEALTH_FILE_PREFIX = "healthy_"
+    _STARTUP_FILE_PREFIX = "ready_"
+
+    def __init__(self, engine: ExecutionClient):
+        self._logger = get_splight_logger("HealthCheckProcessor")
+        self._engine = engine
+        self._health_file = NamedTemporaryFile(prefix=self._HEALTH_FILE_PREFIX)
+        self._startup_file = NamedTemporaryFile(
+            prefix=self._STARTUP_FILE_PREFIX
+        )
+        self._running = False
+        self._logger.info(
+            "Healthcheck file at: %s",
+            self._health_file.name,
+            tags=LogTags.RUNTIME,
+        )
+        self._logger.info(
+            "Startup file at: %s",
+            self._startup_file.name,
+            tags=LogTags.RUNTIME,
+        )
+
+    def start(self):
+        self._running = True
+        while self._running:
+            if not self._engine.healthcheck():
+                self._logger.error(
+                    "Healthcheck task failed.", tags=LogTags.RUNTIME
+                )
+                self._health_file.close()
+                self._logger.error(
+                    "Healthcheck file removed: %s",
+                    self._health_file,
+                    tags=LogTags.RUNTIME,
+                )
+                sys.exit(1)
+            sleep(self._HEALTHCHECK_INTERVAL)
+
+    def stop(self):
+        self._running = False
 
 
 class SplightBaseComponent:
@@ -61,6 +110,11 @@ class SplightBaseComponent:
             instance_id=component_id,
         )
         self._execution_engine = ExecutionClient()
+        health_check = HealthCheckProcessor(self._execution_engine)
+        self._health_check_thread = Thread(
+            target=health_check.start, args=(), daemon=True
+        )
+        self._execution_engine.start(self._health_check_thread)
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
@@ -196,4 +250,6 @@ class SplightBaseComponent:
         raise NotImplementedError()
 
     def stop(self):
-        raise NotImplementedError()
+        self._execution_engine.stop(self._health_check_thread)
+        self._execution_engine.terminate_all()
+        sys.exit(1)
