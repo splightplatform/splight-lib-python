@@ -5,14 +5,15 @@ import pysher
 import requests
 from furl import furl
 from retry import retry
+
 from splight_abstract.communication import (
     AbstractCommunicationClient,
     ClientNotReady,
 )
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication.classmap import CLASSMAP
-from splight_lib.client.settings import settings_remote as settings
 from splight_lib.logging._internal import LogTags, get_splight_logger
+
 from splight_models.communication import (
     CommunicationClientStatus,
     CommunicationContext,
@@ -23,17 +24,19 @@ logger = get_splight_logger()
 
 
 class CommunicationFactory:
-    def __init__(self, model):
+    def __init__(self, model, base_url, access_id: str, secret_key: str):
         self._model = model
+        self._base_url = furl(base_url)
+        self._access_id = access_id
+        self._secret_key = secret_key
 
     def get_url(self):
-        base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
-        return base_url / CLASSMAP.get(self._model)
+        return self._base_url / CLASSMAP.get(self._model)
 
     def get_headers(self):
         auth_token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
+            access_key=self._access_id,
+            secret_key=self._secret_key,
         )
         return auth_token.header
 
@@ -58,8 +61,19 @@ class CommunicationFactory:
 
 
 class RemoteCommunicationClient(AbstractCommunicationClient):
-    def __init__(self, daemon: bool = True, *args, **kwargs):
+    def __init__(
+        self,
+        url: str,
+        access_id: str,
+        secret_key: str,
+        daemon: bool = True,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
+        self._base_url = url
+        self._access_id = access_id
+        self._secret_key = secret_key
         self._status = CommunicationClientStatus.STOPPED
         self._channel_bindings = []
         self._client, self._context = None, None
@@ -105,7 +119,12 @@ class RemoteCommunicationClient(AbstractCommunicationClient):
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_context(self):
         params = {"instance_id": self.instance_id}
-        self._context = CommunicationFactory(CommunicationContext).get(params)
+        self._context = CommunicationFactory(
+            CommunicationContext,
+            base_url=self._base_url,
+            access_id=self._access_id,
+            secret_key=self._secret_key,
+        ).get(params)
 
     @retry(Exception, tries=3, delay=2, jitter=1)
     def __load_client(self):
@@ -162,9 +181,12 @@ class RemoteCommunicationClient(AbstractCommunicationClient):
         raise NotImplementedError
 
     def trigger(self, event: CommunicationEvent):
-        return CommunicationFactory(CommunicationEvent).create(
-            data=event.dict()
-        )
+        return CommunicationFactory(
+            CommunicationEvent,
+            base_url=self._base_url,
+            access_id=self._access_id,
+            secret_key=self._secret_key,
+        ).create(data=event.dict())
 
     def authenticate(
         self, channel_name: str, socket_id: str, custom_data: Dict = None
