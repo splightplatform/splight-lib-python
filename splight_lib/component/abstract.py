@@ -52,6 +52,8 @@ class SplightBaseComponent:
         # settings.configure(LOCAL_ENVIRONMENT=local_environment)
         self._component_id = component_id
 
+        if not settings.LOCAL_ENVIRONMENT:
+            self._check_duplicated_component()
         self._comm_client = RemoteCommunicationClient(
             url=settings.SPLIGHT_PLATFORM_API_HOST,
             access_id=settings.SPLIGHT_ACCESS_ID,
@@ -59,8 +61,6 @@ class SplightBaseComponent:
             instance_id=component_id,
         )
         self._execution_engine = ExecutionClient()
-        if not settings.LOCAL_ENVIRONMENT:
-            self._check_duplicated_component()
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
@@ -94,6 +94,10 @@ class SplightBaseComponent:
     @property
     def output(self) -> BaseModel:
         return self._output
+
+    @property
+    def execution_engine(self) -> ExecutionClient:
+        return self._execution_engine
 
     def _load_spec(self) -> Spec:
         base_path = os.getcwd()
