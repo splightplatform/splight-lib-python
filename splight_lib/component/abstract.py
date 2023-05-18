@@ -95,10 +95,7 @@ class SplightBaseComponent:
     def __init__(
         self,
         component_id: Optional[str] = None,
-        # local_environment: bool = False,
     ):
-        # TODO settings managment
-        # settings.configure(LOCAL_ENVIRONMENT=local_environment)
         self._component_id = component_id
 
         if not settings.LOCAL_ENVIRONMENT:
@@ -154,6 +151,9 @@ class SplightBaseComponent:
         return self._execution_engine
 
     def _load_spec(self) -> Spec:
+        """Loads the spec.json files located at the same level that the
+        main file.
+        """
         base_path = os.getcwd()
         spec = Spec.from_file(os.path.join(base_path, "spec.json"))
         return spec
@@ -163,6 +163,8 @@ class SplightBaseComponent:
         bindings: List[Binding],
         component_objects: Dict[str, ComponentObjectInstance],
     ):
+        """Loads and assigns callbacks for the bindings.
+        """
         for binding in bindings:
             type_ = binding.object_type
             model_class = DB_MODEL_TYPE_MAPPING.get(
@@ -187,6 +189,8 @@ class SplightBaseComponent:
             )
 
     def _load_setpoints(self, setpoints: List[SetPoint]):
+        """Loads and assigns callbacks to the setpoing.
+        """
         for setpoint in setpoints:
             event_name = SetPoint.get_event_name(
                 SetPoint.__name__, setpoint.object_action
@@ -206,6 +210,8 @@ class SplightBaseComponent:
             )
 
     def _load_commands(self, commands: List[Command]):
+        """Assigns callbacks function to each of the defined commands.
+        """
         for command in commands:
             callback_func = getattr(self, command.name.lower(), None)
             if not callback_func:

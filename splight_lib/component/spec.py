@@ -42,11 +42,19 @@ VALID_DEPENDS_ON = [
 
 
 def check_unique_values(values: List[str]):
+    """Checks if there are repeated values in a list of strings.
+    """
     if len(values) != len(set(values)):
         raise DuplicatedValuesError("The list contains duplicated values")
 
 
 def check_parameter_dependency(parameters: List[InputParameter]):
+    """Checks dependency between parameters.
+
+    Raises
+    ------
+    ParameterDependencyError thrown for an error in the dependency.
+    """
     parameter_map: Dict[str, InputParameter] = {p.name: p for p in parameters}
     for parameter in parameters:
         if not parameter.depends_on:
@@ -144,6 +152,12 @@ class Spec(BaseModel):
         return cls.parse_file(file_path)
 
     def get_input_model(self) -> Type[BaseModel]:
+        """Creates a BaseModel class that represents the component's input.
+
+        Returns
+        -------
+        Type[BaseModel] the class object for the input.
+        """
         class Config:
             use_enum_values = True
 
@@ -162,6 +176,18 @@ class Spec(BaseModel):
         return model
 
     def component_input(self, component_id: str) -> BaseModel:
+        """Creates the input for the component given the id. The parameters
+        values are retrieved from the database.
+
+        Parameters
+        ----------
+        component_id: str
+            The components
+
+        Returns
+        -------
+        BaseModel: The component's input.
+        """
         input_model = self.get_input_model()
         component = Component.retrieve(component_id)
         values = {
@@ -169,7 +195,20 @@ class Spec(BaseModel):
         }
         return input_model.parse_obj(values)
 
-    def get_output_models(self, component_id: str) -> Type[BaseModel]:
+    def get_output_models(self, component_id: str) -> BaseModel:
+        """Creates a BaseModel that represents the component's output. Each
+        of the defined outputs in the spec are attributes which values
+        are class objects.
+
+        Parameters
+        ----------
+        component_id: str
+            The component's id.
+
+        Returns
+        -------
+        BaseModel the output model.
+        """
         fields = {}
         class_vars = [
             {"name": "_collection_name", "type": str, "value": component_id}
