@@ -23,7 +23,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
     def __init__(
         self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self._base_url = furl(base_url)
         token = SplightAuthToken(
             access_key=access_id,
