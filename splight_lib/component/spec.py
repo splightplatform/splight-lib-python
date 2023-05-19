@@ -43,6 +43,10 @@ VALID_DEPENDS_ON = [
 
 def check_unique_values(values: List[str]):
     """Checks if there are repeated values in a list of strings.
+
+    Raises
+    ------
+    DuplicatedValuesError thrown when there is at least two repeated values
     """
     if len(values) != len(set(values)):
         raise DuplicatedValuesError("The list contains duplicated values")
