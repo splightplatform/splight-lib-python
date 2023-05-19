@@ -1,8 +1,9 @@
 from abc import abstractmethod, abstractproperty
 from typing import Callable, Dict
 
-from splight_abstract.client import AbstractClient
-from splight_models import CommunicationContext, CommunicationEvent
+from splight_lib.abstract.client import AbstractClient
+from splight_lib.models.communication import CommunicationContext
+from splight_lib.models.event import CommunicationEvent
 
 
 class AbstractCommunicationClient(AbstractClient):
