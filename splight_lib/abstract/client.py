@@ -1,6 +1,5 @@
 from abc import ABC
 from collections import UserList
-# from typing import Type
 
 
 class empty:
