@@ -1,22 +1,21 @@
 from enum import Enum
 from typing import Dict, Optional
-
-from splight_models import SplightBaseModel
-from splight_models.user import User
+from pydantic import BaseModel
 
 
-class CommunicationChannelData(SplightBaseModel):
+class CommunicationChannelData(BaseModel):
     user_id: str
     user_info: Dict
 
-    @classmethod
-    def parse_from_user(cls, user: User):
-        return cls.parse_obj(
-            {"user_id": user.user_id, "user_info": user.dict()}
-        )
+    # TODO: Review following method
+    # @classmethod
+    # def parse_from_user(cls, user: User):
+    #     return cls.parse_obj(
+    #         {"user_id": user.user_id, "user_info": user.dict()}
+    #     )
 
 
-class CommunicationContext(SplightBaseModel):
+class CommunicationContext(BaseModel):
     auth_headers: Optional[Dict] = None
     auth_endpoint: Optional[str] = None
     key: str
