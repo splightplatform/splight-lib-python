@@ -1,6 +1,8 @@
 from typing import Callable, Type
 
-from splight_abstract.communication import AbstractCommunicationClient
+from splight_lib.client.communication.abstract import (
+    AbstractCommunicationClient,
+)
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.component import (

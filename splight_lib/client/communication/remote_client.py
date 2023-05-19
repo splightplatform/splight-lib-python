@@ -6,19 +6,18 @@ import requests
 from furl import furl
 from retry import retry
 
-from splight_abstract.communication import (
-    AbstractCommunicationClient,
-    ClientNotReady,
-)
 from splight_lib.auth import SplightAuthToken
+from splight_lib.client.communication.abstract import (
+    AbstractCommunicationClient,
+)
 from splight_lib.client.communication.classmap import CLASSMAP
+from splight_lib.client.communication.exceptions import ClientNotReady
 from splight_lib.logging._internal import LogTags, get_splight_logger
-
-from splight_models.communication import (
+from splight_lib.models.communication import (
     CommunicationClientStatus,
     CommunicationContext,
-    CommunicationEvent,
 )
+from splight_lib.models.event import CommunicationEvent
 
 logger = get_splight_logger()
 
