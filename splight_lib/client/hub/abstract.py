@@ -6,8 +6,6 @@ from pydantic import BaseModel
 
 from splight_lib.abstract.client import AbstractClient, QuerySet
 
-# from splight_abstract.client import AbstractClient, QuerySet
-
 
 def validate_client_resource_type(func: Callable) -> Callable:
     @wraps(func)

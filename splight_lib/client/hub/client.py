@@ -6,14 +6,11 @@ from pydantic import BaseModel
 
 from splight_lib.auth import SplightAuthToken
 
-# from splight_abstract import (
 from splight_lib.client.hub.abstract import (
     AbstractHubClient,
     AbstractHubSubClient,
     validate_client_resource_type,
 )
-
-# from splight_lib.client.settings import settings_remote as settings
 from splight_lib.models.hub import HubComponent, HubComponentVersion
 from splight_lib.settings import settings
 
