@@ -6,9 +6,9 @@ from httpx._status_codes import codes
 from retry import retry
 from typing_extensions import TypedDict
 
-from splight_abstract.database import AbstractDatabaseClient
-from splight_abstract.remote import AbstractRemoteClient
+from splight_lib.abstract.client import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.database.classmap import (
     CUSTOM_PATHS_MAP,
     MODEL_NAME_MAP,
