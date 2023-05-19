@@ -5,10 +5,11 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from furl import furl
-from splight_lib.auth import SplightAuthToken
 from retry import retry
-from splight_abstract import AbstractRemoteClient
-from splight_abstract.datalake import AbstractDatalakeClient
+
+from splight_lib.abstract.client import AbstractRemoteClient
+from splight_lib.auth import SplightAuthToken
+from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient

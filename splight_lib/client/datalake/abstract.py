@@ -1,11 +1,10 @@
 from abc import abstractmethod
 from datetime import timedelta, timezone
-from functools import wraps
-from typing import Callable, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
-from pydantic import BaseModel
-from splight_abstract.client import AbstractClient, QuerySet
+
+from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
 class AbstractDatalakeClient(AbstractClient):
