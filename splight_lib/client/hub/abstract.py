@@ -1,8 +1,22 @@
 from abc import ABC, abstractmethod, abstractproperty
-from typing import Dict, List, Tuple, Type
+from functools import wraps
+from typing import Callable, Dict, List, Tuple, Type
 
 from pydantic import BaseModel
-from splight_abstract.client import AbstractClient, QuerySet
+
+from splight_lib.abstract.client import AbstractClient, QuerySet
+
+
+def validate_client_resource_type(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(self, resource_type: Type, *args, **kwargs):
+        if resource_type not in self.valid_classes:
+            raise NotImplementedError(
+                f"Not a valid resource_type: {resource_type.__name__}"
+            )
+        return func(self, resource_type, *args, **kwargs)
+
+    return wrapper
 
 
 class AbstractHubSubClient(AbstractClient):
@@ -20,7 +34,7 @@ class AbstractHubSubClient(AbstractClient):
         first=False,
         limit_: int = -1,
         skip_: int = 0,
-        **kwargs
+        **kwargs,
     ) -> List[BaseModel]:
         pass
 
@@ -40,10 +54,6 @@ class AbstractHubClient(ABC):
 
     @abstractmethod
     def download(self, data: Dict) -> Tuple:
-        pass
-
-    @abstractmethod
-    def random_picture(self):
         pass
 
     @abstractproperty

@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, List, Union
 from uuid import uuid4
 
-from splight_abstract.database import AbstractDatabaseClient
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
 from splight_lib.logging._internal import LogTags, get_splight_logger
@@ -19,7 +19,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     """
 
     def __init__(self, path: str, *args, **kwargs):
-        super().__init__(namespace="default")
+        super().__init__()
         self._db_file = os.path.join(path, "splight-db.json")
 
         if not os.path.exists(self._db_file):

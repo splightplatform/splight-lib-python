@@ -1,12 +1,11 @@
 from typing import List, Optional
 
-from pydantic import validator
-from splight_models.component import BaseComponent
+from pydantic import BaseModel, validator
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
 
 
-class HubComponent(BaseComponent):
+class HubComponent(BaseModel):
     id: Optional[str]
     name: str
     splight_cli_version: str
