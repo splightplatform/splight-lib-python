@@ -3,14 +3,16 @@ from typing import Dict, List, Optional, Tuple, Type
 import requests
 from furl import furl
 from pydantic import BaseModel
-from splight_abstract import (
+
+from splight_lib.auth import SplightAuthToken
+
+from splight_lib.client.hub.abstract import (
     AbstractHubClient,
     AbstractHubSubClient,
     validate_client_resource_type,
 )
-from splight_lib.auth import SplightAuthToken
-from splight_lib.client.settings import settings_remote as settings
-from splight_models import HubComponent, HubComponentVersion
+from splight_lib.models.hub import HubComponent, HubComponentVersion
+from splight_lib.settings import settings
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
@@ -130,15 +132,15 @@ class _SplightHubGenericClient(AbstractHubSubClient):
 
 
 class SplightHubClient(AbstractHubClient):
-    def __init__(
-        self, headers: Optional[Dict[str, str]] = {}, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__()
         token = SplightAuthToken(
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._all = _SplightHubGenericClient(base_path="all", headers=headers)
+        self._all = _SplightHubGenericClient(
+            base_path="all", headers=token.header
+        )
         self._mine = _SplightHubGenericClient(
             base_path="mine", headers=token.header
         )
@@ -168,13 +170,6 @@ class SplightHubClient(AbstractHubClient):
         response = requests.post(url, data=data, headers=self._headers)
         status_code = response.status_code
         assert status_code == 200, "Unable to download component"
-        return response.content, status_code
-
-    def random_picture(self) -> Tuple:
-        url = self._host / "hub/random_picture/"
-        response = requests.get(url, headers=self._headers)
-        status_code = response.status_code
-        assert status_code == 200, "Unable to retrieve random picture"
         return response.content, status_code
 
     @property

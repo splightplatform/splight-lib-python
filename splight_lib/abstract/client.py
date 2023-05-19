@@ -1,54 +1,25 @@
 from abc import ABC
 from collections import UserList
-from functools import wraps
-from typing import Callable, List, Type
-
-from pydantic import BaseModel
-
-from .filter import FilterMixin
-from .hooks import HooksMixin
 
 
 class empty:
     pass
 
 
-def validate_client_resource_type(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(self, resource_type: Type, *args, **kwargs):
-        if resource_type not in self.valid_classes:
-            raise NotImplementedError(
-                f"Not a valid resource_type: {resource_type.__name__}"
-            )
-        return func(self, resource_type, *args, **kwargs)
-
-    return wrapper
+class AbstractClient(ABC):
+    pass
 
 
-def validate_client_instance_type(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(self, instance: BaseModel, *args, **kwargs):
-        if type(instance) not in self.valid_classes:
-            raise NotImplementedError(
-                f"Not a valid instance type: {type(instance).__name__}"
-            )
-        return func(self, instance, *args, **kwargs)
-
-    return wrapper
-
-
-class AbstractClient(ABC, HooksMixin, FilterMixin):
-    valid_classes: List[Type] = []
-
-    def __init__(self, namespace: str = "default", *args, **kwargs):
-        self.namespace = namespace.lower().replace("_", "")
-
-    def _validated_kwargs(self, resource_type: Type, **kwargs):
-        """
-        Validate the given kwargs.
-        """
-        class_fields = list(resource_type.__fields__.keys())
-        return super()._validated_kwargs(class_fields, **kwargs)
+class AbstractRemoteClient(AbstractClient):
+    def _parse_params(self, **kwargs):
+        params = {}
+        for key, value in kwargs.items():
+            if value is None:
+                continue
+            params[key] = value
+            if isinstance(value, list):
+                params[key] = ",".join(value)
+        return params
 
 
 class QuerySet(UserList):

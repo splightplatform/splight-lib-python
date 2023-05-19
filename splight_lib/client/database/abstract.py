@@ -2,7 +2,7 @@ from abc import abstractmethod
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Union
 
-from splight_abstract.client import AbstractClient, QuerySet
+from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
 class AbstractDatabaseClient(AbstractClient):
