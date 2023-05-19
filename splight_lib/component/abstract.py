@@ -6,6 +6,7 @@ from threading import Thread
 from time import sleep
 from typing import Dict, List, Optional
 
+from furl import furl
 from pydantic import BaseModel
 from retry import retry
 
@@ -100,6 +101,7 @@ class SplightBaseComponent:
 
         if not settings.LOCAL_ENVIRONMENT:
             self._check_duplicated_component()
+        # TODO: Change to use builder patter
         self._comm_client = RemoteCommunicationClient(
             url=settings.SPLIGHT_PLATFORM_API_HOST,
             access_id=settings.SPLIGHT_ACCESS_ID,
@@ -163,8 +165,7 @@ class SplightBaseComponent:
         bindings: List[Binding],
         component_objects: Dict[str, ComponentObjectInstance],
     ):
-        """Loads and assigns callbacks for the bindings.
-        """
+        """Loads and assigns callbacks for the bindings."""
         for binding in bindings:
             type_ = binding.object_type
             model_class = DB_MODEL_TYPE_MAPPING.get(
@@ -189,8 +190,7 @@ class SplightBaseComponent:
             )
 
     def _load_setpoints(self, setpoints: List[SetPoint]):
-        """Loads and assigns callbacks to the setpoing.
-        """
+        """Loads and assigns callbacks to the setpoing."""
         for setpoint in setpoints:
             event_name = SetPoint.get_event_name(
                 SetPoint.__name__, setpoint.object_action
@@ -210,8 +210,7 @@ class SplightBaseComponent:
             )
 
     def _load_commands(self, commands: List[Command]):
-        """Assigns callbacks function to each of the defined commands.
-        """
+        """Assigns callbacks function to each of the defined commands."""
         for command in commands:
             callback_func = getattr(self, command.name.lower(), None)
             if not callback_func:
@@ -237,8 +236,9 @@ class SplightBaseComponent:
         )
         rest_client = SplightRestClient()
         rest_client.update_headers(token.header)
-        url_path = f"component/components/{self._component_id}/connections/"
-        api_url = f"{settings.SPLIGHT_PLATFORM_API_HOST}/v2/engine/{url_path}"
+        base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
+        base_path = "v2/engine/component/components"
+        api_url = base_url / f"{base_path}/{self._component_id}/connections/"
         response = rest_client.get(api_url)
         if response.status_code == 200:
             connections = response.json()["subscription_count"]
