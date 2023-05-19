@@ -14,6 +14,8 @@ from splight_lib.logging._internal import get_splight_logger
 from splight_lib.logging.component import get_component_logger
 from splight_lib.logging.logging import SplightLogger, standard_output_handler
 
+# TODO: complete review
+
 
 @pytest.fixture(scope="session")
 def logger():
