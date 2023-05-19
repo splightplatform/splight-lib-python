@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, create_model, validator
-
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
@@ -162,6 +161,7 @@ class Spec(BaseModel):
         -------
         Type[BaseModel] the class object for the input.
         """
+
         class Config:
             use_enum_values = True
 

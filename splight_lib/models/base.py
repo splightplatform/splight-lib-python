@@ -4,11 +4,10 @@ from typing import ClassVar, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from pydantic import BaseModel, Field, PrivateAttr
-
-from splight_lib.client.database.abstract import AbstractDatabaseClient
-from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.database import DatabaseClientBuilder
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.datalake import DatalakeClientBuilder
+from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.settings import settings
 
 

@@ -3,9 +3,7 @@ from typing import Dict, List, Optional, Tuple, Type
 import requests
 from furl import furl
 from pydantic import BaseModel
-
 from splight_lib.auth import SplightAuthToken
-
 from splight_lib.client.hub.abstract import (
     AbstractHubClient,
     AbstractHubSubClient,
