@@ -1,4 +1,4 @@
-from typing import Union, ClassVar
+from typing import ClassVar, Union
 
 from pydantic import Field
 from splight_lib.models.asset import Asset

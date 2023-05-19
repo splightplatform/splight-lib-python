@@ -5,7 +5,6 @@ from functools import partial
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
-
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.file_handler import FixedLineNumberFileHandler
 from splight_lib.client.filter import value_filter
@@ -75,7 +74,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
         documents = [
-            json.loads(doc) for doc in handler.read()[skip_:skip_ + limit_]
+            json.loads(doc) for doc in handler.read()[skip_ : skip_ + limit_]
         ]
         documents = self._filter(documents, filters=filters)
 

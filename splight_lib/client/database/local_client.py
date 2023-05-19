@@ -122,7 +122,6 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     def _retrieve_multiple(
         self, model_name: str, first: bool = False, **kwargs
     ) -> List[Dict]:
-
         db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
 

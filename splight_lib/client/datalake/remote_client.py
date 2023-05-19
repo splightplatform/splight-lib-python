@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Union
 import pandas as pd
 from furl import furl
 from retry import retry
-
 from splight_lib.abstract.client import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient

@@ -3,7 +3,6 @@ from functools import wraps
 from typing import Callable, Dict, List, Tuple, Type
 
 from pydantic import BaseModel
-
 from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
