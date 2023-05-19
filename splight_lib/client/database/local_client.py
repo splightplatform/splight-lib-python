@@ -19,7 +19,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     """
 
     def __init__(self, path: str, *args, **kwargs):
-        super().__init__(namespace="default")
+        super().__init__()
         self._db_file = os.path.join(path, "splight-db.json")
 
         if not os.path.exists(self._db_file):

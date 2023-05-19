@@ -47,7 +47,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         *args,
         **kwargs,
     ):
-        super().__init__(namespace="default")
+        super().__init__()
         self._base_url = furl(base_url)
         token = SplightAuthToken(
             access_key=access_id,

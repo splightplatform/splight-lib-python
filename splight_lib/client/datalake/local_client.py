@@ -24,7 +24,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     _TOTAL_DOCS = 10000
 
     def __init__(self, path: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self._base_path = path
         logger.info(
             "Local datalake client initialized.", tags=LogTags.DATALAKE
