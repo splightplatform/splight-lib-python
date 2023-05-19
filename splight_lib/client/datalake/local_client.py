@@ -75,7 +75,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
         documents = [
-            json.loads(doc) for doc in handler.read()[skip_ : skip_ + limit_]
+            json.loads(doc) for doc in handler.read()[skip_:skip_ + limit_]
         ]
         documents = self._filter(documents, filters=filters)
 
