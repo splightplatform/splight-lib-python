@@ -4,7 +4,6 @@ from pathlib import Path
 from unittest import TestCase
 
 import pytest
-
 from splight_lib.execution import ExecutionClient, Popen, Task, Thread
 
 
