@@ -29,8 +29,8 @@ def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
 
 
 class SplightSettings(BaseSettings, Singleton):
-    SPLIGHT_ACCESS_ID: str
-    SPLIGHT_SECRET_KEY: str
+    SPLIGHT_ACCESS_ID: str = ""
+    SPLIGHT_SECRET_KEY: str = ""
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     # Parameters for local environment
