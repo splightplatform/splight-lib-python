@@ -93,7 +93,7 @@ def test_scheduled_task() -> None:
     # Check 1 more execution in a period after start
     prev_count = len(executions)
     time.sleep(4.8)
-    # assert len(executions) == prev_count + 1
+    assert len(executions) == prev_count + 1
     assert executions[-1] == ("function_to_schedule", "arg1", 2)
 
     # Stop task
