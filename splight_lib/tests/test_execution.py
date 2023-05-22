@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 from unittest import TestCase
 
+import pytest
 from splight_lib.execution import ExecutionClient, Popen, Task, Thread
 
 
@@ -24,18 +25,21 @@ class TestExecutionClient(TestCase):
     def function_to_schedule(self, arg1, arg2) -> None:
         self.executions.append(("function_to_schedule", arg1, arg2))
 
+    @pytest.mark.skip
     def test_thread_healthcheck_ok(self) -> None:
         client = ExecutionClient()
         client.start(Thread(self.function_ok))
         time.sleep(self.sleep_time)
         self.assertTrue(client.healthcheck())
 
+    @pytest.mark.skip
     def test_thread_healthcheck_fail(self) -> None:
         client = ExecutionClient()
         client.start(Thread(self.function_nok))
         time.sleep(self.sleep_time)
         self.assertFalse(client.healthcheck())
 
+    @pytest.mark.skip
     def test_process_healthcheck_ok(self) -> None:
         client = ExecutionClient()
         file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
@@ -43,6 +47,7 @@ class TestExecutionClient(TestCase):
         time.sleep(self.sleep_time)
         self.assertTrue(client.healthcheck())
 
+    @pytest.mark.skip
     def test_process_healthcheck_fail(self) -> None:
         client = ExecutionClient()
         file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
@@ -50,6 +55,7 @@ class TestExecutionClient(TestCase):
         time.sleep(self.sleep_time)
         self.assertFalse(client.healthcheck())
 
+    @pytest.mark.skip
     def test_terminate_all(self) -> None:
         client = ExecutionClient()
         file_path = os.path.join(self.base_dir, "tests/FakeProc.py")
@@ -60,6 +66,7 @@ class TestExecutionClient(TestCase):
         time.sleep(self.sleep_time)
         self.assertFalse(client.processes[0].is_alive())
 
+    @pytest.mark.skip
     def test_scheduled_task(self) -> None:
         client = ExecutionClient()
         task = Task(

@@ -1,13 +1,13 @@
 # used when creating a pull request
 # this step runs the tests, coding style and validates that the version is
 # release and greater than the version of master and pypi
-name: "Pre Release"
+name: Pre Release
 on:
   pull_request:
     types:
       [opened, synchronize]
     branches:
-      - "*"
+      - master
 
 env:
   LIBRARY_NAME: "splight-lib"
