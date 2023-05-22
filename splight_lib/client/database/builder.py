@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from splight_abstract.database import AbstractDatabaseClient
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.database.local_client import LocalDatabaseClient
 from splight_lib.client.database.remote_client import RemoteDatabaseClient
 

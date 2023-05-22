@@ -4,11 +4,9 @@ from typing import Any, Dict, Generator, List, Optional, Union
 from furl import furl
 from httpx._status_codes import codes
 from retry import retry
-from typing_extensions import TypedDict
-
-from splight_abstract.database import AbstractDatabaseClient
-from splight_abstract.remote import AbstractRemoteClient
+from splight_lib.abstract.client import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.database.classmap import (
     CUSTOM_PATHS_MAP,
     MODEL_NAME_MAP,
@@ -22,6 +20,7 @@ from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
+from typing_extensions import TypedDict
 
 logger = get_splight_logger()
 
@@ -47,7 +46,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         *args,
         **kwargs,
     ):
-        super().__init__(namespace="default")
+        super().__init__()
         self._base_url = furl(base_url)
         token = SplightAuthToken(
             access_key=access_id,
@@ -102,7 +101,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
         api_path = self._get_api_path(resource_name)
-        url = self._base_url / api_path / id
+        url = self._base_url / api_path / f"{id}/"
         response = self._restclient.delete(url)
         response.raise_for_status()
 
