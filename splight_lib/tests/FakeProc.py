@@ -1,3 +1,4 @@
+# auxiliar script used to test on test_execution.py
 import sys
 
 action = sys.argv[1]

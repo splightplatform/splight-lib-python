@@ -14,8 +14,6 @@ from splight_lib.logging._internal import get_splight_logger
 from splight_lib.logging.component import get_component_logger
 from splight_lib.logging.logging import SplightLogger, standard_output_handler
 
-# TODO: complete review
-
 
 @pytest.fixture(scope="session")
 def logger():
@@ -39,7 +37,6 @@ def setup_caplog(caplog, logger):
 
 def _get_log_tags(caplog, msg):
     for record in caplog.records:
-        print(record)
         if msg in record.message:
             return record.tags
     return None
@@ -79,7 +76,7 @@ def test_log_message_and_tags_are_present(caplog, logger, fun):
     log = getattr(logger, fun)
     log(msg, tags=tags)
     assert msg in caplog.text
-    assert tags == caplog.records[-1].tags
+    assert tags == _get_log_tags(caplog, msg)
 
 
 def test_exception_log_message_tags_and_trace(caplog, logger):
