@@ -138,7 +138,9 @@ class SplightHubClient(AbstractHubClient):
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._all = _SplightHubGenericClient(base_path="all", headers=headers)
+        self._all = _SplightHubGenericClient(
+            base_path="all", headers=token.headers
+        )
         self._mine = _SplightHubGenericClient(
             base_path="mine", headers=token.header
         )
