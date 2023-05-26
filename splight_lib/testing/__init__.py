@@ -4,8 +4,11 @@ from datetime import datetime
 import pytest
 from pytest_mock import MockerFixture
 
+from splight_lib.settings import settings
 from splight_lib.component.spec import Spec
 from splight_lib.models import Asset, Attribute, Component, File
+
+settings.configure(LOCAL_ENVIRONMENT=True)
 
 FAKE_NATIVE_TYPES = {
     "int": 1,
@@ -47,7 +50,6 @@ def get_test_input(spec: Spec):
 
 @pytest.fixture
 def mock_component(mocker: MockerFixture):
-    os.environ["LOCAL_ENVIRONMENT"] = "True"
     mocker.patch(
         (
             "splight_lib.component.abstract.SplightBaseComponent."
@@ -56,7 +58,6 @@ def mock_component(mocker: MockerFixture):
         return_value=None,
     )
 
-    # TODO: This patch is not working as expected
     mocker.patch(
         "splight_lib.execution.ExecutionClient.start", return_value=None
     )
