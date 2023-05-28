@@ -1,16 +1,24 @@
 import os
 from datetime import datetime
+from typing import Any, Dict, List
 
 import pytest
 from pytest_mock import MockerFixture
 
-from splight_lib.settings import settings
 from splight_lib.component.spec import Spec
-from splight_lib.models import Asset, Attribute, Component, File
+from splight_lib.models import (
+    Asset,
+    Attribute,
+    Component,
+    ComponentObjectInstance,
+    File,
+)
+from splight_lib.models.component import CustomType, Parameter
+from splight_lib.settings import settings
 
 settings.configure(LOCAL_ENVIRONMENT=True)
 
-FAKE_NATIVE_TYPES = {
+FAKE_NATIVE_VALUES = {
     "int": 1,
     "bool": True,
     "str": "fake",
@@ -19,7 +27,7 @@ FAKE_NATIVE_TYPES = {
     "url": "www.google.com",
 }
 
-FAKE_DATABASE_TYPES = {
+FAKE_DATABASE_VALUES = {
     "Component": Component(name="ComponentTest", version="1.0.0"),
     "Asset": Asset(name="AssetTest"),
     "Attribute": Attribute(name="AttrTest"),
@@ -27,19 +35,40 @@ FAKE_DATABASE_TYPES = {
 }
 
 
+# There is a recursion here that may generate problems in the future.
+def get_test_value(type_: str, custom_types: Dict[str, CustomType]) -> Any:
+    if type_ in FAKE_NATIVE_VALUES:
+        value = FAKE_NATIVE_VALUES.get(type_)
+    elif type_ in FAKE_DATABASE_VALUES:
+        value = FAKE_DATABASE_VALUES.get(type_)
+    else:
+        custom_type_def = custom_types[type_]
+        model_class = ComponentObjectInstance.from_custom_type(custom_type_def)
+        aux_value = component_object_attributes(
+            custom_type_def.fields, custom_types
+        )
+        value = model_class.parse_obj(aux_value)
+    return value
+
+
+def component_object_attributes(
+    parameters: List[Parameter], custom_types: Dict[str, CustomType]
+) -> Dict[str, Any]:
+    values_dict = {
+        param.name: get_test_value(param.type, custom_types)
+        for param in parameters
+    }
+    return values_dict
+
+
 def get_test_input(spec: Spec):
     input_model_class = spec.get_input_model()
+    custom_types = {ct.name: ct for ct in spec.custom_types}
     input_fake_values = {}
     for param in spec.input:
         param_name = param.name
         type_ = param.type
-
-        if type_ in FAKE_NATIVE_TYPES:
-            value = FAKE_NATIVE_TYPES.get(type_)
-        elif type_ in FAKE_DATABASE_TYPES:
-            value = FAKE_DATABASE_TYPES.get(type_)
-            value.save()
-        # TODO: Add ComponentObject in input
+        value = get_test_value(type_, custom_types)
 
         if param.multiple:
             value = [value]
