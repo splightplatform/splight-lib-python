@@ -136,26 +136,11 @@ class SplightHubClient(ABC):
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._scopes = {
-            'all': _SplightHubGenericClient(
-                base_path="all", headers=token.header
-            ),
-            'mine': _SplightHubGenericClient(
-                base_path="mine", headers=token.header
-            ),
-            'public': _SplightHubGenericClient(
-                base_path="public", headers=token.header
-            ),
-            'private': _SplightHubGenericClient(
-                base_path="private", headers=token.header
-            ),
-            'setup': _SplightHubGenericClient(
-                base_path="setup", headers=token.header
-            ),
-        }
+        self._client = _SplightHubGenericClient(
+            base_path=scope, headers=token.header
+        )
         self._host = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         self._headers = token.header
-        self._scope = scope
         self._resource_type = resource_type
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
@@ -175,16 +160,13 @@ class SplightHubClient(ABC):
         return response.content, status_code
 
     def list(self, **params):
-        client = self._scopes.get(self._scope)
-        instances = client.get(self._resource_type, **params)
+        instances = self._client.get(self._resource_type, **params)
         instances = [self._resource_type.parse_obj(item) for item in instances]
         return instances
 
     def retrieve(self, id: str):
-        client = self._scopes.get(self._scope)
-        instance = client.get(self._resource_type, id)
+        instance = self._client.get(self._resource_type, id)
         return self._resource_type.parse_obj(instance) if instance else None
 
     def delete(self, id: str):
-        client = self._scopes.get(self._scope)
-        client.delete(self._resource_type, id)
+        self._client.delete(self._resource_type, id)
