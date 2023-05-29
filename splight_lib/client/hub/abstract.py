@@ -9,7 +9,7 @@ from splight_lib.abstract.client import AbstractClient, QuerySet
 def validate_client_resource_type(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, resource_type: Type, *args, **kwargs):
-        if resource_type not in self.valid_classes:
+        if resource_type.__name__ not in self.valid_classes:
             raise NotImplementedError(
                 f"Not a valid resource_type: {resource_type.__name__}"
             )

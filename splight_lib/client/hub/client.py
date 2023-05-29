@@ -9,19 +9,19 @@ from splight_lib.client.hub.abstract import (
     AbstractHubSubClient,
     validate_client_resource_type,
 )
-from splight_lib.models.hub import HubComponent, HubComponentVersion
+from abc import ABC
 from splight_lib.settings import settings
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
     _PREFIX: str = "v2/hub"
     valid_classes = [
-        HubComponent,
-        HubComponentVersion,
+        'HubComponent',
+        'HubComponentVersion',
     ]
     _CLASS_MAP = {
-        HubComponent: "components",
-        HubComponentVersion: "component-versions",
+        'HubComponent': "components",
+        'HubComponentVersion': "component-versions",
     }
 
     def __init__(
@@ -40,7 +40,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         self._session.headers.update(headers)
 
     def _get_url(self, resource_type: str, id: Optional[str] = None) -> furl:
-        resource_type_prefix = self._CLASS_MAP.get(resource_type)
+        resource_type_prefix = self._CLASS_MAP.get(resource_type.__name__)
         url = self._base_url / f"{resource_type_prefix}/"
         if id:
             url = url / f"{id}/"
@@ -129,30 +129,34 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to rebuild component. {response.content}"
 
 
-class SplightHubClient(AbstractHubClient):
-    def __init__(self, *args, **kwargs) -> None:
+class SplightHubClient(ABC):
+    def __init__(self, scope: str, resource_type: Type, *args, **kwargs) -> None:
         super().__init__()
         token = SplightAuthToken(
             access_key=settings.SPLIGHT_ACCESS_ID,
             secret_key=settings.SPLIGHT_SECRET_KEY,
         )
-        self._all = _SplightHubGenericClient(
-            base_path="all", headers=token.header
-        )
-        self._mine = _SplightHubGenericClient(
-            base_path="mine", headers=token.header
-        )
-        self._public = _SplightHubGenericClient(
-            base_path="public", headers=token.header
-        )
-        self._private = _SplightHubGenericClient(
-            base_path="private", headers=token.header
-        )
-        self._setup = _SplightHubGenericClient(
-            base_path="setup", headers=token.header
-        )
+        self._scopes = {
+            'all': _SplightHubGenericClient(
+                base_path="all", headers=token.header
+            ),
+            'mine': _SplightHubGenericClient(
+                base_path="mine", headers=token.header
+            ),
+            'public': _SplightHubGenericClient(
+                base_path="public", headers=token.header
+            ),
+            'private': _SplightHubGenericClient(
+                base_path="private", headers=token.header
+            ),
+            'setup': _SplightHubGenericClient(
+                base_path="setup", headers=token.header
+            ),
+        }
         self._host = furl(settings.SPLIGHT_PLATFORM_API_HOST)
         self._headers = token.header
+        self._scope = scope
+        self._resource_type = resource_type
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
         url = self._host / "v2/hub/upload/"
@@ -170,22 +174,17 @@ class SplightHubClient(AbstractHubClient):
         assert status_code == 200, "Unable to download component"
         return response.content, status_code
 
-    @property
-    def all(self) -> AbstractHubSubClient:
-        return self._all
+    def list(self, **params):
+        client = self._scopes.get(self._scope)
+        instances = client.get(self._resource_type, **params)
+        instances = [self._resource_type.parse_obj(item) for item in instances]
+        return instances
 
-    @property
-    def mine(self) -> AbstractHubSubClient:
-        return self._mine
+    def retrieve(self, id: str):
+        client = self._scopes.get(self._scope)
+        instance = client.get(self._resource_type, id)
+        return self._resource_type.parse_obj(instance) if instance else None
 
-    @property
-    def public(self) -> AbstractHubSubClient:
-        return self._public
-
-    @property
-    def private(self) -> AbstractHubSubClient:
-        return self._private
-
-    @property
-    def setup(self) -> AbstractHubSubClient:
-        return self._setup
+    def delete(self, id: str):
+        client = self._scopes.get(self._scope)
+        client.delete(self._resource_type, id)
