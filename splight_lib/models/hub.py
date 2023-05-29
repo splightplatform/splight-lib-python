@@ -51,19 +51,43 @@ class HubComponent(BaseModel):
 
     @classproperty
     def all(cls) -> AbstractHubClient:
-        return SplightHubClient(scope='all', resource_type=cls)
+        return SplightHubClient(
+            scope='all',
+            resource_type=cls,
+            access_key=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        )
 
     @classproperty
     def public(cls) -> AbstractHubClient:
-        return SplightHubClient(scope='public', resource_type=cls)
+        return SplightHubClient(
+            scope='public',
+            resource_type=cls,
+            access_key=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        )
 
     @classproperty
     def private(cls) -> AbstractHubClient:
-        return SplightHubClient(scope='private', resource_type=cls)
+        return SplightHubClient(
+            scope='private',
+            resource_type=cls,
+            access_key=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        )
 
     @classproperty
     def setup(cls) -> AbstractHubClient:
-        return SplightHubClient(scope='setup', resource_type=cls)
+        return SplightHubClient(
+            scope='setup',
+            resource_type=cls,
+            access_key=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        )
 
 
 class HubComponentVersion(HubComponent):
