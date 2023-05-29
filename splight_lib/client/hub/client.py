@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple
 
 import requests
 from furl import furl
@@ -7,17 +7,11 @@ from splight_lib.auth import SplightAuthToken
 from splight_lib.client.hub.abstract import (
     AbstractHubClient,
     AbstractHubSubClient,
-    validate_client_resource_type,
 )
-from abc import ABC
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
     _PREFIX: str = "v2/hub"
-    valid_classes = [
-        'HubComponent',
-        'HubComponentVersion',
-    ]
     _CLASS_MAP = {
         'HubComponent': "components",
         'HubComponentVersion': "component-versions",
@@ -40,7 +34,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         self._session.headers.update(headers)
 
     def _get_url(self, resource_type: str, id: Optional[str] = None) -> furl:
-        resource_type_prefix = self._CLASS_MAP.get(resource_type.__name__)
+        resource_type_prefix = self._CLASS_MAP.get(resource_type)
         url = self._base_url / f"{resource_type_prefix}/"
         if id:
             url = url / f"{id}/"
@@ -56,10 +50,9 @@ class _SplightHubGenericClient(AbstractHubSubClient):
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
 
-    @validate_client_resource_type
     def _get(
         self,
-        resource_type: Type,
+        resource_type: str,
         first: bool = False,
         limit_: int = -1,
         skip_: int = 0,
@@ -71,14 +64,14 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         assert (
             response.status_code == 200
         ), f"Failed to get components {response.content}"
-        queryset = [resource_type(**v) for v in response.json()["results"]]
+        queryset = response.json()["results"]
         if first:
             return queryset[0] if queryset else None
         return queryset
 
     def count(
         self,
-        resource_type: Type,
+        resource_type: str,
         first=False,
         limit_: int = -1,
         skip_: int = 0,
@@ -92,15 +85,14 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to get components {response.content}"
         return response.json()["count"]
 
-    def delete(self, resource_type: Type, id: str) -> None:
+    def delete(self, resource_type: str, id: str) -> None:
         url = self._get_url(resource_type, id)
         response = self._session.delete(url)
         assert (
             response.status_code == 204
         ), f"Failed to delete component {response.content}"
 
-    @validate_client_resource_type
-    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
+    def update(self, resource_type: str, id: str, data: Dict) -> BaseModel:
         url = self._get_url(resource_type, id)
         response = self._session.put(url, json=data)
         assert (
@@ -108,9 +100,8 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to update component. {response.content}"
         return resource_type(**response.json())
 
-    @validate_client_resource_type
     def partial_update(
-        self, resource_type: Type, id: str, data: Dict
+        self, resource_type: str, id: str, data: Dict
     ) -> BaseModel:
         url = self._get_url(resource_type, id)
         response = self._session.patch(url, json=data)
@@ -119,8 +110,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to update component. {response.content}"
         return resource_type.parse_obj(response.json())
 
-    @validate_client_resource_type
-    def rebuild(self, resource_type: Type, id: str) -> None:
+    def rebuild(self, resource_type: str, id: str) -> None:
         url = self._get_url(resource_type, id)
         url = url / "rebuild/"
         response = self._session.post(url, headers=self.headers)
@@ -129,25 +119,36 @@ class _SplightHubGenericClient(AbstractHubSubClient):
         ), f"Failed to rebuild component. {response.content}"
 
 
-class SplightHubClient(ABC):
-    def __init__(self,
-                 scope: str,
-                 resource_type: Type,
-                 access_key: str,
-                 secret_key: str,
-                 api_host: str,
-                 *args, **kwargs) -> None:
+class SplightHubClient(AbstractHubClient):
+    def __init__(
+        self,
+        access_key: str,
+        secret_key: str,
+        api_host: str,
+        *args, **kwargs
+    ) -> None:
         super().__init__()
         token = SplightAuthToken(
             access_key=access_key,
             secret_key=secret_key,
         )
-        self._client = _SplightHubGenericClient(
-            base_path=scope, headers=token.header, api_host=api_host
+        self._all = _SplightHubGenericClient(
+            base_path="all", headers=token.header, api_host=api_host
+        )
+        self._mine = _SplightHubGenericClient(
+            base_path="mine", headers=token.header, api_host=api_host
+        )
+        self._public = _SplightHubGenericClient(
+            base_path="public", headers=token.header, api_host=api_host
+        )
+        self._private = _SplightHubGenericClient(
+            base_path="private", headers=token.header, api_host=api_host
+        )
+        self._setup = _SplightHubGenericClient(
+            base_path="setup", headers=token.header, api_host=api_host
         )
         self._host = furl(api_host)
         self._headers = token.header
-        self._resource_type = resource_type
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
         url = self._host / "v2/hub/upload/"
@@ -165,14 +166,22 @@ class SplightHubClient(ABC):
         assert status_code == 200, "Unable to download component"
         return response.content, status_code
 
-    def list(self, **params):
-        instances = self._client.get(self._resource_type, **params)
-        instances = [self._resource_type.parse_obj(item) for item in instances]
-        return instances
+    @property
+    def all(self) -> AbstractHubSubClient:
+        return self._all
 
-    def retrieve(self, id: str):
-        instance = self._client.get(self._resource_type, id)
-        return self._resource_type.parse_obj(instance) if instance else None
+    @property
+    def mine(self) -> AbstractHubSubClient:
+        return self._mine
 
-    def delete(self, id: str):
-        self._client.delete(self._resource_type, id)
+    @property
+    def public(self) -> AbstractHubSubClient:
+        return self._public
+
+    @property
+    def private(self) -> AbstractHubSubClient:
+        return self._private
+
+    @property
+    def setup(self) -> AbstractHubSubClient:
+        return self._setup
