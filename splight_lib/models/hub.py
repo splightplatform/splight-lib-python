@@ -1,8 +1,16 @@
-from typing import List, Optional
+from typing import List, Optional, ClassVar
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, PrivateAttr, validator
+from splight_lib.client.hub.abstract import AbstractHubClient
+from splight_lib.client.hub.client import SplightHubClient
+
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
+
+
+class classproperty(property):
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
 
 
 class HubComponent(BaseModel):
@@ -29,6 +37,26 @@ class HubComponent(BaseModel):
         if v:
             assert v in VERIFICATION_CHOICES, "Verification value not allowed."
         return v
+
+    @classproperty
+    def mine(cls) -> AbstractHubClient:
+        return SplightHubClient(scope='mine', resource_type=cls)
+
+    @classproperty
+    def all(cls) -> AbstractHubClient:
+        return SplightHubClient(scope='all', resource_type=cls)
+
+    @classproperty
+    def public(cls) -> AbstractHubClient:
+        return SplightHubClient(scope='public', resource_type=cls)
+
+    @classproperty
+    def private(cls) -> AbstractHubClient:
+        return SplightHubClient(scope='private', resource_type=cls)
+
+    @classproperty
+    def setup(cls) -> AbstractHubClient:
+        return SplightHubClient(scope='setup', resource_type=cls)
 
 
 class HubComponentVersion(HubComponent):
