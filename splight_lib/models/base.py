@@ -8,8 +8,6 @@ from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.client.hub.abstract import AbstractHubClient
-from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.settings import settings
 
 
