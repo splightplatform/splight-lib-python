@@ -77,7 +77,7 @@ def get_test_input(spec: Spec):
     return input_model_class.parse_obj(input_fake_values)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_component(mocker: MockerFixture):
     mocker.patch(
         (
