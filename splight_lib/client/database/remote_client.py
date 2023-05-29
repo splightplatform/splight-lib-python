@@ -182,7 +182,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             response = self._list(path, **kwargs)
             yield response
             next_page = (
-                response["next"].split("page=")[1]
+                furl(response["next"]).query.params["page"]
                 if response["next"]
                 else None
             )
