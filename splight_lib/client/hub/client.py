@@ -10,7 +10,6 @@ from splight_lib.client.hub.abstract import (
     validate_client_resource_type,
 )
 from abc import ABC
-from splight_lib.settings import settings
 
 
 class _SplightHubGenericClient(AbstractHubSubClient):
@@ -27,13 +26,14 @@ class _SplightHubGenericClient(AbstractHubSubClient):
     def __init__(
         self,
         base_path: str,
+        api_host: str,
         headers: Optional[Dict[str, str]] = {},
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self._base_url = furl(
-            settings.SPLIGHT_PLATFORM_API_HOST,
+            api_host,
             path=f"{self._PREFIX}/{base_path}/",
         )
         self._session = requests.Session()
@@ -130,16 +130,22 @@ class _SplightHubGenericClient(AbstractHubSubClient):
 
 
 class SplightHubClient(ABC):
-    def __init__(self, scope: str, resource_type: Type, *args, **kwargs) -> None:
+    def __init__(self,
+                 scope: str,
+                 resource_type: Type,
+                 access_key: str,
+                 secret_key: str,
+                 api_host: str,
+                 *args, **kwargs) -> None:
         super().__init__()
         token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
+            access_key=access_key,
+            secret_key=secret_key,
         )
         self._client = _SplightHubGenericClient(
-            base_path=scope, headers=token.header
+            base_path=scope, headers=token.header, api_host=api_host
         )
-        self._host = furl(settings.SPLIGHT_PLATFORM_API_HOST)
+        self._host = furl(api_host)
         self._headers = token.header
         self._resource_type = resource_type
 
