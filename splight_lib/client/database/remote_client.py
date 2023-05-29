@@ -177,12 +177,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return f
 
     def _pages(self, path: str, **kwargs):
+        import ipdb
+        ipdb.set_trace()
         next_page = kwargs["page"]
         while next_page:
             response = self._list(path, **kwargs)
             yield response
             next_page = (
-                response["next"].split("page=")[1]
+                furl(response["next"]).query.params["page"]
                 if response["next"]
                 else None
             )
