@@ -35,7 +35,6 @@ FAKE_DATABASE_VALUES = {
 }
 
 
-# There is a recursion here that may generate problems in the future.
 def get_test_value(type_: str, custom_types: Dict[str, CustomType]) -> Any:
     if type_ in FAKE_NATIVE_VALUES:
         value = FAKE_NATIVE_VALUES.get(type_)
@@ -79,6 +78,7 @@ def get_test_input(spec: Spec):
 
 @pytest.fixture(autouse=True)
 def mock_component(mocker: MockerFixture):
+    # Patch method for checking duplicated component
     mocker.patch(
         (
             "splight_lib.component.abstract.SplightBaseComponent."
@@ -87,12 +87,14 @@ def mock_component(mocker: MockerFixture):
         return_value=None,
     )
 
+    # Patch HealthCheckProcessor
     mocker.patch(
         "splight_lib.execution.ExecutionClient.start", return_value=None
     )
 
     base_path = os.getcwd()
     spec = Spec.from_file(os.path.join(base_path, "spec.json"))
+    # Generate fake input for testing
     mocker.patch(
         "splight_lib.component.spec.Spec.component_input",
         return_value=get_test_input(spec),
