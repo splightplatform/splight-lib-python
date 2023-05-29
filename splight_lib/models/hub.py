@@ -3,6 +3,7 @@ from typing import List, Optional, ClassVar
 from pydantic import BaseModel, PrivateAttr, validator
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
+from splight_lib.settings import settings
 
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
@@ -40,7 +41,13 @@ class HubComponent(BaseModel):
 
     @classproperty
     def mine(cls) -> AbstractHubClient:
-        return SplightHubClient(scope='mine', resource_type=cls)
+        return SplightHubClient(
+            scope='mine',
+            resource_type=cls,
+            access_key=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+            api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        )
 
     @classproperty
     def all(cls) -> AbstractHubClient:
