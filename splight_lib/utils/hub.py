@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import pathspec
 import json
 
-SPLIGHT_IGNORE = ".splightignore"  # TODO: move this to settings
+SPLIGHT_IGNORE = ".splightignore"
 COMPRESSION_TYPE = "7z"
 SPEC_FILE = "spec.json"
 README_FILE_1 = "README.md"
