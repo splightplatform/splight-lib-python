@@ -584,7 +584,7 @@ class ParametersMixin:
         return ids
 
     def _fetch_objects(self, ids_to_fetch: Dict) -> Dict[str, BaseModel]:
-        res: Dict = {None: None}
+        res: Dict = {None: None, "": None}
         for type, ids_ in ids_to_fetch["database"].items():
             objs = self.database_client.get(DATABASE_TYPES[type], id__in=ids_)
             res.update({obj.id: obj for obj in objs})
