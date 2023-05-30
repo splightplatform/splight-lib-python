@@ -1,9 +1,18 @@
 import os
-from typing import Optional
+from typing import Any, Dict, Optional
 import pathspec
+import json
 
 SPLIGHT_IGNORE = ".splightignore"  # TODO: move this to settings
 COMPRESSION_TYPE = "7z"
+SPEC_FILE = "spec.json"
+README_FILE_1 = "README.md"
+README_FILE_2 = "README"
+
+
+def get_spec(path: str) -> Dict[str, Any]:
+    with open(os.path.join(path, SPEC_FILE)) as fid:
+        return json.load(fid)
 
 
 def get_ignore_pathspec(path: str) -> Optional[pathspec.PathSpec]:

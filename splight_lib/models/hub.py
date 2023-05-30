@@ -3,10 +3,18 @@ from typing import List, Optional, ClassVar
 from pydantic import BaseModel, PrivateAttr, validator
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
+from splight_lib.models.component import ComponentType
 from splight_lib.settings import settings
-from splight_lib.utils.hub import get_ignore_pathspec, COMPRESSION_TYPE
+from splight_lib.utils.hub import (
+    get_ignore_pathspec,
+    COMPRESSION_TYPE,
+    get_spec,
+    README_FILE_1,
+    README_FILE_2,
+)
 import os
 import py7zr
+import json
 
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
@@ -156,13 +164,20 @@ class HubComponent(BaseModel):
         return self._hub_client.mine.delete(self.id)
 
     def download(self):
-        data, _ = self._hub_client.download(data=self.dict())
-        return data
+        return self._hub_client.download(data=self.dict())
 
-    def upload(self, path: str):
-        file_name = f"{self.name}-{self.version}.{COMPRESSION_TYPE}"
+    @classmethod
+    def upload(cls, path: str):
+        hub_client = get_hub_client()
+        spec = get_spec(path)
+        name = spec["name"]
+        version = spec["version"]
+        file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
-        versioned_name = f"{self.name}-{self.version}"
+        versioned_name = f"{name}-{version}"
+        readme_path = os.path.join(path, README_FILE_1)
+        if not os.path.exists(readme_path):
+            readme_path = os.path.join(path, README_FILE_2)
         with py7zr.SevenZipFile(file_name, "w") as archive:
             for root, _, files in os.walk(path):
                 if ignore_pathspec and ignore_pathspec.match_file(root):
@@ -176,6 +191,30 @@ class HubComponent(BaseModel):
                     archive.write(
                         filepath, os.path.join(versioned_name, file)
                     )
+        data = {
+            "name": name,
+            "version": version,
+            "splight_cli_version": spec["splight_cli_version"],
+            "privacy_policy": spec.get("privacy_policy", "private"),
+            "tags": spec.get("tags", []),
+            "custom_types": json.dumps(spec.get("custom_types", [])),
+            "input": json.dumps(spec.get("input", [])),
+            "output": json.dumps(spec.get("output", [])),
+            "component_type": spec.get(
+                "component_type", ComponentType.CONNECTOR.value
+            ),
+            "commands": json.dumps(spec.get("commands", [])),
+            "bindings": json.dumps(spec.get("bindings", [])),
+            "endpoints": json.dumps(spec.get("endpoints", [])),
+        }
+        files = {
+            "file": open(file_name, "rb"),
+            "readme": open(readme_path, "rb"),
+        }
+        component = hub_client.upload(data=data, files=files)
+        if os.path.exists(file_name):
+            os.remove(file_name)
+        return cls.parse_obj(component)
 
 
 class HubComponentVersion(HubComponent):

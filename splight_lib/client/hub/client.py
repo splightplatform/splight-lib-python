@@ -157,7 +157,7 @@ class SplightHubClient(AbstractHubClient):
         )
         status_code = response.status_code
         assert status_code == 201, "Unable to upload component to HUB"
-        return response.json(), status_code
+        return response.json()
 
     def download(self, data: Dict) -> Tuple:
         url = self._host / "v2/hub/download/"
@@ -165,7 +165,7 @@ class SplightHubClient(AbstractHubClient):
         status_code = response.status_code
         print(response.status_code, response.content)
         assert status_code == 200, "Unable to download component"
-        return response.content, status_code
+        return response.content
 
     @property
     def all(self) -> AbstractHubSubClient:
