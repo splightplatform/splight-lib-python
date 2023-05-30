@@ -1,21 +1,28 @@
-from typing import List, Optional, ClassVar
+import json
+import os
+from typing import List, Optional
 
+import py7zr
 from pydantic import BaseModel, PrivateAttr, validator
+
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
-from splight_lib.models.component import ComponentType
+from splight_lib.models.component import (
+    Binding,
+    Command,
+    ComponentType,
+    Endpoint,
+    InputParameter,
+    Output,
+)
 from splight_lib.settings import settings
 from splight_lib.utils.hub import (
-    get_ignore_pathspec,
     COMPRESSION_TYPE,
-    get_spec,
     README_FILE_1,
     README_FILE_2,
+    get_ignore_pathspec,
+    get_spec,
 )
-import os
-import py7zr
-import json
-
 
 VERIFICATION_CHOICES = ["verified", "unverified", "official"]
 
@@ -48,6 +55,12 @@ class HubComponent(BaseModel):
     min_component_capacity: Optional[str]
     usage_count: int = 0
 
+    input: List[InputParameter] = []
+    output: List[Output] = []
+    commands: List[Command] = []
+    endpoints: List[Endpoint] = []
+    bindings: List[Binding] = []
+
     _hub_client: AbstractHubClient = PrivateAttr()
 
     def __init__(self, *args, **kwargs):
@@ -63,55 +76,38 @@ class HubComponent(BaseModel):
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.mine.get(
-            resource_type=cls.__name__,
-            **params
-        )
+        data = hub_client.mine.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.all.get(
-            resource_type=cls.__name__,
-            **params
-        )
+        data = hub_client.all.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.public.get(
-            resource_type=cls.__name__,
-            **params
-        )
+        data = hub_client.public.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.private.get(
-            resource_type=cls.__name__,
-            **params
-        )
+        data = hub_client.private.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_setup(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.setup.get(
-            resource_type=cls.__name__,
-            **params
-        )
+        data = hub_client.setup.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def retrieve_mine(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.mine.get(
-            resource_type=cls.__name__,
-            id=id,
-            first=True
+            resource_type=cls.__name__, id=id, first=True
         )
         return cls.parse_obj(data)
 
@@ -119,9 +115,7 @@ class HubComponent(BaseModel):
     def retrieve_all(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.all.get(
-            resource_type=cls.__name__,
-            id=id,
-            first=True
+            resource_type=cls.__name__, id=id, first=True
         )
         return cls.parse_obj(data)
 
@@ -129,9 +123,7 @@ class HubComponent(BaseModel):
     def retrieve_public(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.public.get(
-            resource_type=cls.__name__,
-            id=id,
-            first=True
+            resource_type=cls.__name__, id=id, first=True
         )
         return cls.parse_obj(data)
 
@@ -139,9 +131,7 @@ class HubComponent(BaseModel):
     def retrieve_private(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.private.get(
-            resource_type=cls.__name__,
-            id=id,
-            first=True
+            resource_type=cls.__name__, id=id, first=True
         )
         return cls.parse_obj(data)
 
@@ -149,9 +139,7 @@ class HubComponent(BaseModel):
     def retrieve_setup(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.setup.get(
-            resource_type=cls.__name__,
-            id=id,
-            first=True
+            resource_type=cls.__name__, id=id, first=True
         )
         return cls.parse_obj(data)
 
@@ -183,9 +171,7 @@ class HubComponent(BaseModel):
                     ):
                         continue
                     filepath = os.path.join(root, file)
-                    archive.write(
-                        filepath, os.path.join(versioned_name, file)
-                    )
+                    archive.write(filepath, os.path.join(versioned_name, file))
         data = {
             "name": name,
             "version": version,
