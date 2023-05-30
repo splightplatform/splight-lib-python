@@ -163,7 +163,6 @@ class SplightHubClient(AbstractHubClient):
         url = self._host / "v2/hub/download/"
         response = requests.post(url, data=data, headers=self._headers)
         status_code = response.status_code
-        print(response.status_code, response.content)
         assert status_code == 200, "Unable to download component"
         return response.content
 
