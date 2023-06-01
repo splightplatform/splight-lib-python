@@ -4,7 +4,6 @@ from typing import List, Optional
 
 import py7zr
 from pydantic import BaseModel, PrivateAttr, validator
-
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.models.component import (

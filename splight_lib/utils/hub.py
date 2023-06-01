@@ -1,7 +1,8 @@
+import json
 import os
 from typing import Any, Dict, Optional
+
 import pathspec
-import json
 
 SPLIGHT_IGNORE = ".splightignore"
 COMPRESSION_TYPE = "7z"
@@ -17,11 +18,7 @@ def get_spec(path: str) -> Dict[str, Any]:
 
 def get_ignore_pathspec(path: str) -> Optional[pathspec.PathSpec]:
     try:
-        with open(
-            os.path.join(path, SPLIGHT_IGNORE), "r"
-        ) as splightignore:
-            return pathspec.PathSpec.from_lines(
-                "gitwildmatch", splightignore
-            )
+        with open(os.path.join(path, SPLIGHT_IGNORE), "r") as splightignore:
+            return pathspec.PathSpec.from_lines("gitwildmatch", splightignore)
     except FileNotFoundError:
         return None
