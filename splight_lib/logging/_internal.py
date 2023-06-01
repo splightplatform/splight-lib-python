@@ -4,13 +4,15 @@ from logging import INFO, Formatter, Handler
 from typing import Optional
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+from splight_lib.logging.constants import LOGGING_DEV
 from splight_lib.logging.logging import (
+    ElasticDocumentFormatter,
     SplightFormatter,
     SplightLogger,
+    elastic_document_handler,
     standard_output_handler,
 )
 from strenum import UppercaseStrEnum
-
 
 
 # TODO: add more tags
@@ -55,7 +57,11 @@ def get_splight_logger(name: Optional[str] = None):
     logger.propagate = False
     handler = standard_output_handler(log_level=logger.level)
     logger.addHandler(handler)
-
+    handler = elastic_document_handler(
+        formatter=ElasticDocumentFormatter(type=LOGGING_DEV),
+        log_level=logger.level,
+    )
+    logger.addHandler(handler)
     # Add logger.level to root logger
     logger.setLevel(logger.level)
     return logger
