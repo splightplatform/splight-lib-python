@@ -56,6 +56,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModel thrown when the model name is not correct.
         """
+
         logger.debug("Saving instance %s.", instance.id, tags=LogTags.DATABASE)
 
         constructor = type(instance)
@@ -205,6 +206,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def _create(self, path: str, instance: BaseModel) -> Dict:
         url = self._base_url / f"{path}/"
         data = json.loads(instance.json(exclude_none=True))
+
         if isinstance(instance, File):
             with open(instance.file, "rb") as f:
                 file = {"file": f}

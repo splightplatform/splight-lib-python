@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import time
@@ -14,7 +15,10 @@ from logging import (
     StreamHandler,
 )
 from logging import root as rootLogger
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional
+
+from concurrent_log_handler import ConcurrentRotatingFileHandler
+from splight_lib.logging.constants import LOGGING_DEV, LogType
 
 TAGS_KEY = "tags"
 
@@ -34,6 +38,21 @@ class SplightFormatter(Formatter):
         formatter = Formatter(fmt=fmt)
         formatter.converter = time.gmtime
         return formatter.format(record)
+
+
+class ElasticDocumentFormatter(Formatter):
+    def __init__(self, fmt: str = None, type: LogType = LOGGING_DEV) -> None:
+        super().__init__(fmt=fmt)
+        self.type = type
+
+    @property
+    def _extra_fields(self) -> Dict:
+        return {
+            "type": self.type,
+        }
+
+    def format(self, record):
+        return json.dumps({**record.__dict__, **self._extra_fields})
 
 
 class SplightLogger(Logger):
@@ -142,6 +161,25 @@ def standard_output_handler(
     log_level: Optional[str] = INFO,
 ) -> Handler:
     handler = StreamHandler(sys.stdout)
+    handler.setFormatter(formatter)
+    handler.setLevel(log_level)
+    return handler
+
+
+def elastic_document_handler(
+    formatter: Optional[Formatter] = SplightFormatter(),
+    log_level: Optional[str] = INFO,
+) -> Handler:
+    filename = "/tmp/splight_elastic_docs.log"
+    max_bytes = 5e6
+    backup_count = 5
+    handler = ConcurrentRotatingFileHandler(
+        filename,
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+        encoding="utf-8",
+    )
+
     handler.setFormatter(formatter)
     handler.setLevel(log_level)
     return handler
