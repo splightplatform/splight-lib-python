@@ -39,12 +39,11 @@ def get_component_logger(name: Optional[str] = None):
     logger.addHandler(stdout_handler)
     file_handler = component_file_handler(log_level=logger.level)
     logger.addHandler(file_handler)
-    logger.addHandler(
-        elastic_document_handler(
-            formatter=ElasticDocumentFormatter(type=LOGGING_COMPONENTS),
-            log_level=logger.level,
-        )
+    es_handler = elastic_document_handler(
+        formatter=ElasticDocumentFormatter(type=LOGGING_COMPONENTS),
+        log_level=logger.level,
     )
+    logger.addHandler(es_handler)
 
     # Add logger.level to root logger
     logger.setLevel(logger.level)
