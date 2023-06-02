@@ -36,7 +36,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
     def _raw_get(
         self,
         resource_type: DLResource,
-        limit_: int = -1,
+        limit_: int = 1000,
         skip_: int = 0,
         sort: Union[List, str] = ["timestamp__desc"],
         group_id: Union[List, str] = [],
@@ -51,9 +51,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         handler = FixedLineNumberFileHandler(
             file_path=file_path, total_lines=self._TOTAL_DOCS
         )
-        documents = [
-            json.loads(doc) for doc in handler.read(skip=skip_, limit=limit_)
-        ]
+        documents = [json.loads(doc) for doc in handler.read()]
 
         filters = kwargs
         filters.update({"output_format": resource_type.__name__})
@@ -65,7 +63,10 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         documents.sort(key=lambda x: x["timestamp"], reverse=reverse)
 
         # TODO: review how to apply grouping
-        return [resource_type.parse_obj(doc) for doc in documents]
+        return [
+            resource_type.parse_obj(doc)
+            for doc in documents[skip_ : limit_ + 1]
+        ]
 
     def get(
         self,
@@ -84,20 +85,20 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-        kwargs["get_func"] = "_raw_get"
-        kwargs["count_func"] = "None"
-        kwargs["collection"] = resource_type.Meta.collection_name
-        kwargs["resource_type"] = resource_type
-        return QuerySet(
-            self,
-            limit_,
-            skip_,
-            sort,
-            group_id,
-            group_fields,
-            tzinfo,
-            **kwargs,
-        )
+        new_kwargs = {
+            "get_func": "_raw_get",
+            "count_func": "None",
+            "collection": resource_type.Meta.collection_name,
+            "resource_type": resource_type,
+            "limit_": limit_,
+            "skip_": skip_,
+            "sort": sort,
+            "group_id": group_id,
+            "group_fields": group_fields,
+            "tzinfo": tzinfo,
+        }
+        kwargs.update(new_kwargs)
+        return QuerySet(self, **kwargs)
 
     def get_output(self, query: Query) -> List[Dict]:
         raise NotImplementedError()
@@ -153,7 +154,20 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             resource_type,
             tags=LogTags.DATALAKE,
         )
-        raise NotImplementedError()
+        collection = resource_type.Meta.collection_name
+        file_path = os.path.join(
+            self._base_path, self._get_file_name(collection)
+        )
+        handler = FixedLineNumberFileHandler(
+            file_path=file_path, total_lines=self._TOTAL_DOCS
+        )
+        documents = [json.loads(doc) for doc in handler.read()]
+        id = kwargs.get("instance_id")
+        if id:
+            documents = [d for d in documents if d["instance_id"] != id]
+        # jsonify python dicts
+        documents = [json.loads(json.dumps(d)) for d in documents]
+        handler.write(documents, override=True)
 
     def create_index(self, collection: str, index: list) -> None:
         logger.debug(
