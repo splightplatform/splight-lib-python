@@ -18,6 +18,7 @@ from logging import root as rootLogger
 from typing import Dict, Literal, Optional
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+from pydantic import BaseSettings
 from splight_lib.logging.constants import LOGGING_DEV, LogType
 
 TAGS_KEY = "tags"
@@ -166,19 +167,27 @@ def standard_output_handler(
     return handler
 
 
+class ElasticDocumentHandlerSettings(BaseSettings):
+    splight_elastic_logs_filename: str = "/tmp/splight_elastic_logs.log"
+    splight_elastic_logs_max_bytes: int = 5e6
+    splight_elastic_logs_backup_count: int = 5
+
+    @property
+    def file_handler_settings(self) -> Dict:
+        return {
+            "filename": self.splight_elastic_logs_filename,
+            "maxBytes": self.splight_elastic_logs_max_bytes,
+            "backupCount": self.splight_elastic_logs_backup_count,
+            "encoding": "utf-8",
+        }
+
+
 def elastic_document_handler(
     formatter: Optional[Formatter] = SplightFormatter(),
     log_level: Optional[str] = INFO,
 ) -> Handler:
-    filename = "/tmp/splight_elastic_docs.log"
-    max_bytes = 5e6
-    backup_count = 5
-    handler = ConcurrentRotatingFileHandler(
-        filename,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8",
-    )
+    settings = ElasticDocumentHandlerSettings()
+    handler = ConcurrentRotatingFileHandler(**settings.file_handler_settings)
 
     handler.setFormatter(formatter)
     handler.setLevel(log_level)
