@@ -55,13 +55,13 @@ def get_splight_logger(name: Optional[str] = None):
         name = "splight-dev"
     logger = SplightLogger(name=name)
     logger.propagate = False
-    handler = standard_output_handler(log_level=logger.level)
-    logger.addHandler(handler)
-    handler = elastic_document_handler(
+    stdout_handler = standard_output_handler(log_level=logger.level)
+    logger.addHandler(stdout_handler)
+    es_handler = elastic_document_handler(
         formatter=ElasticDocumentFormatter(type=LOGGING_DEV),
         log_level=logger.level,
     )
-    logger.addHandler(handler)
+    logger.addHandler(es_handler)
     # Add logger.level to root logger
     logger.setLevel(logger.level)
     return logger
