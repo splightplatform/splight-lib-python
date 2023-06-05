@@ -1,8 +1,10 @@
 import os
 import time
+import warnings
 from pathlib import Path
 from unittest import TestCase
 
+import pytest
 from splight_lib.execution import ExecutionClient, Popen, Task, Thread
 
 
@@ -32,6 +34,9 @@ class TestExecutionClient(TestCase):
 
     def test_thread_healthcheck_fail(self) -> None:
         client = ExecutionClient()
+        warnings.simplefilter(
+            "ignore", category=pytest.PytestUnhandledThreadExceptionWarning
+        )
         client.start(Thread(self.function_nok))
         time.sleep(self.sleep_time)
         self.assertFalse(client.healthcheck())
