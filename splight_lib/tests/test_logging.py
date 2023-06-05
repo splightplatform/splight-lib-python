@@ -56,7 +56,7 @@ def test_default_log_level_INFO(logger):
 def test_filename_in_formatter(caplog, logger, fun):
     log = getattr(logger, fun)
     log("Testing filename")
-    assert "test_logging.py" in caplog.text
+    assert "test:logging.py" in caplog.text
 
 
 def test_exception_filename_in_formatter(caplog, logger):
@@ -65,7 +65,7 @@ def test_exception_filename_in_formatter(caplog, logger):
         raise Exception(msg)
     except Exception as e:
         logger.exception(e)
-    assert "test_logging.py" in caplog.text
+    assert "test:logging.py" in caplog.text
 
 
 @pytest.mark.parametrize(
