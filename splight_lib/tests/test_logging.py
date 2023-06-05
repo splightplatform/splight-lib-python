@@ -65,7 +65,6 @@ def test_exception_filename_in_formatter(caplog, logger):
         raise Exception(msg)
     except Exception as e:
         logger.exception(e)
-    print(caplog.text)
     assert "test:test_logging.py" in caplog.text
 
 
