@@ -30,13 +30,19 @@ class EncryptionClient:
 
     def encrypt(self, value: str):
         if not self.key:
-            logger.warning("Returning non-encrypted value since encryption key was not found in the environment")
+            logger.warning(
+                "Returning non-encrypted value since encryption key was not found in the environment",
+                tags=LogTags.SECRET,
+            )
             return value
         return self.fernet.encrypt(value.encode()).decode()
 
     def decrypt(self, value: str):
         if not self.key:
-            logger.warning("Returning encrypted value since encryption key was not found in the environment")
+            logger.warning(
+                "Returning encrypted value since encryption key was not found in the environment",
+                tags=LogTags.SECRET,
+            )
             return value
         return self.fernet.decrypt(value.encode()).decode()
 
