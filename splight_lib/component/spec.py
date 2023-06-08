@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, create_model, validator
+
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
@@ -74,7 +75,9 @@ def check_parameter_dependency(parameters: List[InputParameter]):
 class Spec(BaseModel):
     name: str = Field(regex=r"^[a-zA-Z0-9\s]+$")
     version: str = Field(regex=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
-    splight_cli_version: str = Field(regex=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
+    splight_cli_version: str = Field(
+        regex=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
+    )
     description: Optional[str]
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
     tags: Set[str] = set()
