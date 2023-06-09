@@ -15,7 +15,7 @@ secret_key = os.environ["SPLIGHT_SECRET_KEY"]
 
 @patch("splight_lib.client.database.remote_client.SplightAuthToken")
 @patch("splight_lib.client.database.remote_client.SplightRestClient")
-def test_initialization(mock_auth_token, mock_rest_client):
+def test_initialization(mock_rest_client, mock_auth_token):
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
