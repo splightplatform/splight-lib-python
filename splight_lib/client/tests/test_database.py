@@ -1,69 +1,116 @@
-from unittest import TestCase
-from unittest.mock import MagicMock, patch
+import os
+from unittest.mock import patch
 
+import pytest
 from splight_lib.client.database.remote_client import RemoteDatabaseClient
 from splight_lib.client.exceptions import InvalidModelName
 
+os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
+os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
 
-class TestRemoteDatabaseClient(TestCase):
-    def setUp(self):
-        self.patcher1 = patch(
-            "splight_lib.client.database.remote_client.SplightAuthToken"
-        )
-        self.patcher2 = patch(
-            "splight_lib.client.database.remote_client.SplightRestClient"
-        )
+base_url = "http://test.com"
+access_id = os.environ["SPLIGHT_ACCESS_ID"]
+secret_key = os.environ["SPLIGHT_SECRET_KEY"]
 
-        self.mock_auth_token = self.patcher1.start()
-        self.mock_rest_client = self.patcher2.start()
 
-        self.client = RemoteDatabaseClient(
-            base_url="http://test.com",
-            access_id="test_id",
-            secret_key="test_secret",
-        )
+@patch("splight_lib.client.database.remote_client.SplightAuthToken")
+@patch("splight_lib.client.database.remote_client.SplightRestClient")
+def test_initialization(mock_auth_token, mock_rest_client):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
 
-    def tearDown(self):
-        self.patcher1.stop()
-        self.patcher2.stop()
+    mock_auth_token.assert_called_once_with(
+        access_key=access_id, secret_key=secret_key
+    )
+    assert client._base_url.url == base_url
+    mock_rest_client().update_headers.assert_called_once()
 
-    def test_initialization(self):
-        self.mock_auth_token.assert_called_once_with(
-            access_key="test_id", secret_key="test_secret"
-        )
-        assert self.client._base_url.url == "http://test.com"
-        self.mock_rest_client().update_headers.assert_called_once()
 
-    def test_save_without_id(self):
-        mock_instance = {"name": "instance_name"}
-        self.client._create = MagicMock()
-        self.client.save("alert", mock_instance)
-        self.client._create.assert_called_once_with("alert", mock_instance)
+@patch(
+    "splight_lib.client.database.remote_client.RemoteDatabaseClient._create"
+)
+def test_save_without_id(mock_create):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
 
-    def test_save_with_id(self):
-        mock_instance = {"id": "instance_id", "name": "instance_name"}
-        self.client.save("alert", mock_instance)
+    mock_instance = {"name": "instance_name"}
+    client.save("alert", mock_instance)
+    mock_create.assert_called_once_with("alert", mock_instance)
 
-    def test_delete(self):
-        self.client.delete("alert", "instance_id")
-        self.mock_rest_client().delete.assert_called_once()
 
-    def test_delete_invalid_model_name(self):
-        with self.assertRaises(InvalidModelName):
-            self.client.delete("invalid_resource_name", "instance_id")
+@patch(
+    "splight_lib.client.database.remote_client.RemoteDatabaseClient._update"
+)
+def test_save_with_id(mock_update):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
 
-    @patch.object(RemoteDatabaseClient, "_retrieve_single")
-    def test_get_with_id(self, mock_retrieve):
-        mock_instance_id = "123"
-        self.client._get("alert", id=mock_instance_id)
-        mock_retrieve.assert_called_once_with("alert", id=mock_instance_id)
+    mock_instance = {"id": "instance_id", "name": "instance_name"}
+    client.save("alert", mock_instance)
+    mock_update.assert_called_once_with("alert", "instance_id", mock_instance)
 
-    @patch.object(RemoteDatabaseClient, "_retrieve_multiple")
-    def test_get_without_id(self, mock_retrieve):
-        self.client._get("alert")
-        mock_retrieve.assert_called_once_with("alert", first=False)
 
-    @patch.object(RemoteDatabaseClient, "_retrieve_multiple")
-    def test_get_without_id_and_set_first(self, mock_retrieve):
-        self.client._get("alert", first=True)
-        mock_retrieve.assert_called_once_with("alert", first=True)
+@patch("splight_lib.client.database.remote_client.RemoteDatabaseClient.delete")
+def test_delete(mock_delete):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+    client.delete("alert", "instance_id")
+    mock_delete.assert_called_once()
+
+
+def test_delete_invalid_model_name():
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+
+    with pytest.raises(InvalidModelName):
+        client.delete("invalid_resource_name", "instance_id")
+
+
+@patch.object(RemoteDatabaseClient, "_retrieve_single")
+def test_get_with_id(mock_retrieve):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+
+    mock_instance_id = "123"
+    client._get("alert", id=mock_instance_id)
+    mock_retrieve.assert_called_once_with("alert", id=mock_instance_id)
+
+
+@patch.object(RemoteDatabaseClient, "_retrieve_multiple")
+def test_get_without_id(mock_retrieve):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+    client._get("alert")
+    mock_retrieve.assert_called_once_with("alert", first=False)
+
+
+@patch.object(RemoteDatabaseClient, "_retrieve_multiple")
+def test_get_without_id_and_set_first(mock_retrieve):
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+    client._get("alert", first=True)
+    mock_retrieve.assert_called_once_with("alert", first=True)
