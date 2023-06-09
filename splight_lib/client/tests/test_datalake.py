@@ -34,12 +34,9 @@ def test_save(mock_rest_client):
         access_id=access_id,
         secret_key=secret_key,
     )
-
     collection = "collection_name"
     instances = [{"key": "value"}]
-
     result = client.save(collection=collection, instances=instances)
-
     mock_rest_client.return_value.post.assert_called_once()
     assert result == instances
 
@@ -54,10 +51,8 @@ def test_raw_get(mock_rest_client):
         None
     )
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
-
     collection = "collection_name"
     result = client._raw_get("resource", collection)
-
     mock_rest_client.return_value.get.assert_called_once()
     assert result == response_data["results"]
 
