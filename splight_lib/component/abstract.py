@@ -448,11 +448,6 @@ class BindingsMixin:
 
 class ParametersMixin:
     def unparse_parameters(self, instance: Dict) -> List[Dict]:
-        logger.debug(
-            "Unparsing parameters for an instance of %s",
-            type(instance).__name__,
-            tags=LogTags.PARAMETER,
-        )
         custom_type = getattr(self.custom_types, type(instance).__name__, None)
         if custom_type is None:
             raise NotImplementedError
@@ -491,13 +486,6 @@ class ParametersMixin:
         return {"data": fields, **reserved_parameters}
 
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
-        logger.debug(
-            "Parsing parameters %s",
-            [p.dict() for p in parameters]
-            if isinstance(parameters[0], InputParameter)
-            else parameters,
-            tags=LogTags.PARAMETER,
-        )
         parameters = self._fetch_and_reload_component_objects_parameters(
             parameters
         )
