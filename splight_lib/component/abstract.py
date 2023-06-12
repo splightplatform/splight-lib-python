@@ -493,7 +493,9 @@ class ParametersMixin:
     def parse_parameters(self, parameters: List[Dict]) -> Dict:
         logger.debug(
             "Parsing parameters %s",
-            [p.dict for p in parameters] if isinstance(parameters[0], InputParameter) else parameters,
+            [p.dict for p in parameters]
+            if isinstance(parameters[0], InputParameter)
+            else parameters,
             tags=LogTags.PARAMETER,
         )
         parameters = self._fetch_and_reload_component_objects_parameters(
