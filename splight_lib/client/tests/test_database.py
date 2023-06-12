@@ -5,12 +5,9 @@ import pytest
 from splight_lib.client.database.remote_client import RemoteDatabaseClient
 from splight_lib.client.exceptions import InvalidModelName
 
-os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
-os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
-
 base_url = "http://test.com"
-access_id = os.environ["SPLIGHT_ACCESS_ID"]
-secret_key = os.environ["SPLIGHT_SECRET_KEY"]
+access_id = "access_id"
+secret_key = "secret_key"
 
 
 @patch("splight_lib.client.database.remote_client.SplightAuthToken")
