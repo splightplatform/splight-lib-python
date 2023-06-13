@@ -511,8 +511,12 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
-            if type == "str" and not multiple:
-                parameter["value"] = self.parse_variable_string(value)
+            if type == "str":
+                parameter["value"] = (
+                    [self.parse_variable_string(v) for v in value]
+                    if multiple
+                    else self.parse_variable_string(value)
+                )
             if type in NATIVE_TYPES or type in DATABASE_TYPES:
                 parameter["value"] = value
             else:
@@ -596,8 +600,12 @@ class ParametersMixin:
             type = parameter["type"]
             value = parameter["value"]
             multiple = parameter["multiple"]
-            if type == "str" and not multiple:
-                parameter["value"] = self.parse_variable_string(value)
+            if type == "str":
+                parameter["value"] = (
+                    [self.parse_variable_string(v) for v in value]
+                    if multiple
+                    else self.parse_variable_string(value)
+                )
             elif type in NATIVE_TYPES or value is None:
                 parameter["value"] = value
             elif type in DATABASE_TYPES:
