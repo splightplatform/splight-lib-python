@@ -156,5 +156,5 @@ def test_get_without_id_and_set_first(mock_get):
     )
     result = client._get("alert", first=True)
 
-    assert result["id"] == "instance_id"
-    assert result["name"] == "instance_name"
+    assert result[0]["id"] == "instance_id"
+    assert result[0]["name"] == "instance_name"
