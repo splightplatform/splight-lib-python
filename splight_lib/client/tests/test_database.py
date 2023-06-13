@@ -105,36 +105,56 @@ def test_delete_invalid_model_name():
         client.delete("invalid_resource_name", "instance_id")
 
 
-@patch.object(RemoteDatabaseClient, "_retrieve_single")
-def test_get_with_id(mock_retrieve):
-    client = RemoteDatabaseClient(
-        base_url=base_url,
-        access_id=access_id,
-        secret_key=secret_key,
-    )
-
+@patch.object(SplightRestClient, "get")
+def test_get_with_id(mock_get):
     mock_instance_id = "123"
-    client._get("alert", id=mock_instance_id)
-    mock_retrieve.assert_called_once_with("alert", id=mock_instance_id)
-
-
-@patch.object(RemoteDatabaseClient, "_retrieve_multiple")
-def test_get_without_id(mock_retrieve):
+    mock_get.return_value = MockResponse(
+        {"name": "instance_name", "id": mock_instance_id}
+    )
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
     )
-    client._get("alert")
-    mock_retrieve.assert_called_once_with("alert", first=False)
+
+    result = client._get("alert", id=mock_instance_id)
+    mock_get.assert_called_once()
+    assert result["id"] == mock_instance_id
 
 
-@patch.object(RemoteDatabaseClient, "_retrieve_multiple")
-def test_get_without_id_and_set_first(mock_retrieve):
+@patch.object(SplightRestClient, "get")
+def test_get_without_id(mock_get):
+    mock_get.return_value = MockResponse(
+        {
+            "results": [{"name": "instance_name", "id": "instance_id"}],
+            "next": None,
+        }
+    )
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
     )
-    client._get("alert", first=True)
-    mock_retrieve.assert_called_once_with("alert", first=True)
+    result = client._get("alert")
+
+    assert result[0]["id"] == "instance_id"
+    assert result[0]["name"] == "instance_name"
+
+
+@patch.object(SplightRestClient, "get")
+def test_get_without_id_and_set_first(mock_get):
+    mock_get.return_value = MockResponse(
+        {
+            "results": [{"name": "instance_name", "id": "instance_id"}],
+            "next": None,
+        }
+    )
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+    result = client._get("alert", first=True)
+
+    assert result["id"] == "instance_id"
+    assert result["name"] == "instance_name"
