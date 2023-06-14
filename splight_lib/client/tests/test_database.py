@@ -1,7 +1,7 @@
-import os
-from unittest.mock import patch
+from unittest.mock import patch  # noqa E402
 
-import pytest
+import pytest  # noqa E402
+from furl import furl  # noqa E402
 from splight_lib.client.database.remote_client import (  # noqa E402
     RemoteDatabaseClient,
     SplightRestClient,
@@ -42,11 +42,12 @@ def test_initialization(mock_rest_client, mock_auth_token):
     mock_rest_client().update_headers.assert_called_once()
 
 
-@patch.object(SplightRestClient, "post")
+@patch.object(
+    SplightRestClient,
+    "post",
+    return_value=MockResponse({"name": "instance_name", "id": "some_id"}),
+)
 def test_save_without_id(mock_post):
-    mock_response = MockResponse({"name": "instance_name", "id": "some_id"})
-    mock_post.return_value = mock_response
-
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
@@ -62,14 +63,12 @@ def test_save_without_id(mock_post):
     assert result["name"] == mock_instance["name"]
 
 
-@patch.object(RemoteDatabaseClient, "_update")
-@patch.object(SplightRestClient, "post")
-def test_save_with_id(mock_post, mock_update):
-    mock_post.return_value = MockResponse(
-        {"name": "instance_1", "id": "instance_id"}
-    )
-    mock_update.return_value = {"name": "instance_name", "id": "instance_id"}
-
+@patch.object(
+    SplightRestClient,
+    "put",
+    return_value=MockResponse({"name": "instance_name", "id": "instance_id"}),
+)
+def test_save_with_id(mock_put):
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
@@ -79,7 +78,10 @@ def test_save_with_id(mock_post, mock_update):
     mock_instance = {"id": "instance_id", "name": "instance_name"}
     result = client.save("alert", mock_instance)
 
-    mock_update.assert_called_once_with("alert", "instance_id", mock_instance)
+    mock_put.assert_called_once_with(
+        furl(f"{base_url}/v2/engine/alert/alerts/instance_id/"),
+        json=mock_instance,
+    )
     assert result == mock_instance
 
 
