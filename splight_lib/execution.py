@@ -317,7 +317,7 @@ class ExecutionClient(AbstractClient):
             return self._stop_task(job)
 
     def _start_process(self, job: Popen) -> None:
-        logger.debug("Starting process %s", tags=LogTags.RUNTIME)
+        logger.debug("Starting process", tags=LogTags.RUNTIME)
         self.processes.append(job)
         return
 
