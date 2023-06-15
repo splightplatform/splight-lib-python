@@ -105,7 +105,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._restclient.delete(url)
         response.raise_for_status()
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(Exception, tries=3, delay=1)
     def _get(
         self,
         resource_name: str,
@@ -145,9 +146,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()
 
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _retrieve_multiple(
         self, resource_name: str, first: bool = False, **kwargs
     ) -> List[Dict]:
+        logger.debug(f"Retrieving objects {resource_name}")
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
         instances = []
@@ -158,15 +161,21 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             return [instances[0]] if instances else []
         return instances
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _retrieve_single(self, resource_name: str, id: str) -> Dict:
+        logger.debug(f"Retrieving object {resource_name} with id {id}")
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{id}/"
         response = self._restclient.get(url)
         if response.status_code == codes.NOT_FOUND:
             raise InstanceNotFound(resource_name, id)
         else:
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except Exception as exc:
+                import traceback, sys
+                traceback.print_exc()
+                __import__('ipdb').set_trace()
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
