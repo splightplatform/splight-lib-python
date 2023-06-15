@@ -337,7 +337,7 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.schedule(job)
 
     def _stop_task(self, job: Task) -> None:
-        logger.debug("Stopping Task %s", tags=LogTags.RUNTIME)
+        logger.debug("Stopping Task", tags=LogTags.RUNTIME)
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
