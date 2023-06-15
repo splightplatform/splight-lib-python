@@ -1,5 +1,6 @@
 import json
 import os
+from glob import glob
 from typing import List, Optional
 
 import py7zr
@@ -161,16 +162,14 @@ class HubComponent(BaseModel):
         if not os.path.exists(readme_path):
             readme_path = os.path.join(path, README_FILE_2)
         with py7zr.SevenZipFile(file_name, "w") as archive:
-            for root, _, files in os.walk(path):
-                if ignore_pathspec and ignore_pathspec.match_file(root):
+
+            all_files = glob(f"{path}/**", recursive=True)
+            for filename in all_files:
+                filepath = os.path.join(path, filename)
+                if ignore_pathspec and ignore_pathspec.match_file(filepath):
                     continue
-                for file in files:
-                    if ignore_pathspec and ignore_pathspec.match_file(
-                        os.path.join(root, file)
-                    ):
-                        continue
-                    filepath = os.path.join(root, file)
-                    archive.write(filepath, os.path.join(versioned_name, file))
+                archive.write(filepath, os.path.join(versioned_name, filename))
+
         data = {
             "name": name,
             "version": version,
