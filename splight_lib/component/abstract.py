@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Type
 from furl import furl
 from pydantic import BaseModel, create_model
 from retry import retry
-
 from splight_lib.auth import SplightAuthToken
 
 # TODO: Use builder pattern
