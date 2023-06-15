@@ -328,7 +328,7 @@ class ExecutionClient(AbstractClient):
         return
 
     def _start_task(self, job: Task) -> None:
-        logger.debug("Starting Task %s", tags=LogTags.RUNTIME)
+        logger.debug("Starting Task", tags=LogTags.RUNTIME)
         if not getattr(self, "_scheduler", None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
