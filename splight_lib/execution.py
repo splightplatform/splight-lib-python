@@ -322,7 +322,7 @@ class ExecutionClient(AbstractClient):
         return
 
     def _start_thread(self, job: Thread) -> None:
-        logger.debug("Starting Thread %s", tags=LogTags.RUNTIME)
+        logger.debug("Starting Thread", tags=LogTags.RUNTIME)
         self.threads.append(job)
         job.start()
         return
