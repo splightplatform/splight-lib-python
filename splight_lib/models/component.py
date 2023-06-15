@@ -5,6 +5,8 @@ from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type
 
 from pydantic import AnyUrl, BaseModel, PrivateAttr, create_model
+from strenum import LowercaseStrEnum
+
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
@@ -16,7 +18,6 @@ from splight_lib.models.exceptions import (
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
-from strenum import LowercaseStrEnum
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -244,15 +245,6 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             self._convert_to_input_parameter(field, getattr(self, field.name))
             for field in schema.fields
         ]
-        for param in schema.fields:
-            parameter = InputParameter.parse_obj(param.dict())
-            value = getattr(self, param.name)
-            if param.type not in NATIVE_TYPES:
-                value = (
-                    [item.id for item in value] if param.multiple else value.id
-                )
-            parameter.value = value
-            parameters.append(parameter)
         instance = ComponentObject(
             id=self.id,
             name=self.name,
@@ -302,7 +294,9 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
         return model_class
 
     @classmethod
-    def from_component_object(cls, instance: ComponentObject):
+    def from_component_object(
+        cls, instance: ComponentObject
+    ) -> Type["ComponentObjectInstance"]:
         instance_dict = instance.dict()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
