@@ -21,7 +21,7 @@ from splight_lib.component.spec import InputParameter, Spec
                     value="test",
                 )
             ],
-            {"param1": {"type": str, "value": "test"}},
+            {"param1": {"type": str, "value": "test", "required": False}},
         ),  # single parameter
         (
             [
@@ -45,8 +45,8 @@ from splight_lib.component.spec import InputParameter, Spec
                 ),
             ],
             {
-                "param1": {"type": str, "value": "test"},
-                "param2": {"type": int, "value": 123},
+                "param1": {"type": str, "value": "test", "required": False},
+                "param2": {"type": int, "value": 123, "required": True},
             },
         ),  # multiple parameters
         ([], {}),  # no parameters
@@ -83,6 +83,7 @@ def test_get_input_model(
 
     # Check that the created model behaves correctly with valid and invalid inputs
     assert isinstance(instance, input_model_class)
+    print(expected_model_data.items())
 
     if any(
         param.required
@@ -94,7 +95,7 @@ def test_get_input_model(
                 **{
                     key: None
                     for key, data in expected_model_data.items()
-                    if data["type"] != Optional
+                    if data["required"] != True
                 }
             )
 
