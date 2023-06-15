@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -83,7 +83,6 @@ def test_get_input_model(
 
     # Check that the created model behaves correctly with valid and invalid inputs
     assert isinstance(instance, input_model_class)
-    print(expected_model_data.items())
 
     if any(
         param.required
@@ -95,7 +94,7 @@ def test_get_input_model(
                 **{
                     key: None
                     for key, data in expected_model_data.items()
-                    if data["required"] != True
+                    if not data["required"]
                 }
             )
 
