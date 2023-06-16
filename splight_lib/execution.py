@@ -8,7 +8,7 @@ from threading import Event, Lock
 from threading import Thread as DefaultThread
 from typing import Any, Callable, List, Tuple, Union
 
-from splight_abstract.client.abstract import AbstractClient
+from splight_lib.abstract.client import AbstractClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 
 logger = get_splight_logger()

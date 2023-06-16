@@ -1,33 +1,18 @@
-from splight_models import (
-    Alert,
-    AlertCondition,
-    Asset,
-    Attribute,
-    BlockchainContract,
-    Component,
-    ComponentCommand,
-    ComponentObject,
-    File,
-    HubComponent,
-    Notification,
-    Query,
-    Secret,
-    SetPoint,
-)
+from splight_lib.constants import ENGINE_PREFIX
 
-CLASSMAP = {
-    Component: {"path": "v2/engine/component/components"},
-    Alert: {"path": "v2/engine/alert/alerts"},
-    AlertCondition: {"path": "v2/engine/alert/conditions"},
-    Asset: {"path": "v2/engine/assets"},
-    Attribute: {"path": "v2/engine/attributes"},
-    File: {"path": "v2/engine/files"},
-    Notification: {"path": "v2/account/notifications"},
-    BlockchainContract: {"path": "v2/backoffice/blockchain/contracts"},
-    ComponentObject: {"path": "v2/engine/component/objects"},
-    ComponentCommand: {"path": "v2/engine/component/commands"},
-    Query: {"path": "v2/engine/queries"},
-    Secret: {"path": "v2/engine/secrets"},
-    HubComponent: {"path": "v2/engine/hub/component-versions"},
-    SetPoint: {"path": "v2/engine/setpoints"},
+MODEL_NAME_MAP = {
+    "alert": f"{ENGINE_PREFIX}/alert/alerts/",
+    "asset": f"{ENGINE_PREFIX}/assets/",
+    "attribute": f"{ENGINE_PREFIX}/attributes/",
+    "component": f"{ENGINE_PREFIX}/component/components/",
+    "componentobject": f"{ENGINE_PREFIX}/component/objects/",
+    "file": f"{ENGINE_PREFIX}/files/",
+    "query": f"{ENGINE_PREFIX}/queries/",
+    "secret": f"{ENGINE_PREFIX}/secrets/",
+    "setpoint": f"{ENGINE_PREFIX}/setpoints/",
+}
+
+CUSTOM_PATHS_MAP = {
+    "set-asset-attribute": "{prefix}/assets/{asset}/set-attribute/",
+    "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
 }
