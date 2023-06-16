@@ -1,5 +1,6 @@
-# TBD
-from splight_abstract.communication import AbstractCommunicationClient
+from splight_lib.client.communication.abstract import (
+    AbstractCommunicationClient,
+)
 
 
 class LocalCommunicationClient(AbstractCommunicationClient):

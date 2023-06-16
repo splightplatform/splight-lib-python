@@ -2,16 +2,13 @@ import json
 import os
 from functools import partial
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Union
 from uuid import uuid4
 
-from splight_abstract.database import AbstractDatabaseClient
+from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.exceptions import InstanceNotFound
 from splight_lib.client.filter import value_filter_on_tuple
 from splight_lib.logging._internal import LogTags, get_splight_logger
-from splight_models import SplightBaseModel
-
-ResourceType = Type[SplightBaseModel]
 
 logger = get_splight_logger()
 
@@ -21,55 +18,60 @@ class LocalDatabaseClient(AbstractDatabaseClient):
     JSON file.
     """
 
-    def __init__(self, namespace: str, path: str, *args, **kwargs):
-        super().__init__(namespace)
+    def __init__(self, path: str, *args, **kwargs):
+        super().__init__()
         self._db_file = os.path.join(path, "splight-db.json")
 
         if not os.path.exists(self._db_file):
             self._save_db(self._db_file, {})
-        logger.info(
+        logger.debug(
             "Local database client initialized.", tags=LogTags.DATABASE
         )
 
-    def save(self, instance: SplightBaseModel) -> SplightBaseModel:
-        """Saves an instance in the local database, if the instance has an id
-        will try to update the instance, otherwise it will create a new one.
+    def save(self, resource_name: str, instance: Dict) -> Dict:
+        """Creates or updates a resource depending on the name if
+        it contains the id or not.
 
         Parameters
         ----------
-        instance : SplightBaseModel
-            The instance to be saved in the database.
+        resource_name: str
+            The name of the resource to be created or updated.
+        instance : Dict
+            A dictionary with resource to be created or updated
 
         Returns
         -------
-        SplightBaseModel: The instances saved in the database.
-        """
-        logger.debug("Saving instance %s.", instance.id, tags=LogTags.DATABASE)
-
-        model_class = type(instance)
-        model_name = model_class.__name__.lower()
-        if instance.id:
-            new_instance = self._update(model_name, instance)
-        else:
-            new_instance = self._create(model_name, instance)
-        return new_instance
-
-    def delete(self, resource_type: ResourceType, id: str):
-        """Deletes an object in the database based on the type and the id.
-
-        Parameters
-        ----------
-        resource_type: ResourceType
-            The type of the object to be deleted.
-        id: str
-            The object's id to delete.
+        Dict with the created or updated resource.
 
         Raises
         ------
-        InstanceNotFound if the object with the given id is not in the database
+        InvalidModelName thrown when the model name is not correct.
+        """
+        logger.debug("Saving instance", tags=LogTags.DATABASE)
+
+        model_name = resource_name.lower()
+        if instance.get("id"):
+            saved_instance = self._update(model_name, instance)
+        else:
+            saved_instance = self._create(model_name, instance)
+        return saved_instance
+
+    def delete(self, resource_name: str, id: str):
+        """Deletes a resource from the database
+
+        Parameters
+        ----------
+        resource_name : str
+            The resource name
+        id : str
+            The resource's id.
+
+        Raises
+        ------
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
-        model_name = resource_type.__name__.lower()
+        model_name = resource_name.lower()
         db = self._load_db_file(self._db_file)
         db_instances = db.get(model_name, {})
 
@@ -79,76 +81,84 @@ class LocalDatabaseClient(AbstractDatabaseClient):
         _ = db_instances.pop(id)
         self._save_db(self._db_file, db)
 
+    def operate(self, resource_name: str, instance: Dict) -> Dict:
+        raise NotImplementedError("Method not allowed for Local Database")
+
     def _get(
         self,
-        resource_type: ResourceType,
+        resource_name: str,
         first: bool = False,
-        limit_: int = -1,
-        skip_: int = 0,
-        page_size: int = -1,
-        deleted: bool = False,
         **kwargs,
-    ) -> Union[SplightBaseModel, List[SplightBaseModel]]:
-        """Reads one or multiple objects in the database."""
-        db = self._load_db_file(self._db_file)
-        model_name = resource_type.__name__.lower()
-        db_instances = db.get(model_name, {})
+    ) -> Union[Dict, List[Dict]]:
+        """Retrieves one or multiple resources. If the parameter id is passed
+        as a kwarg, the instance with that id will be retrieved.
 
+        Parameters
+        ----------
+        resource_name : str
+            The name of the resource.
+        first: bool
+            Whether to retrieve first element or not.
+
+        Returns
+        -------
+        Union[Dict, List[Dict]] list of resource or single resource.
+        """
         resource_id = kwargs.pop("id", None)
-        instances = db_instances
+        model_name = resource_name.lower()
         if resource_id:
-            instances = {resource_id: db_instances.get(resource_id, {})}
+            result = self._retrieve_single(model_name, resource_id)
+        else:
+            result = self._retrieve_multiple(model_name, first=first, **kwargs)
+        return result
+
+    def _retrieve_single(self, model_name: str, resource_id: str) -> Dict:
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
+        if resource_id not in db_instances:
+            raise InstanceNotFound(model_name, resource_id)
+        return db_instances.get(resource_id)
+
+    def _retrieve_multiple(
+        self, model_name: str, first: bool = False, **kwargs
+    ) -> List[Dict]:
+        db = self._load_db_file(self._db_file)
+        db_instances = db.get(model_name, {})
 
         filters = self._validate_filters(kwargs)
-        filtered = self._filter(instances, filters=filters)
-        parsed = [resource_type.parse_obj(item) for item in filtered.values()]
+        filtered = self._filter(db_instances, filters=filters)
+        instances = list(filtered.values())
         if first:
-            return parsed[0] if parsed else None
-        return parsed
-
-    def count(self, resource_type: ResourceType, **kwargs) -> int:
-        db = self._load_db_file(self._db_file)
-        model_name = resource_type.__name__.lower()
-        db_instances = db.get(model_name, {})
-        logger.debug(
-            "Counted %s objects of type: %s.",
-            response["count"],
-            resource_type,
-            tags=LogTags.DATABASE,
-        )
-        return len(db_instances)
+            return [instances[0]]
+        return instances
 
     def download(
-        self, instances: SplightBaseModel, decrtypt: bool = True, **kwargs
+        self, instances: Dict, decrtypt: bool = True, **kwargs
     ) -> NamedTemporaryFile:
-        raise NotImplementedError()
+        raise NotImplementedError("Method not implemented for Local Database")
 
-    def _create(
-        self, model_name: str, instance: SplightBaseModel
-    ) -> SplightBaseModel:
+    def _create(self, resource_name: str, instance: Dict) -> Dict:
         db = self._load_db_file(self._db_file)
-        db_instances = db.get(model_name, {})
-        instance.id = str(uuid4())
-        db_instances.update({instance.id: instance.dict()})
-        db[model_name] = db_instances
+        db_instances = db.get(resource_name, {})
+        instance["id"] = str(uuid4())
+        db_instances.update({instance["id"]: instance})
+        db[resource_name] = db_instances
         self._save_db(self._db_file, db)
         return instance
 
-    def _update(
-        self, model_name: str, instance: SplightBaseModel
-    ) -> SplightBaseModel:
+    def _update(self, resource_name: str, instance: Dict) -> Dict:
         db = self._load_db_file(self._db_file)
-        db_instances = db.get(model_name, {})
+        db_instances = db.get(resource_name, {})
 
-        if instance.id not in db_instances:
-            raise InstanceNotFound(model_name, instance.id)
-        db_instances[instance.id] = instance.dict()
+        if instance["id"] not in db_instances:
+            raise InstanceNotFound(resource_name, instance["id"])
+        db_instances[instance["id"]] = instance
         self._save_db(self._db_file, db)
         return instance
 
     def _filter(
-        self, instances: Dict[str, SplightBaseModel], filters: Dict
-    ) -> Dict[str, SplightBaseModel]:
+        self, instances: Dict[str, Dict], filters: Dict
+    ) -> Dict[str, Dict]:
         filtered = instances
         for key, value in filters.items():
             filtered = filter(

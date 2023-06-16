@@ -1,22 +1,35 @@
-import json
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Type
+from typing import Any, Dict, Generator, List, Optional, Union
 
 from furl import furl
-from pydantic import BaseModel
+from httpx._status_codes import codes
 from retry import retry
-from splight_abstract.database import AbstractDatabaseClient
-from splight_abstract.remote import AbstractRemoteClient
+from splight_lib.abstract.client import AbstractRemoteClient
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.database.classmap import CLASSMAP
-from splight_lib.client.exceptions import REQUEST_EXCEPTIONS, InvalidModel
-from splight_lib.client.settings import settings_remote as settings
+from splight_lib.client.database.abstract import AbstractDatabaseClient
+from splight_lib.client.database.classmap import (
+    CUSTOM_PATHS_MAP,
+    MODEL_NAME_MAP,
+)
+from splight_lib.client.exceptions import (
+    SPLIGHT_REQUEST_EXCEPTIONS,
+    InstanceNotFound,
+    InvalidModelName,
+)
+from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
-from splight_models import File
+from typing_extensions import TypedDict
 
 logger = get_splight_logger()
+
+
+class PaginatedResponse(TypedDict):
+    count: int
+    next: Optional[str]
+    previous: Optional[str]
+    results: List[Any]
 
 
 class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
@@ -25,126 +38,148 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     to the Splight API.
     """
 
-    def __init__(self, namespace: str = "default", *args, **kwargs):
-        super().__init__(namespace=namespace)
-        self._base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
+    def __init__(
+        self,
+        base_url: str,
+        access_id: str,
+        secret_key: str,
+        *args,
+        **kwargs,
+    ):
+        super().__init__()
+        self._base_url = furl(base_url)
         token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
+            access_key=access_id,
+            secret_key=secret_key,
         )
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
-        logger.info(
+        logger.debug(
             "Remote database client initialized.", tags=LogTags.DATABASE
         )
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def save(self, instance: BaseModel) -> BaseModel:
-        """Creates or updates a new resource depending on the model if
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def save(self, resource_name: str, instance: Dict) -> Dict:
+        """Creates or updates a resource depending on the name if
         it contains the id or not.
 
         Parameters
         ----------
-        instance : BaseModel
-            The instance of the model to be created or updated
+        resource_name: str
+            The name of the resource to be created or updated.
+        instance : Dict
+            A dictionary with resource to be created or updated
 
         Returns
         -------
-        BaseModel with the created or updated resource.
+        Dict with the created or updated resource.
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
-
-        logger.debug("Saving instance %s.", instance.id, tags=LogTags.DATABASE)
-
-        constructor = type(instance)
-        model_data = self._get_model_data(constructor)
-
-        path = model_data["path"]
-        if instance.id:
-            output = self._update(path, instance.id, instance)
+        if instance.get("id"):
+            output = self._update(resource_name, instance["id"], instance)
         else:
-            output = self._create(path, instance)
-            instance.id = output["id"]
-        return constructor.parse_obj(output)
+            output = self._create(resource_name, instance)
+        return output
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def delete(self, resource_type: Type, id: str):
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def delete(self, resource_name: str, id: str):
         """Deletes a resource from the database
 
         Parameters
         ----------
-        resource_type : Type
-            The resource type to be deleted
+        resource_name : str
+            The resource name
         id : str
             The resource's id.
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
         logger.debug("Deleting instance %s.", id, tags=LogTags.DATABASE)
-        model_data = self._get_model_data(resource_type)
-        path = model_data["path"]
-        url = self._base_url / f"{path}/{id}/"
+        api_path = self._get_api_path(resource_name)
+        url = self._base_url / api_path / f"{id}/"
         response = self._restclient.delete(url)
         response.raise_for_status()
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(Exception, tries=3, delay=1)
     def _get(
         self,
-        resource_type: Type,
+        resource_name: str,
         first: bool = False,
-        limit_: int = -1,
-        skip_: int = 0,
-        page_size: int = -1,
-        deleted: bool = False,
         **kwargs,
-    ) -> List[BaseModel]:
-        model_data = self._get_model_data(resource_type)
-        path = model_data["path"]
-        instances = []
-        for page in self._pages(path, page=1, deleted=deleted, **kwargs):
-            instances.extend(page["results"])
-        parsed = [resource_type.parse_obj(item) for item in instances]
-        if first:
-            return parsed[0] if parsed else None
-        return parsed
-
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def count(self, resource_type: Type, **kwargs) -> int:
-        """Returns the number of resources in the database for a given model
+    ) -> Union[Dict, List[Dict]]:
+        """Retrieves one or multiple resources. If the parameter id is passed
+        as a kwarg, the instance with that id will be retrieved.
 
         Parameters
         ----------
-        resource_type : str
-            The model name
+        resource_name : str
+            The name of the resource.
+        first: bool
+            Whether to retrieve first element or not.
 
         Returns
         -------
-        int
-
-        Raises
-        ------
-        InvalidModel thrown when the model name is not correct.
+        Union[Dict, List[Dict]] list of resource or single resource.
         """
-        model_data = self._get_model_data(resource_type)
-        path = model_data["path"]
-        kwargs["page"] = 1  # Always start from the first page
-        response = self._list(path, **kwargs)
-        logger.debug(
-            "Counted %s objects of type: %s.",
-            response["count"],
-            resource_type,
-            tags=LogTags.DATABASE,
-        )
-        return response["count"]
+        if kwargs.get("id"):
+            instances = self._retrieve_single(resource_name, id=kwargs["id"])
+        else:
+            instances = self._retrieve_multiple(
+                resource_name, first=first, **kwargs
+            )
+        return instances
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def operate(self, resource_name: str, instance: Dict) -> Dict:
+        model_name = resource_name.lower()
+        api_path = CUSTOM_PATHS_MAP.get(model_name)
+        if not api_path:
+            raise InvalidModelName(model_name)
+        api_path = api_path.format_map({"prefix": ENGINE_PREFIX, **instance})
+        url = self._base_url / api_path
+        response = self._restclient.post(url, json=instance)
+        response.raise_for_status()
+        return response.json()
+
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def _retrieve_multiple(
+        self, resource_name: str, first: bool = False, **kwargs
+    ) -> List[Dict]:
+        logger.debug(f"Retrieving objects {resource_name}")
+        api_path = self._get_api_path(resource_name)
+        url = self._base_url / api_path
+        instances = []
+        for page in self._pages(url, page=1, **kwargs):
+            instances.extend(page["results"])
+
+        if first:
+            return [instances[0]] if instances else []
+        return instances
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    def _retrieve_single(self, resource_name: str, id: str) -> Dict:
+        logger.debug(f"Retrieving object {resource_name} with id {id}")
+        api_path = self._get_api_path(resource_name)
+        url = self._base_url / api_path / f"{id}/"
+        response = self._restclient.get(url)
+        if response.status_code == codes.NOT_FOUND:
+            raise InstanceNotFound(resource_name, id)
+        else:
+            response.raise_for_status()
+        return response.json()
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def download(
-        self, instance: BaseModel, decrypt: bool = True, **kwargs
+        self,
+        resource_name: str,
+        instance: Dict,
+        decrypt: bool = True,
+        **kwargs,
     ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
 
@@ -160,12 +195,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         Raises
         ------
-        InvalidModel thrown when the model name is not correct.
+        InvalidModelName thrown when the model name is not correct.
         """
-        constructor = type(instance)
-        model_data = self._get_model_data(constructor)
-        path = model_data["path"]
-        url = self._base_url / f"{path}/{instance.id}/download"
+        api_path = self._get_api_path(resource_name)
+        resource_id = instance.get("id")
+        url = self._base_url / api_path / f"{resource_id}/download/"
         response = self._restclient.get(url)
         response.raise_for_status()
         f = NamedTemporaryFile("wb+")
@@ -177,10 +211,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         logger.debug("Downloaded instance %s.", id, tags=LogTags.DATABASE)
         return f
 
-    def _pages(self, path: str, **kwargs):
+    def _pages(
+        self, url: furl, **kwargs
+    ) -> Generator[PaginatedResponse, None, None]:
         next_page = kwargs["page"]
         while next_page:
-            response = self._list(path, **kwargs)
+            response = self._list(url, **kwargs)
             yield response
             next_page = (
                 furl(response["next"]).query.params["page"]
@@ -189,38 +225,47 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             )
             kwargs["page"] = next_page
 
-    def _list(self, path: str, **kwargs):
-        url = self._base_url / f"{path}/"
+    def _list(self, url: furl, **kwargs) -> PaginatedResponse:
         params = self._parse_params(**kwargs)
         response = self._restclient.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
-    @staticmethod
-    def _get_model_data(constructor: Type):
-        model_data = CLASSMAP.get(constructor)
-        if not model_data:
-            raise InvalidModel(constructor.schema()["title"])
-        return model_data
-
-    def _create(self, path: str, instance: BaseModel) -> Dict:
-        url = self._base_url / f"{path}/"
-        data = json.loads(instance.json(exclude_none=True))
-
-        if isinstance(instance, File):
-            with open(instance.file, "rb") as f:
+    def _create(self, resource_name: str, instance: Dict) -> Dict:
+        logger.debug("Saving new instance", tags=LogTags.DATABASE)
+        model_name = resource_name.lower()
+        api_path = self._get_api_path(resource_name)
+        url = self._base_url / api_path
+        if model_name == "file":
+            with open(instance["file"], "rb") as f:
                 file = {"file": f}
-                response = self._restclient.post(url, data=data, files=file)
+                response = self._restclient.post(
+                    url, data=instance, files=file
+                )
         else:
-            response = self._restclient.post(url, json=data)
+            response = self._restclient.post(url, json=instance)
 
         response.raise_for_status()
-        return response.json()
-
-    def _update(self, path: str, resource_id: str, data: BaseModel) -> Dict:
-        url = self._base_url / f"{path}/{resource_id}/"
-        response = self._restclient.put(
-            url, json=json.loads(data.json(exclude_none=True))
+        instance = response.json()
+        logger.debug(
+            "Instance %s created", instance["id"], tags=LogTags.DATABASE
         )
+        return instance
+
+    def _update(
+        self, resource_name: str, resource_id: str, instance: Dict
+    ) -> Dict:
+        logger.debug("Saving instance %s", resource_id, tags=LogTags.DATABASE)
+        api_path = self._get_api_path(resource_name)
+        url = self._base_url / api_path / f"{resource_id}/"
+        response = self._restclient.put(url, json=instance)
         response.raise_for_status()
         return response.json()
+
+    @staticmethod
+    def _get_api_path(resource_name: str) -> str:
+        model_name = resource_name.lower()
+        api_path = MODEL_NAME_MAP.get(model_name)
+        if not api_path:
+            raise InvalidModelName(model_name)
+        return api_path

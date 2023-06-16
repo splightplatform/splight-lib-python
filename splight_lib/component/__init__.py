@@ -1,5 +1,5 @@
-from .abstract import AbstractComponent
+from splight_lib.component.abstract import SplightBaseComponent
 
 __all__ = [
-    "AbstractComponent",
+    SplightBaseComponent,
 ]
