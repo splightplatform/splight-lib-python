@@ -98,16 +98,11 @@ the following table
 
 ### Splight Components
 
-One of the main uses of the library is to develop new components that can run in the
-**Splight** Platform. 
+One of the main uses of the library is to develop new components. A *Component* is a process that runs in the **Splight** Platform, for example, to do data processing, data ingestion, and more. The scope of each *Component* is defined by its developer. To create a *Component* (in Python as an example), you need to write at least two files: `spec.json` and `main.py`. 
+`spec.json`: defines the component interface
+`main.py`: contains the actual implementation of the algorithm
 
-A *Component* is a process that runs in the **Splight** Platform for example for data 
-processing, or data ingestion, etc. The scope of each *Component* is defined by the user that 
-created the component. To create a *Component* in Python you need to create at least two
-files, one is the `spec.json` file which defines configurations for the component and a 
-`main.py` file where you will code the component's logics.
-
-In the following example you can see the base structure of a component
+In the following code, we demonstrate a basic component that outputs a random number.
 ```python
 import random
 from time import sleep
