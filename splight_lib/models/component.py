@@ -3,13 +3,20 @@ import warnings
 from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type
-
-from pydantic import AnyUrl, BaseModel, PrivateAttr, create_model
+from abc import abstractmethod, ABC
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    Field,
+    PrivateAttr,
+    create_model
+)
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
+from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import (
-    InvalidComponentObjectInstance,
+    InvalidObjectInstance,
     SecretDecryptionError,
     SecretNotFound,
 )
@@ -34,12 +41,6 @@ class ComponentType(LowercaseStrEnum):
     OTHER = auto()
 
 
-class Action(LowercaseStrEnum):
-    READ = auto()
-    WRITE = auto()
-    READWRITE = auto()
-
-
 class Parameter(BaseModel):
     name: str
     description: str = ""
@@ -53,6 +54,18 @@ class Parameter(BaseModel):
 
 class InputParameter(Parameter):
     value: Optional[Any] = None
+
+
+class DataAdress(Parameter):
+    choices: None = None
+    depends_on: None = None
+    Required: bool = True
+    type: str = Field("DataAdress", const=True)
+    value_type: str = "Number"
+
+
+class InputDataAdress(DataAdress):
+    value: Dict[str, str]
 
 
 class OutputParameter(BaseModel):
@@ -71,10 +84,78 @@ class Output(BaseModel):
 
 class CustomType(BaseModel):
     name: str
-    action: Optional[Action]
     fields: List[Parameter]
 
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
+
+
+class Routine(BaseModel):
+    name: str
+
+    create_handler: Optional[str]
+    update_handler: Optional[str]
+    delete_handler: Optional[str]
+
+    config: Optional[List[Parameter]] = []
+    input: List[DataAdress] = []
+    output: List[DataAdress] = []
+
+    _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
+
+
+r = {
+    "name": "test",
+    "max_instances": 5,
+    "create_action": "test",
+    "update_action": "test",
+    "delete_action": "test",
+    "config": [
+        {
+            "name": "test",
+        },
+    ],
+    "input": [
+        {
+            "name": "temp",
+        }
+    ],
+    "output": [
+        {
+            "name": "res",
+        }
+    ]
+}
+
+ro = {
+    "id": "123",
+    "name": "test1",
+    "component_id": "1234",
+    "type": "test",
+    "config": [
+        {
+            "name": "test",
+            "value": "test"
+        },
+    ],
+    "input": [
+        {
+            "name": "temp",
+            "value": {
+                "asset": '49551a15-d79b-40dc-9434-1b33d6b2fcb2',
+                "attribute": '5c2f4a2a-8b0c-4d69-8f29-476bf6fd7559'
+            }
+        }
+    ],
+    "output": [
+        {
+            "name": "res",
+            "value": {
+                "asset": '49551a15-d79b-40dc-9434-1b33d6b2fcb2',
+                "attribute": '5c2f4a2a-8b0c-4d69-8f29-476bf6fd7559'
+            }
+        }
+    ]
+}
 
 
 class Command(BaseModel):
@@ -94,13 +175,23 @@ class Binding(BaseModel):
     object_action: str
 
 
-class ComponentObject(SplightDatabaseBaseModel):
+class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
     component_id: str
     description: Optional[str] = ""
     type: str
+
+
+class ComponentObject(SplightObject):
     data: List[InputParameter] = []
+
+
+class RoutineObject(SplightObject):
+    status: Optional[str] = "Running"
+    config: Optional[List[InputParameter]] = []
+    input: List[InputDataAdress] = []
+    output: List[InputDataAdress] = []
 
 
 class Component(SplightDatabaseBaseModel):
@@ -114,6 +205,7 @@ class Component(SplightDatabaseBaseModel):
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
     bindings: List[Binding] = []
+    routines: List[Routine] = []
 
 
 NATIVE_TYPES = {
@@ -134,7 +226,15 @@ DATABASE_TYPES = {
     "Query": Query,
 }
 
-DB_MODEL_TYPE_MAPPING = {**NATIVE_TYPES, **DATABASE_TYPES}
+DATALAKE_TYPES = {
+    "DataAdress": DLDataAddress,
+}
+
+DB_MODEL_TYPE_MAPPING = {
+    **NATIVE_TYPES,
+    **DATABASE_TYPES,
+    **DATALAKE_TYPES,
+}
 
 
 def parse_variable_string(raw_value: Optional[str]) -> Any:
@@ -148,7 +248,6 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     secret = Secret.list(name=secret_name, first=True)
     if not secret:
         raise SecretNotFound(secret_name)
-
     try:
         value = secret[0].decrypt()
     except Exception as exc:
@@ -173,24 +272,31 @@ def get_field_value(field: InputParameter):
             if not multiple
             else [model_class.retrieve(item) for item in field.value]
         )
+    elif field.type in DATALAKE_TYPES:
+        model_class = DATALAKE_TYPES[field.type]
+        value = field.value.copy()
+        value.update({"type": field.value_type})
+        value = (
+            model_class.parse_obj(value)
+        )
     else:
         value_as_list = (
             ComponentObject.list(id__in=field.value)
             if multiple
             else [ComponentObject.retrieve(field.value)]
         )
-        model_class = ComponentObjectInstance.from_component_object(
+        model_class = ComponentObjectInstance.from_object(
             value_as_list[0]
         )
         value_as_list = [
-            model_class.parse_component_object(instance)
+            model_class.parse_object(instance)
             for instance in value_as_list
         ]
         value = value_as_list if multiple else value_as_list[0]
     return value
 
 
-class ComponentObjectInstance(SplightDatabaseBaseModel):
+class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: Optional[str]
     name: str = ""
     description: Optional[str]
@@ -198,70 +304,45 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
     )
-    _schema: ClassVar[Optional[CustomType]] = None
+    _schema: ClassVar[Optional[BaseModel]] = None
     _component_id: ClassVar[Optional[str]] = None
 
     def save(self):
-        component_obj = self.to_component_object()
+        component_obj = self.to_object()
         component_obj.save()
         if not self.id:
             self.id = component_obj.id
 
     def delete(self):
-        component_obj = self.to_component_object()
+        component_obj = self.to_object()
         component_obj.delete()
 
     @classmethod
-    def list(cls, **params: Dict) -> List["ComponentObjectInstance"]:
+    def list(cls, **params: Dict) -> List["AbstractObjectInstance"]:
         if not cls._schema or not cls._component_id:
-            raise InvalidComponentObjectInstance(
+            raise InvalidObjectInstance(
                 (
                     "Missing schema or component_id attributes in "
-                    "ComponentObjectInstance"
+                    f"{cls.__name__}"
                 )
             )
         params.update(
             {"type": cls.__name__, "component_id": cls._component_id}
         )
-        instances = ComponentObject.list(**params)
-        return [cls.parse_component_object(instance) for instance in instances]
+        instances = super().list(**params)
+        return [cls.parse_object(instance) for instance in instances]
 
     @classmethod
-    def retrieve(cls, resource_id: str) -> "ComponentObjectInstance":
+    def retrieve(cls, resource_id: str) -> "AbstractObjectInstance":
         if not cls._schema or not cls._component_id:
-            raise InvalidComponentObjectInstance(
+            raise InvalidObjectInstance(
                 (
                     "Missing schema or component_id attributes in "
-                    "ComponentObjectInstance"
+                    f"{cls.__name__}"
                 )
             )
-        instance = ComponentObject.retrieve(resource_id)
-        return cls.parse_component_object(instance)
-
-    def to_component_object(self) -> ComponentObject:
-        schema = self._schema
-        parameters = [
-            self._convert_to_input_parameter(field, getattr(self, field.name))
-            for field in schema.fields
-        ]
-        for param in schema.fields:
-            parameter = InputParameter.parse_obj(param.dict())
-            value = getattr(self, param.name)
-            if param.type not in NATIVE_TYPES:
-                value = (
-                    [item.id for item in value] if param.multiple else value.id
-                )
-            parameter.value = value
-            parameters.append(parameter)
-        instance = ComponentObject(
-            id=self.id,
-            name=self.name,
-            component_id=self._component_id,
-            description=self.description,
-            type=self.__class__.__name__,
-            data=parameters,
-        )
-        return instance
+        instance = super().retrieve(resource_id)
+        return cls.parse_object(instance)
 
     @staticmethod
     def _convert_to_input_parameter(
@@ -278,31 +359,94 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
         parameter.update({"value": value})
         return InputParameter.parse_obj(parameter)
 
+    @staticmethod
+    def _convert_to_input_data_addres(
+        field: DataAdress, field_value: Any
+    ) -> InputDataAdress:
+        value = {
+            "asset": field_value.asset,
+            "attribute": field_value.attribute,
+        }
+        parameter = field.dict()
+        parameter.update({"value": value})
+        return InputDataAdress.parse_obj(parameter)
+
+    @abstractmethod
+    def to_object(self) -> SplightObject:
+        """
+        Returns a databas object
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def parse_object(
+        cls, component_object: SplightObject
+    ) -> "AbstractObjectInstance":
+        """
+        Returns a new instance of the subclass of AbstractObjectInstance
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_object(cls, instance: SplightObject) -> Type["AbstractObjectInstance"]:
+        """
+        Return the constructor subclass of AbstractObjectInstance
+        """
+        pass
+
+
+class ComponentObjectInstance(AbstractObjectInstance):
+    _schema: ClassVar[Optional[CustomType]] = None
+
+    def to_object(self) -> ComponentObject:
+        schema = self._schema
+
+        data = [
+            self._convert_to_input_parameter(field, getattr(self, field.name))
+            for field in schema.fields
+        ]
+
+        instance = ComponentObject(
+            id=self.id,
+            name=self.name,
+            component_id=self._component_id,
+            description=self.description,
+            type=self.__class__.__naame__,
+            data=data,
+        )
+        return instance
+
     @classmethod
     def from_custom_type(
         cls,
         custom_type: CustomType,
         component_id: Optional[str] = None,
     ) -> Type["ComponentObjectInstance"]:
+
         fields = {}
+
         for field in custom_type.fields:
             field_type = DB_MODEL_TYPE_MAPPING.get(field.type, cls)
             field_type = List[field_type] if field.multiple else field_type
             fields.update({field.name: (field_type, ...)})
+
         fields.update(
             {
                 "_schema": (
-                    ClassVar[Optional[CustomType]],
-                    custom_type,
+                    ClassVar[Optional[CustomType]], custom_type,
                 ),
-                "_component_id": (ClassVar[Optional[str]], component_id),
+                "_component_id": (
+                    ClassVar[Optional[str]], component_id
+                ),
             }
         )
         model_class = create_model(custom_type.name, **fields, __base__=cls)
         return model_class
 
     @classmethod
-    def from_component_object(cls, instance: ComponentObject):
+    def from_object(cls, instance: ComponentObject):
         instance_dict = instance.dict()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
@@ -311,7 +455,7 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
         )
 
     @classmethod
-    def parse_component_object(
+    def parse_object(
         cls, instance: ComponentObject
     ) -> "ComponentObjectInstance":
         params_dict = {
@@ -324,4 +468,124 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
                 "description": instance.description,
             }
         )
+        return cls.parse_obj(params_dict)
+
+
+class RoutineObjectInstance(AbstractObjectInstance):
+    _schema: ClassVar[Optional[Routine]] = None
+
+    def to_object(self) -> RoutineObject:
+        schema = self._schema
+
+        config = [
+            self._convert_to_input_parameter(field, getattr(self.config, field.name))
+            for field in schema.config
+        ]
+
+        input = [
+            self._convert_to_input_data_addres(field, getattr(self.input, field.name))
+            for field in schema.input
+        ]
+
+        output = [
+            self._convert_to_input_data_addres(field, getattr(self.output, field.name))
+            for field in schema.output
+        ]
+
+        instance = RoutineObject(
+            id=self.id,
+            name=self.name,
+            component_id=self._component_id,
+            description=self.description,
+            type=self.__class__.__name__,
+            config=config,
+            input=input,
+            output=output,
+        )
+        return instance
+
+    @classmethod
+    def from_routine(
+        cls,
+        routine: Routine,
+        component_id: Optional[str] = None,
+    ) -> Type["ComponentObjectInstance"]:
+
+        Config = cls._create_config_model(routine.config)
+        Input = cls._create_input_model(routine.input)
+        Output = cls._create_output_model(routine.output)
+
+        fields = {
+            "status": (str, ...),
+            "config": (Config, ...),
+            "input": (Input, ...),
+            "output": (Output, ...),
+        }
+
+        fields.update(
+            {
+                "_schema": (
+                    ClassVar[Optional[Routine]], routine,
+                ),
+                "_component_id": (
+                    ClassVar[Optional[str]], component_id
+                ),
+            }
+        )
+        model_class = create_model(routine.name, **fields, __base__=cls)
+        return model_class
+
+    @classmethod
+    def _create_config_model(cls, parameters: List[Parameter]) -> Type:
+        fields = {}
+        for field in parameters:
+            field_type = DB_MODEL_TYPE_MAPPING.get(field.type, ComponentObjectInstance)
+            field_type = List[field_type] if field.multiple else field_type
+            fields.update({field.name: (field_type, ...)})
+
+        return create_model("Config", **fields)
+
+    @classmethod
+    def _create_input_model(cls, parameters: List[DataAdress]) -> Type:
+        fields = {
+            param.name: (DLDataAddress, ...)
+            for param in parameters
+        }
+        return create_model("Input", **fields)
+
+    @classmethod
+    def _create_output_model(cls, parameters: List[DataAdress]) -> Type:
+        fields = {
+            param.name: (DLDataAddress, ...)
+            for param in parameters
+        }
+        return create_model("Output", **fields)
+
+    @classmethod
+    def from_object(cls, instance: RoutineObject) -> Type["RoutineObjectInstance"]:
+        instance_dict = instance.dict()
+        instance_dict["name"] = instance_dict.pop("type")
+        return cls.from_routine(
+            Routine.parse_obj(instance_dict), instance.component_id
+        )
+
+    @classmethod
+    def parse_object(
+        cls, instance: RoutineObject
+    ) -> "RoutineObjectInstance":
+        params_dict = {
+            "id": instance.id,
+            "name": instance.name,
+            "description": instance.description,
+            "status": instance.status,
+            "config": {
+                field.name: get_field_value(field) for field in instance.config
+            },
+            "input": {
+                field.name: get_field_value(field) for field in instance.input
+            },
+            "output": {
+                field.name: get_field_value(field) for field in instance.output
+            },
+        }
         return cls.parse_obj(params_dict)

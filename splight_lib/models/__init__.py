@@ -4,7 +4,9 @@ from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
     ComponentObject,
+    RoutineObject,
     ComponentObjectInstance,
+    RoutineObjectInstance,
 )
 from splight_lib.models.file import File
 from splight_lib.models.hub import HubComponent, HubComponentVersion
