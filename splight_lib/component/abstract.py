@@ -7,7 +7,7 @@ from time import sleep
 from typing import Dict, List, Optional, Type
 
 from furl import furl
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 from retry import retry
 from splight_lib.auth import SplightAuthToken
 
@@ -143,6 +143,7 @@ class SplightBaseComponent:
         self._laod_routines(self._spec.routines)
         self._load_setpoints(setpoints)
         self._load_commands(self._spec.commands)
+        self._custom_types = self._get_custom_type_model(component_objects)
 
     @property
     def input(self) -> BaseModel:
@@ -157,8 +158,18 @@ class SplightBaseComponent:
         return self._routines
 
     @property
+    def custom_types(self) -> BaseModel:
+        return self._custom_types
+
+    @property
     def execution_engine(self) -> ExecutionClient:
         return self._execution_engine
+
+    def _get_custom_type_model(
+        self, component_object: Dict[str, Type[ComponentObjectInstance]]
+    ):
+        custom_type_model = create_model("CustomTypes", **component_object)
+        return custom_type_model()
 
     def _load_spec(self) -> Spec:
         """Loads the spec.json files located at the same level that the
@@ -171,7 +182,7 @@ class SplightBaseComponent:
     def _load_bindings(
         self,
         bindings: List[Binding],
-        component_objects: Dict[str, ComponentObjectInstance],
+        component_objects: Dict[str, Type[ComponentObjectInstance]],
     ):
         """Loads and assigns callbacks for the bindings."""
         for binding in bindings:

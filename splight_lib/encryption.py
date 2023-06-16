@@ -3,6 +3,9 @@ from typing import Optional
 
 from cryptography.fernet import Fernet as Branca
 from pydantic import BaseSettings
+from splight_lib.logging._internal import LogTags, get_splight_logger
+
+logger = get_splight_logger()
 
 
 class EncryptionSettings(BaseSettings):
@@ -27,11 +30,19 @@ class EncryptionClient:
 
     def encrypt(self, value: str):
         if not self.key:
+            logger.warning(
+                "Returning non-encrypted value since encryption key was not found in the environment",
+                tags=LogTags.SECRET,
+            )
             return value
         return self.fernet.encrypt(value.encode()).decode()
 
     def decrypt(self, value: str):
         if not self.key:
+            logger.warning(
+                "Returning encrypted value since encryption key was not found in the environment",
+                tags=LogTags.SECRET,
+            )
             return value
         return self.fernet.decrypt(value.encode()).decode()
 
