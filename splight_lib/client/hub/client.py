@@ -13,8 +13,8 @@ from splight_lib.client.hub.abstract import (
 class _SplightHubGenericClient(AbstractHubSubClient):
     _PREFIX: str = "v2/hub"
     _CLASS_MAP = {
-        'HubComponent': "components",
-        'HubComponentVersion': "component-versions",
+        "HubComponent": "components",
+        "HubComponentVersion": "component-versions",
     }
 
     def __init__(
@@ -121,11 +121,7 @@ class _SplightHubGenericClient(AbstractHubSubClient):
 
 class SplightHubClient(AbstractHubClient):
     def __init__(
-        self,
-        access_key: str,
-        secret_key: str,
-        api_host: str,
-        *args, **kwargs
+        self, access_key: str, secret_key: str, api_host: str, *args, **kwargs
     ) -> None:
         super().__init__()
         token = SplightAuthToken(

@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
-
 class AbstractHubSubClient(AbstractClient):
     @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:

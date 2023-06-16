@@ -446,7 +446,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
         return model_class
 
     @classmethod
-    def from_object(cls, instance: ComponentObject):
+    def from_object(cls, instance: ComponentObject) -> Type["ComponentObjectInstance"]:
         instance_dict = instance.dict()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
