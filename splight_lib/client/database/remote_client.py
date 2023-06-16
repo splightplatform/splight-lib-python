@@ -161,7 +161,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             return [instances[0]] if instances else []
         return instances
 
-    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _retrieve_single(self, resource_name: str, id: str) -> Dict:
         logger.debug(f"Retrieving object {resource_name} with id {id}")
         api_path = self._get_api_path(resource_name)
@@ -170,12 +170,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if response.status_code == codes.NOT_FOUND:
             raise InstanceNotFound(resource_name, id)
         else:
-            try:
-                response.raise_for_status()
-            except Exception as exc:
-                import traceback, sys
-                traceback.print_exc()
-                __import__('ipdb').set_trace()
+            response.raise_for_status()
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
