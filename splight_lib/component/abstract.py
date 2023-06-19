@@ -2,7 +2,6 @@ import os
 import sys
 from functools import partial
 from tempfile import NamedTemporaryFile
-from threading import Thread
 from time import sleep
 from typing import Dict, List, Optional, Type
 
@@ -12,6 +11,7 @@ from retry import retry
 from splight_lib.auth import SplightAuthToken
 
 # TODO: Use builder pattern
+from splight_lib.execution import Thread
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
@@ -114,7 +114,7 @@ class SplightBaseComponent:
         self._execution_engine = ExecutionClient()
         health_check = HealthCheckProcessor(self._execution_engine)
         self._health_check_thread = Thread(
-            target=health_check.start, args=(), daemon=True
+            target=health_check.start, args=()
         )
         self._execution_engine.start(self._health_check_thread)
 
@@ -128,6 +128,12 @@ class SplightBaseComponent:
             )
             for ct in self._spec.custom_types
         }
+        routines_objects = {
+            routine.name: RoutineObjectInstance.from_routine(
+                routine, component_id=self._component_id
+            )
+            for routine in self._spec.routines
+        }
 
         bindings = [
             binding
@@ -140,10 +146,11 @@ class SplightBaseComponent:
             if binding.object_type == "SetPoint"
         ]
         self._load_bindings(bindings, component_objects)
-        self._laod_routines(self._spec.routines)
         self._load_setpoints(setpoints)
+        self._laod_routines(self._spec.routines, routines_objects)
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
+        self._routines = self._get_routine_model(routines_objects)
 
     @property
     def input(self) -> BaseModel:
@@ -154,7 +161,7 @@ class SplightBaseComponent:
         return self._output
 
     @property
-    def Routines(self) -> Type:
+    def routines(self) -> Type:
         return self._routines
 
     @property
@@ -167,8 +174,14 @@ class SplightBaseComponent:
 
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
-    ):
+    ) -> BaseModel:
         custom_type_model = create_model("CustomTypes", **component_object)
+        return custom_type_model()
+
+    def _get_routine_model(
+        self, routine_object: Dict[str, Type[RoutineObjectInstance]]
+    ) -> BaseModel:
+        custom_type_model = create_model("CustomTypes", **routine_object)
         return custom_type_model()
 
     def _load_spec(self) -> Spec:
@@ -211,15 +224,9 @@ class SplightBaseComponent:
     def _laod_routines(
         self,
         routines: List[Routine],
+        routines_objects: Dict[str, Type[RoutineObjectInstance]],
     ) -> None:
         """Loads and assigns callbacks to the routines."""
-        routines_objects = {
-            routine.name: RoutineObjectInstance.from_custom_type(
-                routine, component_id=self._component_id
-            )
-            for routine in routines
-        }
-        self._rooutines = type("routines", (object,), routines_objects)
 
         actions = ["create", "update", "delete"]
         for routine in routines:
@@ -228,7 +235,7 @@ class SplightBaseComponent:
             for action in actions:
 
                 event_name = RoutineObject.get_event_name(
-                    Routine.__name__, action
+                    model_calss .__name__, action
                 )
 
                 callback_func = getattr(
@@ -238,7 +245,6 @@ class SplightBaseComponent:
                 )
                 if not callback_func:
                     raise MissingRoutineCallback(routine.name, action)
-
                 self._comm_client.bind(
                     event_name,
                     partial(
