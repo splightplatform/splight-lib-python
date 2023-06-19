@@ -177,6 +177,7 @@ class HubComponent(BaseModel):
             "privacy_policy": spec.get("privacy_policy", "private"),
             "tags": spec.get("tags", []),
             "custom_types": json.dumps(spec.get("custom_types", [])),
+            "routines": json.dumps(spec.get("routines", [])),
             "input": json.dumps(spec.get("input", [])),
             "output": json.dumps(spec.get("output", [])),
             "component_type": spec.get(

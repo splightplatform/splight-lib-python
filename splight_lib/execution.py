@@ -310,8 +310,10 @@ class ExecutionClient(AbstractClient):
 
     def stop(self, job=Union[Popen, Thread, Task]):
         if isinstance(job, Popen):
+            return
             raise NotImplementedError
         if isinstance(job, Thread):
+            return
             raise NotImplementedError
         if isinstance(job, Task):
             return self._stop_task(job)

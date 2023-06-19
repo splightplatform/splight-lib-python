@@ -41,6 +41,12 @@ class ComponentType(LowercaseStrEnum):
     OTHER = auto()
 
 
+class RoutineStatus(LowercaseStrEnum):
+    RUNNING = auto()
+    PENDING = auto()
+    FAILED = auto()
+
+
 class Parameter(BaseModel):
     name: str
     description: str = ""
@@ -103,61 +109,6 @@ class Routine(BaseModel):
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
 
 
-r = {
-    "name": "test",
-    "max_instances": 5,
-    "create_action": "test",
-    "update_action": "test",
-    "delete_action": "test",
-    "config": [
-        {
-            "name": "test",
-        },
-    ],
-    "input": [
-        {
-            "name": "temp",
-        }
-    ],
-    "output": [
-        {
-            "name": "res",
-        }
-    ]
-}
-
-ro = {
-    "id": "123",
-    "name": "test1",
-    "component_id": "1234",
-    "type": "test",
-    "config": [
-        {
-            "name": "test",
-            "value": "test"
-        },
-    ],
-    "input": [
-        {
-            "name": "temp",
-            "value": {
-                "asset": '49551a15-d79b-40dc-9434-1b33d6b2fcb2',
-                "attribute": '5c2f4a2a-8b0c-4d69-8f29-476bf6fd7559'
-            }
-        }
-    ],
-    "output": [
-        {
-            "name": "res",
-            "value": {
-                "asset": '49551a15-d79b-40dc-9434-1b33d6b2fcb2',
-                "attribute": '5c2f4a2a-8b0c-4d69-8f29-476bf6fd7559'
-            }
-        }
-    ]
-}
-
-
 class Command(BaseModel):
     name: str
     fields: List[InputParameter] = []
@@ -188,7 +139,8 @@ class ComponentObject(SplightObject):
 
 
 class RoutineObject(SplightObject):
-    status: Optional[str] = "Running"
+    status: Optional[RoutineStatus] = RoutineStatus.RUNNING
+
     config: Optional[List[InputParameter]] = []
     input: List[InputDataAdress] = []
     output: List[InputDataAdress] = []
@@ -305,6 +257,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
         ["id", "name", "component_id", "description"]
     )
     _schema: ClassVar[Optional[BaseModel]] = None
+    _database_class: ClassVar[Optional[Type[SplightDatabaseBaseModel]]] = None
     _component_id: ClassVar[Optional[str]] = None
 
     def save(self):
@@ -329,7 +282,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
         params.update(
             {"type": cls.__name__, "component_id": cls._component_id}
         )
-        instances = super().list(**params)
+        instances = cls._database_class.list(**params)
         return [cls.parse_object(instance) for instance in instances]
 
     @classmethod
@@ -341,7 +294,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                     f"{cls.__name__}"
                 )
             )
-        instance = super().retrieve(resource_id)
+        instance = cls._database_class.retrieve(resource_id)
         return cls.parse_object(instance)
 
     @staticmethod
@@ -399,6 +352,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
 
 class ComponentObjectInstance(AbstractObjectInstance):
     _schema: ClassVar[Optional[CustomType]] = None
+    _database_class: ClassVar[Type[SplightDatabaseBaseModel]] = ComponentObject
 
     def to_object(self) -> ComponentObject:
         schema = self._schema
@@ -473,6 +427,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
 
 class RoutineObjectInstance(AbstractObjectInstance):
     _schema: ClassVar[Optional[Routine]] = None
+    _database_class: ClassVar[Type[SplightDatabaseBaseModel]] = RoutineObject
 
     def to_object(self) -> RoutineObject:
         schema = self._schema
@@ -498,6 +453,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
             component_id=self._component_id,
             description=self.description,
             type=self.__class__.__name__,
+            status=self.status,
             config=config,
             input=input,
             output=output,
@@ -516,7 +472,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         Output = cls._create_output_model(routine.output)
 
         fields = {
-            "status": (str, ...),
+            "status": (RoutineStatus, ...),
             "config": (Config, ...),
             "input": (Input, ...),
             "output": (Output, ...),
