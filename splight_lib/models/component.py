@@ -367,7 +367,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
             name=self.name,
             component_id=self._component_id,
             description=self.description,
-            type=self.__class__.__naame__,
+            type=self.__class__.__name__,
             data=data,
         )
         return instance
