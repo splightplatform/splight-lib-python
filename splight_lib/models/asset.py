@@ -1,21 +1,26 @@
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional
 
-from geojson_pydantic import GeometryCollection
+from geojson_pydantic import GeometryCollection, Point
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
+
+
+class Tag:
+    name: str
+    description: Optional[str] = None
 
 
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
-    latitude: Optional[float]
-    longitude: Optional[float]
-    tags: List[str] = []
+    tags: List[Tag] = []
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
-    centroid_coordinates: Optional[Tuple[float, float]]
+    centroid: Optional[Point]
+    external_id: Optional[str] = None
+    is_public: bool = False
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
