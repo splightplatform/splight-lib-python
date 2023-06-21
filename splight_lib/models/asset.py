@@ -1,11 +1,12 @@
 from typing import Any, List, Optional
 
 from geojson_pydantic import GeometryCollection, Point
+from pydantic import BaseModel
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
-class Tag:
+class Tag(BaseModel):
     name: str
     description: Optional[str] = None
 

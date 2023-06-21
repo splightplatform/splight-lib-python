@@ -1,5 +1,5 @@
 from splight_lib.models.alert import Alert, AlertCondition
-from splight_lib.models.asset import Asset
+from splight_lib.models.asset import Asset, Tag
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
@@ -16,6 +16,7 @@ from splight_lib.models.setpoint import SetPoint
 __all__ = [
     Alert,
     AlertCondition,
+    Tag,
     Asset,
     Attribute,
     Boolean,
