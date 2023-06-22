@@ -20,6 +20,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
 
     _DEFAULT = "default"
     _PREFIX = "splight-dl_"
+    _SUFFIX = ".json"
     _TOTAL_DOCS = 10000
 
     def __init__(self, path: str, *args, **kwargs):
@@ -159,4 +160,4 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         return new_filters
 
     def _get_file_name(self, collection: str) -> str:
-        return f"{self._PREFIX}{collection}"
+        return f"{self._PREFIX}{collection}{self._SUFFIX}"
