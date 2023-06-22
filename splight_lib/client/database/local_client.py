@@ -12,6 +12,8 @@ from splight_lib.logging._internal import LogTags, get_splight_logger
 
 logger = get_splight_logger()
 
+LOCAL_DB_FILE = "splight-db.json"
+
 
 class LocalDatabaseClient(AbstractDatabaseClient):
     """Database Client implementation for a local database that uses a
@@ -20,7 +22,7 @@ class LocalDatabaseClient(AbstractDatabaseClient):
 
     def __init__(self, path: str, *args, **kwargs):
         super().__init__()
-        self._db_file = os.path.join(path, "splight-db.json")
+        self._db_file = os.path.join(path, LOCAL_DB_FILE)
 
         if not os.path.exists(self._db_file):
             self._save_db(self._db_file, {})
