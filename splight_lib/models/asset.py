@@ -6,16 +6,11 @@ from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
-class Tag(BaseModel):
-    name: str
-    description: Optional[str] = None
-
-
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
-    tags: List[Tag] = []
+    tags: List[str] = []
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
