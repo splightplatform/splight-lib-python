@@ -162,13 +162,14 @@ class HubComponent(BaseModel):
         if not os.path.exists(readme_path):
             readme_path = os.path.join(path, README_FILE_2)
         with py7zr.SevenZipFile(file_name, "w") as archive:
-
             all_files = glob(f"{path}/**", recursive=True)
             for filename in all_files:
-                filepath = os.path.join(path, filename)
-                if ignore_pathspec and ignore_pathspec.match_file(filepath):
+                if ignore_pathspec and ignore_pathspec.match_file(filename):
                     continue
-                archive.write(filepath, os.path.join(versioned_name, filename))
+                if os.path.isdir(filename):
+                    continue
+                filepath = filename.replace(path, f"{versioned_name}/")
+                archive.write(filename, filepath)
 
         data = {
             "name": name,
