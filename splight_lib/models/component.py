@@ -318,3 +318,13 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
             }
         )
         return cls.parse_obj(params_dict)
+
+    @classmethod
+    def from_component(
+        cls,
+        component: Component,
+    ) -> Dict[str, "ComponentObjectInstance"]:
+        return {
+            ct.name: cls.from_custom_type(ct, component.id)
+            for ct in component.custom_types
+        }
