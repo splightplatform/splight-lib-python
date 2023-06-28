@@ -49,13 +49,13 @@ class Chart(SplightDatabaseBaseModel):
     name: str
     description: Optional[str]
     items: Optional[List[ChartItem]]
-    tab: Optional[str]
-    position_x: Optional[str]
-    position_y: Optional[str]
-    height: Optional[str]
-    width: Optional[str]
-    min_height: Optional[str]
-    min_width: Optional[str]
+    tab: str
+    position_x: Optional[str] = 0
+    position_y: Optional[str] = 0
+    height: Optional[str] = 28
+    width: Optional[str] = 80
+    min_height: Optional[str] = 14
+    min_width: Optional[str] = 14
     type: Optional[str]
     timestamp_gte: Optional[str]
     timestamp_lte: Optional[str]
@@ -72,10 +72,9 @@ class Tab(SplightDatabaseBaseModel):
     name: str
     charts: Optional[List[Chart]]
     order: Optional[int]
-    dashboard: Optional[str]
+    dashboard: str
 
 class Dashboard(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: str
-
+    description: Optional[str]
