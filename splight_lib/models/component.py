@@ -279,6 +279,7 @@ class ComponentObjectInstance(SplightDatabaseBaseModel):
         for field in custom_type.fields:
             field_type = DB_MODEL_TYPE_MAPPING.get(field.type, cls)
             field_type = List[field_type] if field.multiple else field_type
+            field_type = Optional[field_type] if not field.required else field_type
             fields.update({field.name: (field_type, ...)})
         fields.update(
             {
