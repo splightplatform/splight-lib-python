@@ -14,7 +14,7 @@ class Asset(SplightDatabaseBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
-    centroid: Optional[Point]
+    centroid_coordinates: Optional[Point]
     external_id: Optional[str] = None
     is_public: bool = False
 
