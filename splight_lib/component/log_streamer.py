@@ -20,6 +20,14 @@ class ComponentLogsStreamer:
         self._logs_entry = self._client._log_entry
 
     def start(self):
+        from threading import Thread
+        self._thread = Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def stop(self):
+        self._thread.stop()
+
+    def _run(self):
         self._client.stream_logs(self.logs_iterator, self._component_id)
 
     def logs_iterator(self) -> Generator:
