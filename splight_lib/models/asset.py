@@ -9,13 +9,13 @@ class Asset(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
     description: Optional[str] = None
-    latitude: Optional[float]
-    longitude: Optional[float]
     tags: List[str] = []
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
     centroid_coordinates: Optional[Tuple[float, float]]
+    external_id: Optional[str] = None
+    is_public: bool = False
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(

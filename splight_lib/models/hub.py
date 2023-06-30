@@ -157,19 +157,20 @@ class HubComponent(BaseModel):
         version = spec["version"]
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
-        versioned_name = f"{name}-{version}"
+        versioned_path = f"{name}-{version}"
         readme_path = os.path.join(path, README_FILE_1)
         if not os.path.exists(readme_path):
             readme_path = os.path.join(path, README_FILE_2)
         with py7zr.SevenZipFile(file_name, "w") as archive:
             all_files = glob(f"{path}/**", recursive=True)
-            for filename in all_files:
-                if ignore_pathspec and ignore_pathspec.match_file(filename):
+            for filepath in all_files:
+                if ignore_pathspec and ignore_pathspec.match_file(filepath):
                     continue
-                if os.path.isdir(filename):
+                if os.path.isdir(filepath):
                     continue
-                filepath = filename.replace(path, f"{versioned_name}/")
-                archive.write(filename, filepath)
+                filename = os.path.basename(filepath)
+                new_filepath = os.path.join(versioned_path, filename)
+                archive.write(filepath, new_filepath)
 
         data = {
             "name": name,
@@ -191,9 +192,13 @@ class HubComponent(BaseModel):
             "file": open(file_name, "rb"),
             "readme": open(readme_path, "rb"),
         }
-        component = hub_client.upload(data=data, files=files)
-        if os.path.exists(file_name):
-            os.remove(file_name)
+        try:
+            component = hub_client.upload(data=data, files=files)
+        except Exception as exc:
+            raise Exception("unable to push component") from exc
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
         return cls.parse_obj(component)
 
 
