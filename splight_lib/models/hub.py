@@ -192,9 +192,13 @@ class HubComponent(BaseModel):
             "file": open(file_name, "rb"),
             "readme": open(readme_path, "rb"),
         }
-        component = hub_client.upload(data=data, files=files)
-        if os.path.exists(file_name):
-            os.remove(file_name)
+        try:
+            component = hub_client.upload(data=data, files=files)
+        except Exception as exc:
+            raise Exception("unable to push component") from exc
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
         return cls.parse_obj(component)
 
 
