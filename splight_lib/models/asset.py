@@ -1,7 +1,6 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
-from geojson_pydantic import GeometryCollection, Point
-from pydantic import BaseModel
+from geojson_pydantic import GeometryCollection
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 
@@ -14,7 +13,7 @@ class Asset(SplightDatabaseBaseModel):
     attributes: List[Attribute] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
-    centroid_coordinates: Optional[Point]
+    centroid_coordinates: Optional[Tuple[float, float]]
     external_id: Optional[str] = None
     is_public: bool = False
 
