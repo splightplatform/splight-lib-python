@@ -1,8 +1,6 @@
-from datetime import datetime, timezone
 from typing import Callable, Optional, Tuple
 
 import grpc
-from google.protobuf.timestamp_pb2 import Timestamp
 
 from splight_lib.client.grpc.reflector import GrpcReflectionClient
 
@@ -35,7 +33,6 @@ class SplightGRPCClient:
         self._auth_header: Optional[Tuple[str, str]] = None
 
     def set_authorization_header(self, access_id: str, secret_key: str):
-        print(access_id, secret_key)
         self._auth_header = (
             SplightGRPCClient.AUTHORIZATION,
             f"Splight {access_id} {secret_key}",
@@ -61,7 +58,6 @@ class LogsGRPCClient(SplightGRPCClient):
     ):
         for message in message_iterator:
             yield self._log_entry(
-                timestamp=Timestamp().FromDatetime(dt=datetime.now()),
                 message=message,
                 component_id=component_id,
             )
