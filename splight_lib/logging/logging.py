@@ -1,7 +1,7 @@
-import json
+# import json
 import os
 import sys
-import time
+# import time
 from logging import (
     CRITICAL,
     DEBUG,
@@ -15,11 +15,11 @@ from logging import (
     StreamHandler,
 )
 from logging import root as rootLogger
-from typing import Dict, Literal, Optional
+from typing import Dict, Optional
 
-from concurrent_log_handler import ConcurrentRotatingFileHandler
-from pydantic import BaseSettings
-from splight_lib.logging.constants import LOGGING_DEV, LogType
+# from concurrent_log_handler import ConcurrentRotatingFileHandler
+# from pydantic import BaseSettings
+# from splight_lib.logging.constants import LOGGING_DEV, LogType
 
 TAGS_KEY = "tags"
 
@@ -31,6 +31,8 @@ class SplightFormatter(Formatter):
 
     def format(self, record):
         fmt = self.DEFAULT_FMT
+        # if record.levelname in ["EXCEPTION", "ERROR"]:
+        #     __import__('ipdb').set_trace()
         try:
             if record.tags is not None:
                 fmt = " | ".join([fmt, "%(tags)s"])
@@ -41,19 +43,28 @@ class SplightFormatter(Formatter):
         return formatter.format(record)
 
 
-class ElasticDocumentFormatter(Formatter):
-    def __init__(self, fmt: str = None, type: LogType = LOGGING_DEV) -> None:
-        super().__init__(fmt=fmt)
-        self.type = type
+# class SplightExceptionFormatter(SplightFormatter):
+#     def format(self, record):
+#         fmt = self.DEFAULT_FMT
+#
+#         __import__('ipdb').set_trace()
+#         formatter = Formatter(fmt=fmt, datefmt="%Y-%m-%dT%H:%M:%S%z")
+#         return formatter.format(record)
 
-    @property
-    def _extra_fields(self) -> Dict:
-        return {
-            "type": self.type,
-        }
 
-    def format(self, record):
-        return json.dumps({**record.__dict__, **self._extra_fields})
+# class ElasticDocumentFormatter(Formatter):
+#     def __init__(self, fmt: str = None, type: LogType = LOGGING_DEV) -> None:
+#         super().__init__(fmt=fmt)
+#         self.type = type
+#
+#     @property
+#     def _extra_fields(self) -> Dict:
+#         return {
+#             "type": self.type,
+#         }
+#
+#     def format(self, record):
+#         return json.dumps({**record.__dict__, **self._extra_fields})
 
 
 class SplightLogger(Logger):
@@ -116,6 +127,9 @@ class SplightLogger(Logger):
         record = self.makeRecord(
             self.name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
         )
+        # print(level)
+        # if level == 40:
+        #     __import__('ipdb').set_trace()
         self.handle(record)
 
     def setLevel(self, level, update_handlers=True):
@@ -167,28 +181,28 @@ def standard_output_handler(
     return handler
 
 
-class ElasticDocumentHandlerSettings(BaseSettings):
-    splight_elastic_logs_filename: str = "/tmp/splight_elastic_logs.log"
-    splight_elastic_logs_max_bytes: int = 5e6
-    splight_elastic_logs_backup_count: int = 5
-
-    @property
-    def file_handler_settings(self) -> Dict:
-        return {
-            "filename": self.splight_elastic_logs_filename,
-            "maxBytes": self.splight_elastic_logs_max_bytes,
-            "backupCount": self.splight_elastic_logs_backup_count,
-            "encoding": "utf-8",
-        }
-
-
-def elastic_document_handler(
-    formatter: Optional[Formatter] = SplightFormatter(),
-    log_level: Optional[str] = INFO,
-) -> Handler:
-    settings = ElasticDocumentHandlerSettings()
-    handler = ConcurrentRotatingFileHandler(**settings.file_handler_settings)
-
-    handler.setFormatter(formatter)
-    handler.setLevel(log_level)
-    return handler
+# class ElasticDocumentHandlerSettings(BaseSettings):
+#     splight_elastic_logs_filename: str = "/tmp/splight_elastic_logs.log"
+#     splight_elastic_logs_max_bytes: int = 5e6
+#     splight_elastic_logs_backup_count: int = 5
+#
+#     @property
+#     def file_handler_settings(self) -> Dict:
+#         return {
+#             "filename": self.splight_elastic_logs_filename,
+#             "maxBytes": self.splight_elastic_logs_max_bytes,
+#             "backupCount": self.splight_elastic_logs_backup_count,
+#             "encoding": "utf-8",
+#         }
+#
+#
+# def elastic_document_handler(
+#     formatter: Optional[Formatter] = SplightFormatter(),
+#     log_level: Optional[str] = INFO,
+# ) -> Handler:
+#     settings = ElasticDocumentHandlerSettings()
+#     handler = ConcurrentRotatingFileHandler(**settings.file_handler_settings)
+#
+#     handler.setFormatter(formatter)
+#     handler.setLevel(log_level)
+#     return handler
