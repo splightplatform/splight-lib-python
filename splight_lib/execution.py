@@ -332,7 +332,9 @@ class ExecutionClient(AbstractClient):
         if not getattr(self, "_scheduler", None):
             # Instantiate and start Scheduler thread
             self._scheduler = Scheduler()
-            self._start_thread(Thread(target=self._scheduler.start))
+            self._start_thread(
+                Thread(target=self._scheduler.start, daemon=False)
+            )
 
         return self._scheduler.schedule(job)
 
