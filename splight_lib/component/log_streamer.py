@@ -17,6 +17,7 @@ class ComponentLogsStreamer:
 
         self._client = LogsGRPCClient(
             grpc_host=settings.SPLIGHT_GRPC_HOST,
+            secure_channel=True
         )
         self._client.set_authorization_header(
             access_id=settings.SPLIGHT_ACCESS_ID,

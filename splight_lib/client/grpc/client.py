@@ -13,15 +13,18 @@ class SplightGRPCClient:
     AUTHORIZATION: str = "authorization"
     _SERVICE_NAME: str = None
 
-    def __init__(self, grpc_host: str):
+    def __init__(self, grpc_host: str, secure_channel: bool = True):
         if not self._SERVICE_NAME:
             raise MissingGRPCService("Missing parameter service_name")
-        # self._channel = grpc.secure_channel(
-        #     grpc_host, grpc.ssl_channel_credentials()
-        # )
-        self._channel = grpc.insecure_channel(
-            grpc_host
-        )
+
+        if secure_channel:
+            self._channel = grpc.secure_channel(
+                grpc_host, grpc.ssl_channel_credentials()
+            )
+        else:
+            self._channel = grpc.insecure_channel(
+                grpc_host
+            )
 
         self._reflector = GrpcReflectionClient()
         self._reflector.load_protocols(
