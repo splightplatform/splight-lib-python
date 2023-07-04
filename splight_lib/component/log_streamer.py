@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 from subprocess import Popen
 from typing import Generator, Optional
 
@@ -16,8 +16,7 @@ class ComponentLogsStreamer:
         self._component_id = component_id
 
         self._client = LogsGRPCClient(
-            grpc_host=settings.SPLIGHT_GRPC_HOST,
-            secure_channel=True
+            grpc_host=settings.SPLIGHT_GRPC_HOST, secure_channel=True
         )
         self._client.set_authorization_header(
             access_id=settings.SPLIGHT_ACCESS_ID,
@@ -32,13 +31,28 @@ class ComponentLogsStreamer:
         self._thread.stop()
 
     def _run(self):
+        # for msg in self.logs_iterator():
+        #     continue
         self._client.stream_logs(self.logs_iterator, self._component_id)
 
     def logs_iterator(self) -> Generator:
         self._message_buffer = []
+        reader = iter(self._process.stdout.readline, "")
+        for new_line in reader:
+            if self._process.poll() is not None:
+                print("CRASHED")
+                msg = "".join(self._message_buffer)
+                sys.stdout.write(msg)
+                yield msg
+                output, error = self._process.communicate()
+                output_msg = output.decode("utf-8")
+                error_msg = error.decode("utf-8")
+                sys.stdout.write(output_msg)
+                yield output_msg
+                sys.stdout.write(error_msg)
+                yield error_msg
+                break
 
-        reader = self._process.stdout.readline
-        for new_line in iter(reader, ""):
             line_msg = new_line.decode("utf-8")
             sys.stdout.write(line_msg)
 
