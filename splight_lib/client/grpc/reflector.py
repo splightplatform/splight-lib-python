@@ -304,7 +304,6 @@ class GrpcReflectionClient:
         Raises:
             KeyError: File defining message has not been loaded.
         """
-        print(name)
         return self._engine.message_from_descr(
             self._engine.pool.FindMessageTypeByName(name)
         )
