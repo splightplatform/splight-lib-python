@@ -46,8 +46,8 @@ class LogsGRPCClient(SplightGRPCClient):
     _SERVICE_NAME: str = "LogsService"
     _LOG_ENTRY: str = "LogEntry"
 
-    def __init__(self, grpc_host: str):
-        super().__init__(grpc_host)
+    def __init__(self, grpc_host: str, secure_channel: bool = True):
+        super().__init__(grpc_host, secure_channel=secure_channel)
         self._log_entry = self._reflector.message_class(self._LOG_ENTRY)
 
     def stream_logs(self, log_generator: Callable, component_id: str):
