@@ -31,8 +31,6 @@ class SplightFormatter(Formatter):
 
     def format(self, record):
         fmt = self.DEFAULT_FMT
-        # if record.levelname in ["EXCEPTION", "ERROR"]:
-        #     __import__('ipdb').set_trace()
         try:
             if record.tags is not None:
                 fmt = " | ".join([fmt, "%(tags)s"])
@@ -127,9 +125,6 @@ class SplightLogger(Logger):
         record = self.makeRecord(
             self.name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
         )
-        # print(level)
-        # if level == 40:
-        #     __import__('ipdb').set_trace()
         self.handle(record)
 
     def setLevel(self, level, update_handlers=True):
