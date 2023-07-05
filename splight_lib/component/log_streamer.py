@@ -31,8 +31,6 @@ class ComponentLogsStreamer:
         self._thread.stop()
 
     def _run(self):
-        # for msg in self.logs_iterator():
-        #     continue
         self._client.stream_logs(self.logs_iterator, self._component_id)
 
     def logs_iterator(self) -> Generator:
@@ -40,7 +38,6 @@ class ComponentLogsStreamer:
         reader = iter(self._process.stdout.readline, "")
         for new_line in reader:
             if self._process.poll() is not None:
-                print("CRASHED")
                 msg = "".join(self._message_buffer)
                 sys.stdout.write(msg)
                 yield msg
