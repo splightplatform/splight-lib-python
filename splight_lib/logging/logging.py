@@ -30,7 +30,6 @@ class SplightFormatter(Formatter):
                 fmt = " | ".join([fmt, "%(tags)s"])
         except AttributeError:
             pass  # tags aren't present
-        # formatter = Formatter(fmt=fmt, datefmt="%Y-%m-%dT%H:%M:%S%z")
         formatter = Formatter(fmt=fmt, datefmt="%Y-%m-%dT%H:%M:%SZ")
         formatter.converter = time.gmtime
         return formatter.format(record)
