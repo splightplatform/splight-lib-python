@@ -6,7 +6,6 @@ from logging import (
     DEBUG,
     ERROR,
     INFO,
-    NOTSET,
     WARNING,
     Formatter,
     Handler,
