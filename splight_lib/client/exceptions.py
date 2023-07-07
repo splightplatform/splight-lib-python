@@ -1,4 +1,4 @@
-from httpx import ConnectError, ReadTimeout
+from httpx import ConnectError, ReadTimeout, HTTPStatusError
 from requests.exceptions import ConnectionError, Timeout
 from splight_lib.restclient import ConnectError as SplightConnectError
 from splight_lib.restclient import HTTPError
@@ -7,6 +7,7 @@ from splight_lib.restclient import Timeout as TimeoutError
 REQUEST_EXCEPTIONS = (ConnectionError, Timeout)
 SPLIGHT_REQUEST_EXCEPTIONS = (
     HTTPError,
+    HTTPStatusError,
     TimeoutError,
     ConnectError,
     ReadTimeout,
