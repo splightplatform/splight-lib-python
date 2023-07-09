@@ -14,6 +14,8 @@ from splight_lib.models.component import (
     Endpoint,
     InputParameter,
     Output,
+    CustomType,
+    Routine
 )
 from splight_lib.settings import settings
 from splight_lib.utils.hub import (
@@ -57,6 +59,8 @@ class HubComponent(BaseModel):
 
     input: List[InputParameter] = []
     output: List[Output] = []
+    routines: List[Routine] = []
+    custom_types: List[CustomType] = []
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
     bindings: List[Binding] = []
@@ -170,23 +174,19 @@ class HubComponent(BaseModel):
                     continue
                 archive.write(filepath, os.path.join(versioned_name, filename))
 
-        data = {
-            "name": name,
-            "version": version,
-            "splight_cli_version": spec["splight_cli_version"],
-            "privacy_policy": spec.get("privacy_policy", "private"),
-            "tags": spec.get("tags", []),
-            "custom_types": json.dumps(spec.get("custom_types", [])),
-            "routines": json.dumps(spec.get("routines", [])),
-            "input": json.dumps(spec.get("input", [])),
-            "output": json.dumps(spec.get("output", [])),
-            "component_type": spec.get(
-                "component_type", ComponentType.CONNECTOR.value
-            ),
-            "commands": json.dumps(spec.get("commands", [])),
-            "bindings": json.dumps(spec.get("bindings", [])),
-            "endpoints": json.dumps(spec.get("endpoints", [])),
-        }
+        spec["name"] = name
+        spec["version"] = version
+        spec.setdefault(
+            "component_type", ComponentType.CONNECTOR.value
+        )
+        data_cls = cls.parse_obj(spec)
+
+        data = data_cls.dict(exclude_none=True)
+
+        to_json = ["tags", "routines", "custom_types", "input", "output", "commands", "bindings", "endpoints"]
+        for key in to_json:
+            data[key] = json.dumps(data[key])
+
         files = {
             "file": open(file_name, "rb"),
             "readme": open(readme_path, "rb"),
