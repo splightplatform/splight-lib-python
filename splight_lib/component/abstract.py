@@ -147,7 +147,7 @@ class SplightBaseComponent:
         ]
         self._load_bindings(bindings, component_objects)
         self._load_setpoints(setpoints)
-        self._laod_routines(self._spec.routines, routines_objects)
+        self._load_routines(self._spec.routines, routines_objects)
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routines_objects)
@@ -221,7 +221,7 @@ class SplightBaseComponent:
                 ),
             )
 
-    def _laod_routines(
+    def _load_routines(
         self,
         routines: List[Routine],
         routines_objects: Dict[str, Type[RoutineObjectInstance]],
