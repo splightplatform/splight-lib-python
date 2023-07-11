@@ -9,6 +9,7 @@ from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.models.component import (
     Binding,
+    CustomType,
     Command,
     ComponentType,
     Endpoint,
@@ -55,6 +56,7 @@ class HubComponent(BaseModel):
     min_component_capacity: Optional[str]
     usage_count: int = 0
 
+    custom_types: List[CustomType] = []
     input: List[InputParameter] = []
     output: List[Output] = []
     commands: List[Command] = []
