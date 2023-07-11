@@ -53,8 +53,7 @@ def database_object_event_handler(
     """
     try:
         logger.info(
-            "Binding for native object of type %s triggered.",
-            binding_object_type,
+            f"Binding for object of type {binding_object_type} triggered.",
             tags=LogTags.BINDING,
         )
         event = CommunicationEvent.parse_raw(event_str)
@@ -64,9 +63,10 @@ def database_object_event_handler(
         else:
             # Case for data represents a ComponentObject
             component_obj = ComponentObject.parse_obj(event.data)
-            handler_arg = ComponentObjectInstance.from_component_object(
+            model_class = ComponentObjectInstance.from_component_object(
                 component_obj
             )
+            handler_arg = model_class.parse_component_object(component_obj)
         binding_function(handler_arg)
     except Exception as exc:
         logger.error(
