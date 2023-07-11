@@ -312,7 +312,6 @@ class ExecutionClient(AbstractClient):
         if isinstance(job, Popen):
             raise NotImplementedError
         if isinstance(job, Thread):
-            return
             raise NotImplementedError
         if isinstance(job, Task):
             return self._stop_task(job)
