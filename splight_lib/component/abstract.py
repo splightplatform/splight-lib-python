@@ -182,9 +182,9 @@ class SplightBaseComponent:
                 type_, component_objects.get(type_)
             )
             if not model_class:
-                raise InvalidBidingObject(model_class.__class__.__name__)
+                raise InvalidBidingObject(model_class.__name__)
             event_name = model_class.get_event_name(
-                model_class.__class__.__name__, binding.object_action
+                model_class.__name__, binding.object_action
             )
             callback_func = getattr(self, binding.name, None)
             if not callback_func:
