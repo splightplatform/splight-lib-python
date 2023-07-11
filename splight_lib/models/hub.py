@@ -168,8 +168,8 @@ class HubComponent(BaseModel):
                     continue
                 if os.path.isdir(filepath):
                     continue
-                filename = os.path.basename(filepath)
-                new_filepath = os.path.join(versioned_path, filename)
+                rel_filename = os.path.relpath(filepath, path)
+                new_filepath = os.path.join(versioned_path, rel_filename)
                 archive.write(filepath, new_filepath)
 
         data = {
