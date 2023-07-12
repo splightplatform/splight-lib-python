@@ -105,8 +105,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._restclient.delete(url)
         response.raise_for_status()
 
-    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
-    @retry(Exception, tries=3, delay=1)
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _get(
         self,
         resource_name: str,

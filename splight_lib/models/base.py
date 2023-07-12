@@ -82,10 +82,6 @@ class SplightDatalakeBaseModel(BaseModel):
     class Config:
         json_dumps = datalake_model_serializer
 
-    def __init__(self, **data):
-        super().__init__(**data)
-        self._dl_client = self.__get_datalake_client()
-
     @classmethod
     def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
         dl_client = cls.__get_datalake_client()
@@ -108,7 +104,8 @@ class SplightDatalakeBaseModel(BaseModel):
         return df
 
     def save(self):
-        self._dl_client.save(
+        dl_client = self.__get_datalake_client()
+        dl_client.save(
             collection=self._collection_name,
             instances=json.loads(self.json()),
         )

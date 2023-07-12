@@ -93,6 +93,10 @@ class QuerySet(UserList):
 
         return len(self.data)
 
+    def first(self):
+        result = self[:1]
+        return result[0] if result else None
+
     def count(self):
         return len(self)
 

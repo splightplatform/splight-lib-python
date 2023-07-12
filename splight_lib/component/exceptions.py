@@ -18,6 +18,12 @@ class MissingBindingCallback(Exception):
         super().__init__(msg)
 
 
+class MissingRoutineCallback(Exception):
+    def __init__(self, routine_name: str, action: str):
+        msg = f"Missing method associated with a Routine: {routine_name} {action}_handler event"
+        super().__init__(msg)
+
+
 class InvalidBidingObject(Exception):
     def __init__(self, model_name: str):
         msg = f"Model {model_name} is not a valid model for a binding"

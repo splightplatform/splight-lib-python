@@ -10,6 +10,8 @@ from splight_lib.models.component import (
     Command,
     ComponentObject,
     ComponentObjectInstance,
+    RoutineObject,
+    RoutineObjectInstance,
     get_field_value,
 )
 from splight_lib.models.event import (
@@ -35,6 +37,10 @@ class InvalidSetPointResponse(Exception):
     pass
 
 
+class InvalidBidingObject(Exception):
+    pass
+
+
 def database_object_event_handler(
     binding_function: Callable,
     binding_object_type: Type[SplightDatabaseBaseModel],
@@ -53,20 +59,32 @@ def database_object_event_handler(
     """
     try:
         logger.info(
-            "Binding for native object of type %s triggered.",
-            binding_object_type,
+            f"Binding for object of type {binding_object_type} triggered.",
             tags=LogTags.BINDING,
         )
         event = CommunicationEvent.parse_raw(event_str)
         if binding_object_type in DB_MODEL_TYPE_MAPPING.values():
             # Case in which is not a ComponentObject
             handler_arg = binding_object_type.parse_obj(event.data)
-        else:
+        elif issubclass(binding_object_type, ComponentObjectInstance):
             # Case for data represents a ComponentObject
             component_obj = ComponentObject.parse_obj(event.data)
-            handler_arg = ComponentObjectInstance.from_component_object(
+            model_class = ComponentObjectInstance.from_object(
                 component_obj
             )
+            handler_arg = model_class.parse_object(component_obj)
+        elif issubclass(binding_object_type, RoutineObjectInstance):
+            # Case for data represents a RoutineObject
+            routine_obj = RoutineObject.parse_obj(event.data)
+            model_class = RoutineObjectInstance.from_object(
+                component_obj
+            )
+            handler_arg = model_class.parse_object(routine_obj)
+        else:
+            raise InvalidBidingObject(
+                f"Invalid binding object type: {binding_object_type}"
+            )
+
         binding_function(handler_arg)
     except Exception as exc:
         logger.error(

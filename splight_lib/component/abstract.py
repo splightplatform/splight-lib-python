@@ -2,7 +2,6 @@ import os
 import sys
 from functools import partial
 from tempfile import NamedTemporaryFile
-from threading import Thread
 from time import sleep
 from typing import Dict, List, Optional, Type
 
@@ -12,6 +11,7 @@ from retry import retry
 from splight_lib.auth import SplightAuthToken
 
 # TODO: Use builder pattern
+from splight_lib.execution import Thread
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
@@ -22,6 +22,7 @@ from splight_lib.component.exceptions import (
     DuplicatedComponentException,
     InvalidBidingObject,
     MissingBindingCallback,
+    MissingRoutineCallback,
     MissingCommandCallback,
     MissingSetPointCallback,
 )
@@ -33,6 +34,9 @@ from splight_lib.models.component import (
     Binding,
     Command,
     ComponentObjectInstance,
+    Routine,
+    RoutineObject,
+    RoutineObjectInstance,
 )
 from splight_lib.models.event import EventNames
 from splight_lib.models.setpoint import SetPoint
@@ -110,7 +114,7 @@ class SplightBaseComponent:
         self._execution_engine = ExecutionClient()
         health_check = HealthCheckProcessor(self._execution_engine)
         self._health_check_thread = Thread(
-            target=health_check.start, args=(), daemon=True
+            target=health_check.start, args=()
         )
         self._execution_engine.start(self._health_check_thread)
 
@@ -123,6 +127,12 @@ class SplightBaseComponent:
                 ct, component_id=component_id
             )
             for ct in self._spec.custom_types
+        }
+        routines_objects = {
+            routine.name: RoutineObjectInstance.from_routine(
+                routine, component_id=self._component_id
+            )
+            for routine in self._spec.routines
         }
 
         bindings = [
@@ -137,8 +147,10 @@ class SplightBaseComponent:
         ]
         self._load_bindings(bindings, component_objects)
         self._load_setpoints(setpoints)
+        self._load_routines(self._spec.routines, routines_objects)
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
+        self._routines = self._get_routine_model(routines_objects)
 
     @property
     def input(self) -> BaseModel:
@@ -147,6 +159,10 @@ class SplightBaseComponent:
     @property
     def output(self) -> BaseModel:
         return self._output
+
+    @property
+    def routines(self) -> Type:
+        return self._routines
 
     @property
     def custom_types(self) -> BaseModel:
@@ -158,8 +174,14 @@ class SplightBaseComponent:
 
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
-    ):
+    ) -> BaseModel:
         custom_type_model = create_model("CustomTypes", **component_object)
+        return custom_type_model()
+
+    def _get_routine_model(
+        self, routine_object: Dict[str, Type[RoutineObjectInstance]]
+    ) -> BaseModel:
+        custom_type_model = create_model("CustomTypes", **routine_object)
         return custom_type_model()
 
     def _load_spec(self) -> Spec:
@@ -182,9 +204,9 @@ class SplightBaseComponent:
                 type_, component_objects.get(type_)
             )
             if not model_class:
-                raise InvalidBidingObject(model_class.__class__.__name__)
+                raise InvalidBidingObject(model_class.__name__)
             event_name = model_class.get_event_name(
-                model_class.__class__.__name__, binding.object_action
+                model_class.__name__, binding.object_action
             )
             callback_func = getattr(self, binding.name, None)
             if not callback_func:
@@ -198,6 +220,39 @@ class SplightBaseComponent:
                     model_class,
                 ),
             )
+
+    def _load_routines(
+        self,
+        routines: List[Routine],
+        routines_objects: Dict[str, Type[RoutineObjectInstance]],
+    ) -> None:
+        """Loads and assigns callbacks to the routines."""
+
+        actions = ["create", "update", "delete"]
+        for routine in routines:
+            model_calss = routines_objects.get(routine.name)
+
+            for action in actions:
+
+                event_name = RoutineObject.get_event_name(
+                    model_calss .__name__, action
+                )
+
+                callback_func = getattr(
+                    self,
+                    getattr(routine, f"{action}_handler"),
+                    None
+                )
+                if not callback_func:
+                    raise MissingRoutineCallback(routine.name, action)
+                self._comm_client.bind(
+                    event_name,
+                    partial(
+                        database_object_event_handler,
+                        callback_func,
+                        model_calss
+                    ),
+                )
 
     def _load_setpoints(self, setpoints: List[SetPoint]):
         """Loads and assigns callbacks to the setpoing."""
