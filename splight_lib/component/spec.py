@@ -17,6 +17,7 @@ from splight_lib.models.component import (
     InputParameter,
     Output,
     PrivacyPolicy,
+    Routine,
     get_field_value,
 )
 from splight_lib.utils.custom_model import create_custom_model
@@ -85,6 +86,7 @@ class Spec(BaseModel):
     input: List[InputParameter] = []
     output: List[Output] = []
     bindings: List[Binding] = []
+    routines: List[Routine] = []
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
 

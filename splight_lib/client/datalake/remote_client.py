@@ -30,7 +30,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         )
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
-        logger.info(
+        logger.debug(
             "Remote datalake client initialized.", tags=LogTags.DATALAKE
         )
 
