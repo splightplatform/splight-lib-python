@@ -13,7 +13,7 @@ from splight_lib.models.component import (  # noqa: E402
     CustomType,
 )
 from splight_lib.models.exceptions import (  # noqa: E402
-    InvalidComponentObjectInstance,
+    InvalidObjectInstance,
 )
 from splight_lib.settings import settings  # noqa: E402
 
@@ -33,10 +33,10 @@ MY_CUSTOM_TYPE = CustomType.parse_obj(
 
 
 def test_invalid_component_object_instance():
-    with pytest.raises(InvalidComponentObjectInstance):
+    with pytest.raises(InvalidObjectInstance):
         ComponentObjectInstance.list()
 
-    with pytest.raises(InvalidComponentObjectInstance):
+    with pytest.raises(InvalidObjectInstance):
         ComponentObjectInstance.retrieve("1234")
 
 
