@@ -69,14 +69,17 @@ def database_object_event_handler(
         elif issubclass(binding_object_type, ComponentObjectInstance):
             # Case for data represents a ComponentObject
             component_obj = ComponentObject.parse_obj(event.data)
-            model_class = ComponentObjectInstance.from_component_object(
+            model_class = ComponentObjectInstance.from_object(
                 component_obj
             )
-            handler_arg = model_class.parse_component_object(component_obj)
+            handler_arg = model_class.parse_object(component_obj)
         elif issubclass(binding_object_type, RoutineObjectInstance):
             # Case for data represents a RoutineObject
             routine_obj = RoutineObject.parse_obj(event.data)
-            handler_arg = binding_object_type.parse_object(routine_obj)
+            model_class = RoutineObjectInstance.from_object(
+                component_obj
+            )
+            handler_arg = model_class.parse_object(routine_obj)
         else:
             raise InvalidBidingObject(
                 f"Invalid binding object type: {binding_object_type}"
