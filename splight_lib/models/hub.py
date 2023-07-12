@@ -9,6 +9,7 @@ from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.models.component import (
     Binding,
+    CustomType,
     Command,
     ComponentType,
     Endpoint,
@@ -57,6 +58,7 @@ class HubComponent(BaseModel):
     min_component_capacity: Optional[str]
     usage_count: int = 0
 
+    custom_types: List[CustomType] = []
     input: List[InputParameter] = []
     output: List[Output] = []
     routines: List[Routine] = []
@@ -172,8 +174,8 @@ class HubComponent(BaseModel):
                     continue
                 if os.path.isdir(filepath):
                     continue
-                filename = os.path.basename(filepath)
-                new_filepath = os.path.join(versioned_path, filename)
+                rel_filename = os.path.relpath(filepath, path)
+                new_filepath = os.path.join(versioned_path, rel_filename)
                 archive.write(filepath, new_filepath)
 
         spec["name"] = name
