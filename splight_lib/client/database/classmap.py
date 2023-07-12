@@ -9,6 +9,7 @@ MODEL_NAME_MAP = {
     "chartitem": f"{ENGINE_PREFIX}/dashboard/chartitems/",
     "component": f"{ENGINE_PREFIX}/component/components/",
     "componentobject": f"{ENGINE_PREFIX}/component/objects/",
+    "routineobject": f"{ENGINE_PREFIX}/component/routines/",
     "dashboard": f"{ENGINE_PREFIX}/dashboard/dashboards/",
     "file": f"{ENGINE_PREFIX}/files/",
     "filter": f"{ENGINE_PREFIX}/dashboard/filters/",

@@ -1,4 +1,4 @@
-class InvalidComponentObjectInstance(Exception):
+class InvalidObjectInstance(Exception):
     pass
 
 
