@@ -1,14 +1,11 @@
 import os
-from logging import INFO, Formatter, Handler, basicConfig
+from logging import INFO, Formatter, Handler
 from typing import Optional
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
-from splight_lib.logging.constants import LOGGING_COMPONENTS
 from splight_lib.logging.logging import (
-    ElasticDocumentFormatter,
     SplightFormatter,
     SplightLogger,
-    elastic_document_handler,
     standard_output_handler,
 )
 
@@ -39,11 +36,6 @@ def get_component_logger(name: Optional[str] = None):
     logger.addHandler(stdout_handler)
     file_handler = component_file_handler(log_level=logger.level)
     logger.addHandler(file_handler)
-    es_handler = elastic_document_handler(
-        formatter=ElasticDocumentFormatter(type=LOGGING_COMPONENTS),
-        log_level=logger.level,
-    )
-    logger.addHandler(es_handler)
 
     # Add logger.level to root logger
     logger.setLevel(logger.level)
