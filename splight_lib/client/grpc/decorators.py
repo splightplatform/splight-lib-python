@@ -15,7 +15,6 @@ def retry_streaming(times=3, delay=0.5, delay_factor=2):
             except grpc.RpcError as e:
                 print(f"Error: {e}")
                 logger.error(f"Error: {e}")
-                sleep(1)
                 if times == 0:
                     raise grpc.RpcError("Max retries exceeded")
                 sleep(delay)
