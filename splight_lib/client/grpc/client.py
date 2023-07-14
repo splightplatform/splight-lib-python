@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Tuple
 
 import grpc
-
+from splight_lib.client.grpc.decorators import retry_streaming
 from splight_lib.client.grpc.reflector import GrpcReflectionClient
 
 
@@ -22,9 +22,7 @@ class SplightGRPCClient:
                 grpc_host, grpc.ssl_channel_credentials()
             )
         else:
-            self._channel = grpc.insecure_channel(
-                grpc_host
-            )
+            self._channel = grpc.insecure_channel(grpc_host)
 
         self._reflector = GrpcReflectionClient()
         self._reflector.load_protocols(
@@ -50,15 +48,14 @@ class LogsGRPCClient(SplightGRPCClient):
         super().__init__(grpc_host, secure_channel=secure_channel)
         self._log_entry = self._reflector.message_class(self._LOG_ENTRY)
 
+    @retry_streaming(times=5)
     def stream_logs(self, log_generator: Callable, component_id: str):
         self._stub.stash_log_entry(
             self._parse_log_message(log_generator(), component_id),
             metadata=[self._auth_header],
         )
 
-    def _parse_log_message(
-        self, message_iterator: str, component_id: str
-    ):
+    def _parse_log_message(self, message_iterator: str, component_id: str):
         for message in message_iterator:
             yield self._log_entry(
                 message=message,
