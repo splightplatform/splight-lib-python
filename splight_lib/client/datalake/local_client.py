@@ -112,7 +112,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         )
 
         documents = self._raw_get(**filters)
-        df = pd.DataFrarame([x.dict() for x in documents])
+        df = pd.DataFrame(documents)
 
         if not df.empty:
             df["timestamp"] = pd.to_datetime(df["timestamp"])
