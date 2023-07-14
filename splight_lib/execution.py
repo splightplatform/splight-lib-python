@@ -300,7 +300,6 @@ class ExecutionClient(AbstractClient):
 
     def start(self, job=Union[Popen, Thread, Task]):
         logger.info("Executing new job.", tags=LogTags.RUNTIME)
-
         if isinstance(job, Popen):
             return self._start_process(job)
         if isinstance(job, Thread):
