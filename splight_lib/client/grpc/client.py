@@ -5,6 +5,10 @@ from splight_lib.client.grpc.decorators import retry_streaming
 from splight_lib.client.grpc.reflector import GrpcReflectionClient
 
 
+class LogsGRPCError(Exception):
+    pass
+
+
 class MissingGRPCService(Exception):
     pass
 
@@ -50,10 +54,13 @@ class LogsGRPCClient(SplightGRPCClient):
 
     @retry_streaming(times=5)
     def stream_logs(self, log_generator: Callable, component_id: str):
-        self._stub.stash_log_entry(
-            self._parse_log_message(log_generator(), component_id),
-            metadata=[self._auth_header],
-        )
+        try:
+            self._stub.stash_log_entry(
+                self._parse_log_message(log_generator(), component_id),
+                metadata=[self._auth_header],
+            )
+        except grpc.RpcError as exc:
+            raise LogsGRPCError("Unable to stream component logs") from exc
 
     def _parse_log_message(self, message_iterator: str, component_id: str):
         for message in message_iterator:
