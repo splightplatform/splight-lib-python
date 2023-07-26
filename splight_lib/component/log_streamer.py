@@ -5,7 +5,8 @@ from subprocess import Popen
 from threading import Thread
 from typing import Generator, Optional
 
-from splight_lib.client.grpc.client import LogsGRPCClient
+from splight_lib.client.grpc.client import LogsGRPCClient, LogsGRPCError
+from splight_lib.component.exceptions import LogsStreamerError
 from splight_lib.settings import settings
 
 LOG_FORMAT = r"^.* \| .* \| .*:\d{2,} \| .* "
@@ -17,17 +18,26 @@ class ComponentLogsStreamer:
         self._process = process
         self._component_id = component_id
 
-        self._client = LogsGRPCClient(
-            grpc_host=settings.SPLIGHT_GRPC_HOST, secure_channel=True
-        )
-        self._client.set_authorization_header(
-            access_id=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
-        )
+        try:
+            self._client = self._create_client()
+        except Exception as exc:
+            raise LogsStreamerError(
+                "Unable to connect to gRPC server"
+            ) from exc
         self._logs_entry = self._client._log_entry
         self._thread: Optional[Thread] = None
         self._queue: Optional[Queue] = None
         self._running: bool = False
+
+    def _create_client(self):
+        client = LogsGRPCClient(
+            grpc_host=settings.SPLIGHT_GRPC_HOST, secure_channel=True
+        )
+        client.set_authorization_header(
+            access_id=settings.SPLIGHT_ACCESS_ID,
+            secret_key=settings.SPLIGHT_SECRET_KEY,
+        )
+        return client
 
     def start(self):
         self._thread = Thread(target=self._consume_logs, daemon=True)
@@ -48,9 +58,10 @@ class ComponentLogsStreamer:
                 self._client.stream_logs(
                     self.logs_iterator, self._component_id
                 )
-            except Exception:
-                print("Log Streamer stopped")
-                break
+            except LogsGRPCError as exc:
+                raise LogsStreamerError(
+                    "Component Logs stream stopped"
+                ) from exc
 
     def _consume_logs(self):
         reader = iter(self._process.stdout.readline, "")
