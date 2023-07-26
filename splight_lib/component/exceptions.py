@@ -40,3 +40,7 @@ class MissingCommandCallback(Exception):
     def __init__(self, method_name: str):
         msg = f"Missing method {method_name} associated with a Command"
         super().__init__(msg)
+
+
+class LogsStreamerError(Exception):
+    pass
