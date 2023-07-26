@@ -79,8 +79,9 @@ class ComponentLogsStreamer:
 
             if self._is_log(message):
                 buffer_msg = "".join(self._message_buffer)
-                sys.stdout.write(buffer_msg)
-                yield buffer_msg
+                if buffer_msg:
+                    sys.stdout.write(buffer_msg)
+                    yield buffer_msg
                 self._message_buffer = []
                 sys.stdout.write(message)
                 yield message
