@@ -77,19 +77,15 @@ class ComponentLogsStreamer:
                     yield msg
                 return
 
-            full_msg = self._generate_message(message)
-            if not full_msg:
-                continue
-            yield full_msg
-            sys.stdout.write(full_msg)
-
-    def _generate_message(self, raw_msg: str) -> Optional[str]:
-        if self._is_log(raw_msg):
-            msg = "".join(self._message_buffer)
-            self._message_buffer = [raw_msg]
-            return msg
-        self._message_buffer.append(raw_msg)
-        return None
+            if self._is_log(message):
+                buffer_msg = "".join(self._message_buffer)
+                sys.stdout.write(buffer_msg)
+                yield buffer_msg
+                self._message_buffer = []
+                sys.stdout.write(message)
+                yield message
+            else:
+                self._message_buffer.append(message)
 
     def _is_log(self, raw_msg: str) -> bool:
         match = LOG_PATTERN.match(raw_msg)
