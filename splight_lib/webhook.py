@@ -1,10 +1,15 @@
 import json
 from functools import cached_property
-from typing import Tuple
+from typing import Dict, Optional, Tuple
 
-from pydantic import BaseSettings
+from pydantic import BaseModel, BaseSettings
 from splight_lib.auth import HmacSignature
-from splight_models import WebhookEvent
+
+
+class WebhookEvent(BaseModel):
+    event_name: str
+    object_type: str
+    data: Optional[Dict]
 
 
 class WebhookSettings(BaseSettings):
