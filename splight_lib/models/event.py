@@ -3,8 +3,6 @@ from enum import auto
 from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
-from splight_lib.models.component import Command
-from splight_lib.models.setpoint import SetPoint
 from strenum import (
     KebabCaseStrEnum,
     LowercaseStrEnum,
@@ -12,6 +10,9 @@ from strenum import (
     SnakeCaseStrEnum,
     UppercaseStrEnum,
 )
+
+from splight_lib.models.component import Command
+from splight_lib.models.setpoint import SetPoint
 
 
 class EventActions(UppercaseStrEnum):

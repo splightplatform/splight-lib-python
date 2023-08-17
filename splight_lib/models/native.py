@@ -1,10 +1,11 @@
-from typing import ClassVar, Union, Dict, List, Optional
+from typing import ClassVar, Dict, List, Optional, Union
 
+import pandas as pd
 from pydantic import validator
+
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatalakeBaseModel
-import pandas as pd
 
 
 class NativeOutput(SplightDatalakeBaseModel):
@@ -45,6 +46,5 @@ class String(NativeOutput):
 
 
 class Boolean(NativeOutput):
-
     value: bool
     _output_format: ClassVar[str] = "Boolean"

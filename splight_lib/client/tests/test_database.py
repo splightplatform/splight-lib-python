@@ -2,6 +2,7 @@ from unittest.mock import patch  # noqa E402
 
 import pytest  # noqa E402
 from furl import furl  # noqa E402
+
 from splight_lib.client.database.remote_client import (  # noqa E402
     RemoteDatabaseClient,
     SplightRestClient,

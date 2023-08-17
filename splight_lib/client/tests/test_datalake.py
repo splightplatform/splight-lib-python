@@ -2,6 +2,7 @@ import os
 from unittest.mock import Mock, patch  # noqa E402
 
 import pandas as pd  # noqa E402
+
 from splight_lib.client.datalake import RemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
     SplightRestClient,

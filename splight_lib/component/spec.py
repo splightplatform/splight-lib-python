@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, create_model, validator
+
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,

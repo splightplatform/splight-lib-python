@@ -5,18 +5,18 @@ from typing import List, Optional
 
 import py7zr
 from pydantic import BaseModel, PrivateAttr, validator
+
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.models.component import (
     Binding,
-    CustomType,
     Command,
     ComponentType,
+    CustomType,
     Endpoint,
     InputParameter,
     Output,
-    CustomType,
-    Routine
+    Routine,
 )
 from splight_lib.settings import settings
 from splight_lib.utils.hub import (
@@ -180,14 +180,21 @@ class HubComponent(BaseModel):
 
         spec["name"] = name
         spec["version"] = version
-        spec.setdefault(
-            "component_type", ComponentType.CONNECTOR.value
-        )
+        spec.setdefault("component_type", ComponentType.CONNECTOR.value)
         data_cls = cls.parse_obj(spec)
 
         data = data_cls.dict(exclude_none=True)
 
-        to_json = ["tags", "routines", "custom_types", "input", "output", "commands", "bindings", "endpoints"]
+        to_json = [
+            "tags",
+            "routines",
+            "custom_types",
+            "input",
+            "output",
+            "commands",
+            "bindings",
+            "endpoints",
+        ]
         for key in to_json:
             data[key] = json.dumps(data[key])
 

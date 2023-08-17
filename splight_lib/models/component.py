@@ -1,20 +1,17 @@
 import re
 import warnings
+from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type
-from abc import abstractmethod, ABC
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    Field,
-    PrivateAttr,
-    create_model
-)
+
+from pydantic import AnyUrl, BaseModel, Field, PrivateAttr, create_model
+from strenum import LowercaseStrEnum
+
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.exceptions import (
     InvalidObjectInstance,
     SecretDecryptionError,
@@ -23,7 +20,6 @@ from splight_lib.models.exceptions import (
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
-from strenum import LowercaseStrEnum
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -231,21 +227,16 @@ def get_field_value(field: InputParameter):
         model_class = DATALAKE_TYPES[field.type]
         value = field.value.copy()
         value.update({"type": field.value_type})
-        value = (
-            model_class.parse_obj(value)
-        )
+        value = model_class.parse_obj(value)
     else:
         value_as_list = (
             ComponentObject.list(id__in=field.value)
             if multiple
             else [ComponentObject.retrieve(field.value)]
         )
-        model_class = ComponentObjectInstance.from_object(
-            value_as_list[0]
-        )
+        model_class = ComponentObjectInstance.from_object(value_as_list[0])
         value_as_list = [
-            model_class.parse_object(instance)
-            for instance in value_as_list
+            model_class.parse_object(instance) for instance in value_as_list
         ]
         value = value_as_list if multiple else value_as_list[0]
     return value
@@ -346,7 +337,9 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
 
     @classmethod
     @abstractmethod
-    def from_object(cls, instance: SplightObject) -> Type["AbstractObjectInstance"]:
+    def from_object(
+        cls, instance: SplightObject
+    ) -> Type["AbstractObjectInstance"]:
         """
         Return the constructor subclass of AbstractObjectInstance
         """
@@ -381,7 +374,6 @@ class ComponentObjectInstance(AbstractObjectInstance):
         custom_type: CustomType,
         component_id: Optional[str] = None,
     ) -> Type["ComponentObjectInstance"]:
-
         fields = {}
 
         for field in custom_type.fields:
@@ -395,18 +387,19 @@ class ComponentObjectInstance(AbstractObjectInstance):
         fields.update(
             {
                 "_schema": (
-                    ClassVar[Optional[CustomType]], custom_type,
+                    ClassVar[Optional[CustomType]],
+                    custom_type,
                 ),
-                "_component_id": (
-                    ClassVar[Optional[str]], component_id
-                ),
+                "_component_id": (ClassVar[Optional[str]], component_id),
             }
         )
         model_class = create_model(custom_type.name, **fields, __base__=cls)
         return model_class
 
     @classmethod
-    def from_object(cls, instance: ComponentObject) -> Type["ComponentObjectInstance"]:
+    def from_object(
+        cls, instance: ComponentObject
+    ) -> Type["ComponentObjectInstance"]:
         instance_dict = instance.dict()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
@@ -449,17 +442,23 @@ class RoutineObjectInstance(AbstractObjectInstance):
         schema = self._schema
 
         config = [
-            self._convert_to_input_parameter(field, getattr(self.config, field.name))
+            self._convert_to_input_parameter(
+                field, getattr(self.config, field.name)
+            )
             for field in schema.config
         ]
 
         input = [
-            self._convert_to_input_data_addres(field, getattr(self.input, field.name))
+            self._convert_to_input_data_addres(
+                field, getattr(self.input, field.name)
+            )
             for field in schema.input
         ]
 
         output = [
-            self._convert_to_input_data_addres(field, getattr(self.output, field.name))
+            self._convert_to_input_data_addres(
+                field, getattr(self.output, field.name)
+            )
             for field in schema.output
         ]
 
@@ -482,7 +481,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
         routine: Routine,
         component_id: Optional[str] = None,
     ) -> Type["ComponentObjectInstance"]:
-
         Config = cls._create_config_model(routine.config)
         Input = cls._create_input_model(routine.input)
         Output = cls._create_output_model(routine.output)
@@ -497,11 +495,10 @@ class RoutineObjectInstance(AbstractObjectInstance):
         fields.update(
             {
                 "_schema": (
-                    ClassVar[Optional[Routine]], routine,
+                    ClassVar[Optional[Routine]],
+                    routine,
                 ),
-                "_component_id": (
-                    ClassVar[Optional[str]], component_id
-                ),
+                "_component_id": (ClassVar[Optional[str]], component_id),
             }
         )
         model_class = create_model(routine.name, **fields, __base__=cls)
@@ -511,7 +508,9 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def _create_config_model(cls, parameters: List[Parameter]) -> Type:
         fields = {}
         for field in parameters:
-            field_type = DB_MODEL_TYPE_MAPPING.get(field.type, ComponentObjectInstance)
+            field_type = DB_MODEL_TYPE_MAPPING.get(
+                field.type, ComponentObjectInstance
+            )
             field_type = List[field_type] if field.multiple else field_type
             fields.update({field.name: (field_type, ...)})
 
@@ -519,22 +518,18 @@ class RoutineObjectInstance(AbstractObjectInstance):
 
     @classmethod
     def _create_input_model(cls, parameters: List[DataAdress]) -> Type:
-        fields = {
-            param.name: (DLDataAddress, ...)
-            for param in parameters
-        }
+        fields = {param.name: (DLDataAddress, ...) for param in parameters}
         return create_model("Input", **fields)
 
     @classmethod
     def _create_output_model(cls, parameters: List[DataAdress]) -> Type:
-        fields = {
-            param.name: (DLDataAddress, ...)
-            for param in parameters
-        }
+        fields = {param.name: (DLDataAddress, ...) for param in parameters}
         return create_model("Output", **fields)
 
     @classmethod
-    def from_object(cls, instance: RoutineObject) -> Type["RoutineObjectInstance"]:
+    def from_object(
+        cls, instance: RoutineObject
+    ) -> Type["RoutineObjectInstance"]:
         instance_dict = instance.dict()
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_routine(
@@ -542,9 +537,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         )
 
     @classmethod
-    def parse_object(
-        cls, instance: RoutineObject
-    ) -> "RoutineObjectInstance":
+    def parse_object(cls, instance: RoutineObject) -> "RoutineObjectInstance":
         params_dict = {
             "id": instance.id,
             "name": instance.name,

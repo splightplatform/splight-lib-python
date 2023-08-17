@@ -3,6 +3,7 @@ from typing import Optional
 
 from cryptography.fernet import Fernet as Branca
 from pydantic import BaseSettings
+
 from splight_lib.logging._internal import LogTags, get_splight_logger
 
 logger = get_splight_logger()
