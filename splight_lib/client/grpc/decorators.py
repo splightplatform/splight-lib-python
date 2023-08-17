@@ -2,6 +2,7 @@ from time import sleep
 from typing import Callable
 
 import grpc
+
 from splight_lib.logging._internal import get_splight_logger
 
 logger = get_splight_logger()

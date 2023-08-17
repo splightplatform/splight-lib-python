@@ -2,6 +2,7 @@ import pytest
 import requests
 from httpx import Client
 from requests import Session
+
 from splight_lib.restclient import SplightRestClient
 
 

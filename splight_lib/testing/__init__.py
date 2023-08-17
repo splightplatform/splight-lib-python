@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 import pytest
 from pytest_mock import MockerFixture
+
 from splight_lib.component.spec import Spec
 from splight_lib.models import (
     Asset,

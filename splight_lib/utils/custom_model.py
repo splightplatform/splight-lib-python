@@ -2,8 +2,9 @@ from enum import Enum
 from typing import Any, ClassVar, Dict, List, Optional, Type
 
 from pydantic import BaseModel, create_model
-from splight_lib.models.component import DB_MODEL_TYPE_MAPPING, Parameter
 from typing_extensions import TypedDict
+
+from splight_lib.models.component import DB_MODEL_TYPE_MAPPING, Parameter
 
 
 class ClassVarDict(TypedDict):

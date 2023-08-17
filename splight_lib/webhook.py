@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import Dict, Optional, Tuple
 
 from pydantic import BaseModel, BaseSettings
+
 from splight_lib.auth import HmacSignature
 
 

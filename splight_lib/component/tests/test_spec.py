@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from pydantic import BaseModel, ValidationError
+
 from splight_lib.component.spec import InputParameter, Spec
 
 

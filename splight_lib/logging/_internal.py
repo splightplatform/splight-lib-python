@@ -4,12 +4,13 @@ from logging import INFO, Formatter, Handler
 from typing import Optional
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+from strenum import UppercaseStrEnum
+
 from splight_lib.logging.logging import (
     SplightFormatter,
     SplightLogger,
     standard_output_handler,
 )
-from strenum import UppercaseStrEnum
 
 
 # TODO: add more tags

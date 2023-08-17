@@ -8,6 +8,7 @@ from unittest.mock import patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
 
 import pytest  # noqa: E402
+
 from splight_lib.client.database.local_client import (  # noqa: E402
     LocalDatabaseClient,
 )

@@ -4,6 +4,7 @@ import warnings
 from pathlib import Path
 
 import pytest
+
 from splight_lib.execution import ExecutionClient, Popen, Task, Thread
 
 

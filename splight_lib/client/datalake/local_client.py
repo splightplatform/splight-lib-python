@@ -5,6 +5,7 @@ from functools import partial
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
+
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.file_handler import FixedLineNumberFileHandler
 from splight_lib.client.filter import value_filter

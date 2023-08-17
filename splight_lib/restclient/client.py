@@ -1,6 +1,7 @@
 from typing import Any, Callable, List, Mapping, Optional, Union
 
 import httpx
+
 from splight_lib.restclient.types import (
     DEFAULT_LIMITS,
     DEFAULT_MAX_REDIRECTS,
