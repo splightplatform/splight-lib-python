@@ -1,6 +1,7 @@
 from typing import Callable, Optional, Tuple
 
 import grpc
+
 from splight_lib.client.grpc.decorators import retry_streaming
 from splight_lib.client.grpc.reflector import GrpcReflectionClient
 

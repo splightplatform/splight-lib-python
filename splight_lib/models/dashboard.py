@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from splight_lib.models.base import SplightDatabaseBaseModel
 
+
 class Filter(SplightDatabaseBaseModel):
     id: Optional[str] = None
     chart_item: str
@@ -10,6 +11,7 @@ class Filter(SplightDatabaseBaseModel):
     value: Optional[str]
     label: Optional[str]
 
+
 class AdvancedFilter(SplightDatabaseBaseModel):
     id: Optional[str] = None
     chart_item: str
@@ -17,6 +19,7 @@ class AdvancedFilter(SplightDatabaseBaseModel):
     key: Optional[str]
     field: Optional[str]
     value: Optional[str]
+
 
 class ChartItem(SplightDatabaseBaseModel):
     id: Optional[str] = None
@@ -33,7 +36,7 @@ class ChartItem(SplightDatabaseBaseModel):
     aggregate_period: Optional[str]
     source: Optional[str]
     source_label: Optional[str]
-    source_type: Optional[str] # TODO: define options (component, native)
+    source_type: Optional[str]  # TODO: define options (component, native)
     source_component_label: Optional[str]
     source_component_id: Optional[str]
     output_format: Optional[str]
@@ -43,6 +46,7 @@ class ChartItem(SplightDatabaseBaseModel):
     filters: Optional[List[Filter]]
     advanced_filters: Optional[List[AdvancedFilter]]
     query_params: Optional[str]
+
 
 class Chart(SplightDatabaseBaseModel):
     id: Optional[str] = None
@@ -67,12 +71,14 @@ class Chart(SplightDatabaseBaseModel):
     y_axis_min_limit: Optional[str]
     config: Optional[Dict[str, Any]]
 
+
 class Tab(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     charts: Optional[List[Chart]]
     order: Optional[int]
     dashboard: str
+
 
 class Dashboard(SplightDatabaseBaseModel):
     id: Optional[str] = None

@@ -8,10 +8,8 @@ from typing import Dict, List, Optional, Type
 from furl import furl
 from pydantic import BaseModel, create_model
 from retry import retry
-from splight_lib.auth import SplightAuthToken
 
-# TODO: Use builder pattern
-from splight_lib.execution import Thread
+from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
@@ -22,12 +20,14 @@ from splight_lib.component.exceptions import (
     DuplicatedComponentException,
     InvalidBidingObject,
     MissingBindingCallback,
-    MissingRoutineCallback,
     MissingCommandCallback,
+    MissingRoutineCallback,
     MissingSetPointCallback,
 )
 from splight_lib.component.spec import Spec
-from splight_lib.execution import ExecutionClient
+
+# TODO: Use builder pattern
+from splight_lib.execution import ExecutionClient, Thread
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models.component import (
     DB_MODEL_TYPE_MAPPING,
@@ -113,9 +113,7 @@ class SplightBaseComponent:
         )
         self._execution_engine = ExecutionClient()
         health_check = HealthCheckProcessor(self._execution_engine)
-        self._health_check_thread = Thread(
-            target=health_check.start, args=()
-        )
+        self._health_check_thread = Thread(target=health_check.start, args=())
         self._execution_engine.start(self._health_check_thread)
 
         self._spec = self._load_spec()
@@ -233,15 +231,12 @@ class SplightBaseComponent:
             model_calss = routines_objects.get(routine.name)
 
             for action in actions:
-
                 event_name = RoutineObject.get_event_name(
-                    model_calss .__name__, action
+                    model_calss.__name__, action
                 )
 
                 callback_func = getattr(
-                    self,
-                    getattr(routine, f"{action}_handler"),
-                    None
+                    self, getattr(routine, f"{action}_handler"), None
                 )
                 if not callback_func:
                     raise MissingRoutineCallback(routine.name, action)
@@ -250,7 +245,7 @@ class SplightBaseComponent:
                     partial(
                         database_object_event_handler,
                         callback_func,
-                        model_calss
+                        model_calss,
                     ),
                 )
 

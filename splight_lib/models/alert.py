@@ -2,8 +2,9 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, EmailStr, Field
-from splight_lib.models.base import SplightDatabaseBaseModel
 from typing_extensions import TypedDict
+
+from splight_lib.models.base import SplightDatabaseBaseModel
 
 
 class AlertStatus(str, Enum):

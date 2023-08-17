@@ -4,11 +4,18 @@ from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
     ComponentObject,
-    RoutineObject,
     ComponentObjectInstance,
+    RoutineObject,
     RoutineObjectInstance,
 )
-from splight_lib.models.dashboard import Dashboard, Tab, Chart, ChartItem, Filter, AdvancedFilter
+from splight_lib.models.dashboard import (
+    AdvancedFilter,
+    Chart,
+    ChartItem,
+    Dashboard,
+    Filter,
+    Tab,
+)
 from splight_lib.models.file import File
 from splight_lib.models.hub import HubComponent, HubComponentVersion
 from splight_lib.models.native import Boolean, Number, String
