@@ -1,7 +1,9 @@
-from splight_lib.models.native import NativeOutput, Number, String, Boolean
-from pydantic import BaseModel
 from typing import Dict, List
+
 import pandas as pd
+from pydantic import BaseModel
+
+from splight_lib.models.native import Boolean, NativeOutput, Number, String
 
 
 class DataAddresses(BaseModel):

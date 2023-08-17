@@ -2,6 +2,7 @@ import logging
 import os
 
 import pytest
+
 from splight_lib.logging import (
     CRITICAL,
     DEBUG,

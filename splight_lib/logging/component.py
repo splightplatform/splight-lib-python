@@ -3,6 +3,7 @@ from logging import INFO, Formatter, Handler
 from typing import Optional
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+
 from splight_lib.logging.logging import (
     SplightFormatter,
     SplightLogger,

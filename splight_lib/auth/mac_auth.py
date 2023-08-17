@@ -3,6 +3,7 @@ import time
 from hashlib import sha256
 
 import six
+
 from splight_lib.auth.exceptions import SignatureVerificationError
 
 

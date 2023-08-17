@@ -5,6 +5,7 @@ import pysher
 import requests
 from furl import furl
 from retry import retry
+
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication.abstract import (
     AbstractCommunicationClient,
