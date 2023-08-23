@@ -67,7 +67,7 @@ class DataAdress(Parameter):
 
 
 class InputDataAdress(DataAdress):
-    value: Union[List[Dict[str,str]], Dict[str, str]]
+    value: Union[List[Dict[str, str]], Dict[str, str]]
 
 
 class OutputParameter(BaseModel):
@@ -230,9 +230,7 @@ def get_field_value(field: InputParameter):
         for item in value:
             item.update({"type": field.value_type})
 
-        value = [
-            model_class.parse_obj(item) for item in value
-        ]
+        value = [model_class.parse_obj(item) for item in value]
         value = value[0] if not multiple else value
     else:
         value_as_list = (
@@ -321,7 +319,8 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 {
                     "asset": item.asset,
                     "attribute": item.attribute,
-                }  for item in field_value
+                }
+                for item in field_value
             ]
         else:
             value = {
@@ -534,7 +533,9 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def _create_input_model(cls, parameters: List[DataAdress]) -> Type:
         fields = {}
         for field in parameters:
-            field_type = List[DLDataAddress] if field.multiple else DLDataAddress
+            field_type = (
+                List[DLDataAddress] if field.multiple else DLDataAddress
+            )
             fields.update({field.name: (field_type, ...)})
         return create_model("Input", **fields)
 
@@ -542,7 +543,9 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def _create_output_model(cls, parameters: List[DataAdress]) -> Type:
         fields = {}
         for field in parameters:
-            field_type = List[DLDataAddress] if field.multiple else DLDataAddress
+            field_type = (
+                List[DLDataAddress] if field.multiple else DLDataAddress
+            )
             fields.update({field.name: (field_type, ...)})
         return create_model("Output", **fields)
 
