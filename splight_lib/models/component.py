@@ -3,7 +3,7 @@ import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto
-from typing import Any, ClassVar, Dict, List, Optional, Type
+from typing import Any, ClassVar, Dict, List, Optional, Type, Union
 
 from pydantic import AnyUrl, BaseModel, Field, PrivateAttr, create_model
 from strenum import LowercaseStrEnum
@@ -61,13 +61,13 @@ class InputParameter(Parameter):
 class DataAdress(Parameter):
     choices: None = None
     depends_on: None = None
-    Required: bool = True
+    required: bool = True
     type: str = Field("DataAdress", const=True)
     value_type: str = "Number"
 
 
 class InputDataAdress(DataAdress):
-    value: Dict[str, str]
+    value: Union[List[Dict[str, str]], Dict[str, str]]
 
 
 class OutputParameter(BaseModel):
@@ -226,8 +226,12 @@ def get_field_value(field: InputParameter):
     elif field.type in DATALAKE_TYPES:
         model_class = DATALAKE_TYPES[field.type]
         value = field.value.copy()
-        value.update({"type": field.value_type})
-        value = model_class.parse_obj(value)
+        value = value if multiple else [value]
+        for item in value:
+            item.update({"type": field.value_type})
+
+        value = [model_class.parse_obj(item) for item in value]
+        value = value[0] if not multiple else value
     else:
         value_as_list = (
             ComponentObject.list(id__in=field.value)
@@ -310,10 +314,19 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     def _convert_to_input_data_addres(
         field: DataAdress, field_value: Any
     ) -> InputDataAdress:
-        value = {
-            "asset": field_value.asset,
-            "attribute": field_value.attribute,
-        }
+        if field.multiple:
+            value = [
+                {
+                    "asset": item.asset,
+                    "attribute": item.attribute,
+                }
+                for item in field_value
+            ]
+        else:
+            value = {
+                "asset": field_value.asset,
+                "attribute": field_value.attribute,
+            }
         parameter = field.dict()
         parameter.update({"value": value})
         return InputDataAdress.parse_obj(parameter)
@@ -518,12 +531,22 @@ class RoutineObjectInstance(AbstractObjectInstance):
 
     @classmethod
     def _create_input_model(cls, parameters: List[DataAdress]) -> Type:
-        fields = {param.name: (DLDataAddress, ...) for param in parameters}
+        fields = {}
+        for field in parameters:
+            field_type = (
+                List[DLDataAddress] if field.multiple else DLDataAddress
+            )
+            fields.update({field.name: (field_type, ...)})
         return create_model("Input", **fields)
 
     @classmethod
     def _create_output_model(cls, parameters: List[DataAdress]) -> Type:
-        fields = {param.name: (DLDataAddress, ...) for param in parameters}
+        fields = {}
+        for field in parameters:
+            field_type = (
+                List[DLDataAddress] if field.multiple else DLDataAddress
+            )
+            fields.update({field.name: (field_type, ...)})
         return create_model("Output", **fields)
 
     @classmethod
