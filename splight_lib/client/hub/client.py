@@ -20,16 +20,16 @@ class _SplightHubGenericClient(AbstractHubSubClient):
 
     def __init__(
         self,
-        base_path: str,
         api_host: str,
         headers: Optional[Dict[str, str]] = {},
         *args,
         **kwargs,
     ):
+        self._url_params = kwargs
         super().__init__(*args, **kwargs)
         self._base_url = furl(
             api_host,
-            path=f"{self._PREFIX}/{base_path}/",
+            path=f"{self._PREFIX}/",
         )
         self._session = requests.Session()
         self._session.headers.update(headers)
@@ -130,19 +130,19 @@ class SplightHubClient(AbstractHubClient):
             secret_key=secret_key,
         )
         self._all = _SplightHubGenericClient(
-            base_path="all", headers=token.header, api_host=api_host
+            headers=token.header, api_host=api_host
         )
         self._mine = _SplightHubGenericClient(
-            base_path="mine", headers=token.header, api_host=api_host
+            headers=token.header, api_host=api_host
         )
         self._public = _SplightHubGenericClient(
-            base_path="public", headers=token.header, api_host=api_host
+            headers=token.header, api_host=api_host
         )
         self._private = _SplightHubGenericClient(
-            base_path="private", headers=token.header, api_host=api_host
+            headers=token.header, api_host=api_host
         )
         self._setup = _SplightHubGenericClient(
-            base_path="setup", headers=token.header, api_host=api_host
+            headers=token.header, api_host=api_host
         )
         self._host = furl(api_host)
         self._headers = token.header
