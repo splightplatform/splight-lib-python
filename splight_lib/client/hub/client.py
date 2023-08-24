@@ -11,10 +11,13 @@ from splight_lib.client.hub.abstract import (
 )
 
 
+# TODO: mover esta clase al client no generic
+# TODO: borrar class_maps y dejar en el prefix
+# TODO: depender de los params para traer las hubcomponentversions y las hubcomponents
 class _SplightHubGenericClient(AbstractHubSubClient):
     _PREFIX: str = "v2/hub"
     _CLASS_MAP = {
-        "HubComponent": "components",
+        "HubComponent": "component/components",
         "HubComponentVersion": "component-versions",
     }
 
@@ -129,6 +132,11 @@ class SplightHubClient(AbstractHubClient):
             access_key=access_key,
             secret_key=secret_key,
         )
+        
+        # TODO: con una sola session sacar el org id y guardarlo en algun lado
+        self._ORG_HOST = "https://api.splight-ai.com/v2/account/user/organizations/"
+
+        # TODO: esto va a terminar siendo un solo generic client, o 0 dependiendo si lo mergeas aca
         self._all = _SplightHubGenericClient(
             headers=token.header, api_host=api_host
         )
@@ -139,9 +147,6 @@ class SplightHubClient(AbstractHubClient):
             headers=token.header, api_host=api_host
         )
         self._private = _SplightHubGenericClient(
-            headers=token.header, api_host=api_host
-        )
-        self._setup = _SplightHubGenericClient(
             headers=token.header, api_host=api_host
         )
         self._host = furl(api_host)
@@ -163,6 +168,7 @@ class SplightHubClient(AbstractHubClient):
         assert status_code == 200, "Unable to download component"
         return response.content
 
+    # TODO: estos metodos soportalos con el fin de mantener la interfaz
     @property
     def all(self) -> AbstractHubSubClient:
         return self._all
@@ -178,7 +184,3 @@ class SplightHubClient(AbstractHubClient):
     @property
     def private(self) -> AbstractHubSubClient:
         return self._private
-
-    @property
-    def setup(self) -> AbstractHubSubClient:
-        return self._setup
