@@ -79,8 +79,10 @@ class HubComponent(BaseModel):
             assert v in VERIFICATION_CHOICES, "Verification value not allowed."
         return v
 
+    # TODO: a todos estos ponerle los query params acordes
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
+        __import__('ipdb').set_trace()
         hub_client = get_hub_client()
         data = hub_client.mine.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
@@ -93,12 +95,14 @@ class HubComponent(BaseModel):
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
+        params["privacy_policy"] = "public"
         hub_client = get_hub_client()
         data = hub_client.public.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
+        params["privacy_policy"] = "private"
         hub_client = get_hub_client()
         data = hub_client.private.get(resource_type=cls.__name__, **params)
         return [cls.parse_obj(obj) for obj in data]
@@ -211,6 +215,6 @@ class HubComponent(BaseModel):
                 os.remove(file_name)
         return cls.parse_obj(component)
 
-
+# TODO: Borrar
 class HubComponentVersion(HubComponent):
     pass
