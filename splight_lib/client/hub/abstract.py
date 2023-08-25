@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Dict, List, Tuple, Type
 
 from pydantic import BaseModel
+
 from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
