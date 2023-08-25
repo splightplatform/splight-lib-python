@@ -34,9 +34,5 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
-        pass
-
-    @abstractmethod
     def save(self, instance: BaseModel) -> BaseModel:
         pass

@@ -79,7 +79,7 @@ class HubComponent(BaseModel):
             assert v in VERIFICATION_CHOICES, "Verification value not allowed."
         return v
 
-    # TODO: missing org id for public and private?
+    # TODO: check if you need to use versions endpoint or not.
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
