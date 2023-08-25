@@ -13,7 +13,6 @@ class AbstractHubClient(AbstractClient):
     @abstractmethod
     def _get(
         self,
-        resource_type: Type,
         first=False,
         limit_: int = -1,
         skip_: int = 0,
@@ -30,7 +29,7 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def delete(self, resource_type: Type, id: str) -> None:
+    def delete(self, id: str) -> None:
         pass
 
     @abstractmethod
