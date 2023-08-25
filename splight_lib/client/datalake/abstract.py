@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
@@ -63,4 +63,13 @@ class AbstractDatalakeClient(AbstractClient):
         tzinfo: timezone = timezone(timedelta()),
         **filters,
     ) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def execute_query(
+        self,
+        from_timestamp: datetime,
+        to_timestamp: Optional[datetime],
+        query: Dict,
+    ) -> pd.DataFrame:
         pass
