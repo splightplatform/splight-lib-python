@@ -5,7 +5,6 @@ from typing import List, Optional
 
 import py7zr
 from pydantic import BaseModel, PrivateAttr, validator
-
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.models.component import (
@@ -79,38 +78,39 @@ class HubComponent(BaseModel):
             assert v in VERIFICATION_CHOICES, "Verification value not allowed."
         return v
 
-    # TODO: a todos estos ponerle los query params acordes
+    # TODO: missing org id for public and private?
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
-        __import__('ipdb').set_trace()
         hub_client = get_hub_client()
-        data = hub_client.mine.get(resource_type=cls.__name__, **params)
+        params["organization_id"] = hub_client._org_id
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.all.get(resource_type=cls.__name__, **params)
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
-        params["privacy_policy"] = "public"
         hub_client = get_hub_client()
-        data = hub_client.public.get(resource_type=cls.__name__, **params)
+        params["privacy_policy"] = "public"
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
         params["privacy_policy"] = "private"
         hub_client = get_hub_client()
-        data = hub_client.private.get(resource_type=cls.__name__, **params)
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
+    # TODO: deprecate? (same as 'list_all')
     @classmethod
     def list_setup(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.setup.get(resource_type=cls.__name__, **params)
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
@@ -145,6 +145,7 @@ class HubComponent(BaseModel):
         )
         return cls.parse_obj(data)
 
+    # TODO: deprecate? (same as 'list_all')
     @classmethod
     def retrieve_setup(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
@@ -214,7 +215,3 @@ class HubComponent(BaseModel):
             if os.path.exists(file_name):
                 os.remove(file_name)
         return cls.parse_obj(component)
-
-# TODO: Borrar
-class HubComponentVersion(HubComponent):
-    pass
