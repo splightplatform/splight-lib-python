@@ -60,6 +60,9 @@ class SplightHubClient(AbstractHubClient):
             return queryset[0] if queryset else None
         return queryset
 
+    def get_org_id(self):
+        return self._org_id
+
     def upload(self, data: Dict, files: Dict) -> Tuple:
         url = self._hub_url / "upload"
         response = requests.post(
@@ -87,19 +90,3 @@ class SplightHubClient(AbstractHubClient):
 
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
-
-    # TODO: deprecate
-    def count(
-        self,
-        first=False,
-        limit_: int = -1,
-        skip_: int = 0,
-        **kwargs,
-    ):
-        url = self._get_url(resource_type)
-        params = self._get_params(limit_=-1, skip_=-1, kwargs=kwargs)
-        response = self._session.get(url, params=params)
-        assert (
-            response.status_code == 200
-        ), f"Failed to get components {response.content}"
-        return response.json()["count"]
