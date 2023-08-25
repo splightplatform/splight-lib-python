@@ -1,48 +1,38 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import requests
 from furl import furl
 from pydantic import BaseModel
-
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.hub.abstract import (
-    AbstractHubClient,
-    AbstractHubSubClient,
-)
+from splight_lib.client.hub.abstract import AbstractHubClient
 
 
-# TODO: mover esta clase al client no generic
-# TODO: borrar class_maps y dejar en el prefix
-# TODO: depender de los params para traer las hubcomponentversions y las hubcomponents
-class _SplightHubGenericClient(AbstractHubSubClient):
-    _PREFIX: str = "v2/hub"
-    _CLASS_MAP = {
-        "HubComponent": "component/components",
-        "HubComponentVersion": "component-versions",
-    }
+class SplightHubClient(AbstractHubClient):
+    _PREFIX: str = "v2/hub/component"
+    _ORG_PREFIX = "v2/account/user/organizations"
 
     def __init__(
-        self,
-        api_host: str,
-        headers: Optional[Dict[str, str]] = {},
-        *args,
-        **kwargs,
-    ):
-        self._url_params = kwargs
-        super().__init__(*args, **kwargs)
-        self._base_url = furl(
-            api_host,
-            path=f"{self._PREFIX}/",
+        self, access_key: str, secret_key: str, api_host: str
+    ) -> None:
+        token = SplightAuthToken(
+            access_key=access_key,
+            secret_key=secret_key,
         )
-        self._session = requests.Session()
-        self._session.headers.update(headers)
 
-    def _get_url(self, resource_type: str, id: Optional[str] = None) -> furl:
-        resource_type_prefix = self._CLASS_MAP.get(resource_type)
-        url = self._base_url / f"{resource_type_prefix}/"
-        if id:
-            url = url / f"{id}/"
-        return url
+        self._hub_url = furl(api_host, path=f"{self._PREFIX}/")
+        self._org_url = furl(api_host, path=f"{self._ORG_PREFIX}/")
+
+        self._session = requests.Session()
+        self._session.headers.update(token.header)
+
+    @property
+    def _org_id(self):
+        response = self._session.get(self._org_url)
+        org_id = response.json()["id"]
+        assert (
+            response.status_code == 200
+        ), f"Failed to get organization id {response.content}"
+        return org_id
 
     def _get_params(self, limit_: int, skip_: int, **kwargs):
         if limit_ > 0:
@@ -51,18 +41,14 @@ class _SplightHubGenericClient(AbstractHubSubClient):
                 kwargs["page"] = skip_ // limit_ + 1
         return kwargs
 
-    def save(self, instance: BaseModel) -> BaseModel:
-        raise NotImplementedError
-
     def _get(
         self,
-        resource_type: str,
         first: bool = False,
         limit_: int = -1,
         skip_: int = 0,
         **kwargs,
     ) -> List[BaseModel]:
-        url = self._get_url(resource_type)
+        url = self._hub_url / "components"
         params = self._get_params(limit_, skip_, **kwargs)
         response = self._session.get(url, params=params)
         assert (
@@ -73,9 +59,36 @@ class _SplightHubGenericClient(AbstractHubSubClient):
             return queryset[0] if queryset else None
         return queryset
 
+    def upload(self, data: Dict, files: Dict) -> Tuple:
+        url = self._hub_url / "upload"
+        response = requests.post(
+            url,
+            files=files,
+            data=data,
+        )
+        status_code = response.status_code
+        assert status_code == 201, "Unable to upload component to HUB"
+        return response.json()
+
+    def download(self, data: Dict) -> Tuple:
+        url = self._hub_url / "download"
+        response = requests.post(url, data=data, headers=self._headers)
+        status_code = response.status_code
+        assert status_code == 200, "Unable to download component"
+        return response.content
+
+    def delete(self, id: str) -> None:
+        url = self._hub_url / "components" / id
+        response = self._session.delete(url)
+        assert (
+            response.status_code == 204
+        ), f"Failed to delete component {response.content}"
+
+    def save(self, instance: BaseModel) -> BaseModel:
+        raise NotImplementedError
+
     def count(
         self,
-        resource_type: str,
         first=False,
         limit_: int = -1,
         skip_: int = 0,
@@ -88,99 +101,3 @@ class _SplightHubGenericClient(AbstractHubSubClient):
             response.status_code == 200
         ), f"Failed to get components {response.content}"
         return response.json()["count"]
-
-    def delete(self, resource_type: str, id: str) -> None:
-        url = self._get_url(resource_type, id)
-        response = self._session.delete(url)
-        assert (
-            response.status_code == 204
-        ), f"Failed to delete component {response.content}"
-
-    def update(self, resource_type: str, id: str, data: Dict) -> BaseModel:
-        url = self._get_url(resource_type, id)
-        response = self._session.put(url, json=data)
-        assert (
-            response.status_code == 200
-        ), f"Failed to update component. {response.content}"
-        return resource_type(**response.json())
-
-    def partial_update(
-        self, resource_type: str, id: str, data: Dict
-    ) -> BaseModel:
-        url = self._get_url(resource_type, id)
-        response = self._session.patch(url, json=data)
-        assert (
-            response.status_code == 200
-        ), f"Failed to update component. {response.content}"
-        return resource_type.parse_obj(response.json())
-
-    def rebuild(self, resource_type: str, id: str) -> None:
-        url = self._get_url(resource_type, id)
-        url = url / "rebuild/"
-        response = self._session.post(url, headers=self.headers)
-        assert (
-            response.status_code == 204
-        ), f"Failed to rebuild component. {response.content}"
-
-
-class SplightHubClient(AbstractHubClient):
-    def __init__(
-        self, access_key: str, secret_key: str, api_host: str, *args, **kwargs
-    ) -> None:
-        super().__init__()
-        token = SplightAuthToken(
-            access_key=access_key,
-            secret_key=secret_key,
-        )
-        
-        # TODO: con una sola session sacar el org id y guardarlo en algun lado
-        self._ORG_HOST = "https://api.splight-ai.com/v2/account/user/organizations/"
-
-        # TODO: esto va a terminar siendo un solo generic client, o 0 dependiendo si lo mergeas aca
-        self._all = _SplightHubGenericClient(
-            headers=token.header, api_host=api_host
-        )
-        self._mine = _SplightHubGenericClient(
-            headers=token.header, api_host=api_host
-        )
-        self._public = _SplightHubGenericClient(
-            headers=token.header, api_host=api_host
-        )
-        self._private = _SplightHubGenericClient(
-            headers=token.header, api_host=api_host
-        )
-        self._host = furl(api_host)
-        self._headers = token.header
-
-    def upload(self, data: Dict, files: Dict) -> Tuple:
-        url = self._host / "v2/hub/upload/"
-        response = requests.post(
-            url, files=files, data=data, headers=self._headers
-        )
-        status_code = response.status_code
-        assert status_code == 201, "Unable to upload component to HUB"
-        return response.json()
-
-    def download(self, data: Dict) -> Tuple:
-        url = self._host / "v2/hub/download/"
-        response = requests.post(url, data=data, headers=self._headers)
-        status_code = response.status_code
-        assert status_code == 200, "Unable to download component"
-        return response.content
-
-    # TODO: estos metodos soportalos con el fin de mantener la interfaz
-    @property
-    def all(self) -> AbstractHubSubClient:
-        return self._all
-
-    @property
-    def mine(self) -> AbstractHubSubClient:
-        return self._mine
-
-    @property
-    def public(self) -> AbstractHubSubClient:
-        return self._public
-
-    @property
-    def private(self) -> AbstractHubSubClient:
-        return self._private
