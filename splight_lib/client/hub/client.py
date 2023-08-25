@@ -88,6 +88,7 @@ class SplightHubClient(AbstractHubClient):
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError
 
+    # TODO: deprecate
     def count(
         self,
         first=False,
