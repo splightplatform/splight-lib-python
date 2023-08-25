@@ -17,7 +17,7 @@ from splight_lib.models.dashboard import (
     Tab,
 )
 from splight_lib.models.file import File
-from splight_lib.models.hub import HubComponent, HubComponentVersion
+from splight_lib.models.hub import HubComponent
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
@@ -39,7 +39,6 @@ __all__ = [
     File,
     Filter,
     HubComponent,
-    HubComponentVersion,
     Number,
     Query,
     String,
