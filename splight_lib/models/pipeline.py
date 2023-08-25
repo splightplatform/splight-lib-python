@@ -17,7 +17,9 @@ def get_datalake_client() -> AbstractDatalakeClient:
             "path": settings.CURRENT_DIR,
             "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": settings.SPLIGHT_ACCESS_ID,
-            "secret_key": settings.SPLIGHT_SECRET_KEY, },)
+            "secret_key": settings.SPLIGHT_SECRET_KEY,
+        },
+    )
     return client
 
 
@@ -72,7 +74,7 @@ class DataPipeline(BaseModel):
         return self._client.execute_query(
             from_timestamp=self.from_timestamp,
             to_timestamp=self.to_timestamp,
-            query=[op.as_pipeline() for op in self.operations]
+            query=[op.as_pipeline() for op in self.operations],
         )
 
     def add_operation(self, operation: Operation):
