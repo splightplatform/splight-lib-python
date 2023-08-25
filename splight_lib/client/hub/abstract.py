@@ -1,16 +1,11 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import abstractmethod
 from typing import Dict, List, Tuple, Type
 
 from pydantic import BaseModel
-
 from splight_lib.abstract.client import AbstractClient, QuerySet
 
 
-class AbstractHubSubClient(AbstractClient):
-    @abstractmethod
-    def save(self, instance: BaseModel) -> BaseModel:
-        pass
-
+class AbstractHubClient(AbstractClient):
     def get(self, *args, **kwargs) -> QuerySet:
         return QuerySet(self, *args, **kwargs)
 
@@ -26,16 +21,6 @@ class AbstractHubSubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def delete(self, resource_type: Type, id: str) -> None:
-        pass
-
-    @abstractmethod
-    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
-        pass
-
-
-class AbstractHubClient(ABC):
-    @abstractmethod
     def upload(self, data: Dict, files: Dict) -> Tuple:
         pass
 
@@ -43,22 +28,14 @@ class AbstractHubClient(ABC):
     def download(self, data: Dict) -> Tuple:
         pass
 
-    @abstractproperty
-    def all(self) -> AbstractHubSubClient:
+    @abstractmethod
+    def delete(self, resource_type: Type, id: str) -> None:
         pass
 
-    @abstractproperty
-    def mine(self) -> AbstractHubSubClient:
+    @abstractmethod
+    def update(self, resource_type: Type, id: str, data: Dict) -> BaseModel:
         pass
 
-    @abstractproperty
-    def public(self) -> AbstractHubSubClient:
-        pass
-
-    @abstractproperty
-    def private(self) -> AbstractHubSubClient:
-        pass
-
-    @abstractproperty
-    def setup(self) -> AbstractHubSubClient:
+    @abstractmethod
+    def save(self, instance: BaseModel) -> BaseModel:
         pass
