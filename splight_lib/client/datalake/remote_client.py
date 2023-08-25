@@ -1,4 +1,4 @@
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Optional, Union
@@ -180,10 +180,16 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def execute_query(self, from_timestamp, to_timestamp, query) -> List:
+    def execute_query(
+        self,
+        from_timestamp: datetime,
+        to_timestamp: Optional[datetime],
+        query: Dict,
+    ) -> pd.DataFrame:
         url = self._base_url / f"{self._PREFIX}/data/request/csv/"
+        to_timestamp = to_timestamp.isoformat() if to_timestamp else None
         data = {
-            "from_timestamp": from_timestamp,
+            "from_timestamp": from_timestamp.isoformat(),
             "to_timestamp": to_timestamp,
             "traces": [
                 {
