@@ -151,7 +151,7 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         to_timestamp: Optional[datetime],
         query: Dict,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not availe for local client")
+        raise NotImplementedError("Method not available for the local client")
 
     def _filter(self, instances: List[dict], filters: Dict) -> List[dict]:
         filtered = instances
