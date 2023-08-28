@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from functools import partial
 from typing import Dict, List, Optional, Union
 
@@ -144,6 +144,14 @@ class LocalDatalakeClient(AbstractDatalakeClient):
         logger.debug(
             "Skipping raw aggregation when using Local datalake client."
         )
+
+    def execute_query(
+        self,
+        from_timestamp: datetime,
+        to_timestamp: Optional[datetime],
+        query: Dict,
+    ) -> pd.DataFrame:
+        raise NotImplementedError("Method not available for the local client")
 
     def _filter(self, instances: List[dict], filters: Dict) -> List[dict]:
         filtered = instances
