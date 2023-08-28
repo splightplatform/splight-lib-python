@@ -49,7 +49,7 @@ class SplightHubClient(AbstractHubClient):
         skip_: int = 0,
         **kwargs,
     ) -> List[BaseModel]:
-        url = self._hub_url / "components"
+        url = self._hub_url / "components/"
         params = self._get_params(limit_, skip_, **kwargs)
         response = self._session.get(url, params=params)
         assert (
@@ -64,7 +64,7 @@ class SplightHubClient(AbstractHubClient):
         return self._org_id
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
-        url = self._hub_url / "upload"
+        url = self._hub_url / "upload/"
         response = self._session.post(
             url,
             files=files,
