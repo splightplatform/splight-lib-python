@@ -49,7 +49,7 @@ class SplightHubClient(AbstractHubClient):
         skip_: int = 0,
         **kwargs,
     ) -> List[BaseModel]:
-        url = self._hub_url / "components/"
+        url = self._hub_url / "versions/"
         params = self._get_params(limit_, skip_, **kwargs)
         response = self._session.get(url, params=params)
         assert (
