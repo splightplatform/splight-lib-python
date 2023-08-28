@@ -108,10 +108,10 @@ class HubComponent(BaseModel):
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
-    def retrieve(cls, id: str) -> "HubComponent":  # TODO: test
+    def retrieve(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.get(id=id, first=True)
-        return [cls.parse_obj(obj) for obj in data]
+        return cls.parse_obj(data)
 
     def delete(self):
         hub_client = get_hub_client()
@@ -119,7 +119,8 @@ class HubComponent(BaseModel):
 
     def download(self):
         hub_client = get_hub_client()
-        return hub_client.download(data=self.dict())
+        params = {"name": self.name, "version": self.version}
+        return hub_client.download(data=params)
 
     @classmethod
     def upload(cls, path: str):

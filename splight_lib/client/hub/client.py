@@ -65,7 +65,7 @@ class SplightHubClient(AbstractHubClient):
 
     def upload(self, data: Dict, files: Dict) -> Tuple:
         url = self._hub_url / "upload"
-        response = requests.post(
+        response = self._session.post(
             url,
             files=files,
             data=data,
@@ -75,8 +75,8 @@ class SplightHubClient(AbstractHubClient):
         return response.json()
 
     def download(self, data: Dict) -> Tuple:
-        url = self._hub_url / "download"
-        response = requests.post(url, data=data, headers=self._headers)
+        url = self._hub_url / "download/"
+        response = self._session.post(url, data=data)
         status_code = response.status_code
         assert status_code == 200, "Unable to download component"
         return response.content
