@@ -13,7 +13,7 @@ class SplightHubClient(AbstractHubClient):
     _ORG_PREFIX = "v2/account/user/organizations"
 
     def __init__(
-        self, access_key: str, secret_key: str, api_host: str
+        self, api_host: str, access_key: str, secret_key: str
     ) -> None:
         token = SplightAuthToken(
             access_key=access_key,
