@@ -82,7 +82,7 @@ class SplightHubClient(AbstractHubClient):
         return response.content
 
     def delete(self, id: str) -> None:
-        url = self._hub_url / "components" / id
+        url = self._hub_url / f"components/{id}/"
         response = self._session.delete(url)
         assert (
             response.status_code == 204
