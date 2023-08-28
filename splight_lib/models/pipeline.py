@@ -67,14 +67,14 @@ class DataPipeline(BaseModel):
         self._client = get_datalake_client()
 
     @property
-    def raw(self) -> Dict:
+    def raw(self) -> List[Dict]:
         return [x.as_pipeline() for x in self.operations]
 
     def execute(self) -> pd.DataFrame:
         return self._client.execute_query(
             from_timestamp=self.from_timestamp,
             to_timestamp=self.to_timestamp,
-            query=[op.as_pipeline() for op in self.operations],
+            query=self.raw,
         )
 
     def add_operation(self, operation: Operation):
