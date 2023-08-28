@@ -1,4 +1,4 @@
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Optional, Union
@@ -178,3 +178,37 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         response = self._restclient.post(url, params=params, data=data)
         response.raise_for_status()
         return response.json()
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    def execute_query(
+        self,
+        from_timestamp: datetime,
+        to_timestamp: Optional[datetime],
+        query: Dict,
+    ) -> pd.DataFrame:
+        url = self._base_url / f"{self._PREFIX}/data/request/csv/"
+        to_timestamp = to_timestamp.isoformat() if to_timestamp else None
+        data = {
+            "from_timestamp": from_timestamp.isoformat(),
+            "to_timestamp": to_timestamp,
+            "traces": [
+                {
+                    "ref_id": "output",
+                    "type": "QUERY",
+                    "expression": None,
+                    "pipeline": query,
+                }
+            ],
+        }
+        response = self._restclient.post(url, json=data)
+        response.raise_for_status()
+
+        df: pd.DataFrame = pd.DataFrame(
+            pd.read_csv(StringIO(response.text), index_col=False)
+        )
+        if df.empty:
+            return df
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        df.drop(labels="Unnamed: 0", axis=1, inplace=True)
+        df.set_index("timestamp", inplace=True)
+        return df
