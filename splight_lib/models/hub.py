@@ -82,78 +82,44 @@ class HubComponent(BaseModel):
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.mine.get(resource_type=cls.__name__, **params)
+        params["organization_id"] = hub_client.get_org_id()
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.all.get(resource_type=cls.__name__, **params)
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.public.get(resource_type=cls.__name__, **params)
+        params["privacy_policy"] = "public"
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
+        params["privacy_policy"] = "private"
         hub_client = get_hub_client()
-        data = hub_client.private.get(resource_type=cls.__name__, **params)
+        data = hub_client.get(**params)
         return [cls.parse_obj(obj) for obj in data]
 
     @classmethod
-    def list_setup(cls, **params) -> List["HubComponent"]:
+    def retrieve(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
-        data = hub_client.setup.get(resource_type=cls.__name__, **params)
-        return [cls.parse_obj(obj) for obj in data]
-
-    @classmethod
-    def retrieve_mine(cls, id: str) -> "HubComponent":
-        hub_client = get_hub_client()
-        data = hub_client.mine.get(
-            resource_type=cls.__name__, id=id, first=True
-        )
-        return cls.parse_obj(data)
-
-    @classmethod
-    def retrieve_all(cls, id: str) -> "HubComponent":
-        hub_client = get_hub_client()
-        data = hub_client.all.get(
-            resource_type=cls.__name__, id=id, first=True
-        )
-        return cls.parse_obj(data)
-
-    @classmethod
-    def retrieve_public(cls, id: str) -> "HubComponent":
-        hub_client = get_hub_client()
-        data = hub_client.public.get(
-            resource_type=cls.__name__, id=id, first=True
-        )
-        return cls.parse_obj(data)
-
-    @classmethod
-    def retrieve_private(cls, id: str) -> "HubComponent":
-        hub_client = get_hub_client()
-        data = hub_client.private.get(
-            resource_type=cls.__name__, id=id, first=True
-        )
-        return cls.parse_obj(data)
-
-    @classmethod
-    def retrieve_setup(cls, id: str) -> "HubComponent":
-        hub_client = get_hub_client()
-        data = hub_client.setup.get(
-            resource_type=cls.__name__, id=id, first=True
-        )
+        data = hub_client.get(id=id, first=True)
         return cls.parse_obj(data)
 
     def delete(self):
-        return self._hub_client.mine.delete(self.id)
+        hub_client = get_hub_client()
+        return hub_client.delete(self.id)
 
     def download(self):
-        return self._hub_client.download(data=self.dict())
+        hub_client = get_hub_client()
+        params = {"name": self.name, "version": self.version}
+        return hub_client.download(data=params)
 
     @classmethod
     def upload(cls, path: str):
@@ -210,7 +176,3 @@ class HubComponent(BaseModel):
             if os.path.exists(file_name):
                 os.remove(file_name)
         return cls.parse_obj(component)
-
-
-class HubComponentVersion(HubComponent):
-    pass
