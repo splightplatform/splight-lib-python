@@ -67,7 +67,7 @@ class DataAdress(Parameter):
 
 
 class InputDataAdress(DataAdress):
-    value: Union[List[Dict[str, str]], Dict[str, str]]
+    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]]
 
 
 class OutputParameter(BaseModel):
