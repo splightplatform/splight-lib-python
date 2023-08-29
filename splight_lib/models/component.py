@@ -203,7 +203,7 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     return value
 
 
-def get_field_value(field: InputParameter):
+def get_field_value(field: Union[InputParameter, List[InputParameter]]):
     multiple = field.multiple
 
     value = field.value
@@ -525,6 +525,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
                 field.type, ComponentObjectInstance
             )
             field_type = List[field_type] if field.multiple else field_type
+            field_type = field_type if field.required else Optional[field_type]
             fields.update({field.name: (field_type, ...)})
 
         return create_model("Config", **fields)
@@ -536,6 +537,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
             field_type = (
                 List[DLDataAddress] if field.multiple else DLDataAddress
             )
+            field_type = field_type if field.required else Optional[field_type]
             fields.update({field.name: (field_type, ...)})
         return create_model("Input", **fields)
 
@@ -546,6 +548,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
             field_type = (
                 List[DLDataAddress] if field.multiple else DLDataAddress
             )
+            field_type = field_type if field.required else Optional[field_type]
             fields.update({field.name: (field_type, ...)})
         return create_model("Output", **fields)
 
