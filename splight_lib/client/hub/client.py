@@ -32,7 +32,7 @@ class SplightHubClient(AbstractHubClient):
         org_id = response.json()["id"]
         assert (
             response.status_code == 200
-        ), f"Failed to get organization id {response.content}"
+        ), f"Failed to get organization id: {response.json()}"
         return org_id
 
     def _get_params(self, limit_: int, skip_: int, **kwargs):
@@ -54,7 +54,7 @@ class SplightHubClient(AbstractHubClient):
         response = self._session.get(url, params=params)
         assert (
             response.status_code == 200
-        ), f"Failed to get components {response.content}"
+        ), f"Failed to get components: {response.json()}"
         queryset = response.json()["results"]
         if first:
             return queryset[0] if queryset else None
@@ -71,14 +71,18 @@ class SplightHubClient(AbstractHubClient):
             data=data,
         )
         status_code = response.status_code
-        assert status_code == 201, "Unable to upload component to HUB"
+        assert (
+            status_code == 201
+        ), f"Unable to upload component to HUB: {response.json()}"
         return response.json()
 
     def download(self, data: Dict) -> Tuple:
         url = self._hub_url / "download/"
         response = self._session.post(url, data=data)
         status_code = response.status_code
-        assert status_code == 200, "Unable to download component"
+        assert (
+            status_code == 200
+        ), f"Unable to download component: {response.json()}"
         return response.content
 
     def delete(self, id: str) -> None:
@@ -86,7 +90,7 @@ class SplightHubClient(AbstractHubClient):
         response = self._session.delete(url)
         assert (
             response.status_code == 204
-        ), f"Failed to delete component {response.content}"
+        ), f"Failed to delete component: {response.json()}"
 
     def save(self, instance: BaseModel) -> BaseModel:
         raise NotImplementedError

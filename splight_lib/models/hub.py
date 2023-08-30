@@ -171,7 +171,7 @@ class HubComponent(BaseModel):
         try:
             component = hub_client.upload(data=data, files=files)
         except Exception as exc:
-            raise Exception("unable to push component") from exc
+            raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
