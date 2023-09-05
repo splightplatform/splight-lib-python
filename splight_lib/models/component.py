@@ -526,7 +526,8 @@ class RoutineObjectInstance(AbstractObjectInstance):
             )
             field_type = List[field_type] if field.multiple else field_type
             field_type = field_type if field.required else Optional[field_type]
-            fields.update({field.name: (field_type, ...)})
+            field_value = ... if field.required else None
+            fields.update({field.name: (field_type, field_value)})
 
         return create_model("Config", **fields)
 
@@ -538,7 +539,8 @@ class RoutineObjectInstance(AbstractObjectInstance):
                 List[DLDataAddress] if field.multiple else DLDataAddress
             )
             field_type = field_type if field.required else Optional[field_type]
-            fields.update({field.name: (field_type, ...)})
+            field_value = ... if field.required else None
+            fields.update({field.name: (field_type, field_value)})
         return create_model("Input", **fields)
 
     @classmethod
@@ -549,7 +551,8 @@ class RoutineObjectInstance(AbstractObjectInstance):
                 List[DLDataAddress] if field.multiple else DLDataAddress
             )
             field_type = field_type if field.required else Optional[field_type]
-            fields.update({field.name: (field_type, ...)})
+            field_value = ... if field.required else None
+            fields.update({field.name: (field_type, field_value)})
         return create_model("Output", **fields)
 
     @classmethod
