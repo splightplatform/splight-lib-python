@@ -58,15 +58,15 @@ class InputParameter(Parameter):
     value: Optional[Any] = None
 
 
-class DataAdress(Parameter):
+class DataAddress(Parameter):
     choices: None = None
     depends_on: None = None
     required: bool = True
-    type: str = Field("DataAdress", const=True)
+    type: str = Field("DataAddress", const=True)
     value_type: str = "Number"
 
 
-class InputDataAdress(DataAdress):
+class InputDataAddress(DataAddress):
     value: Optional[Union[List[Dict[str, str]], Dict[str, str]]]
 
 
@@ -99,8 +99,8 @@ class Routine(BaseModel):
     delete_handler: Optional[str]
 
     config: Optional[List[Parameter]] = []
-    input: List[DataAdress] = []
-    output: List[DataAdress] = []
+    input: List[DataAddress] = []
+    output: List[DataAddress] = []
 
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
 
@@ -138,8 +138,8 @@ class RoutineObject(SplightObject):
     status: Optional[RoutineStatus] = RoutineStatus.RUNNING
 
     config: Optional[List[InputParameter]] = []
-    input: List[InputDataAdress] = []
-    output: List[InputDataAdress] = []
+    input: List[InputDataAddress] = []
+    output: List[InputDataAddress] = []
 
 
 class Component(SplightDatabaseBaseModel):
@@ -175,7 +175,7 @@ DATABASE_TYPES = {
 }
 
 DATALAKE_TYPES = {
-    "DataAdress": DLDataAddress,
+    "DataAddress": DLDataAddress,
 }
 
 DB_MODEL_TYPE_MAPPING = {
@@ -312,8 +312,8 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
 
     @staticmethod
     def _convert_to_input_data_addres(
-        field: DataAdress, field_value: Any
-    ) -> InputDataAdress:
+        field: DataAddress, field_value: Any
+    ) -> InputDataAddress:
         if field.multiple:
             value = [
                 {
@@ -329,7 +329,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
             }
         parameter = field.dict()
         parameter.update({"value": value})
-        return InputDataAdress.parse_obj(parameter)
+        return InputDataAddress.parse_obj(parameter)
 
     @abstractmethod
     def to_object(self) -> SplightObject:
@@ -532,7 +532,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return create_model("Config", **fields)
 
     @classmethod
-    def _create_input_model(cls, parameters: List[DataAdress]) -> Type:
+    def _create_input_model(cls, parameters: List[DataAddress]) -> Type:
         fields = {}
         for field in parameters:
             field_type = (
@@ -544,7 +544,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return create_model("Input", **fields)
 
     @classmethod
-    def _create_output_model(cls, parameters: List[DataAdress]) -> Type:
+    def _create_output_model(cls, parameters: List[DataAddress]) -> Type:
         fields = {}
         for field in parameters:
             field_type = (
