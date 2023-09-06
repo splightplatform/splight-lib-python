@@ -5,7 +5,7 @@ import yaml
 from pydantic import BaseSettings, Extra, root_validator
 from pydantic.env_settings import SettingsSourceCallable
 
-SPLIGHT_HOME = os.path.join(os.getenv("HOME"), ".splight")
+SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
 
 
 class Singleton:
