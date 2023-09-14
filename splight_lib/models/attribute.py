@@ -15,8 +15,5 @@ class AttributeType(PascalCaseStrEnum):
 class Attribute(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
-    asset: str
+    asset: Optional[str]
     type: AttributeType = AttributeType.NUMBER
-
-    def save(self):
-        raise NotImplementedError("Attribute object can't be saved")
