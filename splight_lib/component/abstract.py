@@ -79,6 +79,10 @@ class HealthCheckProcessor:
         self._running = True
         while self._running:
             if not self._engine.healthcheck():
+                exc = self._engine.get_last_exception()
+                import traceback
+                message = "".join(traceback.format_tb(exc.__traceback__))
+                self._logger.exception(message)
                 self._logger.error(
                     "Healthcheck task failed.", tags=LogTags.RUNTIME
                 )

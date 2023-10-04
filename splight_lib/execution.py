@@ -240,7 +240,19 @@ class Thread(DefaultThread):
     def __init__(self, target: Callable, args: Tuple = (), **kwargs) -> None:
         target = self.store_result(target)
         self.result = Empty()
+        self._exc = None
         super().__init__(target=target, args=args, name=target, **kwargs)
+
+    @property
+    def exc(self):
+        return self._exc
+
+    def run(self):
+        try:
+            super().run()
+        except Exception as exc:
+            self._exc = exc
+            raise exc
 
     def store_result(self, func: Callable) -> Callable:
         @wraps(func)
@@ -342,9 +354,16 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.unschedule(job)
 
     def healthcheck(self):
-        return all(
+        is_alive = all(
             [
                 p.is_alive() or p.exit_ok()
                 for p in self.processes + self.threads
             ]
         )
+        return is_alive
+
+    def get_last_exception(self):
+        broken_thread = [x.exc for x in self.threads if x.exc]
+        if broken_thread:
+            return broken_thread[0]
+        return None
