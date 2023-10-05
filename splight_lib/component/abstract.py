@@ -79,7 +79,8 @@ class HealthCheckProcessor:
     def start(self):
         self._running = True
         while self._running:
-            if not self._engine.healthcheck():
+            is_alive, status = self._engine.healthcheck()
+            if not is_alive:
                 exc = self._engine.get_last_exception()
                 self._log_exception(exc)
                 self._logger.error(
@@ -121,8 +122,13 @@ class SplightBaseComponent:
         )
         self._execution_engine = ExecutionClient()
         health_check = HealthCheckProcessor(self._execution_engine)
-        self._health_check_thread = Thread(target=health_check.start, args=())
-        self._execution_engine.start(self._health_check_thread)
+        self._health_check_thread = Thread(
+            target=health_check.start, args=(), daemon=False
+        )
+        # We can't add the healthcheck thread into the execution engine
+        # because that thread should stop if any of the registered threads
+        # is stopped.
+        self._health_check_thread.start()
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
