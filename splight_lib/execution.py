@@ -6,7 +6,7 @@ from functools import wraps
 from subprocess import Popen as DefaultPopen
 from threading import Event, Lock
 from threading import Thread as DefaultThread
-from typing import Any, Callable, List, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from splight_lib.abstract.client import AbstractClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
@@ -362,7 +362,11 @@ class ExecutionClient(AbstractClient):
         )
         return is_alive
 
-    def get_last_exception(self):
+    def get_last_exception(self) -> Optional[Exception]:
+        """Get the last exception thrown in one of the threads.
+        It assumes that there is only one thread that crashed
+        Also, only works for the thread not the processes.
+        """
         broken_thread = [x.exc for x in self.threads if x.exc]
         if broken_thread:
             return broken_thread[0]
