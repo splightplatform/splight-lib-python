@@ -1,5 +1,6 @@
 import atexit
 import sys
+import threading
 import time
 import uuid
 from functools import wraps
@@ -286,8 +287,8 @@ class Popen(DefaultPopen):
 
 class ExecutionClient(AbstractClient):
     def __init__(self, *args, **kwargs):
-        self.processes: List[Thread] = []
-        self.threads: List[Popen] = []
+        self.processes: List[Popen] = []
+        self.threads: List[Thread] = []
 
         self._register_exit_functions()
         super(ExecutionClient, self).__init__(*args, **kwargs)
@@ -353,14 +354,28 @@ class ExecutionClient(AbstractClient):
         logger.debug("Stopping Task", tags=LogTags.RUNTIME)
         return self._scheduler.unschedule(job)
 
-    def healthcheck(self):
-        is_alive = all(
-            [
-                p.is_alive() or p.exit_ok()
-                for p in self.processes + self.threads
-            ]
+    def is_alive(self) -> bool:
+        # We need to also check the main thread just in case some component is
+        # not using the execution client explicitly and is doing some
+        # processing directly in the main thread so the healtcheck should
+        # say the component is healthy.
+        main_thread = threading.main_thread()
+        threads_status = [
+            p.is_alive() or p.exit_ok() for p in self.processes + self.threads
+        ]
+        return (
+            main_thread.is_alive() or all(threads_status)
+            if threads_status
+            else main_thread.is_alive()
         )
-        return is_alive
+
+    def healthcheck(self) -> Tuple[bool, str]:
+        alive = self.is_alive()
+        if alive:
+            status = "running"
+        else:
+            status = "failed" if self.get_last_exception() else "success"
+        return (alive, status)
 
     def get_last_exception(self) -> Optional[Exception]:
         """Get the last exception thrown in one of the threads.
