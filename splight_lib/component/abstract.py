@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
@@ -80,9 +81,7 @@ class HealthCheckProcessor:
         while self._running:
             if not self._engine.healthcheck():
                 exc = self._engine.get_last_exception()
-                import traceback
-                message = "".join(traceback.format_tb(exc.__traceback__))
-                self._logger.exception(message)
+                self._log_exception(exc)
                 self._logger.error(
                     "Healthcheck task failed.", tags=LogTags.RUNTIME
                 )
@@ -97,6 +96,11 @@ class HealthCheckProcessor:
 
     def stop(self):
         self._running = False
+
+    def _log_exception(self, exc: Optional[Exception]):
+        if exc:
+            message = "".join(traceback.format_tb(exc.__traceback__))
+            self._logger.exception(message)
 
 
 class SplightBaseComponent:
