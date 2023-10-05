@@ -193,6 +193,7 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     if not match:
         return raw_value
     class_key, secret_name = match.groups()
+    # TODO: handle errors (not found or not allowed)
     secret = Secret.decrypt(name=secret_name)
     return secret.value
 
