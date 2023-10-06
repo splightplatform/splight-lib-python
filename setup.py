@@ -1,5 +1,8 @@
 from setuptools import find_packages, setup
 
+from splight_lib import __version__
+
+
 with open("requirements.txt") as fp:
     install_requires = fp.readlines()
 
@@ -14,7 +17,7 @@ test_requires = [
 
 setup(
     name="splight-lib",
-    version="3.3.7",
+    version=__version__,
     author="Splight",
     author_email="factory@splight-ae.com",
     packages=find_packages(),
