@@ -6,7 +6,7 @@ from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type, Union
 
 from pydantic import AnyUrl, BaseModel, Field, PrivateAttr, create_model
-from strenum import LowercaseStrEnum
+from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
@@ -22,6 +22,12 @@ from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+
+class ComponentStatus(PascalCaseStrEnum):
+    RUNNING = auto()
+    FAILED = auto()
+    SUCCEEDED = auto()
 
 
 class PrivacyPolicy(LowercaseStrEnum):
