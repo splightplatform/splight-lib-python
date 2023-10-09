@@ -372,9 +372,9 @@ class ExecutionClient(AbstractClient):
     def healthcheck(self) -> Tuple[bool, str]:
         alive = self.is_alive()
         if alive:
-            status = "running"
+            status = "Running"
         else:
-            status = "failed" if self.get_last_exception() else "success"
+            status = "Failed" if self.get_last_exception() else "Succeeded"
         return (alive, status)
 
     def get_last_exception(self) -> Optional[Exception]:
