@@ -11,6 +11,7 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 from splight_lib.abstract.client import AbstractClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
+from splight_lib.models.component import ComponentStatus
 
 logger = get_splight_logger()
 
@@ -369,12 +370,24 @@ class ExecutionClient(AbstractClient):
             else main_thread.is_alive()
         )
 
-    def healthcheck(self) -> Tuple[bool, str]:
+    def healthcheck(self) -> Tuple[bool, ComponentStatus]:
+        """Check if the component is alive and return the status.
+
+        Returns
+        -------
+        Tuple[bool, ComponentStatus]
+            Tuple with the first value being True if the component
+            The second value is the status of the component.
+        """
         alive = self.is_alive()
         if alive:
-            status = "Running"
+            status = ComponentStatus.RUNNING
         else:
-            status = "Failed" if self.get_last_exception() else "Succeeded"
+            status = (
+                ComponentStatus.FAILED
+                if self.get_last_exception()
+                else ComponentStatus.SUCCEEDED
+            )
         return (alive, status)
 
     def get_last_exception(self) -> Optional[Exception]:
