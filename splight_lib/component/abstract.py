@@ -53,7 +53,7 @@ REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
 
 
 class HealthCheckProcessor:
-    _HEALTHCHECK_INTERVAL = 5
+    _HEALTHCHECK_INTERVAL = 10
     _HEALTH_FILE_PREFIX = "healthy_"
     _STARTUP_FILE_PREFIX = "ready_"
 
