@@ -98,10 +98,12 @@ class HealthCheckProcessor:
     def stop(self):
         self._running = False
 
-    def _log_exception(self, exc: Optional[Exception]):
+    def _log_exception(self, exc: Optional[Exception]) -> None:
+        """Logs the exception and the traceback."""
         if exc:
-            message = "".join(traceback.format_tb(exc.__traceback__))
-            self._logger.exception(message)
+            stack = exc.__traceback__
+            exc_type = type(exc)
+            self._logger.exception(exc, exc_info=(exc_type, exc, stack))
 
 
 class SplightBaseComponent:
