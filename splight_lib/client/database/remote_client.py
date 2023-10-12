@@ -205,9 +205,6 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         f = NamedTemporaryFile("wb+")
         f.write(response.content)
         f.seek(0)
-        if decrypt and instance.encrypted:
-            encryption_manager = EncryptionClient()
-            encryption_manager.decrypt_file(path=f.name)
         logger.debug("Downloaded instance %s.", id, tags=LogTags.DATABASE)
         return f
 
