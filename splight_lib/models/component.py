@@ -12,11 +12,7 @@ from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
-from splight_lib.models.exceptions import (
-    InvalidObjectInstance,
-    SecretDecryptionError,
-    SecretNotFound,
-)
+from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
@@ -199,14 +195,9 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     if not match:
         return raw_value
     class_key, secret_name = match.groups()
-    secret = Secret.list(name=secret_name, first=True)
-    if not secret:
-        raise SecretNotFound(secret_name)
-    try:
-        value = secret[0].decrypt()
-    except Exception as exc:
-        raise SecretDecryptionError() from exc
-    return value
+    # TODO: handle errors (not found or not allowed)
+    secret = Secret.decrypt(name=secret_name)
+    return secret.value
 
 
 def get_field_value(field: Union[InputParameter, List[InputParameter]]):

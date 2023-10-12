@@ -14,7 +14,6 @@ class File(SplightDatabaseBaseModel):
     metadata: Dict = {}
     content_type: Optional[str] = None
     url: Optional[str] = None
-    encrypted: Optional[bool] = False
 
     @validator("file", pre=True)
     def validate_file(cls, v):
@@ -30,7 +29,6 @@ class File(SplightDatabaseBaseModel):
         file = self._db_client.download(
             resource_name=self.__class__.__name__,
             instance=self.dict(),
-            decrypt=self.encrypted,
         )
         return file
 
