@@ -113,8 +113,6 @@ class SplightBaseComponent:
     ):
         self._component_id = component_id
 
-        if not settings.LOCAL_ENVIRONMENT:
-            self._check_duplicated_component()
         # TODO: Change to use builder patter
         self._comm_client = RemoteCommunicationClient(
             url=settings.SPLIGHT_PLATFORM_API_HOST,
@@ -299,33 +297,6 @@ class SplightBaseComponent:
                     callback_func,
                     self._comm_client,
                 ),
-            )
-
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _check_duplicated_component(self):
-        """
-        Validates that there are no other connections to communication client
-        """
-        token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
-        )
-        rest_client = SplightRestClient()
-        rest_client.update_headers(token.header)
-        base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
-        base_path = "v2/engine/component/components"
-        api_url = base_url / f"{base_path}/{self._component_id}/connections/"
-        response = rest_client.get(api_url)
-        if response.status_code == 200:
-            connections = response.json()["subscription_count"]
-            if int(connections) > 0:
-                raise DuplicatedComponentException(self._component_id)
-        else:
-            raise Exception(
-                (
-                    "Error checking if component is already running. "
-                    f"Status: {response.status_code}"
-                )
             )
 
     def start(self):
