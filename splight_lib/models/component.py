@@ -5,7 +5,14 @@ from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Optional, Type, Union
 
-from pydantic import AnyUrl, BaseModel, Field, PrivateAttr, create_model
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    Field,
+    PrivateAttr,
+    create_model,
+    validator,
+)
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.asset import Asset
@@ -66,6 +73,12 @@ class DataAddress(Parameter):
     required: bool = True
     type: str = Field("DataAddress", const=True)
     value_type: str = "Number"
+
+    @validator("type", pre=True)
+    def check_wrong_name(cls, value: str) -> str:
+        if value == "DataAdress":
+            value = "DataAddress"
+        return value
 
 
 class InputDataAddress(DataAddress):
