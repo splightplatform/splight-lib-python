@@ -17,3 +17,4 @@ class Metadata(SplightDatabaseBaseModel):
     name: Optional[str]
     asset: Optional[str]
     type: MetadataType = MetadataType.STRING
+    value: Optional[str]
