@@ -16,5 +16,5 @@ class Metadata(SplightDatabaseBaseModel):
     id: Optional[str]
     name: Optional[str]
     asset: Optional[str]
-    type: MetadataType = MetadataType.STRING
+    type: MetadataType = MetadataType.NUMBER
     value: Optional[str]
