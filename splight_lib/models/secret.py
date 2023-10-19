@@ -9,6 +9,11 @@ class Secret(SplightDatabaseBaseModel):
     name: str
     value: str
 
-    def decrypt(self):
-        encryption_client = EncryptionClient()
-        return encryption_client.decrypt(self.value)
+    @classmethod
+    def decrypt(cls, name: str):
+        db_client = cls._SplightDatabaseBaseModel__get_database_client()
+        response = db_client.operate(
+            resource_name="decrypt-secret",
+            instance={"name": name},
+        )
+        return cls.parse_obj(response)
