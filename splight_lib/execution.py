@@ -294,21 +294,38 @@ class ExecutionClient(AbstractClient):
         self._register_exit_functions()
         super(ExecutionClient, self).__init__(*args, **kwargs)
         logger.info("Execution client initialized.", tags=LogTags.RUNTIME)
+        self._exc = None
+        self._thread_exc = None
 
     def _register_exit_functions(self) -> None:
         excepthook = sys.excepthook
+        thread_exchook = threading.excepthook
 
         def wrap_excepthook(type, value, traceback):
+            self._exc = (type, value, traceback)
             self.terminate_all()
             excepthook(type, value, traceback)
 
-        atexit.register(self.terminate_all)
+        def wrap_thread_excepthook(args):
+            self._thread_exc = (
+                args.exc_type,
+                args.exc_value,
+                args.exc_traceback,
+            )
+            self.terminate_all()
+            thread_exchook(args)
+
+        # atexit.register(self.terminate_all)
         sys.excepthook = wrap_excepthook
+        threading.excepthook = wrap_thread_excepthook
 
     def __del__(self) -> None:
         self.terminate_all()
 
     def terminate_all(self) -> None:
+        if hasattr(self, "_scheduler"):
+            self._scheduler.stop()
+
         for p in self.processes:
             p.terminate()
 
@@ -360,15 +377,19 @@ class ExecutionClient(AbstractClient):
         # not using the execution client explicitly and is doing some
         # processing directly in the main thread so the healtcheck should
         # say the component is healthy.
-        main_thread = threading.main_thread()
+        # main_thread = threading.main_thread()
+        # threads_status = [
+        #     p.is_alive() or p.exit_ok() for p in self.processes + self.threads
+        # ]
         threads_status = [
-            p.is_alive() or p.exit_ok() for p in self.processes + self.threads
+            p.is_alive() for p in self.processes + self.threads
         ]
-        return (
-            main_thread.is_alive() or all(threads_status)
-            if threads_status
-            else main_thread.is_alive()
-        )
+        return all(threads_status)
+        # (
+        #     main_thread.is_alive() or all(threads_status)
+        #     if threads_status
+        #     else main_thread.is_alive()
+        # )
 
     def healthcheck(self) -> Tuple[bool, ComponentStatus]:
         """Check if the component is alive and return the status.
@@ -395,7 +416,14 @@ class ExecutionClient(AbstractClient):
         It assumes that there is only one thread that crashed
         Also, only works for the thread not the processes.
         """
-        broken_thread = [x.exc for x in self.threads if x.exc]
-        if broken_thread:
-            return broken_thread[0]
+        # broken_thread = [x.exc for x in self.threads if x.exc]
+        if self._exc:
+            return self._exc[1]
+        if self._thread_exc:
+            return self._thread_exc[1]
+        # if broken_thread:
+        #     print("THREAD EXC")
+        #     print(self._thread_exc)
+        #     print()
+        #     return broken_thread[0]
         return None
