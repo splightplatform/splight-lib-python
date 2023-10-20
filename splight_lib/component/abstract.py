@@ -1,16 +1,13 @@
+from abc import abstractmethod
 import os
 import sys
-import traceback
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
 from typing import Dict, List, Optional, Type
 
-from furl import furl
 from pydantic import BaseModel, create_model
-from retry import retry
 
-from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
@@ -18,7 +15,6 @@ from splight_lib.communication.event_handler import (
     setpoint_event_handler,
 )
 from splight_lib.component.exceptions import (
-    DuplicatedComponentException,
     InvalidBidingObject,
     MissingBindingCallback,
     MissingCommandCallback,
@@ -44,7 +40,6 @@ from splight_lib.models.setpoint import SetPoint
 from splight_lib.restclient import (
     ConnectError,
     HTTPError,
-    SplightRestClient,
     Timeout,
 )
 from splight_lib.settings import settings
@@ -83,16 +78,16 @@ class HealthCheckProcessor:
             if not is_alive:
                 exc = self._engine.get_last_exception()
                 self._log_exception(exc)
-                self._logger.error(
-                    "Healthcheck task failed.", tags=LogTags.RUNTIME
+                self._logger.info(
+                    "Healthcheck finished", tags=LogTags.RUNTIME
                 )
                 self._health_file.close()
-                self._logger.error(
+                self._logger.info(
                     "Healthcheck file removed: %s",
                     self._health_file,
                     tags=LogTags.RUNTIME,
                 )
-                sys.exit(1)
+                break
             sleep(self._HEALTHCHECK_INTERVAL)
 
     def stop(self):
@@ -121,9 +116,9 @@ class SplightBaseComponent:
             instance_id=component_id,
         )
         self._execution_engine = ExecutionClient()
-        health_check = HealthCheckProcessor(self._execution_engine)
+        self._health_check = HealthCheckProcessor(self._execution_engine)
         self._health_check_thread = Thread(
-            target=health_check.start, args=(), daemon=False
+            target=self._health_check.start, args=(), daemon=False
         )
         # We can't add the healthcheck thread into the execution engine
         # because that thread should stop if any of the registered threads
@@ -183,6 +178,12 @@ class SplightBaseComponent:
     @property
     def execution_engine(self) -> ExecutionClient:
         return self._execution_engine
+
+    def _register_exit(self):
+        if self._execution_engine.get_last_exception():
+            sys.exit(1)
+        else:
+            sys.exit(0)
 
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
@@ -300,9 +301,19 @@ class SplightBaseComponent:
             )
 
     def start(self):
-        raise NotImplementedError()
+        self.run_component()
+
+        # The following it for waiting for all threads to finish
+        for thread in self._execution_engine.threads:
+            thread.join()
+
+        self._health_check_thread.join()
+        self._register_exit()
 
     def stop(self):
-        self._execution_engine.stop(self._health_check_thread)
         self._execution_engine.terminate_all()
         sys.exit(1)
+
+    @abstractmethod
+    def run_component(self) -> None:
+        raise NotImplementedError()
