@@ -4,6 +4,7 @@ from geojson_pydantic import GeometryCollection
 
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.metadata import Metadata
 
 
 class Asset(SplightDatabaseBaseModel):
@@ -12,6 +13,7 @@ class Asset(SplightDatabaseBaseModel):
     description: Optional[str] = None
     tags: List[str] = []
     attributes: List[Attribute] = []
+    metadata: List[Metadata] = []
     verified: bool = False
     geometry: Optional[GeometryCollection]
     centroid_coordinates: Optional[Tuple[float, float]]
