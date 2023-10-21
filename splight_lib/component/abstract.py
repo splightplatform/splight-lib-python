@@ -1,6 +1,6 @@
-from abc import abstractmethod
 import os
 import sys
+from abc import ABC, abstractmethod
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
@@ -37,11 +37,7 @@ from splight_lib.models.component import (
 )
 from splight_lib.models.event import EventNames
 from splight_lib.models.setpoint import SetPoint
-from splight_lib.restclient import (
-    ConnectError,
-    HTTPError,
-    Timeout,
-)
+from splight_lib.restclient import ConnectError, HTTPError, Timeout
 from splight_lib.settings import settings
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
@@ -78,9 +74,7 @@ class HealthCheckProcessor:
             if not is_alive:
                 exc = self._engine.get_last_exception()
                 self._log_exception(exc)
-                self._logger.info(
-                    "Healthcheck finished", tags=LogTags.RUNTIME
-                )
+                self._logger.info("Healthcheck finished", tags=LogTags.RUNTIME)
                 self._health_file.close()
                 self._logger.info(
                     "Healthcheck file removed: %s",
@@ -101,7 +95,7 @@ class HealthCheckProcessor:
             self._logger.exception(exc, exc_info=(exc_type, exc, stack))
 
 
-class SplightBaseComponent:
+class SplightBaseComponent(ABC):
     def __init__(
         self,
         component_id: Optional[str] = None,
