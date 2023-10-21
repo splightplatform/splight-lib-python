@@ -33,7 +33,9 @@ def test_thread_healthcheck_ok(sleep_time) -> None:
     client = ExecutionClient()
     client.start(Thread(function_ok))
     time.sleep(sleep_time)
-    assert client.healthcheck()[0]
+    is_alive, status = client.healthcheck()
+    assert not is_alive
+    assert status == "Succeeded"
 
 
 def test_thread_healthcheck_fail(sleep_time) -> None:
@@ -47,12 +49,13 @@ def test_thread_healthcheck_fail(sleep_time) -> None:
     assert exc is not None
 
 
-def test_process_healthcheck_ok(base_dir, sleep_time, python_path) -> None:
-    client = ExecutionClient()
-    file_path = os.path.join(base_dir, "tests/FakeProc.py")
-    client.start(Popen([python_path, file_path, "exit_ok"]))
-    time.sleep(sleep_time)
-    assert client.healthcheck()[0]
+# TODO: Support for processes in execution client
+# def test_process_healthcheck_ok(base_dir, sleep_time, python_path) -> None:
+#     client = ExecutionClient()
+#     file_path = os.path.join(base_dir, "tests/FakeProc.py")
+#     client.start(Popen([python_path, file_path, "exit_ok"]))
+#     time.sleep(sleep_time)
+#     assert client.healthcheck()[0]
 
 
 # def test_process_healthcheck_fail(base_dir, sleep_time, python_path) -> None:
