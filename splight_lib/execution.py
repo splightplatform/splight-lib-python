@@ -1,4 +1,3 @@
-import atexit
 import sys
 import threading
 import time
@@ -153,17 +152,20 @@ class TaskMap:
 
 
 class Scheduler:
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, event: Event) -> None:
+        # The _event attr is used for controling the scheduler loop meanwhile
+        # the _tasks_event is used to notify the scheduler that a task should
+        # be executed
+        self._event = event
         self._tasks = TaskMap()
-        self._event = Event()
+        self._tasks_event = Event()
         self._mutex = Lock()
         self._to_add: List[Task] = []
         self._to_remove: List[Task] = []
 
     def start(self) -> None:
         """Scheduler infinite loop."""
-        self._stop = False
-        while not self._stop:
+        while self._event.is_set():
             # Update the task list
             self._update_task_list()
             # Run the scheduler task
@@ -172,11 +174,12 @@ class Scheduler:
             next_event_time = near_event - time.time()
 
             # Wait until next event or someone trigger the event
-            self._event.wait(timeout=next_event_time)
-            self._event.clear()
+            self._tasks_event.wait(timeout=next_event_time)
+            self._tasks_event.clear()
 
     def stop(self) -> None:
-        self._stop = True
+        if self._event.is_set():
+            self._event.clear()
 
     def _schedule(self) -> float:
         """Scheduler main task."""
@@ -197,7 +200,7 @@ class Scheduler:
         Unlock the scheduler if is locked.
         This will run the scheduler main task.
         """
-        self._event.set()
+        self._tasks_event.set()
 
     def schedule(self, task: Task) -> None:
         """
@@ -246,6 +249,10 @@ class Thread(DefaultThread):
         super().__init__(target=target, args=args, name=target, **kwargs)
 
     @property
+    def event(self):
+        return self._event
+
+    @property
     def exc(self):
         return self._exc
 
@@ -288,6 +295,7 @@ class Popen(DefaultPopen):
 
 class ExecutionClient(AbstractClient):
     def __init__(self, *args, **kwargs):
+        self._event = Event()
         self.processes: List[Popen] = []
         self.threads: List[Thread] = []
 
@@ -296,6 +304,10 @@ class ExecutionClient(AbstractClient):
         logger.info("Execution client initialized.", tags=LogTags.RUNTIME)
         self._exc = None
         self._thread_exc = None
+
+    @property
+    def event(self) -> Event:
+        return self._event
 
     def _register_exit_functions(self) -> None:
         excepthook = sys.excepthook
@@ -315,7 +327,6 @@ class ExecutionClient(AbstractClient):
             self.terminate_all()
             thread_exchook(args)
 
-        # atexit.register(self.terminate_all)
         sys.excepthook = wrap_excepthook
         threading.excepthook = wrap_thread_excepthook
 
@@ -323,13 +334,16 @@ class ExecutionClient(AbstractClient):
         self.terminate_all()
 
     def terminate_all(self) -> None:
-        if hasattr(self, "_scheduler"):
-            self._scheduler.stop()
+        # Set the event to False to stop all threads
+        self._event.clear()
 
         for p in self.processes:
             p.terminate()
 
     def start(self, job=Union[Popen, Thread, Task]):
+        # Set the event in true so the threads can run
+        if not self._event.is_set():
+            self._event.set()
         logger.info("Executing new job.", tags=LogTags.RUNTIME)
         if isinstance(job, Popen):
             return self._start_process(job)
@@ -361,7 +375,7 @@ class ExecutionClient(AbstractClient):
         logger.debug("Starting Task", tags=LogTags.RUNTIME)
         if not getattr(self, "_scheduler", None):
             # Instantiate and start Scheduler thread
-            self._scheduler = Scheduler()
+            self._scheduler = Scheduler(self._event)
             self._start_thread(
                 Thread(target=self._scheduler.start, daemon=False)
             )
