@@ -245,23 +245,7 @@ class Thread(DefaultThread):
     def __init__(self, target: Callable, args: Tuple = (), **kwargs) -> None:
         target = self.store_result(target)
         self.result = Empty()
-        self._exc = None
         super().__init__(target=target, args=args, name=target, **kwargs)
-
-    @property
-    def event(self):
-        return self._event
-
-    @property
-    def exc(self):
-        return self._exc
-
-    def run(self):
-        try:
-            super().run()
-        except Exception as exc:
-            self._exc = exc
-            raise exc
 
     def store_result(self, func: Callable) -> Callable:
         @wraps(func)
@@ -335,6 +319,7 @@ class ExecutionClient(AbstractClient):
 
     def terminate_all(self) -> None:
         # Set the event to False to stop all threads
+        # This will also stop the scheduler
         self._event.clear()
 
         for p in self.processes:
@@ -387,23 +372,10 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.unschedule(job)
 
     def is_alive(self) -> bool:
-        # We need to also check the main thread just in case some component is
-        # not using the execution client explicitly and is doing some
-        # processing directly in the main thread so the healtcheck should
-        # say the component is healthy.
-        # main_thread = threading.main_thread()
-        # threads_status = [
-        #     p.is_alive() or p.exit_ok() for p in self.processes + self.threads
-        # ]
         threads_status = [
             p.is_alive() for p in self.processes + self.threads
         ]
         return all(threads_status)
-        # (
-        #     main_thread.is_alive() or all(threads_status)
-        #     if threads_status
-        #     else main_thread.is_alive()
-        # )
 
     def healthcheck(self) -> Tuple[bool, ComponentStatus]:
         """Check if the component is alive and return the status.
@@ -428,16 +400,10 @@ class ExecutionClient(AbstractClient):
     def get_last_exception(self) -> Optional[Exception]:
         """Get the last exception thrown in one of the threads.
         It assumes that there is only one thread that crashed
-        Also, only works for the thread not the processes.
+        It only works for the thread not the processes.
         """
-        # broken_thread = [x.exc for x in self.threads if x.exc]
         if self._exc:
             return self._exc[1]
         if self._thread_exc:
             return self._thread_exc[1]
-        # if broken_thread:
-        #     print("THREAD EXC")
-        #     print(self._thread_exc)
-        #     print()
-        #     return broken_thread[0]
         return None
