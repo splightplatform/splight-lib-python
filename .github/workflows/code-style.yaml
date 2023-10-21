@@ -6,10 +6,10 @@ jobs:
     name: Black
     steps:
       - uses: actions/checkout@v3
-      - uses: psf/black@stable
+      - uses: psf/black@23.10.0
         with:
           options: "--check --diff"
-          version: "23.10.0"
+          version: "23.1.0"
   isort:
     runs-on: ubuntu-latest
     name: Isort
