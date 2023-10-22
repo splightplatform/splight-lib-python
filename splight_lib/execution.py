@@ -372,9 +372,7 @@ class ExecutionClient(AbstractClient):
         return self._scheduler.unschedule(job)
 
     def is_alive(self) -> bool:
-        threads_status = [
-            p.is_alive() for p in self.processes + self.threads
-        ]
+        threads_status = [p.is_alive() for p in self.processes + self.threads]
         return all(threads_status)
 
     def healthcheck(self) -> Tuple[bool, ComponentStatus]:
