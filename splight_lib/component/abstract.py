@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
-from typing import Dict, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Type
 
 from pydantic import BaseModel, create_model
 
@@ -153,6 +153,8 @@ class SplightBaseComponent(ABC):
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routines_objects)
 
+        self.start = self._wrap_start(self.start)
+
     @property
     def input(self) -> BaseModel:
         return self._input
@@ -178,6 +180,29 @@ class SplightBaseComponent(ABC):
             sys.exit(1)
         else:
             sys.exit(0)
+
+    def _wrap_start(self, original_start: Callable) -> Callable:
+        """Wraps the start method to wait for all threads to finish.
+
+        Parameters
+        ----------
+        original_start: Callable
+            The implemented start method from the component
+
+        Returns
+        -------
+        Callable
+            The start method wrapped
+        """
+        def wrapper():
+            original_start()
+            for thread in self._execution_engine.threads:
+                thread.join()
+
+            self._health_check_thread.join()
+            self._register_exit()
+
+        return wrapper
 
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
@@ -294,20 +319,10 @@ class SplightBaseComponent(ABC):
                 ),
             )
 
+    @abstractmethod
     def start(self):
-        self.run_component()
-
-        # The following it for waiting for all threads to finish
-        for thread in self._execution_engine.threads:
-            thread.join()
-
-        self._health_check_thread.join()
-        self._register_exit()
+        raise NotImplementedError()
 
     def stop(self):
         self._execution_engine.terminate_all()
         sys.exit(1)
-
-    @abstractmethod
-    def run_component(self) -> None:
-        raise NotImplementedError()
