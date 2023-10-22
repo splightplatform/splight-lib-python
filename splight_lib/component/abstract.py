@@ -194,6 +194,7 @@ class SplightBaseComponent(ABC):
         Callable
             The start method wrapped
         """
+
         def wrapper():
             original_start()
             for thread in self._execution_engine.threads:
