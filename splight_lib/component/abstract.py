@@ -1,15 +1,13 @@
 import os
 import sys
+from abc import ABC, abstractmethod
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
-from typing import Dict, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Type
 
-from furl import furl
 from pydantic import BaseModel, create_model
-from retry import retry
 
-from splight_lib.auth import SplightAuthToken
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
@@ -17,7 +15,6 @@ from splight_lib.communication.event_handler import (
     setpoint_event_handler,
 )
 from splight_lib.component.exceptions import (
-    DuplicatedComponentException,
     InvalidBidingObject,
     MissingBindingCallback,
     MissingCommandCallback,
@@ -40,19 +37,14 @@ from splight_lib.models.component import (
 )
 from splight_lib.models.event import EventNames
 from splight_lib.models.setpoint import SetPoint
-from splight_lib.restclient import (
-    ConnectError,
-    HTTPError,
-    SplightRestClient,
-    Timeout,
-)
+from splight_lib.restclient import ConnectError, HTTPError, Timeout
 from splight_lib.settings import settings
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
 
 
 class HealthCheckProcessor:
-    _HEALTHCHECK_INTERVAL = 5
+    _HEALTHCHECK_INTERVAL = 10
     _HEALTH_FILE_PREFIX = "healthy_"
     _STARTUP_FILE_PREFIX = "ready_"
 
@@ -78,32 +70,38 @@ class HealthCheckProcessor:
     def start(self):
         self._running = True
         while self._running:
-            if not self._engine.healthcheck():
-                self._logger.error(
-                    "Healthcheck task failed.", tags=LogTags.RUNTIME
-                )
+            is_alive, status = self._engine.healthcheck()
+            if not is_alive:
+                exc = self._engine.get_last_exception()
+                self._log_exception(exc)
+                self._logger.info("Healthcheck finished", tags=LogTags.RUNTIME)
                 self._health_file.close()
-                self._logger.error(
+                self._logger.info(
                     "Healthcheck file removed: %s",
                     self._health_file,
                     tags=LogTags.RUNTIME,
                 )
-                sys.exit(1)
+                break
             sleep(self._HEALTHCHECK_INTERVAL)
 
     def stop(self):
         self._running = False
 
+    def _log_exception(self, exc: Optional[Exception]) -> None:
+        """Logs the exception and the traceback."""
+        if exc:
+            stack = exc.__traceback__
+            exc_type = type(exc)
+            self._logger.exception(exc, exc_info=(exc_type, exc, stack))
 
-class SplightBaseComponent:
+
+class SplightBaseComponent(ABC):
     def __init__(
         self,
         component_id: Optional[str] = None,
     ):
         self._component_id = component_id
 
-        if not settings.LOCAL_ENVIRONMENT:
-            self._check_duplicated_component()
         # TODO: Change to use builder patter
         self._comm_client = RemoteCommunicationClient(
             url=settings.SPLIGHT_PLATFORM_API_HOST,
@@ -112,9 +110,14 @@ class SplightBaseComponent:
             instance_id=component_id,
         )
         self._execution_engine = ExecutionClient()
-        health_check = HealthCheckProcessor(self._execution_engine)
-        self._health_check_thread = Thread(target=health_check.start, args=())
-        self._execution_engine.start(self._health_check_thread)
+        self._health_check = HealthCheckProcessor(self._execution_engine)
+        self._health_check_thread = Thread(
+            target=self._health_check.start, args=(), daemon=False
+        )
+        # We can't add the healthcheck thread into the execution engine
+        # because that thread should stop if any of the registered threads
+        # is stopped.
+        self._health_check_thread.start()
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
@@ -150,6 +153,8 @@ class SplightBaseComponent:
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routines_objects)
 
+        self.start = self._wrap_start(self.start)
+
     @property
     def input(self) -> BaseModel:
         return self._input
@@ -169,6 +174,36 @@ class SplightBaseComponent:
     @property
     def execution_engine(self) -> ExecutionClient:
         return self._execution_engine
+
+    def _register_exit(self):
+        if self._execution_engine.get_last_exception():
+            sys.exit(1)
+        else:
+            sys.exit(0)
+
+    def _wrap_start(self, original_start: Callable) -> Callable:
+        """Wraps the start method to wait for all threads to finish.
+
+        Parameters
+        ----------
+        original_start: Callable
+            The implemented start method from the component
+
+        Returns
+        -------
+        Callable
+            The start method wrapped
+        """
+
+        def wrapper():
+            original_start()
+            for thread in self._execution_engine.threads:
+                thread.join()
+
+            self._health_check_thread.join()
+            self._register_exit()
+
+        return wrapper
 
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
@@ -285,37 +320,10 @@ class SplightBaseComponent:
                 ),
             )
 
-    @retry(REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _check_duplicated_component(self):
-        """
-        Validates that there are no other connections to communication client
-        """
-        token = SplightAuthToken(
-            access_key=settings.SPLIGHT_ACCESS_ID,
-            secret_key=settings.SPLIGHT_SECRET_KEY,
-        )
-        rest_client = SplightRestClient()
-        rest_client.update_headers(token.header)
-        base_url = furl(settings.SPLIGHT_PLATFORM_API_HOST)
-        base_path = "v2/engine/component/components"
-        api_url = base_url / f"{base_path}/{self._component_id}/connections/"
-        response = rest_client.get(api_url)
-        if response.status_code == 200:
-            connections = response.json()["subscription_count"]
-            if int(connections) > 0:
-                raise DuplicatedComponentException(self._component_id)
-        else:
-            raise Exception(
-                (
-                    "Error checking if component is already running. "
-                    f"Status: {response.status_code}"
-                )
-            )
-
+    @abstractmethod
     def start(self):
         raise NotImplementedError()
 
     def stop(self):
-        self._execution_engine.stop(self._health_check_thread)
         self._execution_engine.terminate_all()
         sys.exit(1)
