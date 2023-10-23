@@ -2,10 +2,7 @@
 # enabling the creation of dev versions (x.y.z-devN) that are uploaded to pypi
 # if the version is correct, that is, greater than the version of master and pypi
 name: Developer
-on:
-  push:
-    branches:
-      - feature/**
+on: workflow_dispatch
 
 env:
   LIBRARY_NAME: "splight-lib"
@@ -28,6 +25,12 @@ jobs:
       - name: Checkout to feature branch
         uses: actions/checkout@v3
 
+      - name: Checks if you are in the master branch
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          echo "Cannot run this action in the master branch."
+          exit 1
+
       - name: Get version from feature branch
         run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
 
@@ -37,11 +40,11 @@ jobs:
           python-version: "3.8"
 
       # validate versions
-      - name: Verify version is greater than last pypi uploaded version
-        run: python .github/workflows/scripts/check_pypi_version.py ${{ env.CURRENT_VERSION }} $LIBRARY_NAME
+      - name: Validates version is a dev version.
+        run: python3 .github/workflows/scripts/check_dev_version.py ${{ env.CURRENT_VERSION }}
 
-      - name: Verify version is greater than master version
-        run: python .github/workflows/scripts/check_master_version.py ${{ env.MASTER_VERSION }} ${{ env.CURRENT_VERSION }}
+      - name: Verifies the dev version is not uploaded.
+        run: python .github/workflows/scripts/check_version_uploaded.py ${{ env.CURRENT_VERSION }} $LIBRARY_NAME
 
   upload_developer_to_pypi:
     runs-on: ubuntu-latest
