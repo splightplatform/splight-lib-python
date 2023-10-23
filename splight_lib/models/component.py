@@ -13,22 +13,24 @@ from pydantic import (
     create_model,
     validator,
 )
-from strenum import LowercaseStrEnum
+from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
-from splight_lib.models.exceptions import (
-    InvalidObjectInstance,
-    SecretDecryptionError,
-    SecretNotFound,
-)
+from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+
+class ComponentStatus(PascalCaseStrEnum):
+    RUNNING = auto()
+    FAILED = auto()
+    SUCCEEDED = auto()
 
 
 class PrivacyPolicy(LowercaseStrEnum):

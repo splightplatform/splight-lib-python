@@ -1,15 +1,16 @@
-import atexit
 import sys
+import threading
 import time
 import uuid
 from functools import wraps
 from subprocess import Popen as DefaultPopen
 from threading import Event, Lock
 from threading import Thread as DefaultThread
-from typing import Any, Callable, List, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from splight_lib.abstract.client import AbstractClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
+from splight_lib.models.component import ComponentStatus
 
 logger = get_splight_logger()
 
@@ -151,17 +152,20 @@ class TaskMap:
 
 
 class Scheduler:
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, event: Event) -> None:
+        # The _event attr is used for controling the scheduler loop meanwhile
+        # the _tasks_event is used to notify the scheduler that a task should
+        # be executed
+        self._event = event
         self._tasks = TaskMap()
-        self._event = Event()
+        self._tasks_event = Event()
         self._mutex = Lock()
         self._to_add: List[Task] = []
         self._to_remove: List[Task] = []
 
     def start(self) -> None:
         """Scheduler infinite loop."""
-        self._stop = False
-        while not self._stop:
+        while self._event.is_set():
             # Update the task list
             self._update_task_list()
             # Run the scheduler task
@@ -170,11 +174,12 @@ class Scheduler:
             next_event_time = near_event - time.time()
 
             # Wait until next event or someone trigger the event
-            self._event.wait(timeout=next_event_time)
-            self._event.clear()
+            self._tasks_event.wait(timeout=next_event_time)
+            self._tasks_event.clear()
 
     def stop(self) -> None:
-        self._stop = True
+        if self._event.is_set():
+            self._event.clear()
 
     def _schedule(self) -> float:
         """Scheduler main task."""
@@ -195,7 +200,7 @@ class Scheduler:
         Unlock the scheduler if is locked.
         This will run the scheduler main task.
         """
-        self._event.set()
+        self._tasks_event.set()
 
     def schedule(self, task: Task) -> None:
         """
@@ -274,31 +279,56 @@ class Popen(DefaultPopen):
 
 class ExecutionClient(AbstractClient):
     def __init__(self, *args, **kwargs):
-        self.processes: List[Thread] = []
-        self.threads: List[Popen] = []
+        self._event = Event()
+        self.processes: List[Popen] = []
+        self.threads: List[Thread] = []
 
         self._register_exit_functions()
         super(ExecutionClient, self).__init__(*args, **kwargs)
         logger.info("Execution client initialized.", tags=LogTags.RUNTIME)
+        self._exc = None
+        self._thread_exc = None
+
+    @property
+    def event(self) -> Event:
+        return self._event
 
     def _register_exit_functions(self) -> None:
         excepthook = sys.excepthook
+        thread_exchook = threading.excepthook
 
         def wrap_excepthook(type, value, traceback):
+            self._exc = (type, value, traceback)
             self.terminate_all()
             excepthook(type, value, traceback)
 
-        atexit.register(self.terminate_all)
+        def wrap_thread_excepthook(args):
+            self._thread_exc = (
+                args.exc_type,
+                args.exc_value,
+                args.exc_traceback,
+            )
+            self.terminate_all()
+            thread_exchook(args)
+
         sys.excepthook = wrap_excepthook
+        threading.excepthook = wrap_thread_excepthook
 
     def __del__(self) -> None:
         self.terminate_all()
 
     def terminate_all(self) -> None:
+        # Set the event to False to stop all threads
+        # This will also stop the scheduler
+        self._event.clear()
+
         for p in self.processes:
             p.terminate()
 
     def start(self, job=Union[Popen, Thread, Task]):
+        # Set the event in true so the threads can run
+        if not self._event.is_set():
+            self._event.set()
         logger.info("Executing new job.", tags=LogTags.RUNTIME)
         if isinstance(job, Popen):
             return self._start_process(job)
@@ -330,7 +360,7 @@ class ExecutionClient(AbstractClient):
         logger.debug("Starting Task", tags=LogTags.RUNTIME)
         if not getattr(self, "_scheduler", None):
             # Instantiate and start Scheduler thread
-            self._scheduler = Scheduler()
+            self._scheduler = Scheduler(self._event)
             self._start_thread(
                 Thread(target=self._scheduler.start, daemon=False)
             )
@@ -341,10 +371,37 @@ class ExecutionClient(AbstractClient):
         logger.debug("Stopping Task", tags=LogTags.RUNTIME)
         return self._scheduler.unschedule(job)
 
-    def healthcheck(self):
-        return all(
-            [
-                p.is_alive() or p.exit_ok()
-                for p in self.processes + self.threads
-            ]
-        )
+    def is_alive(self) -> bool:
+        threads_status = [p.is_alive() for p in self.processes + self.threads]
+        return all(threads_status)
+
+    def healthcheck(self) -> Tuple[bool, ComponentStatus]:
+        """Check if the component is alive and return the status.
+
+        Returns
+        -------
+        Tuple[bool, ComponentStatus]
+            Tuple with the first value being True if the component
+            The second value is the status of the component.
+        """
+        alive = self.is_alive()
+        if alive:
+            status = ComponentStatus.RUNNING
+        else:
+            status = (
+                ComponentStatus.FAILED
+                if self.get_last_exception()
+                else ComponentStatus.SUCCEEDED
+            )
+        return (alive, status)
+
+    def get_last_exception(self) -> Optional[Exception]:
+        """Get the last exception thrown in one of the threads.
+        It assumes that there is only one thread that crashed
+        It only works for the thread not the processes.
+        """
+        if self._exc:
+            return self._exc[1]
+        if self._thread_exc:
+            return self._thread_exc[1]
+        return None

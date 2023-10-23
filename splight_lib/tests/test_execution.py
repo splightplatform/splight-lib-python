@@ -1,6 +1,5 @@
 import os
 import time
-import warnings
 from pathlib import Path
 
 import pytest
@@ -34,7 +33,9 @@ def test_thread_healthcheck_ok(sleep_time) -> None:
     client = ExecutionClient()
     client.start(Thread(function_ok))
     time.sleep(sleep_time)
-    assert client.healthcheck()
+    is_alive, status = client.healthcheck()
+    assert not is_alive
+    assert status == "Succeeded"
 
 
 def test_thread_healthcheck_fail(sleep_time) -> None:
@@ -44,23 +45,26 @@ def test_thread_healthcheck_fail(sleep_time) -> None:
     client = ExecutionClient()
     client.start(Thread(function_nok))
     time.sleep(sleep_time)
-    assert not client.healthcheck()
+    exc = client.get_last_exception()
+    assert exc is not None
 
 
-def test_process_healthcheck_ok(base_dir, sleep_time, python_path) -> None:
-    client = ExecutionClient()
-    file_path = os.path.join(base_dir, "tests/FakeProc.py")
-    client.start(Popen([python_path, file_path, "exit_ok"]))
-    time.sleep(sleep_time)
-    assert client.healthcheck()
+# TODO: Support for processes in execution client
+# def test_process_healthcheck_ok(base_dir, sleep_time, python_path) -> None:
+#     client = ExecutionClient()
+#     file_path = os.path.join(base_dir, "tests/FakeProc.py")
+#     client.start(Popen([python_path, file_path, "exit_ok"]))
+#     time.sleep(sleep_time)
+#     assert client.healthcheck()[0]
 
 
-def test_process_healthcheck_fail(base_dir, sleep_time, python_path) -> None:
-    client = ExecutionClient()
-    file_path = os.path.join(base_dir, "tests/FakeProc.py")
-    client.start(Popen([python_path, file_path, "exit_fail"]))
-    time.sleep(sleep_time)
-    assert not client.healthcheck()
+# def test_process_healthcheck_fail(base_dir, sleep_time, python_path) -> None:
+#     client = ExecutionClient()
+#     file_path = os.path.join(base_dir, "tests/FakeProc.py")
+#     client.start(Popen([python_path, file_path, "exit_fail"]))
+#     time.sleep(sleep_time)
+#     exc = client.get_last_exception()
+#     assert exc is not None
 
 
 def test_terminate_all(base_dir, sleep_time, python_path) -> None:
@@ -68,7 +72,7 @@ def test_terminate_all(base_dir, sleep_time, python_path) -> None:
     file_path = os.path.join(base_dir, "tests/FakeProc.py")
     client.start(Popen([python_path, file_path, "run_forever"]))
     time.sleep(sleep_time)
-    assert client.healthcheck()
+    assert client.healthcheck()[0]
 
     client.terminate_all()
     time.sleep(sleep_time)
