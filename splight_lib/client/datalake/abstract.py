@@ -20,6 +20,12 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
+    def async_save(
+        self, collection: str, instances: Union[List[Dict], Dict]
+    ) -> List[dict]:
+        pass
+
+    @abstractmethod
     def delete(self, collection: str, **kwargs) -> None:
         pass
 

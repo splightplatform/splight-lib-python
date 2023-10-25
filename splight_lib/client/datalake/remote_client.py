@@ -50,6 +50,21 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    async def async_save(
+        self,
+        collection: str,
+        instances: Union[List[Dict], Dict],
+    ) -> List[dict]:
+
+        instances = instances if isinstance(instances, list) else [instances]
+        url = self._base_url / f"{self._PREFIX}/save/"
+        response = await self._restclient.async_post(
+            url, params={"source": collection}, json=instances
+        )
+        response.raise_for_status()
+        return instances
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_get(
         self,
         resource_name: str,

@@ -111,6 +111,14 @@ class SplightDatalakeBaseModel(BaseModel):
             instances=json.loads(self.json()),
         )
 
+    async def async_save(self):
+        dl_client = self.__get_datalake_client()
+
+        await dl_client.async_save(
+            collection=self._collection_name,
+            instances=json.loads(self.json()),
+        )
+
     @classmethod
     def save_dataframe(cls, dataframe: pd.DataFrame):
         dl_client = cls.__get_datalake_client()
