@@ -183,9 +183,31 @@ class SplightRestClient:
             default_encoding=default_encoding,
             event_hooks=event_hooks,
         )
+        self._async_client = httpx.AsyncClient(
+            auth=auth,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            http1=http1,
+            http2=http2,
+            proxies=proxies,
+            follow_redirects=allow_redirects,
+            base_url=base_url,
+            limits=limits,
+            max_redirects=max_redirects,
+            transport=transport,
+            app=app,
+            trust_env=trust_env,
+            default_encoding=default_encoding,
+            event_hooks=event_hooks,
+        )
 
     def update_headers(self, new_headers: HeaderTypes):
         self._client.headers = self._client._merge_headers(new_headers)
+        self._async_client.headers = self._async_client._merge_headers(new_headers)
 
     def get(
         self,
@@ -287,6 +309,39 @@ class SplightRestClient:
         Parameters: See class docstring.
         """
         raw_response = self._client.request(
+            self._POST_METHOD,
+            str(url),
+            data=data,
+            files=files,
+            json=json,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse.from_response(raw_response)
+
+    async def async_post(
+        self,
+        url: URLTypes,
+        *,
+        data: Optional[RequestData] = None,
+        files: Optional[RequestFiles] = None,
+        json: Optional[Any] = None,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
+    ) -> SplightResponse:
+        """Send a POST request to the specified URL.
+
+        Parameters: See class docstring.
+        """
+        raw_response = await self._async_client.request(
             self._POST_METHOD,
             str(url),
             data=data,
