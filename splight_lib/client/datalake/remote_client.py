@@ -55,7 +55,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         collection: str,
         instances: Union[List[Dict], Dict],
     ) -> List[dict]:
-
         instances = instances if isinstance(instances, list) else [instances]
         url = self._base_url / f"{self._PREFIX}/save/"
         response = await self._restclient.async_post(
