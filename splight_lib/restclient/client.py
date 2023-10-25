@@ -207,7 +207,9 @@ class SplightRestClient:
 
     def update_headers(self, new_headers: HeaderTypes):
         self._client.headers = self._client._merge_headers(new_headers)
-        self._async_client.headers = self._async_client._merge_headers(new_headers)
+        self._async_client.headers = self._async_client._merge_headers(
+            new_headers
+        )
 
     def get(
         self,
