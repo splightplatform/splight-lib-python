@@ -27,7 +27,6 @@ class NativeOutput(SplightDatalakeBaseModel):
     @classmethod
     async def async_get(cls, **params: Dict) -> List["NativeOutput"]:
         params["output_format"] = cls._output_format
-        __import__("ipdb").set_trace()
         return await super().async_get(**params)
 
     @classmethod
