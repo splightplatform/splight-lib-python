@@ -238,6 +238,33 @@ class SplightRestClient:
         )
         return SplightResponse.from_response(raw_response)
 
+    async def async_get(
+        self,
+        url: URLTypes,
+        *,
+        params: Optional[QueryParamTypes] = None,
+        headers: Optional[HeaderTypes] = None,
+        cookies: Optional[CookieTypes] = None,
+        auth: Union[AuthTypes, DefaultClient] = DEFAULT_CLIENT,
+        allow_redirects: Union[bool, DefaultClient] = DEFAULT_CLIENT,
+        timeout: Union[TimeoutTypes, DefaultClient] = DEFAULT_CLIENT,
+    ) -> SplightResponse:
+        """Send a GET request to the specified URL.
+
+        Parameters: See class docstring.
+        """
+        raw_response = await self._async_client.request(
+            self._GET_METHOD,
+            str(url),
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            follow_redirects=allow_redirects,
+            timeout=timeout,
+        )
+        return SplightResponse.from_response(raw_response)
+
     def options(
         self,
         url: URLTypes,

@@ -13,6 +13,10 @@ class AbstractDatalakeClient(AbstractClient):
         kwargs["count_func"] = "None"
         return QuerySet(self, *args, **kwargs)
 
+    async def async_get(self, *args, **kwargs):
+        # TODO: consider using an async QuerySet
+        return await self._async_raw_get(*args, **kwargs)
+
     @abstractmethod
     def save(
         self, collection: str, instances: Union[List[Dict], Dict]
@@ -20,7 +24,7 @@ class AbstractDatalakeClient(AbstractClient):
         pass
 
     @abstractmethod
-    def async_save(
+    async def async_save(
         self, collection: str, instances: Union[List[Dict], Dict]
     ) -> List[dict]:
         pass
@@ -58,6 +62,21 @@ class AbstractDatalakeClient(AbstractClient):
 
     @abstractmethod
     def _raw_get(
+        self,
+        resource_name: str,
+        collection: str,
+        limit_: int = 50,
+        skip_: int = 0,
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
+        tzinfo: timezone = timezone(timedelta()),
+        **filters,
+    ) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    async def _async_raw_get(
         self,
         resource_name: str,
         collection: str,
