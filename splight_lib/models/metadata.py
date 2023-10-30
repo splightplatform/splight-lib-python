@@ -1,6 +1,7 @@
 from enum import auto
-from typing import Optional
+from typing import Any, Optional
 
+from pydantic import root_validator
 from strenum import PascalCaseStrEnum
 
 from splight_lib.models.base import SplightDatabaseBaseModel
@@ -17,4 +18,17 @@ class Metadata(SplightDatabaseBaseModel):
     name: Optional[str]
     asset: Optional[str]
     type: MetadataType = MetadataType.NUMBER
-    value: Optional[str]
+    value: Optional[Any]
+
+    @root_validator(pre=True)
+    def check_value_type(cls, values):
+        if values["type"] == MetadataType.NUMBER:
+            _int = int(values["value"])
+            _float = float(values["value"])
+            values["value"] = _int if _int == _float else _float
+        elif values["type"] == MetadataType.BOOLEAN:
+            values["value"] = bool(values["value"])
+        elif values["type"] == MetadataType.STRING:
+            values["value"] = str(values["value"])
+
+        return values

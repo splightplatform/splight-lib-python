@@ -140,9 +140,14 @@ class Binding(BaseModel):
 class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str]
     name: str
-    component_id: str
+    component_id: Optional[str] = None
     description: Optional[str] = ""
     type: str
+
+    def save(self):
+        if self.component_id is None:
+            raise ValueError("component_id cannot be None.")
+        super().save()
 
 
 class ComponentObject(SplightObject):
