@@ -15,13 +15,16 @@ class MetadataType(PascalCaseStrEnum):
 
 class Metadata(SplightDatabaseBaseModel):
     id: Optional[str]
-    name: Optional[str]
+    name: str
     asset: Optional[str]
     type: MetadataType = MetadataType.NUMBER
     value: Optional[Any]
 
     @root_validator(pre=True)
     def check_value_type(cls, values):
+        if values["value"] is None:
+            return values
+
         if values["type"] == MetadataType.NUMBER:
             _int = int(values["value"])
             _float = float(values["value"])
