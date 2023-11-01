@@ -1,3 +1,4 @@
+import ast
 from enum import auto
 from typing import Any, Optional
 
@@ -25,10 +26,14 @@ class Metadata(SplightDatabaseBaseModel):
         if values["value"] is None:
             return values
 
+        # TODO: improve the following
         if values["type"] == MetadataType.NUMBER:
-            _int = int(values["value"])
-            _float = float(values["value"])
-            values["value"] = _int if _int == _float else _float
+            if isinstance(values["value"], str):
+                values["value"] = ast.literal_eval(values["value"])
+            else:
+                _int = int(values["value"])
+                _float = float(values["value"])
+                values["value"] = _int if _int == _float else _float
         elif values["type"] == MetadataType.BOOLEAN:
             values["value"] = bool(values["value"])
         elif values["type"] == MetadataType.STRING:
