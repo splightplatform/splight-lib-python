@@ -25,6 +25,11 @@ class NativeOutput(SplightDatalakeBaseModel):
         return super().get(**params)
 
     @classmethod
+    async def async_get(cls, **params: Dict) -> List["NativeOutput"]:
+        params["output_format"] = cls._output_format
+        return await super().async_get(**params)
+
+    @classmethod
     def get_dataframe(cls, **params: Dict) -> pd.DataFrame:
         params["output_format"] = cls._output_format
         return super().get_dataframe(**params)

@@ -95,6 +95,19 @@ class SplightDatalakeBaseModel(BaseModel):
         return instances
 
     @classmethod
+    async def async_get(
+        cls, **params: Dict
+    ) -> List["SplightDatalakeBaseModel"]:
+        dl_client = cls.__get_datalake_client()
+        instances = await dl_client.async_get(
+            resource_name=cls.__name__,
+            collection=cls._collection_name,
+            **params,
+        )
+        instances = [cls.parse_obj(item) for item in instances]
+        return instances
+
+    @classmethod
     def get_dataframe(cls, **params: Dict) -> pd.DataFrame:
         dl_client = cls.__get_datalake_client()
         df = dl_client.get_dataframe(
@@ -107,6 +120,14 @@ class SplightDatalakeBaseModel(BaseModel):
     def save(self):
         dl_client = self.__get_datalake_client()
         dl_client.save(
+            collection=self._collection_name,
+            instances=json.loads(self.json()),
+        )
+
+    async def async_save(self):
+        dl_client = self.__get_datalake_client()
+
+        await dl_client.async_save(
             collection=self._collection_name,
             instances=json.loads(self.json()),
         )
