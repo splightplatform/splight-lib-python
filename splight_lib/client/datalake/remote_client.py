@@ -50,6 +50,20 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    async def async_save(
+        self,
+        collection: str,
+        instances: Union[List[Dict], Dict],
+    ) -> List[dict]:
+        instances = instances if isinstance(instances, list) else [instances]
+        url = self._base_url / f"{self._PREFIX}/save/"
+        response = await self._restclient.async_post(
+            url, params={"source": collection}, json=instances
+        )
+        response.raise_for_status()
+        return instances
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _raw_get(
         self,
         resource_name: str,
@@ -80,6 +94,42 @@ class RemoteDatalakeClient(AbstractDatalakeClient, AbstractRemoteClient):
 
         params = self._parse_params(**filters)
         response = self._restclient.get(url, params=params)
+        response.raise_for_status()
+        output = response.json()["results"]
+
+        return output
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    async def _async_raw_get(
+        self,
+        resource_name: str,
+        collection: str,
+        limit_: int = 50,
+        skip_: int = 0,
+        sort: Union[List, str] = ["timestamp__desc"],
+        group_id: Optional[Union[List, str]] = None,
+        group_fields: Optional[Union[List, str]] = None,
+        tzinfo: timezone = timezone(timedelta()),
+        **filters,
+    ) -> List[Dict]:
+        # GET /datalake/data/
+        url = self._base_url / f"{self._PREFIX}/data/"
+
+        filters.update(
+            {
+                "source": collection,
+                "output_format": resource_name,
+                "sort": sort,
+                "limit_": limit_,
+                "skip_": skip_,
+                "group_id": group_id,
+                "group_fields": group_fields,
+                # "tzinfo": tzinfo
+            }
+        )
+
+        params = self._parse_params(**filters)
+        response = await self._restclient.async_get(url, params=params)
         response.raise_for_status()
         output = response.json()["results"]
 
