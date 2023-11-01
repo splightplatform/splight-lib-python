@@ -41,6 +41,7 @@ from splight_lib.restclient import ConnectError, HTTPError, Timeout
 from splight_lib.settings import settings
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
+logger = get_splight_logger("Base Component")
 
 
 class HealthCheckProcessor:
@@ -196,7 +197,14 @@ class SplightBaseComponent(ABC):
         """
 
         def wrapper():
-            original_start()
+            try:
+                original_start()
+            except Exception as exc:
+                logger.exception(exc, tags=LogTags.COMPONENT)
+                self._health_check.stop()
+                self._execution_engine.terminate_all()
+                sys.exit(1)
+
             for thread in self._execution_engine.threads:
                 thread.join()
 
