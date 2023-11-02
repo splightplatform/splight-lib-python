@@ -34,6 +34,7 @@ from splight_lib.models.component import (
     Routine,
     RoutineObject,
     RoutineObjectInstance,
+    RoutineExcecutionStatus,
 )
 from splight_lib.models.event import EventNames
 from splight_lib.models.setpoint import SetPoint
@@ -87,6 +88,14 @@ class HealthCheckProcessor:
 
     def stop(self):
         self._running = False
+
+    def report_routine_excecution_status(self, routine: Routine, status: str) -> None:
+        excecution_status = RoutineExcecutionStatus(
+            # TODO: it should use id instead of name
+            routine=str(routine.name),
+            status=status,
+        )
+        excecution_status.save()
 
     def _log_exception(self, exc: Optional[Exception]) -> None:
         """Logs the exception and the traceback."""
