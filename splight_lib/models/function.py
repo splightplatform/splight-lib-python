@@ -1,8 +1,8 @@
 from enum import auto
 from typing import List, Optional, TypedDict
-from pydantic import Field, BaseModel
-from strenum import UppercaseStrEnum, LowercaseStrEnum
 
+from pydantic import BaseModel, Field
+from strenum import LowercaseStrEnum, UppercaseStrEnum
 
 from splight_lib.models.base import SplightDatabaseBaseModel
 
