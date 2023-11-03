@@ -19,7 +19,6 @@ from splight_lib.client.exceptions import (
     InvalidModelName,
 )
 from splight_lib.constants import ENGINE_PREFIX
-from splight_lib.encryption import EncryptionClient
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
 
