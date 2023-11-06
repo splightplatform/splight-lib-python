@@ -17,11 +17,13 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.base import (
+    SplightDatabaseBaseModel,
+    SplightDatalakeBaseModel,
+)
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
-from splight_lib.models.native import RoutineEvaluation
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 
@@ -156,8 +158,16 @@ class ComponentObject(SplightObject):
     data: List[InputParameter] = []
 
 
+class RoutineEvaluation(SplightDatalakeBaseModel):
+    _collection_name = "routineEvaluations"
+
+    routine: str
+    status: RoutineStatus
+    status_text: Optional[str]
+
+
 class RoutineObject(SplightObject):
-    status: Optional[RoutineStatus] = RoutineStatus.RUNNING
+    status: Optional[RoutineStatus] = RoutineStatus.HEALTHY
 
     config: Optional[List[InputParameter]] = []
     input: List[InputDataAddress] = []

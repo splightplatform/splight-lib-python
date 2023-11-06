@@ -5,6 +5,7 @@ from splight_lib.models.component import (
     Component,
     ComponentObject,
     ComponentObjectInstance,
+    RoutineEvaluation,
     RoutineObject,
     RoutineObjectInstance,
 )
@@ -18,12 +19,7 @@ from splight_lib.models.dashboard import (
 )
 from splight_lib.models.file import File
 from splight_lib.models.hub import HubComponent
-from splight_lib.models.native import (
-    Boolean,
-    Number,
-    RoutineEvaluation,
-    String,
-)
+from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 from splight_lib.models.setpoint import SetPoint

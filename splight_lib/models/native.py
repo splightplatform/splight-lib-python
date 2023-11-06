@@ -6,7 +6,6 @@ from pydantic import validator
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatalakeBaseModel
-from splight_lib.models.component import RoutineStatus
 
 
 class NativeOutput(SplightDatalakeBaseModel):
@@ -54,11 +53,3 @@ class String(NativeOutput):
 class Boolean(NativeOutput):
     value: bool
     _output_format: ClassVar[str] = "Boolean"
-
-
-class RoutineEvaluation(SplightDatalakeBaseModel):
-    _collection_name = "routineEvaluations"
-
-    routine: str
-    status: RoutineStatus
-    status_text: Optional[str]
