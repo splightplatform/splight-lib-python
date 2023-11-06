@@ -48,9 +48,10 @@ class ComponentType(LowercaseStrEnum):
 
 
 class RoutineStatus(LowercaseStrEnum):
-    RUNNING = auto()
-    PENDING = auto()
-    FAILED = auto()
+    HEALTHY = auto()
+    UNHEALTHY = auto()
+    TIMEOUT = auto()
+    NO_DATA = auto()
 
 
 class Parameter(BaseModel):
