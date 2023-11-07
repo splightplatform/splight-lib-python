@@ -173,6 +173,18 @@ class RoutineObject(SplightObject):
     input: List[InputDataAddress] = []
     output: List[InputDataAddress] = []
 
+    def report_status(self, status: RoutineStatus, status_text: str = None):
+        evaluation_status = RoutineEvaluation(
+            routine=str(self.id),
+            status=status,
+            status_text=status_text,
+        )
+        evaluation_status.save()
+
+        if self.status != status:
+            self.status = status
+            self.save()
+
 
 class Component(SplightDatabaseBaseModel):
     id: Optional[str]
@@ -610,11 +622,3 @@ class RoutineObjectInstance(AbstractObjectInstance):
             },
         }
         return cls.parse_obj(params_dict)
-
-    def report_status(self, status: RoutineStatus, status_text: str = ""):
-        evaluation_status = RoutineEvaluation(
-            routine=str(self.id),
-            status=status,
-            status_text=status_text,
-        )
-        evaluation_status.save()
