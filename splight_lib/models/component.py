@@ -611,7 +611,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         }
         return cls.parse_obj(params_dict)
 
-    def evaluate_status(self, status: RoutineStatus, status_text: str = ""):
+    def report_status(self, status: RoutineStatus, status_text: str = ""):
         evaluation_status = RoutineEvaluation(
             routine=str(self.id),
             status=status,
