@@ -72,7 +72,6 @@ class HealthCheckProcessor:
         self._running = True
         while self._running:
             is_alive, status = self._engine.healthcheck()
-            print(is_alive, status)
             if not is_alive:
                 exc = self._engine.get_last_exception()
                 self._log_exception(exc)
