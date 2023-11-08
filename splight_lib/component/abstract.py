@@ -115,10 +115,6 @@ class SplightBaseComponent(ABC):
         self._health_check_thread = Thread(
             target=self._health_check.start, args=(), daemon=False
         )
-        # We can't add the healthcheck thread into the execution engine
-        # because that thread should stop if any of the registered threads
-        # is stopped.
-        self._health_check_thread.start()
 
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
@@ -197,6 +193,13 @@ class SplightBaseComponent(ABC):
         """
 
         def wrapper():
+            # We can't add the healthcheck thread into the execution engine
+            # because that thread should stop if any of the registered threads
+            # is stopped.
+            # Also, we start the healthcheck thread when the method start is
+            # called, this way if there is any error on the initialization we
+            # can get that error and the component will fail
+            self._health_check_thread.start()
             try:
                 original_start()
             except Exception as exc:
