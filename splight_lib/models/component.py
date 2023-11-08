@@ -171,7 +171,9 @@ class RoutineObject(SplightObject):
     input: List[InputDataAddress] = []
     output: List[InputDataAddress] = []
 
-    def report_status(self, status: RoutineStatus, status_text: Optional[str] = None):
+    def report_status(
+        self, status: RoutineStatus, status_text: Optional[str] = None
+    ):
         evaluation_status = RoutineEvaluation(
             routine=str(self.id),
             status=status,
