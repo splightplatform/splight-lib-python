@@ -70,7 +70,7 @@ class SplightSettings(BaseSettings, Singleton):
         return instance
 
     def configure(self, **params: Dict):
-        self.parse_obj(params)
+        self.model_validate(params)
 
     @classmethod
     def settings_customise_sources(
@@ -83,8 +83,8 @@ class SplightSettings(BaseSettings, Singleton):
     ):
         return (
             init_settings,
-            SplightConfigSource(settings_cls=settings_cls),
             env_settings,
+            SplightConfigSource(settings_cls=settings_cls),
         )
 
     class Config:
