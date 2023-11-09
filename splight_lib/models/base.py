@@ -32,7 +32,7 @@ class SplightDatabaseBaseModel(BaseModel):
 
     def save(self):
         saved = self._db_client.save(
-            self.__class__.__name__, self.dict(exclude_none=True)
+            self.__class__.__name__, self.model_dump(exclude_none=True)
         )
         if not self.id:
             self.id = saved["id"]
@@ -48,13 +48,13 @@ class SplightDatabaseBaseModel(BaseModel):
         instance = db_client.get(
             resource_name=cls.__name__, id=resource_id, first=True
         )
-        return cls.parse_obj(instance) if instance else None
+        return cls.model_validate(instance) if instance else None
 
     @classmethod
     def list(cls, **params: Dict) -> List["SplightDatabaseBaseModel"]:
         db_client = cls.__get_database_client()
         instances = db_client.get(resource_name=cls.__name__, **params)
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @staticmethod
