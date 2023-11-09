@@ -21,7 +21,6 @@ from splight_lib.models.function import Function, FunctionItem
 from splight_lib.models.hub import HubComponent
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
-from splight_lib.models.setpoint import SetPoint
 
 __all__ = [
     AdvancedFilter,
@@ -44,7 +43,6 @@ __all__ = [
     Number,
     String,
     Secret,
-    SetPoint,
     RoutineObject,
     RoutineObjectInstance,
     Tab,
