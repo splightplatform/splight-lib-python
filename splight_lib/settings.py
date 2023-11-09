@@ -2,8 +2,10 @@ import os
 from typing import Any, Dict, Optional, Tuple
 
 import yaml
-from pydantic import BaseSettings, Extra, root_validator
-from pydantic.env_settings import SettingsSourceCallable
+from pydantic import Extra, model_validator
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+
+# from pydantic.env_settings import SettingsSourceCallable
 
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
 
@@ -36,14 +38,18 @@ class SplightSettings(BaseSettings, Singleton):
 
     # Parameters for local environment
     LOCAL_ENVIRONMENT: bool = False
-    CURRENT_DIR: Optional[str]
+    CURRENT_DIR: Optional[str] = None
 
-    @root_validator(allow_reuse=True)
-    def validate_local_environment(cls, values: Dict):
-        local_dev = values.get("LOCAL_ENVIRONMENT")
-        if local_dev:
-            values["CURRENT_DIR"] = os.getcwd()
-        return values
+    @model_validator(mode="after")
+    @classmethod
+    def validate_local_environment(
+        cls, instance: "SplightSettings"
+    ) -> "SplightSettings":
+        # local_dev = values.get("LOCAL_ENVIRONMENT")
+        if instance.LOCAL_ENVIRONMENT:
+            instance.CURRENT_DIR = os.getcwd()
+            # values["CURRENT_DIR"] = os.getcwd()
+        return instance
 
     def configure(self, **params: Dict):
         self.parse_obj(params)
@@ -54,10 +60,10 @@ class SplightSettings(BaseSettings, Singleton):
         @classmethod
         def customise_sources(
             cls,
-            init_settings: SettingsSourceCallable,
-            env_settings: SettingsSourceCallable,
-            file_secret_settings: SettingsSourceCallable,
-        ) -> Tuple[SettingsSourceCallable, ...]:
+            init_settings: PydanticBaseSettingsSource,
+            env_settings: PydanticBaseSettingsSource,
+            file_secret_settings: PydanticBaseSettingsSource,
+        ) -> Tuple[PydanticBaseSettingsSource, ...]:
             return init_settings, yml_config_setting, env_settings
 
 
