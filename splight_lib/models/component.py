@@ -3,12 +3,11 @@ import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto
-from typing import Any, ClassVar, Dict, List, Optional, Type, Union
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 
-from pydantic import (
+from pydantic import (  # Field,
     AnyUrl,
     BaseModel,
-    Field,
     PrivateAttr,
     create_model,
     validator,
@@ -71,7 +70,8 @@ class DataAddress(Parameter):
     choices: None = None
     depends_on: None = None
     required: bool = True
-    type: str = Field("DataAddress", const=True)
+    # type: str = Field("DataAddress", const=True)
+    type: str = Literal["DataAddress"]
     value_type: str = "Number"
 
     @validator("type", pre=True)

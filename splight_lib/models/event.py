@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from enum import auto
-from typing import Dict, Optional
+from typing import Dict, Optional, Literal
 
 from pydantic import BaseModel, Field
 from strenum import (
@@ -71,17 +71,17 @@ class ComponentCommand(BaseModel):
 
 
 class ComponentCommandTriggerEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_TRIGGER, const=True)
+    event_name: str = Literal[EventNames.COMPONENTCOMMAND_TRIGGER]
     data: ComponentCommand
 
 
 class ComponentCommandCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_CREATE, const=True)
+    event_name: str = Literal[EventNames.COMPONENTCOMMAND_CREATE]
     data: ComponentCommand
 
 
 class ComponentCommandUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_UPDATE, const=True)
+    event_name: str = Literal[EventNames.COMPONENTCOMMAND_UPDATE]
     data: ComponentCommand
 
 
