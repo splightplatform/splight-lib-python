@@ -58,8 +58,8 @@ class Parameter(BaseModel):
     required: bool = False
     multiple: bool = False
     sensitive: bool = False
-    choices: Optional[List[Any]]
-    depends_on: Optional[str]
+    choices: Optional[List[Any]] = None
+    depends_on: Optional[str] = None
 
 
 class InputParameter(Parameter):
@@ -70,7 +70,6 @@ class DataAddress(Parameter):
     choices: None = None
     depends_on: None = None
     required: bool = True
-    # type: str = Field("DataAddress", const=True)
     type: str = Literal["DataAddress"]
     value_type: str = "Number"
 
@@ -82,7 +81,7 @@ class DataAddress(Parameter):
 
 
 class InputDataAddress(DataAddress):
-    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]]
+    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]] = None
 
 
 class OutputParameter(BaseModel):
@@ -138,7 +137,7 @@ class Binding(BaseModel):
 
 
 class SplightObject(SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
     description: Optional[str] = ""
@@ -163,8 +162,8 @@ class RoutineObject(SplightObject):
 
 
 class Component(SplightDatabaseBaseModel):
-    id: Optional[str]
-    name: Optional[str]
+    id: Optional[str] = None
+    name: Optional[str] = None
     version: str
     custom_types: List[CustomType] = []
     component_type: ComponentType = ComponentType.CONNECTOR
@@ -262,9 +261,9 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 
 
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str = ""
-    description: Optional[str]
+    description: Optional[str] = None
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]

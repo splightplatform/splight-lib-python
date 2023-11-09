@@ -42,8 +42,8 @@ class ComponentCommandStatus(SnakeCaseStrEnum):
 
 
 class ComponentCommandResponse(BaseModel):
-    return_value: Optional[str]
-    error_detail: Optional[str]
+    return_value: Optional[str] = None
+    error_detail: Optional[str] = None
 
 
 class CommunicationEvent(BaseModel):
@@ -61,7 +61,7 @@ class CommunicationEvent(BaseModel):
 
 
 class ComponentCommand(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     command: Command
     status: ComponentCommandStatus
     response: ComponentCommandResponse = ComponentCommandResponse()
@@ -104,7 +104,7 @@ class SetPointResponseStatus(LowercaseStrEnum):
 
 
 class SetPointResponse(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     component: str
     status: SetPointResponseStatus
     created_at: Optional[datetime] = None

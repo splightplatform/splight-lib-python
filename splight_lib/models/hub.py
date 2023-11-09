@@ -39,23 +39,23 @@ def get_hub_client() -> AbstractHubClient:
 
 
 class HubComponent(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     version: str
     splight_cli_version: str
-    build_status: Optional[str]
-    description: Optional[str]
+    build_status: Optional[str] = None
+    description: Optional[str] = None
     privacy_policy: Optional[str] = None
     component_type: Optional[str] = None
     tenant: Optional[str] = None
-    readme: Optional[str]
-    picture: Optional[str]
-    file: Optional[str]
-    verification: Optional[str]
-    created_at: Optional[str]
-    last_modified: Optional[str]
+    readme: Optional[str] = None
+    picture: Optional[str] = None
+    file: Optional[str] = None
+    verification: Optional[str] = None
+    created_at: Optional[str] = None
+    last_modified: Optional[str] = None
     tags: List[str] = []
-    min_component_capacity: Optional[str]
+    min_component_capacity: Optional[str] = None
     usage_count: int = 0
 
     custom_types: List[CustomType] = []
