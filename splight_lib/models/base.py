@@ -91,7 +91,7 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=cls._collection_name,
             **params,
         )
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @classmethod
@@ -104,7 +104,7 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=cls._collection_name,
             **params,
         )
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @classmethod

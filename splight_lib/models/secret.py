@@ -15,4 +15,4 @@ class Secret(SplightDatabaseBaseModel):
             resource_name="decrypt-secret",
             instance={"name": name},
         )
-        return cls.parse_obj(response)
+        return cls.model_validate(response)

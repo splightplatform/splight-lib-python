@@ -84,33 +84,33 @@ class HubComponent(BaseModel):
         hub_client = get_hub_client()
         params["organization_id"] = hub_client.get_org_id()
         data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         params["privacy_policy"] = "public"
         data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
         params["privacy_policy"] = "private"
         hub_client = get_hub_client()
         data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def retrieve(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.get(id=id, first=True)
-        return cls.parse_obj(data)
+        return cls.model_validate(data)
 
     def delete(self):
         hub_client = get_hub_client()
@@ -147,7 +147,7 @@ class HubComponent(BaseModel):
         spec["name"] = name
         spec["version"] = version
         spec.setdefault("component_type", ComponentType.CONNECTOR.value)
-        data_cls = cls.parse_obj(spec)
+        data_cls = cls.model_validate(spec)
 
         data = data_cls.dict(exclude_none=True)
 
@@ -175,4 +175,4 @@ class HubComponent(BaseModel):
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
-        return cls.parse_obj(component)
+        return cls.model_validate(component)

@@ -145,5 +145,5 @@ def test_component_input(mock_get_input_model, mock_retrieve):
     # Check that the result is an instance of the correct class
     assert isinstance(result, BaseModel)
 
-    # Check that the input_model.parse_obj() was called with the correct arguments
+    # Check that the input_model.model_validate() was called with the correct arguments
     mock_input_model.parse_obj.assert_called_once_with({"param1": "test"})
