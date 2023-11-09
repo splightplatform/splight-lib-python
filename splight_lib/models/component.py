@@ -48,6 +48,8 @@ class RoutineStatus(LowercaseStrEnum):
     RUNNING = auto()
     PENDING = auto()
     FAILED = auto()
+    HEALTHY = auto()
+    UNHEALTHY = auto()
 
 
 class Parameter(BaseModel):
