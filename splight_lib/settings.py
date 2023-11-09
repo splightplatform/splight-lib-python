@@ -1,11 +1,10 @@
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Type
 
 import yaml
 from pydantic import Extra, model_validator
+from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
-
-# from pydantic.env_settings import SettingsSourceCallable
 
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
 
@@ -18,16 +17,37 @@ class Singleton:
         return cls._instance
 
 
-def yml_config_setting(settings: BaseSettings) -> Dict[str, Any]:
-    config = {}
-    config_file = os.path.join(SPLIGHT_HOME, "config")
-    if os.path.exists(config_file):
-        with open(config_file) as f:
-            config = yaml.safe_load(f)
-        if "workspaces" in config:  # splight format config
-            workspace = config.get("current_workspace", "default")
-            config = config["workspaces"].get(workspace, {})
-    return config
+class SplightConfigSource(PydanticBaseSettingsSource):
+    def __init__(self, settings_cls):
+        super().__init__(settings_cls=settings_cls)
+        config = {}
+        config_file = os.path.join(SPLIGHT_HOME, "config")
+        if os.path.exists(config_file):
+            with open(config_file) as f:
+                config = yaml.safe_load(f)
+            if "workspaces" in config:  # splight format config
+                workspace = config.get("current_workspace", "default")
+                config = config["workspaces"].get(workspace, {})
+        self._config = config
+
+    def get_field_value(
+        self, field: FieldInfo, field_name: str
+    ) -> Tuple[Any, str, bool]:
+        return (self._config.get(field_name, None), field_name, False)
+
+    def __call__(self) -> Dict[str, Any]:
+        values: Dict[str, Any] = {}
+
+        for field_name, field in self.settings_cls.model_fields.items():
+            field_value, field_key, value_is_complex = self.get_field_value(
+                field, field_name
+            )
+            field_value = self.prepare_field_value(
+                field_name, field, field_value, value_is_complex
+            )
+            if field_value is not None:
+                values.update({field_key: field_value})
+        return values
 
 
 class SplightSettings(BaseSettings, Singleton):
@@ -45,26 +65,30 @@ class SplightSettings(BaseSettings, Singleton):
     def validate_local_environment(
         cls, instance: "SplightSettings"
     ) -> "SplightSettings":
-        # local_dev = values.get("LOCAL_ENVIRONMENT")
         if instance.LOCAL_ENVIRONMENT:
             instance.CURRENT_DIR = os.getcwd()
-            # values["CURRENT_DIR"] = os.getcwd()
         return instance
 
     def configure(self, **params: Dict):
         self.parse_obj(params)
 
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: Type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ):
+        return (
+            init_settings,
+            SplightConfigSource(settings_cls=settings_cls),
+            env_settings,
+        )
+
     class Config:
         extra = Extra.ignore
-
-        @classmethod
-        def customise_sources(
-            cls,
-            init_settings: PydanticBaseSettingsSource,
-            env_settings: PydanticBaseSettingsSource,
-            file_secret_settings: PydanticBaseSettingsSource,
-        ) -> Tuple[PydanticBaseSettingsSource, ...]:
-            return init_settings, yml_config_setting, env_settings
 
 
 settings = SplightSettings()
