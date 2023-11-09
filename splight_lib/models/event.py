@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from enum import auto
-from typing import Dict, Optional, Literal
+from typing import Dict, Literal, Optional
 
 from pydantic import BaseModel, Field
 from strenum import (
