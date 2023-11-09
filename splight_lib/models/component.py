@@ -20,7 +20,6 @@ from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
-from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -190,7 +189,6 @@ DATABASE_TYPES = {
     "Asset": Asset,
     "Attribute": Attribute,
     "File": File,
-    "Query": Query,
 }
 
 DATALAKE_TYPES = {
