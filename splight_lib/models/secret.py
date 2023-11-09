@@ -1,6 +1,5 @@
 from typing import Optional
 
-from splight_lib.encryption import EncryptionClient
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 

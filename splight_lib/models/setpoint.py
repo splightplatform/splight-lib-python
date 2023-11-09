@@ -29,14 +29,14 @@ class SetPointResponseStatus(LowercaseStrEnum):
 
 
 class SetPointResponse(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     component: str
     status: SetPointResponseStatus
     created_at: Optional[datetime] = None
 
 
 class SetPoint(SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     asset: Asset
     attribute: Attribute
     type: SetPointType
