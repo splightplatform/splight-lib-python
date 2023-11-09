@@ -46,7 +46,7 @@ class CommunicationFactory:
         assert (
             response.status_code == 201
         ), f"Cant create communication {self._model}."
-        return self._model.parse_obj(response.json())
+        return self._model.model_validate(response.json())
 
     def get(self, params=None):
         response = requests.get(
@@ -56,7 +56,7 @@ class CommunicationFactory:
             response.status_code == 200
         ), f"Cant fetch communication {self._model}."
         data = response.json()
-        return self._model.parse_obj(data)
+        return self._model.model_validate(data)
 
 
 class RemoteCommunicationClient(AbstractCommunicationClient):

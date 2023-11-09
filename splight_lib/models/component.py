@@ -244,7 +244,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
         for item in value:
             item.update({"type": field.value_type})
 
-        value = [model_class.parse_obj(item) for item in value]
+        value = [model_class.model_validate(item) for item in value]
         value = value[0] if not multiple else value
     else:
         value_as_list = (
@@ -322,7 +322,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
             )
         parameter = field.dict()
         parameter.update({"value": value})
-        return InputParameter.parse_obj(parameter)
+        return InputParameter.model_validate(parameter)
 
     @staticmethod
     def _convert_to_input_data_addres(
@@ -343,7 +343,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
             }
         parameter = field.dict()
         parameter.update({"value": value})
-        return InputDataAddress.parse_obj(parameter)
+        return InputDataAddress.model_validate(parameter)
 
     @abstractmethod
     def to_object(self) -> SplightObject:
@@ -431,7 +431,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_custom_type(
-            CustomType.parse_obj(instance_dict), instance.component_id
+            CustomType.model_validate(instance_dict), instance.component_id
         )
 
     @classmethod
@@ -448,7 +448,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
                 "description": instance.description,
             }
         )
-        return cls.parse_obj(params_dict)
+        return cls.model_validate(params_dict)
 
     @classmethod
     def from_component(
@@ -576,7 +576,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         instance_dict = instance.dict()
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_routine(
-            Routine.parse_obj(instance_dict), instance.component_id
+            Routine.model_validate(instance_dict), instance.component_id
         )
 
     @classmethod
@@ -596,4 +596,4 @@ class RoutineObjectInstance(AbstractObjectInstance):
                 field.name: get_field_value(field) for field in instance.output
             },
         }
-        return cls.parse_obj(params_dict)
+        return cls.model_validate(params_dict)

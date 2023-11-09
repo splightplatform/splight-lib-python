@@ -202,7 +202,7 @@ class Spec(BaseModel):
         values = {
             param.name: get_field_value(param) for param in component.input
         }
-        return input_model.parse_obj(values)
+        return input_model.model_validate(values)
 
     def get_output_models(self, component_id: str) -> BaseModel:
         """Creates a BaseModel that represents the component's output. Each

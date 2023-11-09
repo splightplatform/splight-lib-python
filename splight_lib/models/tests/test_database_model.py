@@ -85,7 +85,7 @@ def test_retrieve(instance_dict):
     ) as mock:
         instance = Resource.retrieve(instance_dict["id"])
         mock.assert_called_with(Resource.__name__, id=instance.id, first=True)
-        assert instance.dict() == instance_dict
+        assert instance.model_dump() == instance_dict
 
 
 @pytest.mark.parametrize(
@@ -96,10 +96,10 @@ def test_save_with_id(instance_dict):
     with patch.object(
         LocalDatabaseClient, "save", return_value=instance_dict
     ) as mock:
-        resource = Resource.parse_obj(instance_dict)
+        resource = Resource.model_validate(instance_dict)
         resource.save()
         mock.assert_called_with(Resource.__name__, instance_dict)
-        assert resource.dict() == instance_dict
+        assert resource.model_dump() == instance_dict
 
 
 @pytest.mark.parametrize(
@@ -110,12 +110,12 @@ def test_save_without_id(instance_dict):
     with patch.object(
         LocalDatabaseClient, "save", return_value=instance_dict
     ) as mock:
-        resource = Resource.parse_obj(instance_dict)
+        resource = Resource.model_validate(instance_dict)
         resource.id = None
-        resource_dict = resource.dict(exclude_none=True)
+        resource_dict = resource.model_dump(exclude_none=True)
         resource.save()
         mock.assert_called_with(Resource.__name__, resource_dict)
-        assert resource.dict() == instance_dict
+        assert resource.model_dump() == instance_dict
 
 
 @pytest.mark.parametrize(
@@ -126,7 +126,7 @@ def test_delete(instance_dict):
     with patch.object(
         LocalDatabaseClient, "delete", return_value=None
     ) as mock:
-        resource = Resource.parse_obj(instance_dict)
+        resource = Resource.model_validate(instance_dict)
         resource.delete()
         mock.assert_called_with(
             resource_name=Resource.__name__, id=resource.id
