@@ -1,6 +1,7 @@
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
@@ -118,34 +119,33 @@ class SplightBaseComponent(ABC):
         self._output = self._spec.get_output_models(component_id)
 
         component_objects = {
-            ct.name: ComponentObjectInstance.from_custom_type(
-                ct, component_id=component_id
+            ct.name: (
+                ComponentObjectInstance.from_custom_type(
+                    ct, component_id=component_id
+                ),
+                ...,
             )
             for ct in self._spec.custom_types
         }
-        routines_objects = {
+        routine_objects = {
             routine.name: RoutineObjectInstance.from_routine(
-                routine, component_id=self._component_id
-            )
+                    routine, component_id=self._component_id
+                )
             for routine in self._spec.routines
         }
 
+        # TODO: check if we are going to still use binding
         bindings = [
             binding
             for binding in self._spec.bindings
             if binding.object_type != "SetPoint"
         ]
-        setpoints = [
-            binding
-            for binding in self._spec.bindings
-            if binding.object_type == "SetPoint"
-        ]
         self._load_bindings(bindings, component_objects)
-        self._load_setpoints(setpoints)
-        self._load_routines(self._spec.routines, routines_objects)
+        self._load_routines(self._spec.routines, routine_objects)
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
-        self._routines = self._get_routine_model(routines_objects)
+        self._routines = self._get_routine_model(routine_objects)
+        __import__("ipdb").set_trace()
 
         self.start = self._wrap_start(self.start)
 
@@ -220,10 +220,12 @@ class SplightBaseComponent(ABC):
         return custom_type_model()
 
     def _get_routine_model(
-        self, routine_object: Dict[str, Type[RoutineObjectInstance]]
-    ) -> BaseModel:
-        custom_type_model = create_model("CustomTypes", **routine_object)
-        return custom_type_model()
+        self, routine_objects: Dict[str, Type[RoutineObjectInstance]]
+    ) -> namedtuple:
+        routine_model = namedtuple(
+            "ComponentRoutine", [k for k in routine_objects.keys()]
+        )
+        return routine_model(**routine_objects)
 
     def _load_spec(self) -> Spec:
         """Loads the spec.json files located at the same level that the
