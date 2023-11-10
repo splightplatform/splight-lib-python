@@ -1,10 +1,12 @@
 import json
 import os
+from enum import auto
 from glob import glob
 from typing import List, Optional
 
 import py7zr
-from pydantic import BaseModel, PrivateAttr, validator
+from pydantic import BaseModel, PrivateAttr, field_validator
+from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
@@ -27,7 +29,11 @@ from splight_lib.utils.hub import (
     get_spec,
 )
 
-VERIFICATION_CHOICES = ["verified", "unverified", "official"]
+
+class HubComponentVerificationEnum(LowercaseStrEnum):
+    VERIFIED = auto()
+    UNVERIFIED = auto()
+    OFFICIAL = auto()
 
 
 def get_hub_client() -> AbstractHubClient:
@@ -51,7 +57,7 @@ class HubComponent(BaseModel):
     readme: Optional[str] = None
     picture: Optional[str] = None
     file: Optional[str] = None
-    verification: Optional[str] = None
+    verification: Optional[HubComponentVerificationEnum] = None
     created_at: Optional[str] = None
     last_modified: Optional[str] = None
     tags: List[str] = []
@@ -72,12 +78,6 @@ class HubComponent(BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._hub_client = get_hub_client()
-
-    @validator("verification", pre=True, always=True)
-    def set_verification_now(cls, v):
-        if v:
-            assert v in VERIFICATION_CHOICES, "Verification value not allowed."
-        return v
 
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
