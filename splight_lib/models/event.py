@@ -12,7 +12,6 @@ from strenum import (
 )
 
 from splight_lib.models.component import Command
-from splight_lib.models.setpoint import SetPoint
 
 
 class EventActions(UppercaseStrEnum):
@@ -83,38 +82,3 @@ class ComponentCommandCreateEvent(CommunicationEvent):
 class ComponentCommandUpdateEvent(CommunicationEvent):
     event_name: str = Literal[EventNames.COMPONENTCOMMAND_UPDATE]
     data: ComponentCommand
-
-
-class SetPointType(PascalCaseStrEnum):
-    Number = auto()
-    String = auto()
-    Boolean = auto()
-
-    def __str__(self):
-        return self.value
-
-
-class SetPointResponseStatus(LowercaseStrEnum):
-    SUCCESS = auto()
-    ERROR = auto()
-    IGNORE = auto()
-
-    def __str__(self):
-        return self.value
-
-
-class SetPointResponse(BaseModel):
-    id: Optional[str] = None
-    component: str
-    status: SetPointResponseStatus
-    created_at: Optional[datetime] = None
-
-
-class SetPointCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.SETPOINT_CREATE, const=True)
-    data: SetPoint
-
-
-class SetPointUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.SETPOINT_UPDATE, const=True)
-    data: SetPoint
