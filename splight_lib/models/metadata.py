@@ -13,7 +13,6 @@ class Metadata(SplightDatabaseBaseModel):
     type: ValueTypeEnum = ValueTypeEnum.NUMBER
     value: Optional[Any] = None
 
-    # TODO: Add unit test for this
     @model_validator(mode="after")
     def check_value_type(cls, model):
         if model.value is None:
