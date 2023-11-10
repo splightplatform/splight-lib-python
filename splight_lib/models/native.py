@@ -1,7 +1,7 @@
 from typing import ClassVar, Dict, List, Optional, Union
 
 import pandas as pd
-from pydantic import validator
+from pydantic import field_validator
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
@@ -15,7 +15,7 @@ class NativeOutput(SplightDatalakeBaseModel):
     _collection_name: ClassVar[str] = "default"
     _output_format: ClassVar[str] = "default"
 
-    @validator("output_format", always=True)
+    @field_validator("output_format", mode="before")
     def set_output_format(cls, v):
         return cls._output_format
 

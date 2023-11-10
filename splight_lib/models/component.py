@@ -10,7 +10,7 @@ from pydantic import (  # Field,
     BaseModel,
     PrivateAttr,
     create_model,
-    validator,
+    field_validator,
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
@@ -74,7 +74,7 @@ class DataAddress(Parameter):
     type: str = Literal["DataAddress"]
     value_type: str = "Number"
 
-    @validator("type", pre=True)
+    @field_validator("type", mode="before")
     def check_wrong_name(cls, value: str) -> str:
         if value == "DataAdress":
             value = "DataAddress"
