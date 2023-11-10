@@ -20,20 +20,12 @@ from splight_lib.models.event import (
     ComponentCommandStatus,
     ComponentCommandTriggerEvent,
     ComponentCommandUpdateEvent,
-    SetPointCreateEvent,
-    SetPointResponse,
-    SetPointResponseStatus,
-    SetPointUpdateEvent,
 )
 
 logger = get_splight_logger()
 
 
 class InvalidCommandResponse(Exception):
-    pass
-
-
-class InvalidSetPointResponse(Exception):
     pass
 
 
@@ -138,48 +130,3 @@ def command_event_handler(
         data=component_command
     )
     comm_client.trigger(component_command_callback_event)
-
-
-def setpoint_event_handler(
-    binding_function: Callable,
-    comm_client: AbstractCommunicationClient,
-    component_id: str,
-    event_str: str,
-):
-    """General handler for component's setpoint events.
-
-    Parameters
-    ----------
-    binding_function: Callable
-        Function to be executed.
-    comm_client: AbstractCommunicationClient
-        Communication client to send command response.
-    component_id: str
-        The component's id that is reacting to the setpoint event.
-    event_str:
-        The raw event string from pusher client.
-    """
-    logger.info("Setpoint triggered.", tags=LogTags.SETPOINT)
-    try:
-        event = SetPointCreateEvent.parse_raw(event_str)
-        setpoint = event.data
-        setpoint_response = binding_function(setpoint)
-        if not isinstance(setpoint_response, SetPointResponseStatus):
-            raise InvalidSetPointResponse("Setpoint response is invalid")
-
-        if setpoint_response != SetPointResponseStatus.IGNORE:
-            setpoint.responses = [
-                SetPointResponse(
-                    component=component_id,
-                    status=setpoint_response,
-                )
-            ]
-            setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
-            comm_client.trigger(setpoint_callback_event)
-    except Exception as exc:
-        logger.error(
-            "Error while handling setpoint create: %s",
-            exc,
-            exc_info=True,
-            tags=LogTags.SETPOINT,
-        )

@@ -12,14 +12,12 @@ from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
     database_object_event_handler,
-    setpoint_event_handler,
 )
 from splight_lib.component.exceptions import (
     InvalidBidingObject,
     MissingBindingCallback,
     MissingCommandCallback,
     MissingRoutineCallback,
-    MissingSetPointCallback,
 )
 from splight_lib.component.spec import Spec
 
@@ -36,7 +34,6 @@ from splight_lib.models.component import (
     RoutineObjectInstance,
 )
 from splight_lib.models.event import EventNames
-from splight_lib.models.setpoint import SetPoint
 from splight_lib.restclient import ConnectError, HTTPError, Timeout
 from splight_lib.settings import settings
 
@@ -294,26 +291,6 @@ class SplightBaseComponent(ABC):
                         model_calss,
                     ),
                 )
-
-    def _load_setpoints(self, setpoints: List[SetPoint]):
-        """Loads and assigns callbacks to the setpoing."""
-        for setpoint in setpoints:
-            event_name = SetPoint.get_event_name(
-                SetPoint.__name__, setpoint.object_action
-            )
-            callback_func = getattr(self, setpoint.name, None)
-            if not callback_func:
-                raise MissingSetPointCallback(setpoint.name)
-
-            self._comm_client.bind(
-                event_name,
-                partial(
-                    setpoint_event_handler,
-                    callback_func,
-                    self._comm_client,
-                    self._component_id,
-                ),
-            )
 
     def _load_commands(self, commands: List[Command]):
         """Assigns callbacks function to each of the defined commands."""
