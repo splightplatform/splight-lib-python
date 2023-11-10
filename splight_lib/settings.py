@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, Optional, Tuple, Type
 
 import yaml
-from pydantic import Extra, model_validator
+from pydantic import ConfigDict, model_validator
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
@@ -28,12 +28,12 @@ class SplightConfigSource(PydanticBaseSettingsSource):
             if "workspaces" in config:  # splight format config
                 workspace = config.get("current_workspace", "default")
                 config = config["workspaces"].get(workspace, {})
-        self._config = config
+        self._raw_config = config
 
     def get_field_value(
         self, field: FieldInfo, field_name: str
     ) -> Tuple[Any, str, bool]:
-        return (self._config.get(field_name, None), field_name, False)
+        return (self._raw_config.get(field_name, None), field_name, False)
 
     def __call__(self) -> Dict[str, Any]:
         values: Dict[str, Any] = {}
@@ -59,6 +59,8 @@ class SplightSettings(BaseSettings, Singleton):
     # Parameters for local environment
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str] = None
+
+    model_config = ConfigDict(extra="ignore")
 
     @model_validator(mode="after")
     @classmethod
@@ -86,9 +88,6 @@ class SplightSettings(BaseSettings, Singleton):
             env_settings,
             SplightConfigSource(settings_cls=settings_cls),
         )
-
-    class Config:
-        extra = Extra.ignore
 
 
 settings = SplightSettings()

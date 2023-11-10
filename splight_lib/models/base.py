@@ -80,8 +80,8 @@ class SplightDatalakeBaseModel(BaseModel):
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
-    class Config:
-        json_dumps = datalake_model_serializer
+    # class Config:
+    #     json_dumps = datalake_model_serializer
 
     @classmethod
     def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
