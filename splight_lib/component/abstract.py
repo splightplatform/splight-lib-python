@@ -145,7 +145,6 @@ class SplightBaseComponent(ABC):
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routine_objects)
-        __import__("ipdb").set_trace()
 
         self.start = self._wrap_start(self.start)
 
