@@ -1,9 +1,8 @@
 import ast
-from typing import Union
 from enum import auto
+from typing import Union
 
 from strenum import PascalCaseStrEnum
-
 
 VariableType = Union[str, float, int, bool]
 
