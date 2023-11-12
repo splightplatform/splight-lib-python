@@ -129,8 +129,8 @@ class SplightBaseComponent(ABC):
         }
         routine_objects = {
             routine.name: RoutineObjectInstance.from_routine(
-                    routine, component_id=self._component_id
-                )
+                routine, component_id=self._component_id
+            )
             for routine in self._spec.routines
         }
 

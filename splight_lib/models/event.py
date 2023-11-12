@@ -3,11 +3,7 @@ from enum import auto
 from typing import Dict, Literal, Optional
 
 from pydantic import BaseModel, Field
-from strenum import (
-    KebabCaseStrEnum,
-    SnakeCaseStrEnum,
-    UppercaseStrEnum,
-)
+from strenum import KebabCaseStrEnum, SnakeCaseStrEnum, UppercaseStrEnum
 
 from splight_lib.models.component import Command
 
