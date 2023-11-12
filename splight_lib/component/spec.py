@@ -1,6 +1,14 @@
+import json
 from typing import Dict, List, Optional, Set, Type
 
-from pydantic import AnyUrl, BaseModel, Field, create_model, validator
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    Field,
+    ValidationInfo,
+    create_model,
+    field_validator,
+)
 
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
@@ -91,9 +99,9 @@ class Spec(BaseModel):
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
 
-    @validator("custom_types")
+    @field_validator("custom_types", mode="after")
     def validate_custom_types(
-        cls, custom_types: List[CustomType]
+        cls, custom_types: List[CustomType], info: ValidationInfo
     ) -> List[CustomType]:
         try:
             check_unique_values([item.name for item in custom_types])
@@ -121,12 +129,11 @@ class Spec(BaseModel):
 
         return custom_types
 
-    @validator("input")
+    @field_validator("input", mode="after")
     def validate_parameters(
-        cls,
-        input: List[InputParameter],
-        values: Dict,
+        cls, input: List[InputParameter], info: ValidationInfo
     ) -> List[InputParameter]:
+        values = info.data
         try:
             check_unique_values([item.name for item in input])
         except DuplicatedValuesError as exc:
@@ -147,7 +154,7 @@ class Spec(BaseModel):
             raise ValueError("Invalid parameter dependecy") from exc
         return input
 
-    @validator("output")
+    @field_validator("output", mode="after")
     def validate_output(cls, output: List[Output]) -> List[Output]:
         try:
             check_unique_values([item.name for item in output])
@@ -157,7 +164,9 @@ class Spec(BaseModel):
 
     @classmethod
     def from_file(cls, file_path: str) -> "Spec":
-        return cls.parse_file(file_path)
+        with open(file_path, "r") as fid:
+            data = json.load(fid)
+        return cls.model_validate(data)
 
     def get_input_model(self) -> Type[BaseModel]:
         """Creates a BaseModel class that represents the component's input.
@@ -166,10 +175,6 @@ class Spec(BaseModel):
         -------
         Type[BaseModel] the class object for the input.
         """
-
-        class Config:
-            use_enum_values = True
-
         custom_type_dict = {
             ct.name: ComponentObjectInstance.from_custom_type(
                 ct, component_id=None
@@ -180,7 +185,7 @@ class Spec(BaseModel):
             model_name="Input",
             parameters=self.input,
             custom_types=custom_type_dict,
-            config_class=Config,
+            config_dict={"use_enum_values": True},
         )
         return model
 
@@ -198,6 +203,8 @@ class Spec(BaseModel):
         BaseModel: The component's input.
         """
         input_model = self.get_input_model()
+        # with open("./component.json", "r") as fid:
+        #     component = Component.model_validate(json.load(fid))
         component = Component.retrieve(component_id)
         values = {
             param.name: get_field_value(param) for param in component.input
@@ -232,6 +239,12 @@ class Spec(BaseModel):
             model_class.create_indexes(
                 [param.dict() for param in output.fields]
             )
-            fields.update({output.name: (Type[model_class], model_class)})
-        output_model_class = create_model("Output", **fields)
-        return output_model_class()
+            # fields.update({output.name: (Type[model_class], model_class)})
+            fields.update({output.name: model_class})
+        from collections import namedtuple
+
+        output_model_class = namedtuple(
+            "Output", [key for key in fields.keys()]
+        )
+        # output_model_class = create_model("Output", **fields)
+        return output_model_class(**fields)
