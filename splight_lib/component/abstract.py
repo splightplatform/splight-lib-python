@@ -119,11 +119,8 @@ class SplightBaseComponent(ABC):
         self._output = self._spec.get_output_models(component_id)
 
         component_objects = {
-            ct.name: (
-                ComponentObjectInstance.from_custom_type(
-                    ct, component_id=component_id
-                ),
-                ...,
+            ct.name: ComponentObjectInstance.from_custom_type(
+                ct, component_id=component_id
             )
             for ct in self._spec.custom_types
         }
