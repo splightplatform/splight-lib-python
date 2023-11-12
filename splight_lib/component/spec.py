@@ -6,7 +6,6 @@ from pydantic import (
     BaseModel,
     Field,
     ValidationInfo,
-    create_model,
     field_validator,
 )
 
