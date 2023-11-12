@@ -41,9 +41,9 @@ jobs:
         # run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
         run: |
           if [ -f "setup.py" ]; then
-            echo "CURRENT_VERSIOn=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
+            echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
           else
-            echo "CURRENT_VERSIOn=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+            echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
           fi
 
       - name: Set up Python
