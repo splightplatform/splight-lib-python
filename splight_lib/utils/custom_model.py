@@ -18,7 +18,7 @@ def create_custom_model(
     parameters: List[Parameter],
     custom_types: Optional[Dict] = None,
     base_class: Optional[Type[BaseModel]] = None,
-    config_class: Optional[Type] = None,
+    config_dict: Optional[Dict[str, Any]] = None,
     class_vars: Optional[List[ClassVarDict]] = None,
 ) -> Type[BaseModel]:
     """
@@ -72,5 +72,5 @@ def create_custom_model(
             }
         )
     return create_model(
-        model_name, **fields, __base__=base_class, __config__=config_class
+        model_name, **fields, __base__=base_class, __config__=config_dict
     )
