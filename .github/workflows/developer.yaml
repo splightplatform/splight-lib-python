@@ -75,7 +75,7 @@ jobs:
           fi
 
       - name: Setup poetry
-        run: pip install poetry==1.5.1
+        run: pip install poetry==1.7.0
 
       - name: Install dependencies
         run: |
