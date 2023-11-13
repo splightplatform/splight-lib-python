@@ -10,8 +10,12 @@
           "asset":"1ac598ff-3a0f-4894-986a-37b1159309df"
         }
       ],
-      "metadata":[],
-      "tags":[],
+      "metadata":[
+        
+      ],
+      "tags":[
+        
+      ],
       "centroid_coordinates":[
         144.983,
         -37.82
@@ -82,7 +86,9 @@
           "type":"String"
         }
       ],
-      "tags":[],
+      "tags":[
+        
+      ],
       "centroid_coordinates":[
         -70.26216488028537,
         -37.3699065542924
@@ -137,8 +143,12 @@
           "asset":"79c05277-4c48-4bc7-b802-c539716578cd"
         }
       ],
-      "metadata":[],
-      "tags":[],
+      "metadata":[
+        
+      ],
+      "tags":[
+        
+      ],
       "centroid_coordinates":[
         7.5690300243510364,
         9.96112403431971
@@ -163,6 +173,165 @@
           9.96112403431971
         ]
       }
+    }
+  ],
+  "components":[
+    {
+      "id":"517c5ea5-6dfb-4ef5-8bca-e7c69cb0fd39",
+      "custom_types":[
+        
+      ],
+      "output":[
+        
+      ],
+      "commands":[
+        
+      ],
+      "endpoints":[
+        
+      ],
+      "bindings":[
+        
+      ],
+      "routines":[
+        {
+          "name":"IncomingRoutine",
+          "input":[
+            
+          ],
+          "config":[
+            
+          ],
+          "output":[
+            {
+              "name":"address",
+              "type":"DataAddress",
+              "multiple":false,
+              "required":true,
+              "sensitive":false,
+              "value_type":"Number",
+              "description":"destination address for data to be pushed"
+            }
+          ],
+          "create_handler":"create_routine",
+          "delete_handler":"delete_routine",
+          "update_handler":"update_routine"
+        },
+        {
+          "name":"OutgoingRoutine",
+          "input":[
+            {
+              "name":"address",
+              "type":"DataAddress",
+              "multiple":false,
+              "required":true,
+              "sensitive":false,
+              "value_type":"Number",
+              "description":"origin address for data to be fetched"
+            }
+          ],
+          "config":[
+            
+          ],
+          "output":[
+            
+          ],
+          "create_handler":"create_routine",
+          "delete_handler":"delete_routine",
+          "update_handler":"update_routine"
+        },
+        {
+          "name":"TransformRoutine",
+          "input":[
+            {
+              "name":"address",
+              "type":"DataAddress",
+              "multiple":false,
+              "required":true,
+              "sensitive":false,
+              "value_type":"Number",
+              "description":"origin address for data to be fetched"
+            }
+          ],
+          "config":[
+            
+          ],
+          "output":[
+            {
+              "name":"address",
+              "type":"DataAddress",
+              "multiple":false,
+              "required":true,
+              "sensitive":false,
+              "value_type":"Number",
+              "description":"destination address for data to be pushed"
+            }
+          ],
+          "create_handler":"create_routine",
+          "delete_handler":"delete_routine",
+          "update_handler":"update_routine"
+        }
+      ],
+      "name":"Component",
+      "description":"",
+      "version":"Random-3.1.0",
+      "deployment_type":"SPLIGHT_HOSTED",
+      "deployment_active":false,
+      "deployment_status":"Stopped",
+      "deployment_capacity":"",
+      "deployment_log_level":"20",
+      "deployment_restart_policy":"OnFailure",
+      "deployment_updated_at":"2023-11-09T22:38:58.145835Z",
+      "connections_active":false,
+      "connections_count":0,
+      "connections_updated_at":"2023-11-13T13:14:53.021107Z",
+      "input":[
+        {
+          "name":"period",
+          "type":"int",
+          "value":10,
+          "multiple":false,
+          "required":false,
+          "sensitive":false,
+          "description":""
+        },
+        {
+          "name":"min",
+          "type":"int",
+          "value":1,
+          "multiple":false,
+          "required":false,
+          "sensitive":false,
+          "description":""
+        },
+        {
+          "name":"max",
+          "type":"int",
+          "value":150,
+          "multiple":false,
+          "required":false,
+          "sensitive":false,
+          "description":""
+        },
+        {
+          "name":"max_iterations",
+          "type":"int",
+          "value":10,
+          "multiple":false,
+          "required":false,
+          "sensitive":false,
+          "description":""
+        },
+        {
+          "name":"should_crash",
+          "type":"bool",
+          "value":"false",
+          "multiple":false,
+          "required":false,
+          "sensitive":false,
+          "description":""
+        }
+      ]
     }
   ],
   "hub_components":[
