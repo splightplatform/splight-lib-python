@@ -58,31 +58,44 @@ jobs:
       - name: Verifies the dev version is not uploaded.
         run: python .github/workflows/scripts/check_version_uploaded.py ${{ env.CURRENT_VERSION }} $LIBRARY_NAME
 
-  # upload_developer_to_pypi:
-  #   runs-on: ubuntu-latest
-  #   name: Upload the version to pypi only if it's a developer version
-  #   needs: [verify_version]
-  #   steps:
-  #     - name: Checkout to feature branch
-  #       uses: actions/checkout@v3
-  #
-  #     - name: Get version from feature branch
-  #       run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
-  #
-  #     - name: Build package
-  #       run: python setup.py sdist bdist_wheel
-  #
-  #     - name: Load variable to decide whether to publish package
-  #       run: |
-  #         if [[ $CURRENT_VERSION =~ "dev" ]]; then
-  #             echo "PUBLISH_PACKAGE=true" >> "$GITHUB_ENV"
-  #         else
-  #             echo "PUBLISH_PACKAGE=false" >> "$GITHUB_ENV"
-  #         fi
-  #
-  #     - name: Publish package
-  #       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-  #       if: ${{ env.PUBLISH_PACKAGE == 'true' }}
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.PYPI_API_TOKEN }}
+  upload_developer_to_pypi:
+    runs-on: ubuntu-latest
+    name: Upload the version to pypi only if it's a developer version
+    needs: [verify_version]
+    steps:
+      - name: Checkout to feature branch
+        uses: actions/checkout@v3
+
+      - name: Get version from feature branch
+        run: |
+          if [ -f "setup.py" ]; then
+            echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
+          else
+            echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup poetry
+        run: pip install poetry==1.5.1
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install
+
+      - name: Build package
+        run: poetry build
+
+      - name: Load variable to decide whether to publish package
+        run: |
+          if [[ $CURRENT_VERSION =~ "dev" ]]; then
+              echo "PUBLISH_PACKAGE=true" >> "$GITHUB_ENV"
+          else
+              echo "PUBLISH_PACKAGE=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
