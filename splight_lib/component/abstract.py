@@ -212,8 +212,10 @@ class SplightBaseComponent(ABC):
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
     ) -> BaseModel:
-        custom_type_model = create_model("CustomTypes", **component_object)
-        return custom_type_model()
+        custom_type_model = namedtuple(
+            "CustomTypes", [k for k in component_object.keys()]
+        )
+        return custom_type_model(**component_object)
 
     def _get_routine_model(
         self, routine_objects: Dict[str, Type[RoutineObjectInstance]]
