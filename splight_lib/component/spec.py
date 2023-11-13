@@ -1,13 +1,7 @@
 import json
 from typing import Dict, List, Optional, Set, Type
 
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    Field,
-    ValidationInfo,
-    field_validator,
-)
+from pydantic import AnyUrl, BaseModel, Field, ValidationInfo, field_validator
 
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
