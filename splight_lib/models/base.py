@@ -140,7 +140,7 @@ class SplightDatalakeBaseModel(BaseModel):
         )
 
     def dict(self, *args, **kwargs):
-        d = super().dict(*args, **kwargs)
+        d = super().model_dump(*args, **kwargs)
         return {
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()
