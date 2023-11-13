@@ -59,4 +59,5 @@ filterwarnings = [
     "ignore::RuntimeWarning",
     "ignore::pytest.PytestUnraisableExceptionWarning",
     "ignore::pytest.PytestUnhandledThreadExceptionWarning",
+    "ignore::pytest.PytestAssertRewriteWarning",
 ]
