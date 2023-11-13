@@ -320,7 +320,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 if field.multiple
                 else field_value.id
             )
-        parameter = field.dict()
+        parameter = field.model_dump()
         parameter.update({"value": value})
         return InputParameter.model_validate(parameter)
 
@@ -341,7 +341,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 "asset": field_value.asset,
                 "attribute": field_value.attribute,
             }
-        parameter = field.dict()
+        parameter = field.model_dump()
         parameter.update({"value": value})
         return InputDataAddress.model_validate(parameter)
 
@@ -427,7 +427,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
     def from_object(
         cls, instance: ComponentObject
     ) -> Type["ComponentObjectInstance"]:
-        instance_dict = instance.dict()
+        instance_dict = instance.model_dump()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_custom_type(
@@ -573,7 +573,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def from_object(
         cls, instance: RoutineObject
     ) -> Type["RoutineObjectInstance"]:
-        instance_dict = instance.dict()
+        instance_dict = instance.model_dump()
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_routine(
             Routine.model_validate(instance_dict), instance.component_id

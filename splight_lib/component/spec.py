@@ -230,7 +230,7 @@ class Spec(BaseModel):
                 base_class=SplightDatalakeBaseModel,
             )
             model_class.create_indexes(
-                [param.dict() for param in output.fields]
+                [param.model_dump() for param in output.fields]
             )
             # fields.update({output.name: (Type[model_class], model_class)})
             fields.update({output.name: model_class})

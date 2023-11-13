@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 from time import sleep
 from typing import Callable, Dict, List, Optional, Type
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
