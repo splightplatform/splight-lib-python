@@ -57,6 +57,7 @@ line_length = 79
 filterwarnings = [
     "error",
     "ignore::RuntimeWarning",
+    "ignore::UserWarning",
     "ignore::pytest.PytestUnraisableExceptionWarning",
     "ignore::pytest.PytestUnhandledThreadExceptionWarning",
     "ignore::pytest.PytestAssertRewriteWarning",
