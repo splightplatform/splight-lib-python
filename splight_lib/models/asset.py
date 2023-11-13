@@ -1,3 +1,4 @@
+import warnings
 from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
@@ -5,6 +6,8 @@ from geojson_pydantic import GeometryCollection
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.metadata import Metadata
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class Asset(SplightDatabaseBaseModel):
