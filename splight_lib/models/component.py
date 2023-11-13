@@ -50,8 +50,9 @@ class ComponentType(LowercaseStrEnum):
 
 
 class RoutineStatus(LowercaseStrEnum):
-    HEALTHY = auto()
-    UNHEALTHY = auto()
+    RUNNING = auto()
+    FAILED = auto()
+    PENDING = auto()
 
 
 class Parameter(BaseModel):
@@ -165,7 +166,7 @@ class RoutineEvaluation(SplightDatalakeBaseModel):
 
 
 class RoutineObject(SplightObject):
-    status: Optional[RoutineStatus] = RoutineStatus.HEALTHY
+    status: Optional[RoutineStatus] = RoutineStatus.RUNNING
 
     config: Optional[List[InputParameter]] = []
     input: List[InputDataAddress] = []
