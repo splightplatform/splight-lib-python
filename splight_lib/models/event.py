@@ -64,15 +64,21 @@ class ComponentCommand(BaseModel):
 
 
 class ComponentCommandTriggerEvent(CommunicationEvent):
-    event_name: str = Literal[EventNames.COMPONENTCOMMAND_TRIGGER]
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_TRIGGER
+    ] = EventNames.COMPONENTCOMMAND_TRIGGER
     data: ComponentCommand
 
 
 class ComponentCommandCreateEvent(CommunicationEvent):
-    event_name: str = Literal[EventNames.COMPONENTCOMMAND_CREATE]
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_CREATE
+    ] = EventNames.COMPONENTCOMMAND_CREATE
     data: ComponentCommand
 
 
 class ComponentCommandUpdateEvent(CommunicationEvent):
-    event_name: str = Literal[EventNames.COMPONENTCOMMAND_UPDATE]
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_UPDATE
+    ] = EventNames.COMPONENTCOMMAND_UPDATE
     data: ComponentCommand

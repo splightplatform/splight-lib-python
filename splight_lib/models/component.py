@@ -71,7 +71,7 @@ class DataAddress(Parameter):
     choices: None = None
     depends_on: None = None
     required: bool = True
-    type: str = Literal["DataAddress"]
+    type: Literal["DataAddress"] = "DataAddress"
     value_type: str = "Number"
 
     @field_validator("type", mode="before")

@@ -153,7 +153,7 @@ class HubComponent(BaseModel):
         spec.setdefault("component_type", ComponentType.CONNECTOR.value)
         data_cls = cls.model_validate(spec)
 
-        data = data_cls.dict(exclude_none=True)
+        data = data_cls.model_dump(exclude_none=True)
 
         to_json = [
             "tags",
