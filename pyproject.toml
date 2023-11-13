@@ -52,3 +52,11 @@ line-length = 79
 [tool.isort]
 profile = "black"
 line_length = 79
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::RuntimeWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::pytest.PytestUnhandledThreadExceptionWarning",
+]

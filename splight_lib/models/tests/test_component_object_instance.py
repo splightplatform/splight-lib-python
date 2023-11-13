@@ -1,4 +1,5 @@
 import os
+import warnings
 
 os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
 os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
@@ -17,6 +18,7 @@ from splight_lib.models.exceptions import InvalidObjectInstance  # noqa: E402
 from splight_lib.settings import settings  # noqa: E402
 
 settings.configure(LOCAL_ENVIRONMENT=True)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 MY_CUSTOM_TYPE = CustomType.model_validate(

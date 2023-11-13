@@ -109,7 +109,7 @@ def test_component_input(mock_get_input_model):
 
     # Setup the mock Component and InputModel
     mock_component = MagicMock()
-    mock_input_model = MagicMock()
+    # mock_input_model = MagicMock()
 
     mock_input_param = InputParameter(
         name="param1",
@@ -125,11 +125,11 @@ def test_component_input(mock_get_input_model):
     mock_component.input = [mock_input_param]
 
     # Creating a mock spec'd to BaseModel
-    mock_base_model_instance = MagicMock(spec=BaseModel)
-    mock_input_model.model_validate.return_value = mock_base_model_instance
-
-    # Spec.get_input_model() should return our mock model
-    mock_get_input_model.return_value = mock_input_model
+    # mock_base_model_instance = MagicMock(spec=BaseModel)
+    # mock_input_model.model_validate.return_value = mock_base_model_instance
+    #
+    # # Spec.get_input_model() should return our mock model
+    # mock_get_input_model.return_value = mock_input_model
 
     # Test the method
     result = spec.component_input("test_id")
@@ -139,6 +139,3 @@ def test_component_input(mock_get_input_model):
 
     # Check that the result is an instance of the correct class
     assert isinstance(result, BaseModel)
-
-    # Check that the input_model.model_validate() was called with the correct arguments
-    # mock_input_model.model_validate.assert_called_once_with({"param1": "test"})
