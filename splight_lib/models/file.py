@@ -21,6 +21,10 @@ class File(SplightDatabaseBaseModel):
         v = v.replace("\\", os.sep)
         return v
 
+    @validator("metadata", pre=True)
+    def validate_metadata(cls, v):
+        return json.loads(v) if isinstance(v, str) else v
+
     @property
     def name(self):
         return self.file.split(os.sep)[-1]
