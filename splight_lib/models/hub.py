@@ -5,7 +5,7 @@ from glob import glob
 from typing import List, Optional
 
 import py7zr
-from pydantic import BaseModel, PrivateAttr, field_validator
+from pydantic import BaseModel, PrivateAttr
 from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
@@ -83,27 +83,31 @@ class HubComponent(BaseModel):
     def list_mine(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         params["organization_id"] = hub_client.get_org_id()
-        data = hub_client.get(**params)
+        # TODO: support pagination
+        data = hub_client.get(**params).data
         return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.get(**params)
+        # TODO: support pagination
+        data = hub_client.get(**params).data
         return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         params["privacy_policy"] = "public"
-        data = hub_client.get(**params)
+        # TODO: support pagination
+        data = hub_client.get(**params).data
         return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
         params["privacy_policy"] = "private"
         hub_client = get_hub_client()
-        data = hub_client.get(**params)
+        # TODO: support pagination
+        data = hub_client.get(**params).data
         return [cls.model_validate(obj) for obj in data]
 
     @classmethod
