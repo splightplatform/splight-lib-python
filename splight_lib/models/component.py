@@ -127,7 +127,7 @@ class Command(BaseModel):
 
 class Endpoint(BaseModel):
     name: Optional[str]
-    port: str
+    port: Union[int, str]
 
 
 class Binding(BaseModel):
