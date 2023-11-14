@@ -204,6 +204,7 @@ class SplightBaseComponent(ABC):
             for thread in self._execution_engine.threads:
                 thread.join()
 
+            self._health_check.stop()
             self._health_check_thread.join()
             self._register_exit()
 
