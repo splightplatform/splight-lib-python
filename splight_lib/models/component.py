@@ -1,11 +1,11 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 
-from pydantic import (  # Field,
+from pydantic import (
     AnyUrl,
     BaseModel,
     PrivateAttr,
@@ -16,7 +16,10 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.base import (
+    SplightDatabaseBaseModel,
+    SplightDatalakeBaseModel,
+)
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
@@ -46,8 +49,8 @@ class ComponentType(LowercaseStrEnum):
 
 class RoutineStatus(LowercaseStrEnum):
     RUNNING = auto()
-    PENDING = auto()
     FAILED = auto()
+    PENDING = auto()
     HEALTHY = auto()
     UNHEALTHY = auto()
 
@@ -154,12 +157,34 @@ class ComponentObject(SplightObject):
     data: List[InputParameter] = []
 
 
+class RoutineEvaluation(SplightDatalakeBaseModel):
+    _collection_name = "routineEvaluations"
+
+    routine: str
+    status: RoutineStatus
+    status_text: Optional[str]
+
+
 class RoutineObject(SplightObject):
     status: Optional[RoutineStatus] = RoutineStatus.RUNNING
 
     config: Optional[List[InputParameter]] = []
     input: List[InputDataAddress] = []
     output: List[InputDataAddress] = []
+
+    def report_status(
+        self, status: RoutineStatus, status_text: Optional[str] = None
+    ):
+        evaluation_status = RoutineEvaluation(
+            routine=str(self.id),
+            status=status,
+            status_text=status_text,
+        )
+        evaluation_status.save()
+
+        if self.status != status:
+            self.status = status
+            self.save()
 
 
 class Component(SplightDatabaseBaseModel):
@@ -597,3 +622,9 @@ class RoutineObjectInstance(AbstractObjectInstance):
             },
         }
         return cls.model_validate(params_dict)
+
+    def report_status(
+        self, status: RoutineStatus, status_text: Optional[str] = None
+    ):
+        routine_object = self.to_object()
+        routine_object.report_status(status=status, status_text=status_text)

@@ -5,6 +5,7 @@ from splight_lib.models.component import (
     Component,
     ComponentObject,
     ComponentObjectInstance,
+    RoutineEvaluation,
     RoutineObject,
     RoutineObjectInstance,
 )
@@ -43,6 +44,7 @@ __all__ = [
     HubComponent,
     Metadata,
     Number,
+    RoutineEvaluation,
     String,
     Secret,
     RoutineObject,
