@@ -37,7 +37,6 @@ jobs:
           exit 1
 
       - name: Get version from feature branch
-        # run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
         run: |
           if [ -f "setup.py" ]; then
             echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
