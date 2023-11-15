@@ -1,4 +1,5 @@
 import json
+from collections import namedtuple
 from typing import Dict, List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, ValidationInfo, field_validator
@@ -196,8 +197,6 @@ class Spec(BaseModel):
         BaseModel: The component's input.
         """
         input_model = self.get_input_model()
-        # with open("./component.json", "r") as fid:
-        #     component = Component.model_validate(json.load(fid))
         component = Component.retrieve(component_id)
         values = {
             param.name: get_field_value(param) for param in component.input
@@ -232,12 +231,9 @@ class Spec(BaseModel):
             model_class.create_indexes(
                 [param.model_dump() for param in output.fields]
             )
-            # fields.update({output.name: (Type[model_class], model_class)})
             fields.update({output.name: model_class})
-        from collections import namedtuple
 
         output_model_class = namedtuple(
             "Output", [key for key in fields.keys()]
         )
-        # output_model_class = create_model("Output", **fields)
         return output_model_class(**fields)
