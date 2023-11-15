@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict, Optional
 
-from pydantic import validator
+from pydantic import field_validator
 
 from splight_lib.models.base import SplightDatabaseBaseModel
 
@@ -15,13 +15,13 @@ class File(SplightDatabaseBaseModel):
     content_type: Optional[str] = None
     url: Optional[str] = None
 
-    @validator("file", pre=True)
+    @field_validator("file", mode="after")
     def validate_file(cls, v):
         v = v.replace("/", os.sep)
         v = v.replace("\\", os.sep)
         return v
 
-    @validator("metadata", pre=True)
+    @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
         return json.loads(v) if isinstance(v, str) else v
 
@@ -32,18 +32,18 @@ class File(SplightDatabaseBaseModel):
     def download(self):
         file = self._db_client.download(
             resource_name=self.__class__.__name__,
-            instance=self.dict(),
+            instance=self.model_dump(),
         )
         return file
 
-    def dict(self, *args, **kwargs):
-        res = super().dict(*args, **kwargs)
+    def model_dump(self, *args, **kwargs):
+        res = super().model_dump(*args, **kwargs)
         res["metadata"] = json.dumps(self.metadata)
         return res
 
-    def json(self, *args, **kwargs):
+    def model_dump_json(self, *args, **kwargs):
         prev_metadata = self.metadata
         self.metadata = json.dumps(self.metadata)
-        res = super().json(*args, **kwargs)
+        res = super().model_dump_json(*args, **kwargs)
         self.metadata = prev_metadata
         return res

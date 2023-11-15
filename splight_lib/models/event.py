@@ -1,18 +1,11 @@
 from datetime import datetime, timezone
 from enum import auto
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional
 
 from pydantic import BaseModel, Field
-from strenum import (
-    KebabCaseStrEnum,
-    LowercaseStrEnum,
-    PascalCaseStrEnum,
-    SnakeCaseStrEnum,
-    UppercaseStrEnum,
-)
+from strenum import KebabCaseStrEnum, SnakeCaseStrEnum, UppercaseStrEnum
 
 from splight_lib.models.component import Command
-from splight_lib.models.setpoint import SetPoint
 
 
 class EventActions(UppercaseStrEnum):
@@ -42,8 +35,8 @@ class ComponentCommandStatus(SnakeCaseStrEnum):
 
 
 class ComponentCommandResponse(BaseModel):
-    return_value: Optional[str]
-    error_detail: Optional[str]
+    return_value: Optional[str] = None
+    error_detail: Optional[str] = None
 
 
 class CommunicationEvent(BaseModel):
@@ -61,7 +54,7 @@ class CommunicationEvent(BaseModel):
 
 
 class ComponentCommand(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     command: Command
     status: ComponentCommandStatus
     response: ComponentCommandResponse = ComponentCommandResponse()
@@ -71,50 +64,21 @@ class ComponentCommand(BaseModel):
 
 
 class ComponentCommandTriggerEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_TRIGGER, const=True)
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_TRIGGER
+    ] = EventNames.COMPONENTCOMMAND_TRIGGER
     data: ComponentCommand
 
 
 class ComponentCommandCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_CREATE, const=True)
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_CREATE
+    ] = EventNames.COMPONENTCOMMAND_CREATE
     data: ComponentCommand
 
 
 class ComponentCommandUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.COMPONENTCOMMAND_UPDATE, const=True)
+    event_name: Literal[
+        EventNames.COMPONENTCOMMAND_UPDATE
+    ] = EventNames.COMPONENTCOMMAND_UPDATE
     data: ComponentCommand
-
-
-class SetPointType(PascalCaseStrEnum):
-    Number = auto()
-    String = auto()
-    Boolean = auto()
-
-    def __str__(self):
-        return self.value
-
-
-class SetPointResponseStatus(LowercaseStrEnum):
-    SUCCESS = auto()
-    ERROR = auto()
-    IGNORE = auto()
-
-    def __str__(self):
-        return self.value
-
-
-class SetPointResponse(BaseModel):
-    id: Optional[str]
-    component: str
-    status: SetPointResponseStatus
-    created_at: Optional[datetime] = None
-
-
-class SetPointCreateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.SETPOINT_CREATE, const=True)
-    data: SetPoint
-
-
-class SetPointUpdateEvent(CommunicationEvent):
-    event_name: str = Field(EventNames.SETPOINT_UPDATE, const=True)
-    data: SetPoint

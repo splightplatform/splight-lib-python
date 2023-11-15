@@ -13,7 +13,7 @@ class AttributeType(PascalCaseStrEnum):
 
 
 class Attribute(SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
-    asset: Optional[str]
+    asset: Optional[str] = None
     type: AttributeType = AttributeType.NUMBER

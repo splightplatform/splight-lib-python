@@ -3,15 +3,14 @@ import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from enum import auto
-from typing import Any, ClassVar, Dict, List, Optional, Type, Union
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 
 from pydantic import (
     AnyUrl,
     BaseModel,
-    Field,
     PrivateAttr,
     create_model,
-    validator,
+    field_validator,
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
@@ -24,7 +23,6 @@ from splight_lib.models.base import (
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
-from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -53,6 +51,8 @@ class RoutineStatus(LowercaseStrEnum):
     RUNNING = auto()
     FAILED = auto()
     PENDING = auto()
+    HEALTHY = auto()
+    UNHEALTHY = auto()
 
 
 class Parameter(BaseModel):
@@ -62,8 +62,8 @@ class Parameter(BaseModel):
     required: bool = False
     multiple: bool = False
     sensitive: bool = False
-    choices: Optional[List[Any]]
-    depends_on: Optional[str]
+    choices: Optional[List[Any]] = None
+    depends_on: Optional[str] = None
 
 
 class InputParameter(Parameter):
@@ -74,10 +74,10 @@ class DataAddress(Parameter):
     choices: None = None
     depends_on: None = None
     required: bool = True
-    type: str = Field("DataAddress", const=True)
+    type: Literal["DataAddress"] = "DataAddress"
     value_type: str = "Number"
 
-    @validator("type", pre=True)
+    @field_validator("type", mode="before")
     def check_wrong_name(cls, value: str) -> str:
         if value == "DataAdress":
             value = "DataAddress"
@@ -85,7 +85,7 @@ class DataAddress(Parameter):
 
 
 class InputDataAddress(DataAddress):
-    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]]
+    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]] = None
 
 
 class OutputParameter(BaseModel):
@@ -130,7 +130,7 @@ class Command(BaseModel):
 
 class Endpoint(BaseModel):
     name: Optional[str]
-    port: str
+    port: Union[int, str]
 
 
 class Binding(BaseModel):
@@ -141,7 +141,7 @@ class Binding(BaseModel):
 
 
 class SplightObject(SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
     description: Optional[str] = ""
@@ -188,8 +188,8 @@ class RoutineObject(SplightObject):
 
 
 class Component(SplightDatabaseBaseModel):
-    id: Optional[str]
-    name: Optional[str]
+    id: Optional[str] = None
+    name: Optional[str] = None
     version: str
     custom_types: List[CustomType] = []
     component_type: ComponentType = ComponentType.CONNECTOR
@@ -216,7 +216,6 @@ DATABASE_TYPES = {
     "Asset": Asset,
     "Attribute": Attribute,
     "File": File,
-    "Query": Query,
 }
 
 DATALAKE_TYPES = {
@@ -270,7 +269,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
         for item in value:
             item.update({"type": field.value_type})
 
-        value = [model_class.parse_obj(item) for item in value]
+        value = [model_class.model_validate(item) for item in value]
         value = value[0] if not multiple else value
     else:
         value_as_list = (
@@ -287,9 +286,9 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 
 
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str = ""
-    description: Optional[str]
+    description: Optional[str] = None
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
@@ -346,9 +345,9 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 if field.multiple
                 else field_value.id
             )
-        parameter = field.dict()
+        parameter = field.model_dump()
         parameter.update({"value": value})
-        return InputParameter.parse_obj(parameter)
+        return InputParameter.model_validate(parameter)
 
     @staticmethod
     def _convert_to_input_data_addres(
@@ -367,9 +366,9 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 "asset": field_value.asset,
                 "attribute": field_value.attribute,
             }
-        parameter = field.dict()
+        parameter = field.model_dump()
         parameter.update({"value": value})
-        return InputDataAddress.parse_obj(parameter)
+        return InputDataAddress.model_validate(parameter)
 
     @abstractmethod
     def to_object(self) -> SplightObject:
@@ -453,11 +452,11 @@ class ComponentObjectInstance(AbstractObjectInstance):
     def from_object(
         cls, instance: ComponentObject
     ) -> Type["ComponentObjectInstance"]:
-        instance_dict = instance.dict()
+        instance_dict = instance.model_dump()
         instance_dict["fields"] = instance_dict.pop("data")
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_custom_type(
-            CustomType.parse_obj(instance_dict), instance.component_id
+            CustomType.model_validate(instance_dict), instance.component_id
         )
 
     @classmethod
@@ -474,7 +473,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
                 "description": instance.description,
             }
         )
-        return cls.parse_obj(params_dict)
+        return cls.model_validate(params_dict)
 
     @classmethod
     def from_component(
@@ -599,10 +598,10 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def from_object(
         cls, instance: RoutineObject
     ) -> Type["RoutineObjectInstance"]:
-        instance_dict = instance.dict()
+        instance_dict = instance.model_dump()
         instance_dict["name"] = instance_dict.pop("type")
         return cls.from_routine(
-            Routine.parse_obj(instance_dict), instance.component_id
+            Routine.model_validate(instance_dict), instance.component_id
         )
 
     @classmethod
@@ -622,7 +621,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
                 field.name: get_field_value(field) for field in instance.output
             },
         }
-        return cls.parse_obj(params_dict)
+        return cls.model_validate(params_dict)
 
     def report_status(
         self, status: RoutineStatus, status_text: Optional[str] = None

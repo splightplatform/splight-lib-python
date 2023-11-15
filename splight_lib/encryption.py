@@ -2,7 +2,7 @@ from functools import cached_property
 from typing import Optional
 
 from cryptography.fernet import Fernet as Branca
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 from splight_lib.logging._internal import LogTags, get_splight_logger
 

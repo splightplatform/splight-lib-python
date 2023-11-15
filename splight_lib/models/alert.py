@@ -40,7 +40,7 @@ class AlertCondition(BaseModel):
     type: AlertVariableType = AlertVariableType.FLOAT
     left_operand: str
     right_operand: str
-    variables: List[VariableDict]
+    variables: List[VariableDict] = []
     operator: AlertOperator = AlertOperator.EQUAL
 
 

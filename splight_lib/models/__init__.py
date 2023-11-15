@@ -20,10 +20,9 @@ from splight_lib.models.dashboard import (
 from splight_lib.models.file import File
 from splight_lib.models.function import Function, FunctionItem
 from splight_lib.models.hub import HubComponent
+from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
-from splight_lib.models.query import Query
 from splight_lib.models.secret import Secret
-from splight_lib.models.setpoint import SetPoint
 
 __all__ = [
     AdvancedFilter,
@@ -43,12 +42,11 @@ __all__ = [
     Function,
     FunctionItem,
     HubComponent,
+    Metadata,
     Number,
-    Query,
     RoutineEvaluation,
     String,
     Secret,
-    SetPoint,
     RoutineObject,
     RoutineObjectInstance,
     Tab,

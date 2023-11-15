@@ -46,7 +46,7 @@ def get_test_value(type_: str, custom_types: Dict[str, CustomType]) -> Any:
         aux_value = component_object_attributes(
             custom_type_def.fields, custom_types
         )
-        value = model_class.parse_obj(aux_value)
+        value = model_class.model_validate(aux_value)
     return value
 
 
@@ -73,7 +73,7 @@ def get_test_input(spec: Spec):
             value = [value]
 
         input_fake_values.update({param_name: value})
-    return input_model_class.parse_obj(input_fake_values)
+    return input_model_class.model_validate(input_fake_values)
 
 
 @pytest.fixture(autouse=True)

@@ -1,4 +1,5 @@
 import os
+import warnings
 
 os.environ["SPLIGHT_ACCESS_ID"] = "access_id"
 os.environ["SPLIGHT_SECRET_KEY"] = "secret_key"
@@ -17,9 +18,10 @@ from splight_lib.models.exceptions import InvalidObjectInstance  # noqa: E402
 from splight_lib.settings import settings  # noqa: E402
 
 settings.configure(LOCAL_ENVIRONMENT=True)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
-MY_CUSTOM_TYPE = CustomType.parse_obj(
+MY_CUSTOM_TYPE = CustomType.model_validate(
     {
         "name": "MyCustomType",
         "fields": [
@@ -56,7 +58,7 @@ def test_save(mock):
         MY_CUSTOM_TYPE,
         component_id=component_id,
     )
-    instance = model_class.parse_obj(
+    instance = model_class.model_validate(
         {
             "float_param": 0.5,
             "str_param": "some_param",
@@ -74,7 +76,7 @@ def test_delete(mock):
         MY_CUSTOM_TYPE,
         component_id=component_id,
     )
-    instance = model_class.parse_obj(
+    instance = model_class.model_validate(
         {
             "id": str(uuid4()),
             "float_param": 0.5,

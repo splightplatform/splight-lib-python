@@ -1,6 +1,8 @@
+import json
+from collections import namedtuple
 from typing import Dict, List, Optional, Set, Type
 
-from pydantic import AnyUrl, BaseModel, Field, create_model, validator
+from pydantic import AnyUrl, BaseModel, Field, ValidationInfo, field_validator
 
 from splight_lib.component.exceptions import (
     DuplicatedValuesError,
@@ -74,12 +76,12 @@ def check_parameter_dependency(parameters: List[InputParameter]):
 
 
 class Spec(BaseModel):
-    name: str = Field(regex=r"^[a-zA-Z0-9\s]+$")
-    version: str = Field(regex=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
+    name: str = Field(pattern=r"^[a-zA-Z0-9\s]+$")
+    version: str = Field(pattern=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
     splight_cli_version: str = Field(
-        regex=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
+        pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
     )
-    description: Optional[str]
+    description: Optional[str] = None
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
     tags: Set[str] = set()
     component_type: ComponentType = ComponentType.CONNECTOR
@@ -91,9 +93,9 @@ class Spec(BaseModel):
     commands: List[Command] = []
     endpoints: List[Endpoint] = []
 
-    @validator("custom_types")
+    @field_validator("custom_types", mode="after")
     def validate_custom_types(
-        cls, custom_types: List[CustomType]
+        cls, custom_types: List[CustomType], info: ValidationInfo
     ) -> List[CustomType]:
         try:
             check_unique_values([item.name for item in custom_types])
@@ -121,12 +123,11 @@ class Spec(BaseModel):
 
         return custom_types
 
-    @validator("input")
+    @field_validator("input", mode="after")
     def validate_parameters(
-        cls,
-        input: List[InputParameter],
-        values: Dict,
+        cls, input: List[InputParameter], info: ValidationInfo
     ) -> List[InputParameter]:
+        values = info.data
         try:
             check_unique_values([item.name for item in input])
         except DuplicatedValuesError as exc:
@@ -147,7 +148,7 @@ class Spec(BaseModel):
             raise ValueError("Invalid parameter dependecy") from exc
         return input
 
-    @validator("output")
+    @field_validator("output", mode="after")
     def validate_output(cls, output: List[Output]) -> List[Output]:
         try:
             check_unique_values([item.name for item in output])
@@ -157,7 +158,9 @@ class Spec(BaseModel):
 
     @classmethod
     def from_file(cls, file_path: str) -> "Spec":
-        return cls.parse_file(file_path)
+        with open(file_path, "r") as fid:
+            data = json.load(fid)
+        return cls.model_validate(data)
 
     def get_input_model(self) -> Type[BaseModel]:
         """Creates a BaseModel class that represents the component's input.
@@ -166,10 +169,6 @@ class Spec(BaseModel):
         -------
         Type[BaseModel] the class object for the input.
         """
-
-        class Config:
-            use_enum_values = True
-
         custom_type_dict = {
             ct.name: ComponentObjectInstance.from_custom_type(
                 ct, component_id=None
@@ -180,7 +179,7 @@ class Spec(BaseModel):
             model_name="Input",
             parameters=self.input,
             custom_types=custom_type_dict,
-            config_class=Config,
+            config_dict={"use_enum_values": True},
         )
         return model
 
@@ -202,7 +201,7 @@ class Spec(BaseModel):
         values = {
             param.name: get_field_value(param) for param in component.input
         }
-        return input_model.parse_obj(values)
+        return input_model.model_validate(values)
 
     def get_output_models(self, component_id: str) -> BaseModel:
         """Creates a BaseModel that represents the component's output. Each
@@ -230,8 +229,11 @@ class Spec(BaseModel):
                 base_class=SplightDatalakeBaseModel,
             )
             model_class.create_indexes(
-                [param.dict() for param in output.fields]
+                [param.model_dump() for param in output.fields]
             )
-            fields.update({output.name: (Type[model_class], model_class)})
-        output_model_class = create_model("Output", **fields)
-        return output_model_class()
+            fields.update({output.name: model_class})
+
+        output_model_class = namedtuple(
+            "Output", [key for key in fields.keys()]
+        )
+        return output_model_class(**fields)

@@ -1,10 +1,12 @@
 import json
 import os
+from enum import auto
 from glob import glob
 from typing import List, Optional
 
 import py7zr
-from pydantic import BaseModel, PrivateAttr, validator
+from pydantic import BaseModel, PrivateAttr
+from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
@@ -27,7 +29,11 @@ from splight_lib.utils.hub import (
     get_spec,
 )
 
-VERIFICATION_CHOICES = ["verified", "unverified", "official"]
+
+class HubComponentVerificationEnum(LowercaseStrEnum):
+    VERIFIED = auto()
+    UNVERIFIED = auto()
+    OFFICIAL = auto()
 
 
 def get_hub_client() -> AbstractHubClient:
@@ -39,23 +45,23 @@ def get_hub_client() -> AbstractHubClient:
 
 
 class HubComponent(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     version: str
     splight_cli_version: str
-    build_status: Optional[str]
-    description: Optional[str]
+    build_status: Optional[str] = None
+    description: Optional[str] = None
     privacy_policy: Optional[str] = None
     component_type: Optional[str] = None
     tenant: Optional[str] = None
-    readme: Optional[str]
-    picture: Optional[str]
-    file: Optional[str]
-    verification: Optional[str]
-    created_at: Optional[str]
-    last_modified: Optional[str]
+    readme: Optional[str] = None
+    picture: Optional[str] = None
+    file: Optional[str] = None
+    verification: Optional[HubComponentVerificationEnum] = None
+    created_at: Optional[str] = None
+    last_modified: Optional[str] = None
     tags: List[str] = []
-    min_component_capacity: Optional[str]
+    min_component_capacity: Optional[str] = None
     usage_count: int = 0
 
     custom_types: List[CustomType] = []
@@ -73,44 +79,42 @@ class HubComponent(BaseModel):
         super().__init__(*args, **kwargs)
         self._hub_client = get_hub_client()
 
-    @validator("verification", pre=True, always=True)
-    def set_verification_now(cls, v):
-        if v:
-            assert v in VERIFICATION_CHOICES, "Verification value not allowed."
-        return v
-
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         params["organization_id"] = hub_client.get_org_id()
-        data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        # TODO: support pagination
+        data = hub_client.get(**params).data
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_all(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
-        data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        # TODO: support pagination
+        data = hub_client.get(**params).data
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_public(cls, **params) -> List["HubComponent"]:
         hub_client = get_hub_client()
         params["privacy_policy"] = "public"
-        data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        # TODO: support pagination
+        data = hub_client.get(**params).data
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def list_private(cls, **params) -> List["HubComponent"]:
         params["privacy_policy"] = "private"
         hub_client = get_hub_client()
-        data = hub_client.get(**params)
-        return [cls.parse_obj(obj) for obj in data]
+        # TODO: support pagination
+        data = hub_client.get(**params).data
+        return [cls.model_validate(obj) for obj in data]
 
     @classmethod
     def retrieve(cls, id: str) -> "HubComponent":
         hub_client = get_hub_client()
         data = hub_client.get(id=id, first=True)
-        return cls.parse_obj(data)
+        return cls.model_validate(data)
 
     def delete(self):
         hub_client = get_hub_client()
@@ -147,9 +151,9 @@ class HubComponent(BaseModel):
         spec["name"] = name
         spec["version"] = version
         spec.setdefault("component_type", ComponentType.CONNECTOR.value)
-        data_cls = cls.parse_obj(spec)
+        data_cls = cls.model_validate(spec)
 
-        data = data_cls.dict(exclude_none=True)
+        data = data_cls.model_dump(exclude_none=True)
 
         to_json = [
             "tags",
@@ -175,4 +179,4 @@ class HubComponent(BaseModel):
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
-        return cls.parse_obj(component)
+        return cls.model_validate(component)

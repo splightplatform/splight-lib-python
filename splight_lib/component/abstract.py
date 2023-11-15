@@ -1,25 +1,24 @@
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from functools import partial
 from tempfile import NamedTemporaryFile
 from time import sleep
 from typing import Callable, Dict, List, Optional, Type
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 
 from splight_lib.client.communication import RemoteCommunicationClient
 from splight_lib.communication.event_handler import (
     command_event_handler,
     database_object_event_handler,
-    setpoint_event_handler,
 )
 from splight_lib.component.exceptions import (
     InvalidBidingObject,
     MissingBindingCallback,
     MissingCommandCallback,
     MissingRoutineCallback,
-    MissingSetPointCallback,
 )
 from splight_lib.component.spec import Spec
 
@@ -36,7 +35,6 @@ from splight_lib.models.component import (
     RoutineObjectInstance,
 )
 from splight_lib.models.event import EventNames
-from splight_lib.models.setpoint import SetPoint
 from splight_lib.restclient import ConnectError, HTTPError, Timeout
 from splight_lib.settings import settings
 
@@ -126,29 +124,24 @@ class SplightBaseComponent(ABC):
             )
             for ct in self._spec.custom_types
         }
-        routines_objects = {
+        routine_objects = {
             routine.name: RoutineObjectInstance.from_routine(
                 routine, component_id=self._component_id
             )
             for routine in self._spec.routines
         }
 
+        # TODO: check if we are going to still use binding
         bindings = [
             binding
             for binding in self._spec.bindings
             if binding.object_type != "SetPoint"
         ]
-        setpoints = [
-            binding
-            for binding in self._spec.bindings
-            if binding.object_type == "SetPoint"
-        ]
         self._load_bindings(bindings, component_objects)
-        self._load_setpoints(setpoints)
-        self._load_routines(self._spec.routines, routines_objects)
+        self._load_routines(self._spec.routines, routine_objects)
         self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
-        self._routines = self._get_routine_model(routines_objects)
+        self._routines = self._get_routine_model(routine_objects)
 
         self.start = self._wrap_start(self.start)
 
@@ -211,6 +204,7 @@ class SplightBaseComponent(ABC):
             for thread in self._execution_engine.threads:
                 thread.join()
 
+            self._health_check.stop()
             self._health_check_thread.join()
             self._register_exit()
 
@@ -219,14 +213,18 @@ class SplightBaseComponent(ABC):
     def _get_custom_type_model(
         self, component_object: Dict[str, Type[ComponentObjectInstance]]
     ) -> BaseModel:
-        custom_type_model = create_model("CustomTypes", **component_object)
-        return custom_type_model()
+        custom_type_model = namedtuple(
+            "CustomTypes", [k for k in component_object.keys()]
+        )
+        return custom_type_model(**component_object)
 
     def _get_routine_model(
-        self, routine_object: Dict[str, Type[RoutineObjectInstance]]
-    ) -> BaseModel:
-        custom_type_model = create_model("CustomTypes", **routine_object)
-        return custom_type_model()
+        self, routine_objects: Dict[str, Type[RoutineObjectInstance]]
+    ) -> namedtuple:
+        routine_model = namedtuple(
+            "ComponentRoutine", [k for k in routine_objects.keys()]
+        )
+        return routine_model(**routine_objects)
 
     def _load_spec(self) -> Spec:
         """Loads the spec.json files located at the same level that the
@@ -294,26 +292,6 @@ class SplightBaseComponent(ABC):
                         model_calss,
                     ),
                 )
-
-    def _load_setpoints(self, setpoints: List[SetPoint]):
-        """Loads and assigns callbacks to the setpoing."""
-        for setpoint in setpoints:
-            event_name = SetPoint.get_event_name(
-                SetPoint.__name__, setpoint.object_action
-            )
-            callback_func = getattr(self, setpoint.name, None)
-            if not callback_func:
-                raise MissingSetPointCallback(setpoint.name)
-
-            self._comm_client.bind(
-                event_name,
-                partial(
-                    setpoint_event_handler,
-                    callback_func,
-                    self._comm_client,
-                    self._component_id,
-                ),
-            )
 
     def _load_commands(self, commands: List[Command]):
         """Assigns callbacks function to each of the defined commands."""

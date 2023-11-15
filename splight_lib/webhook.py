@@ -33,7 +33,7 @@ class WebhookClient:
     def construct_event(self, payload: bytes, signature: str) -> WebhookEvent:
         self.validate_signature(payload, signature)
         event_dict = json.loads(payload.decode("utf-8"))
-        event = WebhookEvent.parse_obj(event_dict)
+        event = WebhookEvent.model_validate(event_dict)
         return event
 
     def validate_signature(self, payload: bytes, signature: str) -> bool:
