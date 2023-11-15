@@ -19,7 +19,6 @@ jobs:
           ref: master
 
       - name: Get version from master branch
-        # run: echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
         run: |
           if [ -f "setup.py" ]; then
             echo "MASTER_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
