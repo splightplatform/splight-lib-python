@@ -109,7 +109,6 @@ def test_component_input(mock_get_input_model):
 
     # Setup the mock Component and InputModel
     mock_component = MagicMock()
-    # mock_input_model = MagicMock()
 
     mock_input_param = InputParameter(
         name="param1",
@@ -123,13 +122,6 @@ def test_component_input(mock_get_input_model):
 
     # The mock Component's input should return our mocked InputParameter
     mock_component.input = [mock_input_param]
-
-    # Creating a mock spec'd to BaseModel
-    # mock_base_model_instance = MagicMock(spec=BaseModel)
-    # mock_input_model.model_validate.return_value = mock_base_model_instance
-    #
-    # # Spec.get_input_model() should return our mock model
-    # mock_get_input_model.return_value = mock_input_model
 
     # Test the method
     result = spec.component_input("test_id")
