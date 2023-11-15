@@ -6,53 +6,55 @@ from splight_lib.models.base import SplightDatabaseBaseModel
 class Filter(SplightDatabaseBaseModel):
     id: Optional[str] = None
     chart_item: str
-    operator: Optional[str]
-    key: Optional[str]
-    value: Optional[str]
-    label: Optional[str]
+    operator: Optional[str] = None
+    key: Optional[str] = None
+    value: Optional[str] = None
+    label: Optional[str] = None
 
 
 class AdvancedFilter(SplightDatabaseBaseModel):
     id: Optional[str] = None
     chart_item: str
-    operator: Optional[str]
-    key: Optional[str]
-    field: Optional[str]
-    value: Optional[str]
+    operator: Optional[str] = None
+    key: Optional[str] = None
+    field: Optional[str] = None
+    value: Optional[str] = None
 
 
 class ChartItem(SplightDatabaseBaseModel):
     id: Optional[str] = None
     chart: str
     label: str
-    order: Optional[int]
-    color: Optional[str]
-    position_x: Optional[str]
-    position_y: Optional[str]
-    width: Optional[str]
-    height: Optional[str]
-    split_by: Optional[str]
-    aggregate_criteria: Optional[str]
-    aggregate_period: Optional[str]
-    source: Optional[str]
-    source_label: Optional[str]
-    source_type: Optional[str]  # TODO: define options (component, native)
-    source_component_label: Optional[str]
-    source_component_id: Optional[str]
-    output_format: Optional[str]
-    target: Optional[str]
-    old_source: Optional[str]
-    old_source_label: Optional[str]
-    filters: Optional[List[Filter]]
-    advanced_filters: Optional[List[AdvancedFilter]]
-    query_params: Optional[str]
+    order: Optional[int] = None
+    color: Optional[str] = None
+    position_x: Optional[str] = None
+    position_y: Optional[str] = None
+    width: Optional[str] = None
+    height: Optional[str] = None
+    split_by: Optional[str] = None
+    aggregate_criteria: Optional[str] = None
+    aggregate_period: Optional[str] = None
+    source: Optional[str] = None
+    source_label: Optional[str] = None
+    source_type: Optional[
+        str
+    ] = None  # TODO: define options (component, native)
+    source_component_label: Optional[str] = None
+    source_component_id: Optional[str] = None
+    output_format: Optional[str] = None
+    target: Optional[str] = None
+    old_source: Optional[str] = None
+    old_source_label: Optional[str] = None
+    filters: Optional[List[Filter]] = None
+    advanced_filters: Optional[List[AdvancedFilter]] = None
+    query_params: Optional[str] = None
 
 
 class Chart(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: Optional[str]
-    items: Optional[List[ChartItem]]
+    description: Optional[str] = None
+    items: Optional[List[ChartItem]] = None
     tab: str
     position_x: Optional[str] = 0
     position_y: Optional[str] = 0
@@ -60,27 +62,27 @@ class Chart(SplightDatabaseBaseModel):
     width: Optional[str] = 80
     min_height: Optional[str] = 14
     min_width: Optional[str] = 14
-    type: Optional[str]
-    timestamp_gte: Optional[str]
-    timestamp_lte: Optional[str]
-    refresh_interval: Optional[str]
-    relative_window_time: Optional[str]
-    external_resource: Optional[str]
-    external_resource_type: Optional[str]
-    y_axis_max_limit: Optional[str]
-    y_axis_min_limit: Optional[str]
-    config: Optional[Dict[str, Any]]
+    type: Optional[str] = None
+    timestamp_gte: Optional[str] = None
+    timestamp_lte: Optional[str] = None
+    refresh_interval: Optional[str] = None
+    relative_window_time: Optional[str] = None
+    external_resource: Optional[str] = None
+    external_resource_type: Optional[str] = None
+    y_axis_max_limit: Optional[str] = None
+    y_axis_min_limit: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
 
 
 class Tab(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    charts: Optional[List[Chart]]
-    order: Optional[int]
+    charts: Optional[List[Chart]] = None
+    order: Optional[int] = None
     dashboard: str
 
 
 class Dashboard(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: Optional[str]
+    description: Optional[str] = None

@@ -8,13 +8,6 @@ class CommunicationChannelData(BaseModel):
     user_id: str
     user_info: Dict
 
-    # TODO: Review following method
-    # @classmethod
-    # def parse_from_user(cls, user: User):
-    #     return cls.parse_obj(
-    #         {"user_id": user.user_id, "user_info": user.dict()}
-    #     )
-
 
 class CommunicationContext(BaseModel):
     auth_headers: Optional[Dict] = None

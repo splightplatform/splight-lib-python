@@ -32,7 +32,7 @@ class SplightDatabaseBaseModel(BaseModel):
 
     def save(self):
         saved = self._db_client.save(
-            self.__class__.__name__, self.dict(exclude_none=True)
+            self.__class__.__name__, self.model_dump(exclude_none=True)
         )
         if not self.id:
             self.id = saved["id"]
@@ -48,13 +48,13 @@ class SplightDatabaseBaseModel(BaseModel):
         instance = db_client.get(
             resource_name=cls.__name__, id=resource_id, first=True
         )
-        return cls.parse_obj(instance) if instance else None
+        return cls.model_validate(instance) if instance else None
 
     @classmethod
     def list(cls, **params: Dict) -> List["SplightDatabaseBaseModel"]:
         db_client = cls.__get_database_client()
         instances = db_client.get(resource_name=cls.__name__, **params)
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @staticmethod
@@ -80,8 +80,8 @@ class SplightDatalakeBaseModel(BaseModel):
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
-    class Config:
-        json_dumps = datalake_model_serializer
+    # class Config:
+    #     json_dumps = datalake_model_serializer
 
     @classmethod
     def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
@@ -91,7 +91,7 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=cls._collection_name,
             **params,
         )
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @classmethod
@@ -104,7 +104,7 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=cls._collection_name,
             **params,
         )
-        instances = [cls.parse_obj(item) for item in instances]
+        instances = [cls.model_validate(item) for item in instances]
         return instances
 
     @classmethod
@@ -140,7 +140,7 @@ class SplightDatalakeBaseModel(BaseModel):
         )
 
     def dict(self, *args, **kwargs):
-        d = super().dict(*args, **kwargs)
+        d = super().model_dump(*args, **kwargs)
         return {
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()

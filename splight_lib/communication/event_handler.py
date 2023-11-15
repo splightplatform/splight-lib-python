@@ -20,20 +20,12 @@ from splight_lib.models.event import (
     ComponentCommandStatus,
     ComponentCommandTriggerEvent,
     ComponentCommandUpdateEvent,
-    SetPointCreateEvent,
-    SetPointResponse,
-    SetPointResponseStatus,
-    SetPointUpdateEvent,
 )
 
 logger = get_splight_logger()
 
 
 class InvalidCommandResponse(Exception):
-    pass
-
-
-class InvalidSetPointResponse(Exception):
     pass
 
 
@@ -65,15 +57,15 @@ def database_object_event_handler(
         event = CommunicationEvent.parse_raw(event_str)
         if binding_object_type in DB_MODEL_TYPE_MAPPING.values():
             # Case in which is not a ComponentObject
-            handler_arg = binding_object_type.parse_obj(event.data)
+            handler_arg = binding_object_type.model_validate(event.data)
         elif issubclass(binding_object_type, ComponentObjectInstance):
             # Case for data represents a ComponentObject
-            component_obj = ComponentObject.parse_obj(event.data)
+            component_obj = ComponentObject.model_validate(event.data)
             model_class = ComponentObjectInstance.from_object(component_obj)
             handler_arg = model_class.parse_object(component_obj)
         elif issubclass(binding_object_type, RoutineObjectInstance):
             # Case for data represents a RoutineObject
-            routine_obj = RoutineObject.parse_obj(event.data)
+            routine_obj = RoutineObject.model_validate(event.data)
             model_class = RoutineObjectInstance.from_object(routine_obj)
             handler_arg = model_class.parse_object(routine_obj)
         else:
@@ -138,48 +130,3 @@ def command_event_handler(
         data=component_command
     )
     comm_client.trigger(component_command_callback_event)
-
-
-def setpoint_event_handler(
-    binding_function: Callable,
-    comm_client: AbstractCommunicationClient,
-    component_id: str,
-    event_str: str,
-):
-    """General handler for component's setpoint events.
-
-    Parameters
-    ----------
-    binding_function: Callable
-        Function to be executed.
-    comm_client: AbstractCommunicationClient
-        Communication client to send command response.
-    component_id: str
-        The component's id that is reacting to the setpoint event.
-    event_str:
-        The raw event string from pusher client.
-    """
-    logger.info("Setpoint triggered.", tags=LogTags.SETPOINT)
-    try:
-        event = SetPointCreateEvent.parse_raw(event_str)
-        setpoint = event.data
-        setpoint_response = binding_function(setpoint)
-        if not isinstance(setpoint_response, SetPointResponseStatus):
-            raise InvalidSetPointResponse("Setpoint response is invalid")
-
-        if setpoint_response != SetPointResponseStatus.IGNORE:
-            setpoint.responses = [
-                SetPointResponse(
-                    component=component_id,
-                    status=setpoint_response,
-                )
-            ]
-            setpoint_callback_event = SetPointUpdateEvent(data=setpoint)
-            comm_client.trigger(setpoint_callback_event)
-    except Exception as exc:
-        logger.error(
-            "Error while handling setpoint create: %s",
-            exc,
-            exc_info=True,
-            tags=LogTags.SETPOINT,
-        )

@@ -59,7 +59,7 @@ class Operation(BaseModel):
 class DataPipeline(BaseModel):
     operations: List[Operation] = []
     from_timestamp: datetime
-    to_timestamp: Optional[datetime]
+    to_timestamp: Optional[datetime] = None
     _client: AbstractDatalakeClient = PrivateAttr()
 
     def __init__(self, **parameters):

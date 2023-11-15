@@ -19,7 +19,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get version from feature branch
-        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+        run: |
+          if [ -f "setup.py" ]; then
+            echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
+          else
+            echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+          fi
 
       - name: Create tag
         uses: softprops/action-gh-release@v1
@@ -37,8 +42,16 @@ jobs:
       - name: Checkout to feature branch
         uses: actions/checkout@v3
 
+      - name: Setup poetry
+        run: pip install poetry==1.7.0
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create true
+          poetry install
+
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: poetry build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
@@ -59,7 +72,12 @@ jobs:
         run: pip install -r .github/workflows/scripts/requirements.txt
 
       - name: Get version from feature branch
-        run: echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'"' '{ print $2 }')" >> "$GITHUB_ENV"
+        run: |
+          if [ -f "setup.py" ]; then
+            echo "CURRENT_VERSION=$(grep -E 'version' setup.py | awk -F'\"' '{ print $2 }')" >> "$GITHUB_ENV"
+          else
+            echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+          fi
 
       - name: Remove all developer versions from pypi
         run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}

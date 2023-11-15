@@ -47,6 +47,7 @@ def test_thread_healthcheck_fail(sleep_time) -> None:
     time.sleep(sleep_time)
     exc = client.get_last_exception()
     assert exc is not None
+    client.terminate_all()
 
 
 # TODO: Support for processes in execution client

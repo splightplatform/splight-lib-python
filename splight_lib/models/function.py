@@ -40,20 +40,20 @@ class FunctionItem(BaseModel):
     ref_id: str
     type: FunctionItemType = FunctionItemType.QUERY
     expression: str = ""
-    query_filter_asset: Optional[QueryFilter]
-    expression_plain: Optional[str]
-    expression_plain: Optional[str]
-    query_group_unint: Optional[GroupUnit]
-    query_group_function: Optional[GroupCriteria]
-    query_sort_field: Optional[str]
-    query_sort_direction: Optional[int]
-    query_plain: Optional[str]
+    query_filter_asset: Optional[QueryFilter] = None
+    expression_plain: Optional[str] = None
+    expression_plain: Optional[str] = None
+    query_group_unint: Optional[GroupUnit] = None
+    query_group_function: Optional[GroupCriteria] = None
+    query_sort_field: Optional[str] = None
+    query_sort_direction: Optional[int] = None
+    query_plain: Optional[str] = None
 
 
 class Function(SplightDatabaseBaseModel):
     id: Optional[str] = Field(None, max_length=100)
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
 
     active: bool = True
     frequency: int = 60
