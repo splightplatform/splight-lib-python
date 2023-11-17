@@ -59,7 +59,9 @@ class RoutineStatus(LowercaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: Optional[str] = Field(default="", max_length=100)
+    description: Optional[str] = Field(
+        default="", max_length=DESCRIPTION_MAX_LENGTH
+    )
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -92,7 +94,9 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: Optional[str] = Field(default="", max_length=100)
+    description: Optional[str] = Field(
+        default="", max_length=DESCRIPTION_MAX_LENGTH
+    )
     type: str
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
