@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 from pydantic import (
     AnyUrl,
     BaseModel,
+    Field,
     PrivateAttr,
     create_model,
     field_validator,
@@ -57,7 +58,7 @@ class RoutineStatus(LowercaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = ""
+    description: Optional[str] = Field(default="", max_length=100)
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -90,7 +91,7 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = ""
+    description: Optional[str] = Field(default="", max_length=100)
     type: str
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
@@ -144,7 +145,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
-    description: Optional[str] = ""
+    description: Optional[str] = Field(default="", max_length=100)
     type: str
 
     def save(self):
@@ -288,7 +289,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str = ""
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=100)
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
