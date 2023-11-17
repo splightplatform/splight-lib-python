@@ -52,7 +52,7 @@ class HubComponent(BaseModel):
     splight_cli_version: str
     build_status: Optional[str] = None
     description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     privacy_policy: Optional[str] = None
     component_type: Optional[str] = None
