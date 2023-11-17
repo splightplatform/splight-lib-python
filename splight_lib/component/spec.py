@@ -8,6 +8,7 @@ from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
 )
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
     Binding,
@@ -81,7 +82,9 @@ class Spec(BaseModel):
     splight_cli_version: str = Field(
         pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
     )
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default="", max_length=DESCRIPTION_MAX_LENGTH
+    )
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
     tags: Set[str] = set()
     component_type: ComponentType = ComponentType.CONNECTOR
