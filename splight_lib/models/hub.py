@@ -5,11 +5,12 @@ from glob import glob
 from typing import List, Optional
 
 import py7zr
-from pydantic import BaseModel, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr
 from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.component import (
     Binding,
     Command,
@@ -50,7 +51,9 @@ class HubComponent(BaseModel):
     version: str
     splight_cli_version: str
     build_status: Optional[str] = None
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default="", max_length=DESCRIPTION_MAX_LENGTH
+    )
     privacy_policy: Optional[str] = None
     component_type: Optional[str] = None
     tenant: Optional[str] = None
