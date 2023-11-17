@@ -1,5 +1,8 @@
 from typing import Any, Dict, List, Optional
 
+from pydantic import Field
+
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
@@ -53,7 +56,9 @@ class ChartItem(SplightDatabaseBaseModel):
 class Chart(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
     items: Optional[List[ChartItem]] = None
     tab: str
     position_x: Optional[str] = 0
@@ -85,4 +90,6 @@ class Tab(SplightDatabaseBaseModel):
 class Dashboard(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
