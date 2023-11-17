@@ -83,7 +83,7 @@ class Spec(BaseModel):
         pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
     )
     description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
     tags: Set[str] = set()

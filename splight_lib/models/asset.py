@@ -16,7 +16,7 @@ class Asset(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     tags: List[str] = []
     attributes: List[Attribute] = []
