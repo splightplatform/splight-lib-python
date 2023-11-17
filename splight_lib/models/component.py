@@ -15,6 +15,7 @@ from pydantic import (
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import (
@@ -145,7 +146,9 @@ class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
-    description: Optional[str] = Field(default="", max_length=100)
+    description: Optional[str] = Field(
+        default="", max_length=DESCRIPTION_MAX_LENGTH
+    )
     type: str
 
     def save(self):
@@ -289,7 +292,9 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str = ""
-    description: Optional[str] = Field(default=None, max_length=100)
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
