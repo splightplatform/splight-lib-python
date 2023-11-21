@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, EmailStr, Field
 from typing_extensions import TypedDict
 
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
@@ -47,7 +48,9 @@ class AlertCondition(BaseModel):
 class Alert(SplightDatabaseBaseModel):
     id: Optional[str] = Field(None, max_length=100)
     name: str
-    descriptIon: Optional[str] = None
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
     message: str
     period: float = 1.0
     active: bool = True
