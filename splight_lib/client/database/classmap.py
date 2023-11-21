@@ -10,7 +10,7 @@ MODEL_NAME_MAP = {
     "component": f"{ENGINE_PREFIX}/component/components/",
     "componentobject": f"{ENGINE_PREFIX}/component/objects/",
     "dashboard": f"{ENGINE_PREFIX}/dashboard/dashboards/",
-    "file": f"{ENGINE_PREFIX}/files/",
+    "file": f"{ENGINE_PREFIX}/file/files/",
     "filter": f"{ENGINE_PREFIX}/dashboard/filters/",
     "function": f"{ENGINE_PREFIX}/function/functions/",
     "query": f"{ENGINE_PREFIX}/queries/",
