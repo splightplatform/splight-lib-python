@@ -2,7 +2,9 @@ import warnings
 from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
+from pydantic import Field
 
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.metadata import Metadata
@@ -13,7 +15,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
     tags: List[str] = []
     attributes: List[Attribute] = []
     metadata: List[Metadata] = []

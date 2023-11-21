@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
+from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
@@ -53,7 +54,9 @@ class FunctionItem(BaseModel):
 class Function(SplightDatabaseBaseModel):
     id: Optional[str] = Field(None, max_length=100)
     name: str
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        default=None, max_length=DESCRIPTION_MAX_LENGTH
+    )
 
     active: bool = True
     frequency: int = 60
