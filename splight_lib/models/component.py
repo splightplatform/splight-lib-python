@@ -126,9 +126,9 @@ class CustomType(BaseModel):
 class Routine(BaseModel):
     name: str
 
-    create_handler: Optional[str]
-    update_handler: Optional[str]
-    delete_handler: Optional[str]
+    create_handler: Optional[str] = None
+    update_handler: Optional[str] = None
+    delete_handler: Optional[str] = None
 
     config: Optional[List[Parameter]] = []
     input: List[DataAddress] = []
