@@ -1,7 +1,7 @@
 from enum import auto
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PositiveInt
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
@@ -42,9 +42,9 @@ class FunctionItem(BaseModel):
     type: FunctionItemType = FunctionItemType.QUERY
     expression: str = ""
     query_filter_asset: Optional[QueryFilter] = None
+    query_filter_attribute: Optional[QueryFilter] = None
     expression_plain: Optional[str] = None
-    expression_plain: Optional[str] = None
-    query_group_unint: Optional[GroupUnit] = None
+    query_group_unit: Optional[GroupUnit] = None
     query_group_function: Optional[GroupCriteria] = None
     query_sort_field: Optional[str] = None
     query_sort_direction: Optional[int] = None
@@ -59,10 +59,20 @@ class Function(SplightDatabaseBaseModel):
     )
 
     active: bool = True
-    frequency: int = 60
     time_window: int = 5 * 60
     function_items: List[FunctionItem] = []
 
+    type: Literal["cron", "rate"]
     target_variable: str
-    target_asset: Optional[str] = Field(None, alias="target_asset_id")
-    target_attribute: Optional[str] = Field(None, alias="target_attribute_id")
+    target_asset: Optional[QueryFilter] = None
+    target_attribute: Optional[QueryFilter] = None
+
+    cron_minutes: Optional[str] = None
+    cron_hours: Optional[str] = None
+    cron_dom: Optional[str] = None
+    cron_month: Optional[str] = None
+    cron_dow: Optional[str] = None
+    cron_year: Optional[str] = None
+
+    rate_value: Optional[PositiveInt] = None
+    rate_unit: Optional[Literal["day", "hour", "minute"]] = None
