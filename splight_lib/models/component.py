@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 from pydantic import (
     AnyUrl,
     BaseModel,
+    ConfigDict,
     Field,
     PrivateAttr,
     create_model,
@@ -88,8 +89,15 @@ class DataAddress(Parameter):
         return value
 
 
+class DataAddressValue(BaseModel):
+    asset: str
+    attribute: str
+
+    model_config = ConfigDict(extra="ignore")
+
+
 class InputDataAddress(DataAddress):
-    value: Optional[Union[List[Dict[str, str]], Dict[str, str]]] = None
+    value: Optional[Union[List[DataAddressValue], DataAddressValue]] = None
 
 
 class OutputParameter(BaseModel):
@@ -118,9 +126,9 @@ class CustomType(BaseModel):
 class Routine(BaseModel):
     name: str
 
-    create_handler: Optional[str]
-    update_handler: Optional[str]
-    delete_handler: Optional[str]
+    create_handler: Optional[str] = None
+    update_handler: Optional[str] = None
+    delete_handler: Optional[str] = None
 
     config: Optional[List[Parameter]] = []
     input: List[DataAddress] = []
