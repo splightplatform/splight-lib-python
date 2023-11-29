@@ -18,7 +18,7 @@ from splight_lib.models.dashboard import (
     Tab,
 )
 from splight_lib.models.file import File
-from splight_lib.models.function import Function, FunctionItem
+from splight_lib.models.function import Function, FunctionItem, QueryFilter
 from splight_lib.models.hub import HubComponent
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
@@ -41,6 +41,7 @@ __all__ = [
     Filter,
     Function,
     FunctionItem,
+    QueryFilter,
     HubComponent,
     Metadata,
     Number,
