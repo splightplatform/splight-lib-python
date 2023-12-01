@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from splight_lib.models.native import Boolean, NativeOutput, Number, String
 
@@ -9,13 +9,15 @@ from splight_lib.models.native import Boolean, NativeOutput, Number, String
 class DataAddresses(BaseModel):
     asset: str
     attribute: str
-    type: str
+    type: Optional[str] = None
 
     _type_map = {
         "Number": Number,
         "String": String,
         "Boolean": Boolean,
     }
+
+    model_config = ConfigDict(extra="ignore")
 
     def get(self, **params) -> List["NativeOutput"]:
         params["asset"] = self.asset
