@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, List, Optional, Union
+from typing import ClassVar, Dict, List, Literal, Optional, Union
 
 import pandas as pd
 from pydantic import field_validator
@@ -42,14 +42,17 @@ class NativeOutput(SplightDatalakeBaseModel):
 
 class Number(NativeOutput):
     value: float
+    output_format: Literal["Number"] = "Number"
     _output_format: ClassVar[str] = "Number"
 
 
 class String(NativeOutput):
     value: str
+    output_format: Literal["String"] = "String"
     _output_format: ClassVar[str] = "String"
 
 
 class Boolean(NativeOutput):
     value: bool
+    output_format: Literal["Boolean"] = "Boolean"
     _output_format: ClassVar[str] = "Boolean"
