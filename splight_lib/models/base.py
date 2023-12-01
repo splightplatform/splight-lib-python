@@ -75,8 +75,8 @@ class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    instance_id: Optional[str] = None
-    instance_type: Optional[str] = None
+    instance_id: str = ""
+    instance_type: str = ""
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
