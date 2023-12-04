@@ -47,14 +47,14 @@ class TaskPeriod(BaseModel):
 
 
 class Crontab(BaseModel):
-    year: Optional[Union[int, str]] = None
-    month: Optional[Union[int, str]] = None
-    day: Optional[Union[int, str]] = None
-    week: Optional[Union[int, str]] = None
-    day_of_week: Optional[Union[int, str]] = None
-    hour: Optional[Union[int, str]] = None
-    minute: Optional[Union[int, str]] = None
-    second: Optional[Union[int, str]] = None
+    year: Optional[Union[str, int]] = None
+    month: Optional[Union[str, int]] = None
+    day: Optional[Union[str, int]] = None
+    week: Optional[Union[str, int]] = None
+    day_of_week: Optional[Union[str, int]] = None
+    hour: Optional[Union[str, int]] = None
+    minute: Optional[Union[str, int]] = None
+    second: Optional[Union[str, int]] = None
 
     @field_validator(
         "month", "day", "week", "day_of_week", "hour", "minute", "second"
