@@ -28,6 +28,7 @@ class QueryFilter(TypedDict):
 
 
 class GroupUnit(LowercaseStrEnum):
+    EMPTY = ""
     SECOND = auto()
     MINUTE = auto()
     HOUR = auto()
