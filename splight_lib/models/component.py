@@ -89,15 +89,8 @@ class DataAddress(Parameter):
         return value
 
 
-class DataAddressValue(BaseModel):
-    asset: str
-    attribute: str
-
-    model_config = ConfigDict(extra="ignore")
-
-
 class InputDataAddress(DataAddress):
-    value: Optional[Union[List[DataAddressValue], DataAddressValue]] = None
+    value: Optional[Union[List[DLDataAddress], DLDataAddress]] = None
 
 
 class OutputParameter(BaseModel):
@@ -283,7 +276,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
         value = field.value.copy()
         value = value if multiple else [value]
         for item in value:
-            item.update({"type": field.value_type})
+            item.type = field.value_type
 
         value = [model_class.model_validate(item) for item in value]
         value = value[0] if not multiple else value

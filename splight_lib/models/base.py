@@ -75,8 +75,8 @@ class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    instance_id: Optional[str] = None
-    instance_type: Optional[str] = None
+    instance_id: str = ""
+    instance_type: str = ""
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
@@ -119,9 +119,10 @@ class SplightDatalakeBaseModel(BaseModel):
 
     def save(self):
         dl_client = self.__get_datalake_client()
+        instance_dict = json.loads(self.model_dump_json())
         dl_client.save(
             collection=self._collection_name,
-            instances=json.loads(self.json()),
+            instances=instance_dict,
         )
 
     async def async_save(self):
@@ -129,7 +130,7 @@ class SplightDatalakeBaseModel(BaseModel):
 
         await dl_client.async_save(
             collection=self._collection_name,
-            instances=json.loads(self.json()),
+            instances=json.loads(self.model_dump_json()),
         )
 
     @classmethod
