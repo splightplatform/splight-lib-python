@@ -1,21 +1,11 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
 from typing import Callable, Dict, Optional, Tuple
 
 import pytz
 from apscheduler.triggers.cron import CronTrigger
-from apscheduler.triggers.interval import IntervalTrigger
-from pydantic import BaseModel
 
-
-class TaskPeriod(BaseModel):
-    weeks: int = 0
-    days: int = 0
-    hours: int = 0
-    minutes: int = 0
-    seconds: int = 0
-    start_date: datetime = datetime.now(timezone.utc)
-    end_date: Optional[datetime] = None
+from splight_lib.execution.scheduling import Crontab, TaskPeriod
+from splight_lib.execution.trigger import IntervalTrigger
 
 
 class BaseTask(ABC):
@@ -53,19 +43,34 @@ Task = PeriodicTask
 
 
 class CronnedTask(BaseTask):
-    _TRIGGER = "cron"
-
     def __init__(
-        self, target: Callable, cron: str, target_args: Optional[Tuple] = None
+        self,
+        target: Callable,
+        crontab: Crontab,
+        target_args: Optional[Tuple] = None,
     ):
         self._target = target
-        self._cron = cron
-        self._
+        # self._trigger = CronTrigger.from_crontab(cron_str, timezone=pytz.UTC)
+        self._trigger = CronTrigger(crontab.model_dump(), timezone=pytz.UTC)
         self._args = target_args
 
+    @classmethod
+    def from_cron_string(
+        cls,
+        target: Callable,
+        cron_str: str,
+        target_args: Optional[Tuple] = None,
+    ):
+        crontab = Crontab.from_string(cron_str)
+        return cls(target, crontab, target_args)
+
     def as_job(self) -> dict:
-        return {
+        job_dict = {
             "func": self._target,
-            "trigger": self._TRIGGER,
-            "cron": self._cron,
+            "trigger": self._trigger,
         }
+
+        if self._args:
+            job_dict.update({"args": self._args})
+
+        return job_dict
