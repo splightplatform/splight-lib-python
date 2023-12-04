@@ -50,8 +50,9 @@ class CronnedTask(BaseTask):
         target_args: Optional[Tuple] = None,
     ):
         self._target = target
-        # self._trigger = CronTrigger.from_crontab(cron_str, timezone=pytz.UTC)
-        self._trigger = CronTrigger(crontab.model_dump(), timezone=pytz.UTC)
+        self._trigger = CronTrigger(
+            **crontab.model_dump(exclude_none=True), timezone=pytz.UTC
+        )
         self._args = target_args
 
     @classmethod
