@@ -36,6 +36,7 @@ class ExecutionEngine:
             self._blocking_sch.start()
         if self._background_sch.get_jobs():
             self._background_sch.start()
+        self._logger.info("Execution Engine started", tags=LogTags.RUNTIME)
 
     def stop(self):
         """Stops all the schedulers and its task without waiting to finish."""
@@ -44,6 +45,7 @@ class ExecutionEngine:
         if self._background_sch.running:
             self._background_sch.shutdown(wait=False)
         self._running = False
+        self._logger.info("Execution Engine stopped", tags=LogTags.RUNTIME)
 
     def add_task(
         self,
@@ -70,6 +72,7 @@ class ExecutionEngine:
             job = self._blocking_sch.add_job(**task.as_job())
         if exit_on_fail:
             self._critical_jobs.add(job.id)
+        self._logger.info(f"Job {job.id} added", tags=LogTags.RUNTIME)
 
     def _task_fail_callbak(self, event: JobExecutionEvent):
         if event.job_id in self._critical_jobs:
