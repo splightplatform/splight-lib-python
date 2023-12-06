@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import Set
 
 from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
@@ -6,6 +7,13 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 from splight_lib.execution.task import BaseTask
 from splight_lib.logging._internal import LogTags, get_splight_logger
+
+
+class EngineStatus(Enum):
+    RUNNING = auto()
+    STOPPED = auto()
+    FINISHED = auto()
+    FAILED = auto()
 
 
 class ExecutionEngine:
@@ -24,14 +32,20 @@ class ExecutionEngine:
             self._task_fail_callbak, EVENT_JOB_ERROR
         )
         self._running = False
+        self._state = EngineStatus.STOPPED
 
     @property
     def running(self) -> bool:
         return self._running
 
+    @property
+    def state(self) -> EngineStatus:
+        return self._state
+
     def start(self):
         """Starts the the schedulers."""
         self._running = True
+        self._state = EngineStatus.RUNNING
         if self._blocking_sch.get_jobs():
             self._blocking_sch.start()
         if self._background_sch.get_jobs():
@@ -45,6 +59,7 @@ class ExecutionEngine:
         if self._background_sch.running:
             self._background_sch.shutdown(wait=False)
         self._running = False
+        self._state = EngineStatus.STOPPED
         self._logger.info("Execution Engine stopped", tags=LogTags.RUNTIME)
 
     def add_task(
@@ -80,3 +95,4 @@ class ExecutionEngine:
                 "An error ocurred in job execution. Stopping engine"
             )
             self.stop()
+            self._state = EngineStatus.FAILED
