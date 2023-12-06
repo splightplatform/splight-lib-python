@@ -2,45 +2,21 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from functools import partial
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import sleep
-from typing import Callable, Dict, List, Optional, Type
+from typing import Callable, Dict, Optional, Type
 
 from pydantic import BaseModel
 
-from splight_lib.client.communication import RemoteCommunicationClient
-from splight_lib.communication.event_handler import (
-    command_event_handler,
-    database_object_event_handler,
-)
-from splight_lib.component.exceptions import (
-    InvalidBidingObject,
-    MissingBindingCallback,
-    MissingCommandCallback,
-    MissingRoutineCallback,
-)
 from splight_lib.component.spec import Spec
-
-# TODO: Use builder pattern
-from splight_lib.execution.engine import ExecutionEngine, EngineStatus
+from splight_lib.execution.engine import EngineStatus, ExecutionEngine
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models.component import (
-    DB_MODEL_TYPE_MAPPING,
-    Binding,
-    Command,
     ComponentObjectInstance,
-    Routine,
-    RoutineObject,
     RoutineObjectInstance,
 )
-from splight_lib.models.event import EventNames
 from splight_lib.restclient import ConnectError, HTTPError, Timeout
-from splight_lib.settings import settings
-
-# from splight_lib.execution import ExecutionClient, Thread
-
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
 logger = get_splight_logger("Base Component")
@@ -88,13 +64,6 @@ class HealthCheckProcessor:
     def stop(self):
         self._running = False
 
-    # def _log_exception(self, exc: Optional[Exception]) -> None:
-    #     """Logs the exception and the traceback."""
-    #     if exc:
-    #         stack = exc.__traceback__
-    #         exc_type = type(exc)
-    #         self._logger.exception(exc, exc_info=(exc_type, exc, stack))
-
 
 class SplightBaseComponent(ABC):
     def __init__(
@@ -102,14 +71,6 @@ class SplightBaseComponent(ABC):
         component_id: Optional[str] = None,
     ):
         self._component_id = component_id
-
-        # TODO: Change to use builder patter
-        # self._comm_client = RemoteCommunicationClient(
-        #     url=settings.SPLIGHT_PLATFORM_API_HOST,
-        #     access_id=settings.SPLIGHT_ACCESS_ID,
-        #     secret_key=settings.SPLIGHT_SECRET_KEY,
-        #     instance_id=component_id,
-        # )
         self._execution_engine = ExecutionEngine()
         self._health_check = HealthCheckProcessor(self._execution_engine)
         self._health_check_thread = Thread(
@@ -134,16 +95,6 @@ class SplightBaseComponent(ABC):
             )
             for routine in self._spec.routines
         }
-
-        # TODO: check if we are going to still use binding
-        # bindings = [
-        #     binding
-        #     for binding in self._spec.bindings
-        #     if binding.object_type != "SetPoint"
-        # ]
-        # self._load_bindings(bindings, component_objects)
-        # self._load_routines(self._spec.routines, routine_objects)
-        # self._load_commands(self._spec.commands)
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routine_objects)
 
@@ -205,9 +156,6 @@ class SplightBaseComponent(ABC):
                 self._execution_engine.stop()
                 sys.exit(1)
 
-            # for thread in self._execution_engine.threads:
-            #     thread.join()
-
             self._health_check.stop()
             self._health_check_thread.join()
             self._register_exit()
@@ -237,81 +185,6 @@ class SplightBaseComponent(ABC):
         base_path = os.getcwd()
         spec = Spec.from_file(os.path.join(base_path, "spec.json"))
         return spec
-
-    # def _load_bindings(
-    #     self,
-    #     bindings: List[Binding],
-    #     component_objects: Dict[str, Type[ComponentObjectInstance]],
-    # ):
-    #     """Loads and assigns callbacks for the bindings."""
-    #     for binding in bindings:
-    #         type_ = binding.object_type
-    #         model_class = DB_MODEL_TYPE_MAPPING.get(
-    #             type_, component_objects.get(type_)
-    #         )
-    #         if not model_class:
-    #             raise InvalidBidingObject(model_class.__name__)
-    #         event_name = model_class.get_event_name(
-    #             model_class.__name__, binding.object_action
-    #         )
-    #         callback_func = getattr(self, binding.name, None)
-    #         if not callback_func:
-    #             raise MissingBindingCallback(binding.name)
-    #
-    #         self._comm_client.bind(
-    #             event_name,
-    #             partial(
-    #                 database_object_event_handler,
-    #                 callback_func,
-    #                 model_class,
-    #             ),
-    #         )
-
-    # def _load_routines(
-    #     self,
-    #     routines: List[Routine],
-    #     routines_objects: Dict[str, Type[RoutineObjectInstance]],
-    # ) -> None:
-    #     """Loads and assigns callbacks to the routines."""
-    #
-    #     actions = ["create", "update", "delete"]
-    #     for routine in routines:
-    #         model_calss = routines_objects.get(routine.name)
-    #
-    #         for action in actions:
-    #             event_name = RoutineObject.get_event_name(
-    #                 model_calss.__name__, action
-    #             )
-    #
-    #             callback_func = getattr(
-    #                 self, getattr(routine, f"{action}_handler"), None
-    #             )
-    #             if not callback_func:
-    #                 raise MissingRoutineCallback(routine.name, action)
-    #             self._comm_client.bind(
-    #                 event_name,
-    #                 partial(
-    #                     database_object_event_handler,
-    #                     callback_func,
-    #                     model_calss,
-    #                 ),
-    #             )
-
-    # def _load_commands(self, commands: List[Command]):
-    #     """Assigns callbacks function to each of the defined commands."""
-    #     for command in commands:
-    #         callback_func = getattr(self, command.name.lower(), None)
-    #         if not callback_func:
-    #             raise MissingCommandCallback(command.name)
-    #         event_name = (EventNames.COMPONENTCOMMAND_TRIGGER.value,)
-    #         self._comm_client.bind(
-    #             event_name,
-    #             partial(
-    #                 command_event_handler,
-    #                 callback_func,
-    #                 self._comm_client,
-    #             ),
-    #         )
 
     @abstractmethod
     def start(self):
