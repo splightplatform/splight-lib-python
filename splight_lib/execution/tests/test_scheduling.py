@@ -77,7 +77,7 @@ def test_create_crontab_from_str_error(cron_str: str):
                 "hour": "*",
                 "minute": "*",
             },
-        )
+        ),
     ],
 )
 def test_create_crontab_from_string(cron_str: str, output: Dict):

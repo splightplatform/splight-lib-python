@@ -8,8 +8,7 @@ from apscheduler.util import normalize
 
 
 class IntervalTrigger(BaseIntervalTrigger):
-    """Reimplementation of apscheduler InternalTrigger to run on start
-    """
+    """Reimplementation of apscheduler InternalTrigger to run on start"""
 
     def __init__(
         self,
