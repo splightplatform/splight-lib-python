@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import Set
 
+import pytz
 from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -22,8 +23,10 @@ class ExecutionEngine:
         self._logger.info(
             "Execution client initialized.", tags=LogTags.RUNTIME
         )
-        self._blocking_sch = BlockingScheduler()
-        self._background_sch = BackgroundScheduler(daemon=True)
+        self._blocking_sch = BlockingScheduler(timezone=pytz.UTC)
+        self._background_sch = BackgroundScheduler(
+            timezone=pytz.UTC, daemon=True
+        )
         self._critical_jobs: Set[str] = set()
         self._blocking_sch.add_listener(
             self._task_fail_callbak, EVENT_JOB_ERROR
