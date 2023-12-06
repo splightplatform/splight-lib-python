@@ -28,9 +28,7 @@ class PeriodicTask(BaseTask):
                 **period.model_dump(), timezone=pytz.UTC
             )
         elif isinstance(period, int):
-            self._trigger = IntervalTrigger(
-                seconds=period, timezone=pytz.UTC
-            )
+            self._trigger = IntervalTrigger(seconds=period, timezone=pytz.UTC)
 
     def as_job(self) -> dict:
         job_dict = {
