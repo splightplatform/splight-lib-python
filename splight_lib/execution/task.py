@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import pytz
 from apscheduler.triggers.cron import CronTrigger
@@ -18,14 +18,19 @@ class PeriodicTask(BaseTask):
     def __init__(
         self,
         target: Callable,
-        period: TaskPeriod,
+        period: Union[TaskPeriod, int],
         target_args: Optional[Tuple] = None,
     ):
         self._target = target
         self._args = target_args
-        self._trigger = IntervalTrigger(
-            **period.model_dump(), timezone=pytz.UTC
-        )
+        if isinstance(period, TaskPeriod):
+            self._trigger = IntervalTrigger(
+                **period.model_dump(), timezone=pytz.UTC
+            )
+        elif isinstance(period, int):
+            self._trigger = IntervalTrigger(
+                seconds=period, timezone=pytz.UTC
+            )
 
     def as_job(self) -> dict:
         job_dict = {
