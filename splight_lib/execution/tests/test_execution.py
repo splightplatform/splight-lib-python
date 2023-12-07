@@ -1,6 +1,7 @@
 from time import sleep
+
+from splight_lib.execution.engine import EngineStatus, ExecutionEngine
 from splight_lib.execution.task import PeriodicTask
-from splight_lib.execution.engine import ExecutionEngine, EngineStatus
 
 
 def test_task_with_error():
