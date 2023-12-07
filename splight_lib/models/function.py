@@ -66,7 +66,7 @@ class FunctionItem(BaseModel):
     query_sort_field: str = ""
     query_sort_direction: int = -1
 
-    # NOTE: why is this None as default but not "" like the others?
+    # NOTE: why is this None as default but not "" like 'expression_plain'
     query_plain: Optional[str] = None
 
     @model_validator(mode="after")
