@@ -4,7 +4,6 @@ from splight_lib.execution.engine import ExecutionEngine, EngineStatus
 
 
 def test_task_with_error():
-
     def task_function():
         sleep(1)
         print("This is a function")
@@ -22,7 +21,6 @@ def test_task_with_error():
 
 
 def test_task_with_error_on_background():
-
     def task_function():
         sleep(1)
         print("This is a function")
