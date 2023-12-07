@@ -71,7 +71,11 @@ class FunctionItem(BaseModel):
                 raise ValidationError(
                     f"Parameter 'expression' is required for expression type function items"
                 )
-            self.expression_plain = self._get_expression_plain()
+            self.expression_plain = (
+                self._get_expression_plain()
+                if self.expression_plain is None
+                else self.expression_plain
+            )
         return self
 
     @model_validator(mode="after")
@@ -82,7 +86,11 @@ class FunctionItem(BaseModel):
                     raise ValidationError(
                         f"Parameter '{attr}' is required for query type functions items"
                     )
-            self.query_plain = self._get_query_plain()
+            self.query_plain = (
+                self._get_query_plain()
+                if self.query_plain is None
+                else self.query_plain
+            )
         return self
 
     def _get_expression_plain(self):
