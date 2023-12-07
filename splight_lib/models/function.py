@@ -120,25 +120,29 @@ class FunctionItem(BaseModel):
         # NOTE: The frontend only sets the rest of the query
         # if both group_unit and group_function are set
         if self.query_group_unit and self.query_group_function:
-            query_plain.append(
-                {
-                    "$addFields": {
-                        "timestamp": {
-                            "$dateTrunc": {
-                                "date": "$timestamp",
-                                "unit": self.query_group_unit,
-                                "binSize": 1,
+            query_plain.extend(
+                [
+                    {
+                        "$addFields": {
+                            "timestamp": {
+                                "$dateTrunc": {
+                                    "date": "$timestamp",
+                                    "unit": self.query_group_unit,
+                                    "binSize": 1,
+                                }
                             }
                         }
-                    }
-                },
-                {
-                    "$group": {
-                        "_id": "$timestamp",
-                        "value": {f"${self.query_group_function}": "$value"},
-                        "timestamp": {"$last": "$timestamp"},
-                    }
-                },
+                    },
+                    {
+                        "$group": {
+                            "_id": "$timestamp",
+                            "value": {
+                                f"${self.query_group_function}": "$value"
+                            },
+                            "timestamp": {"$last": "$timestamp"},
+                        }
+                    },
+                ]
             )
         return json.dumps(query_plain)
 
