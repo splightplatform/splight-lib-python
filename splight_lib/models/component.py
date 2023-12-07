@@ -1,14 +1,13 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 
 from pydantic import (
     AnyUrl,
     BaseModel,
-    ConfigDict,
     Field,
     PrivateAttr,
     create_model,
@@ -118,10 +117,6 @@ class CustomType(BaseModel):
 
 class Routine(BaseModel):
     name: str
-
-    create_handler: Optional[str] = None
-    update_handler: Optional[str] = None
-    delete_handler: Optional[str] = None
 
     config: Optional[List[Parameter]] = []
     input: List[DataAddress] = []
