@@ -45,3 +45,5 @@ black: ## run black formatter
 
 isort: ## run isort formatter
 	isort .
+
+format: black isort

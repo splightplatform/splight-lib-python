@@ -49,10 +49,10 @@ class ExecutionEngine:
         """Starts the the schedulers."""
         self._running = True
         self._state = EngineStatus.RUNNING
-        if self._blocking_sch.get_jobs():
-            self._blocking_sch.start()
         if self._background_sch.get_jobs():
             self._background_sch.start()
+        if self._blocking_sch.get_jobs():
+            self._blocking_sch.start()
         self._logger.info("Execution Engine started", tags=LogTags.RUNTIME)
 
     def stop(self):
