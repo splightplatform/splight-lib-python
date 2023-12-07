@@ -120,7 +120,7 @@ class FunctionItem(BaseModel):
         # NOTE: The frontend only sets the rest of the query
         # if both group_unit and group_function are set
         if self.query_group_unit and self.query_group_function:
-            self.query_plain.append(
+            query_plain.append(
                 {
                     "$addFields": {
                         "timestamp": {
