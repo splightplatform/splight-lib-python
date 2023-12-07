@@ -65,16 +65,6 @@ class FunctionItem(BaseModel):
     query_sort_direction: int = -1
 
     @model_validator(mode="after")
-    def validate_type(self):
-        if self.type == FunctionItemType.EXPRESSION:
-            if self.expression is None:
-                raise ValidationError(
-                    f"Parameter 'expression' is required for expression type function items"
-                )
-
-        return self
-
-    @model_validator(mode="after")
     def validate_expression(self):
         if self.type == FunctionItemType.EXPRESSION:
             if self.expression is None:
