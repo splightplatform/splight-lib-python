@@ -46,6 +46,9 @@ class GroupCriteria(LowercaseStrEnum):
 
 
 class FunctionItem(BaseModel):
+    # NOTE: the defaults are inconsistent because
+    # we never made a clear contract between the lib, api and frontend
+
     id: Optional[str] = Field(None, max_length=100)
 
     ref_id: str
@@ -56,12 +59,15 @@ class FunctionItem(BaseModel):
 
     query_filter_asset: Optional[QueryFilter] = None
     query_filter_attribute: Optional[QueryFilter] = None
+
     query_group_function: GroupCriteria = GroupCriteria.EMPTY
     query_group_unit: GroupUnit = GroupUnit.EMPTY
-    query_plain: Optional[str] = None
 
     query_sort_field: str = ""
     query_sort_direction: int = -1
+
+    # NOTE: why is this None as default but not "" like the others?
+    query_plain: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_expression(self):
@@ -111,7 +117,29 @@ class FunctionItem(BaseModel):
                 }
             },
         ]
-        # TODO: le falta la parte del group
+        # NOTE: The frontend only sets the rest of the query
+        # if both group_unit and group_function are set
+        if self.query_group_unit and self.query_group_function:
+            self.query_plain.append(
+                {
+                    "$addFields": {
+                        "timestamp": {
+                            "$dateTrunc": {
+                                "date": "$timestamp",
+                                "unit": self.query_group_unit,
+                                "binSize": 1,
+                            }
+                        }
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": "$timestamp",
+                        "value": {f"${self.query_group_function}": "$value"},
+                        "timestamp": {"$last": "$timestamp"},
+                    }
+                },
+            )
         return json.dumps(query_plain)
 
 
