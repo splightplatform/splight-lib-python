@@ -16,6 +16,7 @@ from pydantic import (
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
+from splight_lib.execution.scheduling import Crontab
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import (
@@ -214,6 +215,9 @@ NATIVE_TYPES = {
     "url": AnyUrl,
 }
 
+CUSTOM_TYPES = {
+    "crontab": Crontab,
+}
 
 DATABASE_TYPES = {
     "Component": Component,
@@ -228,6 +232,7 @@ DATALAKE_TYPES = {
 
 DB_MODEL_TYPE_MAPPING = {
     **NATIVE_TYPES,
+    **CUSTOM_TYPES,
     **DATABASE_TYPES,
     **DATALAKE_TYPES,
 }
@@ -259,6 +264,8 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
             if not isinstance(field.value, str)
             else parse_variable_string(field.value)
         )
+    elif field.type in CUSTOM_TYPES:
+        value = CUSTOM_TYPES.get(field.type).from_string(field.value)
     elif field.type in DATABASE_TYPES:
         model_class = DATABASE_TYPES[field.type]
         value = (

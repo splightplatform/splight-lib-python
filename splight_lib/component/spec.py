@@ -31,6 +31,7 @@ VALID_PARAMETER_VALUES = {
     "bool": bool,
     "str": str,
     "float": float,
+    "crontab": str,
     "url": AnyUrl,
     "datetime": None,
     "File": None,  # UUID
