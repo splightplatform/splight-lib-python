@@ -98,11 +98,82 @@ the following table
 
 ### Splight Components
 
-One of the main uses of the library is to develop new components. A *Component* is a process that runs in the **Splight** Platform, for example, to do data processing, data ingestion, and more. The scope of each *Component* is defined by its developer. To create a *Component* (in Python as an example), you need to write at least two files: `spec.json` and `main.py`. 
-`spec.json`: defines the component interface
-`main.py`: contains the actual implementation of the algorithm
+One of the main uses of the library is to develop new components. 
+A *Component* is a process that runs in the **Splight** Platform, for example, 
+to do data processing, data ingestion, and more. The scope of each *Component* 
+is defined by its developer and problem to be solved. 
 
-In the following code, we demonstrate a basic component that outputs a random number.
+To create a *Component* (in Python as an example), you need to write at least t
+wo files: `spec.json` and `main.py`. 
+- `spec.json`: defines the component interface
+- `main.py`: contains the actual implementation of the algorithm
+
+An important concept for creating and developing a *Component* is the "Routine". 
+The easiest way to understand a Routine is thinking that a routine is task 
+that takes some input, do a processing, and returns an output, where the 
+input and output can be a list of asset/attributes pairs. The routines are 
+defined in the `spec.json` file and are configured in the **Splight** Platform, 
+then can be used in the component. 
+
+Anyway, a routine not always is mapped to a simple task, depending on the 
+component responsibility, could be convenient to group some routines into 
+a single task for performance purposes, for example the case in which you want 
+to read some information from a Rest API.
+
+In the following code, we demonstrate a basic component that have
+a routine defined in the spect that takes one Data Address (asset/attribute pair)
+and writes the result in another Data Address.
+
+Let start with spec definition for the component.
+```JSON
+{
+    "name": "MyComponent",
+    "version": "1.0.0",
+    "component_type": "algorithm",
+    "tags": ["tag1", "tag2"],
+    "privacy_policy": "public",
+    "custom_types": [],
+    "routines": [
+        {
+            "name": "MyRoutine",
+            "max_instances": 500,
+            "config": [
+                {
+                    "name": "param1",
+                    "description": "Some Description",
+                    "type": "str"
+                }
+            ],
+            "input": [
+                {
+                    "name": "input_value",
+                    "description": "Some Description",
+                    "value_type": "Number"
+                }
+            ],
+            "output": [
+                {
+                    "name": "output_value",
+                    "description": "Some Description",
+                    "value_type": "Number"
+                }
+            ]
+        }
+    ],
+    "input": [
+        {
+            "name": "period",
+            "description": "Period in second",
+            "type": "float",
+            "required": false,
+            "value": 3600
+        }
+    ]
+}
+```
+
+The code for the component can be something like:
+
 ```python
 import random
 from time import sleep
@@ -112,7 +183,7 @@ import typer
 from splight_lib.component import SplightBaseComponent
 from splight_lib.execution import Task
 from splight_lib.logging import getLogger
-from splight_lib.models import Asset
+from splight_lib.models import Asset, Number
 
 
 app = typer.Typer()
@@ -121,24 +192,31 @@ app = typer.Typer()
 class MyComponent(SplightBaseComponent):
     def __init__(self, component_id: str):
         super().__init__(component_id)
-        self._asset = Asset.retrieve(self.input.asset)
-        self._attribute = self._asset.attributes[0]
-        self._prediction_class = self.output.Predictions
+        self._routine = self.routines.MyRoutine.list()[0]
+        self._logger = getLogger("Component")
 
     def start(self):
-        self.execution_engine.start(
-            Task(
-                handler=self._get_random_number,
-                args=(),
-                period=self.input.period
-            )
+        task = Task(
+            target=self._get_random_number,
+            period=self.input.period,
+            targe_args=(),
         )
+        self.execution_engine.add_task(task)
+        self.execution_engine.start()
         
     def _get_random_number(self):
+        # Read Data Address from the engine
+        current_value = Number.get(
+            asset=self._routine.input.input_value.asset,
+            attribute=self._routine.input.input_value.attribute,
+            limit_=1,
+        )
+        self._logger.info(f"Old value {current_value.value}")
+
         value = random.random()
-        preds = Predictions(
-            asset=self._asset,
-            attribute=self._attribute,
+        preds = Number(
+            asset=self._routine.output.output_value.asset,
+            attribute=self._routine.output.output_value.attribute,
             value=value,
         )
         preds.save()
@@ -166,58 +244,3 @@ if __name__ == "__main__":
 
 Where the class `MyComponent` inherits from `SplightBaseComponent` which is the object
 that defines a component and loads all the configuration defined in the `spec.json` file. 
-In the previous example, the `spec.json` file can be
-```json
-{
-    "name": "MyComponent",
-    "version": "1.0.0",
-    "component_type": "algorithm",
-    "tags": [],
-    "privacy_policy": "public",
-    "custom_types": [],
-    "input": [
-        {
-            "name": "asset",
-            "description": "Some Asset",
-            "type": "Asset",
-            "required": true,
-            "value": null
-        },
-        {
-            "name": "period",
-            "description": "Period in second",
-            "type": "float",
-            "required": false,
-            "value": 3600
-        },
-        {
-            "name": "username",
-            "description": "Username",
-            "type": "str",
-            "required": true,
-            "value": ""
-        }
-    ],
-    "output": [
-        {
-            "name": "Predictions",
-            "fields": [
-                {
-                    "name": "value",
-                    "type": "float"
-                },
-                {
-                    "name": "asset",
-                    "type": "Asset",
-                    "filterable": true
-                },
-                {
-                    "name": "attribute",
-                    "type": "Attribute",
-                    "filterable": true
-                }
-            ]
-        }
-    ]
-}
-```

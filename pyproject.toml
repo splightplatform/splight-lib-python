@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "splight-lib"
-version = "4.3.8"
+version = "4.4.0"
 description = "Splight Library"
 authors = ["Splight Dev <dev@splight-ae.com>"]
 readme = "README.md"
@@ -32,6 +32,7 @@ stringcase = "1.2.0"
 typing-extensions = "^4.6.1"
 pydantic-settings = "2.0.3"
 email-validator = "^2.1.0.post1"
+apscheduler = "3.10.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.3.0"
