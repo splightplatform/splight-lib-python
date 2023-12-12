@@ -1,14 +1,30 @@
-[![Lib upload](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml/badge.svg)](https://github.com/splightplatform/splight-lib/actions/workflows/libupload.yml)
+# Splight Python SDK
 
-## How to install
+## Installation
 
-For development
+A release version can be installed using `pip` with
 
-- `make install`
+```bash 
+pip install --upgrade splight-lib
+```
 
-For productive envs.
+or if you want one particular version you can use
+```bash 
+pip install splight-lib==x.y.z
+```
 
-- `python setup.py install`
+### For Development
+
+To install the library in development mode you need to have `poetry` installed
+```bash
+pip install poetry==1.7.0
+```
+
+Then to insall the library you can use the command
+
+```bash
+poetry install
+```
 
 ## Tests
 
