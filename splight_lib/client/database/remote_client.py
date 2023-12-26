@@ -252,9 +252,16 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         self, resource_name: str, resource_id: str, instance: Dict
     ) -> Dict:
         logger.debug("Saving instance %s", resource_id, tags=LogTags.DATABASE)
+        model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{resource_id}/"
-        response = self._restclient.put(url, json=instance)
+        if model_name == "file":
+            with open(instance["file"], "rb") as f:
+                file = {"file": f}
+                response = self._restclient.put(url, data=instance, files=file)
+        else:
+            response = self._restclient.put(url, json=instance)
+
         response.raise_for_status()
         return response.json()
 
