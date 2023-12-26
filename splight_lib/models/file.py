@@ -2,7 +2,8 @@ import json
 import os
 from typing import Dict, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
+from pysher.pusher import hashlib
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.asset import Asset
@@ -21,11 +22,21 @@ class File(SplightDatabaseBaseModel):
     url: Optional[str] = None
     checksum: Optional[str] = None
 
-    @field_validator("file", mode="after")
-    def validate_file(cls, v):
-        v = v.replace("/", os.sep)
-        v = v.replace("\\", os.sep)
-        return v
+    @model_validator(mode="after")
+    def validate_file(self):
+        self.file = self.file.replace("/", os.sep)
+        self.file = self.file.replace("\\", os.sep)
+
+        # Compute the checksum if missing
+        if self.checksum is None:
+            hasher = hashlib.md5()
+            with open(self.file, "rb") as file:
+                # Read in chunks of 8KiB for large files
+                while chunk := file.read(8192):
+                    hasher.update(chunk)
+            self.checksum = hasher.hexdigest()
+
+        return self
 
     @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
