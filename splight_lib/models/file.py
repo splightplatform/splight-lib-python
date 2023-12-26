@@ -1,15 +1,17 @@
 import json
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import Field, field_validator
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
+from splight_lib.models.asset import Asset
 from splight_lib.models.base import SplightDatabaseBaseModel
 
 
 class File(SplightDatabaseBaseModel):
     id: Optional[str] = None
+    assets: List[Asset] = []
     file: str
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
@@ -17,6 +19,7 @@ class File(SplightDatabaseBaseModel):
     metadata: Dict = {}
     content_type: Optional[str] = None
     url: Optional[str] = None
+    checksum: Optional[str] = None
 
     @field_validator("file", mode="after")
     def validate_file(cls, v):
