@@ -17,4 +17,4 @@ class Attribute(SplightDatabaseBaseModel):
     name: str
     asset: Optional[str] = None
     type: AttributeType = AttributeType.NUMBER
-    unit: Optional[str]
+    unit: Optional[str] = None
