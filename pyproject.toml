@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "splight-lib"
-version = "4.5.1"
+version = "4.5.2"
 description = "Splight Library"
 authors = ["Splight Dev <dev@splight-ae.com>"]
 readme = "README.md"
@@ -42,6 +42,9 @@ ipython = "8.12.2"
 flake8 = "^6.1.0"
 pre-commit = "3.2.2"
 pytest = "^7.4.3"
+jsonref = "1.1.0"
+polyfactory = "2.13.0"
+openapi-schema-validator = "0.6.2"
 
 [build-system]
 requires = ["poetry-core"]
