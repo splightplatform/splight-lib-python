@@ -12,6 +12,7 @@ from pydantic import (
     PrivateAttr,
     create_model,
     field_validator,
+    model_validator,
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
@@ -95,6 +96,16 @@ class DataAddress(Parameter):
 
 class InputDataAddress(DataAddress):
     value: Optional[Union[List[DLDataAddress], DLDataAddress]] = None
+
+    # NOTE: this is a patch.
+    # API returns [] as default for InputDataAddress with multiple set
+    # to true.
+    @model_validator(mode="after")
+    def validate_file(self):
+        if self.multiple and self.value is None:
+            self.value = []
+
+        return self
 
 
 class OutputParameter(BaseModel):
