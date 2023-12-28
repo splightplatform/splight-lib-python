@@ -29,8 +29,8 @@ class MockResponse:
 @patch("splight_lib.client.datalake.remote_client.SplightAuthToken")
 @patch("splight_lib.client.datalake.remote_client.SplightRestClient")
 def test_initialization(mock_rest_client, mock_auth_token):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(
         base_url=base_url,
@@ -48,8 +48,8 @@ def test_initialization(mock_rest_client, mock_auth_token):
     SplightRestClient, "post", return_value=MockResponse(({"key": "value"}))
 )
 def test_save(mock_post):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(
         base_url=base_url,
@@ -69,8 +69,8 @@ def test_save(mock_post):
     return_value=MockResponse({"results": [{"key": "value"}]}),
 )
 def test_raw_get(mock_get):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
@@ -81,8 +81,8 @@ def test_raw_get(mock_get):
 
 @patch.object(SplightRestClient, "delete", return_value=MockResponse(None))
 def test_delete(mock_delete):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
@@ -92,8 +92,8 @@ def test_delete(mock_delete):
 
 @patch.object(SplightRestClient, "post", return_value=MockResponse(None))
 def test_save_dataframe(mock_post):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
@@ -104,8 +104,8 @@ def test_save_dataframe(mock_post):
 
 @patch.object(SplightRestClient, "post", return_value=MockResponse(None))
 def test_create_index(mock_post):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
@@ -118,8 +118,8 @@ def test_create_index(mock_post):
     SplightRestClient, "post", return_value=MockResponse([{"key": "value"}])
 )
 def test_raw_aggregate(mock_post):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"

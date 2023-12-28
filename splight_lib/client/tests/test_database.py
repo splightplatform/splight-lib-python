@@ -31,8 +31,8 @@ class MockResponse:
 @patch("splight_lib.client.database.remote_client.SplightAuthToken")
 @patch("splight_lib.client.database.remote_client.SplightRestClient")
 def test_initialization(mock_rest_client, mock_auth_token):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatabaseClient(
         base_url=base_url,
@@ -53,8 +53,8 @@ def test_initialization(mock_rest_client, mock_auth_token):
     return_value=MockResponse({"name": "instance_name", "id": "some_id"}),
 )
 def test_save_without_id(mock_post):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatabaseClient(
         base_url=base_url,
@@ -77,8 +77,8 @@ def test_save_without_id(mock_post):
     return_value=MockResponse({"name": "instance_name", "id": "instance_id"}),
 )
 def test_save_with_id(mock_put):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatabaseClient(
         base_url=base_url,
@@ -98,8 +98,8 @@ def test_save_with_id(mock_put):
 
 @patch.object(SplightRestClient, "delete")
 def test_delete(mock_delete):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatabaseClient(
         base_url=base_url,
@@ -111,8 +111,8 @@ def test_delete(mock_delete):
 
 
 def test_delete_invalid_model_name():
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatabaseClient(
         base_url=base_url,
@@ -126,8 +126,8 @@ def test_delete_invalid_model_name():
 
 @patch.object(SplightRestClient, "get")
 def test_get_with_id(mock_get):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     mock_instance_id = "123"
     mock_get.return_value = MockResponse(
@@ -146,8 +146,8 @@ def test_get_with_id(mock_get):
 
 @patch.object(SplightRestClient, "get")
 def test_get_without_id(mock_get):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     mock_get.return_value = MockResponse(
         {
@@ -168,8 +168,8 @@ def test_get_without_id(mock_get):
 
 @patch.object(SplightRestClient, "get")
 def test_get_without_id_and_set_first(mock_get):
-    secret_key = os.get_env("SECRET_KEY")
-    access_id = os.get_env("ACCESS_ID")
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
 
     mock_get.return_value = MockResponse(
         {
