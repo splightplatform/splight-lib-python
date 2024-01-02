@@ -15,6 +15,10 @@ from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.exceptions import (
+    InvalidFunctionConfiguration,
+    MissingFunctionItemExpression,
+)
 
 
 class FunctionItemType(UppercaseStrEnum):
@@ -51,7 +55,7 @@ class FunctionItem(BaseModel):
 
     id: Optional[str] = Field(None, max_length=100)
 
-    ref_id: str
+    ref_id: str = Field(max_length=5)
     type: FunctionItemType = FunctionItemType.QUERY
 
     expression: str = ""
@@ -64,17 +68,16 @@ class FunctionItem(BaseModel):
     query_group_unit: GroupUnit = GroupUnit.EMPTY
 
     query_sort_field: str = ""
-    query_sort_direction: int = -1
+    query_sort_direction: int = Field(-1, ge=-1, le=1)
 
-    # NOTE: why is this None as default but not "" like 'expression_plain'
-    query_plain: Optional[str] = None
+    query_plain: str = ""
 
     @model_validator(mode="after")
     def validate_expression(self):
         if self.type == FunctionItemType.EXPRESSION:
             if self.expression is None:
-                raise ValidationError(
-                    f"Parameter 'expression' is required for expression type function items"
+                raise MissingFunctionItemExpression(
+                    "Parameter 'expression' is required for expression type function items"
                 )
             self.expression_plain = (
                 self._get_expression_plain()
@@ -86,10 +89,16 @@ class FunctionItem(BaseModel):
     @model_validator(mode="after")
     def validate_query(self):
         if self.type == FunctionItemType.QUERY:
-            for attr in [self.query_filter_asset, self.query_filter_attribute]:
+            for attr in [
+                ("query_filter_asset", self.query_filter_asset),
+                ("query_filter_attribute", self.query_filter_attribute),
+            ]:
                 if attr is None:
                     raise ValidationError(
-                        f"Parameter '{attr}' is required for query type functions items"
+                        (
+                            f"Parameter '{attr}' is required for query type "
+                            "functions items"
+                        )
                     )
             self.query_plain = (
                 self._get_query_plain()
@@ -176,23 +185,32 @@ class Function(SplightDatabaseBaseModel):
     @model_validator(mode="after")
     def validate_type(self):
         if self.type == "cron":
-            for attr in [
-                self.cron_year,
-                self.cron_month,
-                self.cron_hours,
-                self.cron_minutes,
-                self.cron_dow,
-                self.cron_dom,
+            for attr, value in [
+                ("cron_year", self.cron_year),
+                ("cron_moth", self.cron_month),
+                ("cron_hour", self.cron_hours),
+                ("cron_minutes", self.cron_minutes),
+                ("cron_dow", self.cron_dow),
+                ("cron_dom", self.cron_dom),
             ]:
-                if attr is None:
-                    raise ValidationError(
-                        f"Parameter {attr} is required for '{self.type}' type functions"
+                if value is None:
+                    raise InvalidFunctionConfiguration(
+                        (
+                            f"Parameter {attr} is required for '{self.type}' "
+                            "type functions"
+                        )
                     )
         if self.type == "rate":
-            for attr in [self.rate_value, self.rate_unit]:
+            for attr in [
+                ("rate_value", self.rate_value),
+                ("rate_unit", self.rate_unit),
+            ]:
                 if attr is None:
-                    raise ValidationError(
-                        f"Parameter {attr} is required for '{self.type}' type functions"
+                    raise InvalidFunctionConfiguration(
+                        (
+                            f"Parameter {attr} is required for '{self.type}' "
+                            "type functions"
+                        )
                     )
 
         return self

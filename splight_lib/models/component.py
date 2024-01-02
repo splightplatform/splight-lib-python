@@ -12,6 +12,7 @@ from pydantic import (
     PrivateAttr,
     create_model,
     field_validator,
+    model_validator,
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
@@ -54,15 +55,19 @@ class RoutineStatus(LowercaseStrEnum):
     RUNNING = auto()
     FAILED = auto()
     PENDING = auto()
-    HEALTHY = auto()
-    UNHEALTHY = auto()
+    # HEALTHY = auto()
+    # UNHEALTHY = auto()
+
+
+class ValueType(PascalCaseStrEnum):
+    NUMBER = auto()
+    STRING = auto()
+    BOOLEAN = auto()
 
 
 class Parameter(BaseModel):
     name: str
-    description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str = Field(default="", max_length=100)
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -80,7 +85,7 @@ class DataAddress(Parameter):
     depends_on: None = None
     required: bool = True
     type: Literal["DataAddress"] = "DataAddress"
-    value_type: str = "Number"
+    value_type: ValueType = ValueType.NUMBER
 
     @field_validator("type", mode="before")
     def check_wrong_name(cls, value: str) -> str:
@@ -92,12 +97,20 @@ class DataAddress(Parameter):
 class InputDataAddress(DataAddress):
     value: Optional[Union[List[DLDataAddress], DLDataAddress]] = None
 
+    # NOTE: this is a patch.
+    # API returns [] as default for InputDataAddress with multiple set
+    # to true.
+    @model_validator(mode="after")
+    def validate_file(self):
+        if self.multiple and self.value is None:
+            self.value = []
+
+        return self
+
 
 class OutputParameter(BaseModel):
     name: str
-    description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str = Field(default="", max_length=100)
     type: str
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
@@ -147,9 +160,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
-    description: Optional[str] = Field(
-        default="", max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str = Field(default="", max_length=100)
     type: str
 
     def save(self):
@@ -171,7 +182,7 @@ class RoutineEvaluation(SplightDatalakeBaseModel):
 
 
 class RoutineObject(SplightObject):
-    status: Optional[RoutineStatus] = RoutineStatus.RUNNING
+    status: RoutineStatus = RoutineStatus.RUNNING
 
     config: Optional[List[InputParameter]] = []
     input: List[InputDataAddress] = []
@@ -299,9 +310,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str = ""
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str = Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
 
     _default_attrs: List[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]

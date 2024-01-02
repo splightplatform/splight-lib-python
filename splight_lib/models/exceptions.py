@@ -12,3 +12,11 @@ class SecretDecryptionError(Exception):
     def __init__(self, name: str):
         msg = f"Unable to decrypt secret {name}"
         super().__init__(msg)
+
+
+class InvalidFunctionConfiguration(Exception):
+    pass
+
+
+class MissingFunctionItemExpression(Exception):
+    pass
