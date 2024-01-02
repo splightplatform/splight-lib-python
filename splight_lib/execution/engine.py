@@ -1,16 +1,17 @@
 from enum import Enum, auto
-from typing import Set
+from typing import Set, Tuple
 
 import pytz
 from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
+from strenum import PascalCaseStrEnum
 
 from splight_lib.execution.task import BaseTask
 from splight_lib.logging._internal import LogTags, get_splight_logger
 
 
-class EngineStatus(Enum):
+class EngineStatus(PascalCaseStrEnum):
     RUNNING = auto()
     STOPPED = auto()
     FINISHED = auto()
@@ -44,6 +45,9 @@ class ExecutionEngine:
     @property
     def state(self) -> EngineStatus:
         return self._state
+
+    def healthcheck(self) -> Tuple[bool, str]:
+        return (self._running, self._status.value)
 
     def start(self):
         """Starts the the schedulers."""
