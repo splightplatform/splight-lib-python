@@ -23,7 +23,7 @@ logger = get_splight_logger("Base Component")
 
 
 class HealthCheckProcessor:
-    _HEALTHCHECK_INTERVAL = 10
+    HEALTHCHECK_INTERVAL = 5
     _HEALTH_FILE_PREFIX = "healthy_"
     _STARTUP_FILE_PREFIX = "ready_"
 
@@ -50,7 +50,8 @@ class HealthCheckProcessor:
         self._running = True
         # Check when there is no task in engine
         while self._running:
-            if not self._engine.running:
+            is_running, status = self._engine.healthcheck()
+            if not is_running:
                 self._logger.info("Healthcheck finished", tags=LogTags.RUNTIME)
                 self._health_file.close()
                 self._logger.info(
@@ -59,7 +60,7 @@ class HealthCheckProcessor:
                     tags=LogTags.RUNTIME,
                 )
                 break
-            sleep(self._HEALTHCHECK_INTERVAL)
+            sleep(self.HEALTHCHECK_INTERVAL)
 
     def stop(self):
         self._running = False
@@ -156,6 +157,8 @@ class SplightBaseComponent(ABC):
                 self._execution_engine.stop()
                 sys.exit(1)
 
+            # Wait for healthcheck to update before stopping everything
+            sleep(HealthCheckProcessor.HEALTHCHECK_INTERVAL)
             self._health_check.stop()
             self._health_check_thread.join()
             self._register_exit()
