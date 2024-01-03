@@ -51,7 +51,7 @@ class AlertItem(BaseModel):
     id: Optional[str] = Field(None, max_length=100)
 
     ref_id: str = Field(max_length=5)
-    type: AlertItemType
+    type: AlertItemType.QUERY
 
     expression: str = ""
     expression_plain: str = ""
@@ -227,9 +227,9 @@ class Alert(SplightDatabaseBaseModel):
     stmt_aggregation: StatementAggregation
     stmt_thresholds: List[AlertThreshold]
 
-    notify_no_data: True
-    notify_error: True
-    notify_timeout: True
+    notify_no_data: bool = True
+    notify_error: bool = True
+    notify_timeout: bool = True
     custom_message: Field(default=None, max_length=200)
 
     cron_minutes: Optional[str] = None
