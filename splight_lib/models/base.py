@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import ClassVar, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr, field_validator
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
@@ -82,6 +82,10 @@ class SplightDatalakeBaseModel(BaseModel):
 
     # class Config:
     #     json_dumps = datalake_model_serializer
+
+    @field_validator("instance_id", "instance_type", mode="before")
+    def convert_to_string(cls, value: Optional[str]):
+        return value if value else ""
 
     @classmethod
     def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
