@@ -20,3 +20,11 @@ class InvalidFunctionConfiguration(Exception):
 
 class MissingFunctionItemExpression(Exception):
     pass
+
+
+class InvalidAlertConfiguration(Exception):
+    pass
+
+
+class MissingAlertItemExpression(Exception):
+    pass
