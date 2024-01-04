@@ -51,7 +51,7 @@ class AlertItem(BaseModel):
     id: Optional[str] = Field(None, max_length=100)
 
     ref_id: str = Field(max_length=5)
-    type: AlertItemType.QUERY
+    type: AlertItemType = AlertItemType.QUERY
 
     expression: str = ""
     expression_plain: str = ""
@@ -66,7 +66,7 @@ class AlertItem(BaseModel):
     query_sort_direction: int = Field(-1, ge=-1, le=1)
 
     query_plain: str = ""
-    query_limit: int = Field(10000, ge=1, le=1000)
+    query_limit: int = Field(10000, ge=1, le=10000)
 
     @model_validator(mode="after")
     def validate_expression(self):
@@ -211,18 +211,18 @@ class Alert(SplightDatabaseBaseModel):
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
 
-    assets: Optional[QueryFilter] = None
-    alert_items: List[AlertItem]
+    assets: List[QueryFilter] = []
+    alert_items: List[AlertItem] = []
     destinations_list: List[str] = []
 
     type: AlertType
 
     active: bool = True
     status: AlertStatus = AlertStatus.NO_ALERT
-    status_text: str = ""
+    status_text: Optional[str] = Field(default=None, max_length=400)
 
     stmt_time_window: int
-    stmt_target_variable: int
+    stmt_target_variable: Optional[str] = Field(default=None, max_length=5)
     stmt_operator: StatementOperator
     stmt_aggregation: StatementAggregation
     stmt_thresholds: List[AlertThreshold]
@@ -230,7 +230,7 @@ class Alert(SplightDatabaseBaseModel):
     notify_no_data: bool = True
     notify_error: bool = True
     notify_timeout: bool = True
-    custom_message: Field(default=None, max_length=200)
+    custom_message: Optional[str] = Field(default=None, max_length=200)
 
     cron_minutes: Optional[str] = None
     cron_hours: Optional[str] = None
