@@ -95,7 +95,7 @@ jobs:
         run: |
           mkdir .snyk_report
           snyk code test --json > .snyk_report/snyk_code.json
-          snyk test --severity-threshold=high --json > .snyk_report/snyk_dependencies.json
+          snyk test --json > .snyk_report/snyk_dependencies.json
           python3 .github/workflows/scripts/create_snyk_svg.py
       - name: Publish Snyk report to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
