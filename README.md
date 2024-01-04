@@ -1,5 +1,10 @@
 # Splight Python SDK
 
+![snyk_code](https://github.com/splightplatform/splight-lib-python/blob/gh-pages/snyk_code.svg?raw=True)
+![snyk_dependencies](https://github.com/splightplatform/splight-lib-python/blob/gh-pages/snyk_dependencies.svg?raw=True)
+
+---
+
 ## Installation
 
 A release version can be installed using `pip` with

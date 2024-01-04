@@ -81,3 +81,23 @@ jobs:
 
       - name: Remove all developer versions from pypi
         run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
+
+  run_snyk:
+    runs-on: ubuntu-latest
+    name: Check for vulnerabilities using Snyk
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Snyk
+        run: npm install snyk -g
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_API_KEY }}
+      - name: Create Snyk report
+        run: |
+          mkdir .snyk_report
+          snyk code test --json > .snyk_report/snyk_code.json
+          snyk test --severity-threshold=high --json > .snyk_report/snyk_dependencies.json
+          python3 .github/workflows/scripts/create_snyk_svg.py
+      - name: Publish Snyk report to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .snyk_report/
