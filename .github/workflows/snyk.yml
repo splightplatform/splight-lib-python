@@ -19,4 +19,4 @@ jobs:
       - name: Check Vulnerabilities
         run: |
           snyk code test
-          snyk test --severity-threshold=high
+          snyk test
