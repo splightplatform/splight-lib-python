@@ -1,4 +1,4 @@
-from splight_lib.models.alert import Alert, AlertCondition
+from splight_lib.models.alert import Alert, AlertItem
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
@@ -27,7 +27,7 @@ from splight_lib.models.secret import Secret
 __all__ = [
     AdvancedFilter,
     Alert,
-    AlertCondition,
+    AlertItem,
     Asset,
     Attribute,
     Boolean,
