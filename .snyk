@@ -1,0 +1,50 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-PYTHON-CRYPTOGRAPHY-6050294:
+    - '*':
+        reason: None Given
+        expires: 2030-02-03T18:45:41.764Z
+        created: 2024-01-04T18:45:41.768Z
+  SNYK-PYTHON-CRYPTOGRAPHY-6126975:
+    - '*':
+        reason: None Given
+        expires: 2030-02-03T18:45:50.775Z
+        created: 2024-01-04T18:45:50.782Z
+  'snyk:lic:pip:pyppmd:LGPL-2.1':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:02.039Z
+        created: 2024-01-04T18:46:02.048Z
+  'snyk:lic:pip:pybcj:LGPL-2.1':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:13.007Z
+        created: 2024-01-04T18:46:13.015Z
+  'snyk:lic:pip:py7zr:LGPL-2.1':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:23.541Z
+        created: 2024-01-04T18:46:23.545Z
+  'snyk:lic:pip:pathspec:MPL-2.0':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:32.210Z
+        created: 2024-01-04T18:46:32.220Z
+  'snyk:lic:pip:multivolumefile:LGPL-2.1':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:43.513Z
+        created: 2024-01-04T18:46:43.523Z
+  'snyk:lic:pip:inflate64:LGPL-2.1':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:46:52.077Z
+        created: 2024-01-04T18:46:52.084Z
+  'snyk:lic:pip:certifi:MPL-2.0':
+    - '*':
+        reason: License issue
+        expires: 2030-02-03T18:47:01.021Z
+        created: 2024-01-04T18:47:01.030Z
+patch: {}
