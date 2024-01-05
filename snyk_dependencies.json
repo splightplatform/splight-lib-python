@@ -1,0 +1,326 @@
+{
+  "vulnerabilities": [],
+  "ok": true,
+  "dependencyCount": 64,
+  "org": "thomas.vadora",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-PYTHON-CRYPTOGRAPHY-6050294:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:41.764Z\n        created: 2024-01-04T18:45:41.768Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6126975:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:50.775Z\n        created: 2024-01-04T18:45:50.782Z\n        source: cli\n  'snyk:lic:pip:pyppmd:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:02.039Z\n        created: 2024-01-04T18:46:02.048Z\n        source: cli\n  'snyk:lic:pip:pybcj:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:13.007Z\n        created: 2024-01-04T18:46:13.015Z\n        source: cli\n  'snyk:lic:pip:py7zr:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:23.541Z\n        created: 2024-01-04T18:46:23.545Z\n        source: cli\n  'snyk:lic:pip:pathspec:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:32.210Z\n        created: 2024-01-04T18:46:32.220Z\n        source: cli\n  'snyk:lic:pip:multivolumefile:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:43.513Z\n        created: 2024-01-04T18:46:43.523Z\n        source: cli\n  'snyk:lic:pip:inflate64:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:52.077Z\n        created: 2024-01-04T18:46:52.084Z\n        source: cli\n  'snyk:lic:pip:certifi:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:47:01.021Z\n        created: 2024-01-04T18:47:01.030Z\n        source: cli\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-1.0": {
+        "licenseType": "AGPL-1.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      }
+    }
+  },
+  "packageManager": "poetry",
+  "ignoreSettings": {
+    "adminOnly": false,
+    "reasonRequired": false,
+    "disregardFilesystemIgnores": false
+  },
+  "summary": "2 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [],
+    "upgrade": {},
+    "patch": {},
+    "ignore": {},
+    "pin": {}
+  },
+  "filesystemPolicy": true,
+  "filtered": {
+    "ignore": [
+      {
+        "id": "SNYK-PYTHON-CRYPTOGRAPHY-6050294",
+        "title": "Denial of Service (DoS)",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "credit": [
+          "David Benjamin"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "python",
+        "severity": "medium",
+        "cvssScore": 5.3,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "cryptography",
+        "references": [
+          {
+            "url": "https://github.com/openssl/openssl/commit/db925ae2e65d0d925adef429afc37f75bd1c2017",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/ddeb4b6c6d527e54ce9a99cba785c0f7776e54b6",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/ec061bf8ff2add8050599058557178c03295bcc0",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/pyca/cryptography/commit/01d55b2af8ae167315288c03b192c59c86425009",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2248616",
+            "title": "RedHat Bugzilla Bug"
+          },
+          {
+            "url": "https://www.openssl.org/news/secadv/20231106.txt",
+            "title": "Security Advisory"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+            "cvssV3BaseScore": 5.3,
+            "modificationTime": "2023-11-08T13:48:19.543999Z"
+          },
+          {
+            "assigner": "NVD",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+            "cvssV3BaseScore": 5.3,
+            "modificationTime": "2023-11-22T01:10:47.412869Z"
+          },
+          {
+            "assigner": "SUSE",
+            "severity": "high",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 7.5,
+            "modificationTime": "2023-11-22T11:02:51.571843Z"
+          }
+        ],
+        "description": "## Overview\n\nAffected versions of this package are vulnerable to Denial of Service (DoS) when the `DH_generate_key()`, `DH_check_pub_key()`, `DH_check_pub_key_ex()`, `EVP_PKEY_public_check()`, and `EVP_PKEY_generate()` functions are used. An attacker can cause long delays and potentially a Denial of Service by supplying excessively long X9.42 DH keys or parameters obtained from an untrusted source. \r\n\r\n**Note:**\r\n\r\nThis is only exploitable if the application uses these functions to generate or check an X9.42 DH key or parameters. Also, the OpenSSL `pkey` command line application, when using the `-pubcheck` option, as well as the OpenSSL `genpkey` command line application, are vulnerable to this issue.\n## Remediation\nA fix was pushed into the `master` branch but not yet published.\n## References\n- [GitHub Commit](https://github.com/openssl/openssl/commit/db925ae2e65d0d925adef429afc37f75bd1c2017)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/ddeb4b6c6d527e54ce9a99cba785c0f7776e54b6)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/ec061bf8ff2add8050599058557178c03295bcc0)\n- [GitHub Commit](https://github.com/pyca/cryptography/commit/01d55b2af8ae167315288c03b192c59c86425009)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=2248616)\n- [Security Advisory](https://www.openssl.org/news/secadv/20231106.txt)\n",
+        "epssDetails": {
+          "percentile": "0.33112",
+          "probability": "0.00079",
+          "modelVersion": "v2023.03.01"
+        },
+        "identifiers": {
+          "CVE": [
+            "CVE-2023-5678"
+          ],
+          "CWE": [
+            "CWE-400"
+          ]
+        },
+        "packageName": "cryptography",
+        "proprietary": false,
+        "creationTime": "2023-11-08T11:10:10.146402Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-10-24T00:00:00Z",
+        "packageManager": "pip",
+        "publicationTime": "2023-11-08T15:16:15.075620Z",
+        "modificationTime": "2023-12-27T19:17:02.141941Z",
+        "socialTrendAlert": false,
+        "severityWithCritical": "medium",
+        "from": [
+          "splight-lib@4.5.8",
+          "cryptography@41.0.7"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "cryptography",
+        "version": "41.0.7",
+        "filtered": {
+          "ignored": [
+            {
+              "reason": "None Given",
+              "expires": "2030-02-03T18:45:41.764Z",
+              "created": "2024-01-04T18:45:41.768Z",
+              "source": "cli",
+              "path": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "SNYK-PYTHON-CRYPTOGRAPHY-6126975",
+        "title": "Information Exposure",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N/E:P",
+        "credit": [
+          "tomato42"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Proof of Concept",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "python",
+        "severity": "medium",
+        "cvssScore": 5.9,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "cryptography",
+        "references": [
+          {
+            "url": "https://github.com/pyca/cryptography/issues/9785%23issuecomment-1856209406",
+            "title": "GitHub Issue"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "cvssV3BaseScore": 5.9,
+            "modificationTime": "2023-12-14T13:49:17.282203Z"
+          }
+        ],
+        "description": "## Overview\n\nAffected versions of this package are vulnerable to Information Exposure. This issue may allow a remote attacker to decrypt captured messages in TLS servers that use RSA key exchanges, which may lead to exposure of confidential or sensitive data.\n\n**Note:**\n\n\nThis vulnerability exists due to an incomplete fix for [CVE-2020-25659](https://security.snyk.io/vuln/SNYK-PYTHON-CRYPTOGRAPHY-1022152).\n## Remediation\nThere is no fixed version for `cryptography`.\n## References\n- [GitHub Issue](https://github.com/pyca/cryptography/issues/9785#issuecomment-1856209406)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [
+            "CVE-2023-50782"
+          ],
+          "CWE": [
+            "CWE-200"
+          ]
+        },
+        "packageName": "cryptography",
+        "proprietary": false,
+        "creationTime": "2023-12-15T07:18:28.035469Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-12-14T16:58:05Z",
+        "packageManager": "pip",
+        "publicationTime": "2023-12-15T07:18:28.271359Z",
+        "modificationTime": "2023-12-15T07:18:28.307535Z",
+        "socialTrendAlert": false,
+        "severityWithCritical": "medium",
+        "from": [
+          "splight-lib@4.5.8",
+          "cryptography@41.0.7"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "cryptography",
+        "version": "41.0.7",
+        "filtered": {
+          "ignored": [
+            {
+              "reason": "None Given",
+              "expires": "2030-02-03T18:45:50.775Z",
+              "created": "2024-01-04T18:45:50.782Z",
+              "source": "cli",
+              "path": [
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "patch": []
+  },
+  "uniqueCount": 0,
+  "targetFile": "pyproject.toml",
+  "projectName": "splight-lib",
+  "foundProjectCount": 1,
+  "displayTargetFile": "pyproject.toml",
+  "hasUnknownVersions": false,
+  "path": "/home/runner/work/splight-lib-python/splight-lib-python"
+}
