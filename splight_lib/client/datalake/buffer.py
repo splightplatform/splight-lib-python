@@ -3,8 +3,7 @@ from typing import Dict, List
 
 
 class DatalakeDocumentBuffer:
-    """A simple buffer implementation for datalake documents.
-    """
+    """A simple buffer implementation for datalake documents."""
 
     def __init__(self, buffer_size: int, buffer_timeout: float):
         self._size = buffer_size
