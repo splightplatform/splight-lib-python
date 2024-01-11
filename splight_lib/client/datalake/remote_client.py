@@ -11,6 +11,7 @@ from retry import retry
 from stringcase import camelcase
 
 from splight_lib.auth import SplightAuthToken
+from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.exceptions import InvalidCollectionName
@@ -277,8 +278,8 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
-        buffer_size: int = 10,
-        buffer_timeout: float = 30,
+        buffer_size: int = DL_BUFFER_SIZE,
+        buffer_timeout: float = DL_BUFFER_TIMEOUT,
         *args,
         **kwargs,
     ):
