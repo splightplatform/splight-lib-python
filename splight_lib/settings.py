@@ -63,8 +63,8 @@ class SplightSettings(BaseSettings, Singleton):
     # Parameters for Buffered Datalake Client
     # Review if is better to use another class for only the DL Client settings
     USE_BUFFER: bool = True
-    DL_BUFFER_SIZE: int = 10
-    DL_BUFFER_TIMEOUT: float = 30  # seconds
+    DL_BUFFER_SIZE: int = 100
+    DL_BUFFER_TIMEOUT: float = 60  # seconds
 
     model_config = ConfigDict(extra="ignore")
 
