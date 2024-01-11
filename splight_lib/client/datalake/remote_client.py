@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from io import StringIO
 from tempfile import NamedTemporaryFile
-from threading import Thread
+from threading import Lock, Thread
 from time import sleep
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from furl import furl
@@ -306,6 +306,7 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         }
         self._flush_thread = Thread(target=self._flusher, daemon=True)
         self._flush_thread.start()
+        self._lock = Lock()
         logger.debug(
             "Buffered Remote datalake client initialized.",
             tags=LogTags.DATALAKE,
@@ -317,19 +318,30 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         instances = instances if isinstance(instances, List) else [instances]
         if collection not in self._data_buffers:
             raise Exception("Invalid collection name")
-        self._data_buffers[collection].add_documents(instances)
+        with self._lock:
+            self._data_buffers[collection].add_documents(instances)
         return instances
+
+    # def save_dataframe
 
     def _flusher(self):
         while True:
             for collection, buffer in self._data_buffers.items():
-                if buffer.should_flush():
-                    self._flush_buffer(collection, buffer.data)
-                    buffer.reset()
+                self._flush_buffer(collection, buffer)
             sleep(0.5)
 
+    def _flush_buffer(
+        self, collection: str, buffer: DatalakeDocumentBuffer
+    ) -> None:
+        if buffer.should_flush():
+            try:
+                self._send_documnens(collection, buffer.data)
+                buffer.reset()
+            except Exception:
+                logger.error("Unable to save documents", exc_info=True)
+
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _flush_buffer(self, collection: str, docs: List[Dict]) -> List[Dict]:
+    def _send_documents(self, collection: str, docs: List[Dict]) -> List[Dict]:
         url = self._base_url / f"{self._PREFIX}/save/"
         collection = camelcase(collection)
         response = self._restclient.post(
