@@ -11,11 +11,11 @@ from retry import retry
 from stringcase import camelcase
 
 from splight_lib.auth import SplightAuthToken
-from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.exceptions import InvalidCollectionName
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
+from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
 
