@@ -13,6 +13,7 @@ from stringcase import camelcase
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
+from splight_lib.client.datalake.exceptions import InvalidCollectionName
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
@@ -315,14 +316,18 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
     def save(
         self, collection: str, instances: Union[List[Dict], Dict]
     ) -> List[Dict]:
+        logger.debug("Saving documents in datalake")
         instances = instances if isinstance(instances, List) else [instances]
         if collection not in self._data_buffers:
-            raise Exception("Invalid collection name")
+            raise InvalidCollectionName(collection)
         with self._lock:
             self._data_buffers[collection].add_documents(instances)
         return instances
 
-    # def save_dataframe
+    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
+        logger.debug("Saving dataframe in datalake")
+        instances = dataframe.to_dict("records")
+        self.save(collection, instances)
 
     def _flusher(self):
         while True:
