@@ -60,6 +60,12 @@ class SplightSettings(BaseSettings, Singleton):
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str] = None
 
+    # Parameters for Buffered Datalake Client
+    # Review if is better to use another class for only the DL Client settings
+    USE_BUFFER: bool = True
+    DL_BUFFER_SIZE: int = 10
+    DL_BUFFER_TIMEOUT: float = 30  # seconds
+
     model_config = ConfigDict(extra="ignore")
 
     @model_validator(mode="after")
