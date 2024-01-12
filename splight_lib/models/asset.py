@@ -12,11 +12,6 @@ from splight_lib.models.metadata import Metadata
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-class RelatedAsset(BaseModel):
-    id: str
-    name: str
-
-
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
@@ -28,7 +23,7 @@ class Asset(SplightDatabaseBaseModel):
     metadata: List[Metadata] = []
     geometry: Optional[GeometryCollection] = None
     centroid_coordinates: Optional[Tuple[float, float]] = None
-    related_assets: Optional[RelatedAsset] = []
+    related_assets: Optional[List["Asset"]] = []
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
