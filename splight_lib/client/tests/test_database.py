@@ -1,5 +1,4 @@
 import os
-# from unittest.mock import patch  # noqa E402
 
 import pytest  # noqa E402
 from pytest_mock import MockerFixture
@@ -29,9 +28,6 @@ class MockResponse:
         return self.json_data
 
 
-# @patch("splight_lib.client.database.remote_client.SplightAuthToken")
-# @patch("splight_lib.client.database.remote_client.SplightRestClient")
-# def test_initialization(mock_rest_client, mock_auth_token):
 def test_initialization(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
@@ -49,22 +45,11 @@ def test_initialization(mocker: MockerFixture):
         secret_key=secret_key,
     )
 
-    # mock.assert_called_once()
     mock.assert_called_once_with(
         {"Authorization": "Splight access_id secret_key"}
     )
-    # mock_auth_token.assert_called_once_with(
-    #     access_key=access_id, secret_key=secret_key
-    # )
-    # assert client._base_url.url == base_url
-    # mock_rest_client().update_headers.assert_called_once()
 
 
-# @patch.object(
-#     SplightRestClient,
-#     "post",
-#     return_value=MockResponse({"name": "instance_name", "id": "some_id"}),
-# )
 def test_save_without_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
@@ -90,12 +75,6 @@ def test_save_without_id(mocker: MockerFixture):
     assert result["name"] == mock_instance["name"]
 
 
-# @patch.object(
-#     SplightRestClient,
-#     "put",
-#     return_value=MockResponse({"name": "instance_name", "id": "instance_id"}),
-# )
-# def test_save_with_id(mock_put):
 def test_save_with_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
@@ -123,7 +102,6 @@ def test_save_with_id(mocker: MockerFixture):
     assert result == mock_instance
 
 
-# @patch.object(SplightRestClient, "delete")
 def test_delete(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
@@ -156,15 +134,11 @@ def test_delete_invalid_model_name():
         client.delete("invalid_resource_name", "instance_id")
 
 
-# @patch.object(SplightRestClient, "get")
 def test_get_with_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     mock_instance_id = "123"
-    # mock_get.return_value = MockResponse(
-    #     {"name": "instance_name", "id": mock_instance_id}
-    # )
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
@@ -184,7 +158,6 @@ def test_get_with_id(mocker: MockerFixture):
     assert result["id"] == mock_instance_id
 
 
-# @patch.object(SplightRestClient, "get")
 def test_get_without_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
