@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.11"
+          python-version: "3.8"
 
       - name: Setup poetry
         run: pip install poetry==1.7.0

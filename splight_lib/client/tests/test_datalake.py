@@ -1,7 +1,7 @@
 import os
+from unittest.mock import Mock, patch  # noqa E402
 
 import pandas as pd  # noqa E402
-from pytest_mock import MockerFixture
 
 from splight_lib.client.datalake import RemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
@@ -26,27 +26,9 @@ class MockResponse:
         return self.json_data
 
 
-def test_initialization(mocker: MockerFixture):
-    secret_key = os.getenv("SECRET_KEY")
-    access_id = os.getenv("ACCESS_ID")
-
-    mock = mocker.patch.object(
-        SplightRestClient,
-        "update_headers",
-        return_value=None,
-    )
-    client = RemoteDatalakeClient(
-        base_url=base_url,
-        access_id=access_id,
-        secret_key=secret_key,
-    )
-
-    mock.assert_called_once_with(
-        {"Authorization": "Splight access_id secret_key"}
-    )
-
-
-def test_save(mocker: MockerFixture):
+@patch("splight_lib.client.datalake.remote_client.SplightAuthToken")
+@patch("splight_lib.client.datalake.remote_client.SplightRestClient")
+def test_initialization(mock_rest_client, mock_auth_token):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
@@ -55,10 +37,24 @@ def test_save(mocker: MockerFixture):
         access_id=access_id,
         secret_key=secret_key,
     )
-    mock_post = mocker.patch.object(
-        SplightRestClient,
-        "post",
-        return_value=MockResponse(({"key": "value"})),
+
+    mock_auth_token.assert_called_once_with(
+        access_key=access_id, secret_key=secret_key
+    )
+    mock_rest_client.assert_called_once()
+
+
+@patch.object(
+    SplightRestClient, "post", return_value=MockResponse(({"key": "value"}))
+)
+def test_save(mock_post):
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
+
+    client = RemoteDatalakeClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
     )
     collection = "collection_name"
     instances = [{"key": "value"}]
@@ -67,66 +63,67 @@ def test_save(mocker: MockerFixture):
     assert result == instances
 
 
-def test_raw_get(mocker: MockerFixture):
+@patch.object(
+    SplightRestClient,
+    "get",
+    return_value=MockResponse({"results": [{"key": "value"}]}),
+)
+def test_raw_get(mock_get):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
-
-    mock_get = mocker.patch.object(
-        SplightRestClient,
-        "get",
-        return_value=MockResponse({"results": [{"key": "value"}]}),
-    )
     collection = "collection_name"
     result = client._raw_get("resource", collection)
     mock_get.assert_called_once()
     assert result == [{"key": "value"}]
 
 
-def test_delete(mocker: MockerFixture):
+@patch.object(SplightRestClient, "delete", return_value=MockResponse(None))
+def test_delete(mock_delete):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
-    mock_delete = mocker.patch.object(
-        SplightRestClient,
-        "delete",
-        return_value=MockResponse(None),
-    )
     collection = "collection_name"
     client.delete(collection)
     mock_delete.assert_called_once()
 
 
-def test_save_dataframe(mocker: MockerFixture):
+@patch.object(SplightRestClient, "post", return_value=MockResponse(None))
+def test_save_dataframe(mock_post):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
     dataframe = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
-    mock_post = mocker.patch.object(
-        SplightRestClient,
-        "post",
-        return_value=MockResponse(None),
-    )
     client.save_dataframe(collection, dataframe)
     mock_post.assert_called_once()
 
 
-def test_raw_aggregate(mocker: MockerFixture):
+@patch.object(SplightRestClient, "post", return_value=MockResponse(None))
+def test_create_index(mock_post):
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
+
+    client = RemoteDatalakeClient(base_url, access_id, secret_key)
+    collection = "collection_name"
+    indexes = [{"key": 1}]
+    client.create_index(collection, indexes)
+    mock_post.assert_called_once()
+
+
+@patch.object(
+    SplightRestClient, "post", return_value=MockResponse([{"key": "value"}])
+)
+def test_raw_aggregate(mock_post):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     client = RemoteDatalakeClient(base_url, access_id, secret_key)
     collection = "collection_name"
     pipeline = [{"$match": {"key": "value"}}]
-    mock_post = mocker.patch.object(
-        SplightRestClient,
-        "post",
-        return_value=MockResponse([{"key": "value"}]),
-    )
     result = client.raw_aggregate(collection, pipeline)
     mock_post.assert_called_once()
     assert result == [{"key": "value"}]

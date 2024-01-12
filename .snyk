@@ -47,9 +47,4 @@ ignore:
         reason: License issue
         expires: 2030-02-03T18:47:01.021Z
         created: 2024-01-04T18:47:01.030Z
-  SNYK-PYTHON-CRYPTOGRAPHY-6149518:
-    - '*':
-        reason: None Given
-        expires: 2024-02-10T19:55:21.354Z
-        created: 2024-01-11T19:55:21.367Z
 patch: {}

@@ -6,8 +6,6 @@ from pydantic import ConfigDict, model_validator
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
-
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
 
 
@@ -61,12 +59,6 @@ class SplightSettings(BaseSettings, Singleton):
     # Parameters for local environment
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str] = None
-
-    # Parameters for Buffered Datalake Client
-    # Review if is better to use another class for only the DL Client settings
-    USE_BUFFER: bool = True
-    DL_BUFFER_SIZE: int = DL_BUFFER_SIZE
-    DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
 
     model_config = ConfigDict(extra="ignore")
 

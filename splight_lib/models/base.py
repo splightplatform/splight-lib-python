@@ -174,14 +174,11 @@ class SplightDatalakeBaseModel(BaseModel):
     def __get_datalake_client() -> AbstractDatalakeClient:
         db_client = DatalakeClientBuilder.build(
             local=settings.LOCAL_ENVIRONMENT,
-            use_buffer=settings.USE_BUFFER,
             parameters={
                 "path": settings.CURRENT_DIR,
                 "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
                 "access_id": settings.SPLIGHT_ACCESS_ID,
                 "secret_key": settings.SPLIGHT_SECRET_KEY,
-                "buffers_size": settings.DL_BUFFER_SIZE,
-                "buffer_timeout": settings.DL_BUFFER_TIMEOUT,
             },
         )
         return db_client
