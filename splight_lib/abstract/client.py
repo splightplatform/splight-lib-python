@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, ABCMeta
 from collections import UserList
 
 
@@ -6,7 +6,17 @@ class empty:
     pass
 
 
-class AbstractClient(ABC):
+class SingletonMeta(ABCMeta):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class AbstractClient(ABC, metaclass=SingletonMeta):
     pass
 
 

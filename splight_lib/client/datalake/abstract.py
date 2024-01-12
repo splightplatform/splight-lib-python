@@ -4,10 +4,10 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd
 
-from splight_lib.abstract.client import AbstractClient, QuerySet
+from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
 
 
-class AbstractDatalakeClient(AbstractClient):
+class AbstractDatalakeClient(AbstractRemoteClient):
     def get(self, *args, **kwargs) -> QuerySet:
         kwargs["get_func"] = "_raw_get"
         kwargs["count_func"] = "None"
