@@ -1,8 +1,8 @@
 import os
 
 import pytest  # noqa E402
-from pytest_mock import MockerFixture
 from furl import furl  # noqa E402
+from pytest_mock import MockerFixture
 
 from splight_lib.client.database.remote_client import (  # noqa E402
     RemoteDatabaseClient,
@@ -150,7 +150,7 @@ def test_get_with_id(mocker: MockerFixture):
         "get",
         return_value=MockResponse(
             {"name": "instance_name", "id": mock_instance_id}
-        )
+        ),
     )
 
     result = client._get("alert", id=mock_instance_id)
@@ -175,9 +175,7 @@ def test_get_without_id(mocker: MockerFixture):
     )
 
     mock_get = mocker.patch.object(
-        SplightRestClient,
-        "get",
-        return_value=return_value
+        SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert")
 
@@ -202,9 +200,7 @@ def test_get_without_id_and_set_first(mocker: MockerFixture):
     )
 
     mock_get = mocker.patch.object(
-        SplightRestClient,
-        "get",
-        return_value=return_value
+        SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert", first=True)
 
