@@ -1,8 +1,8 @@
 import warnings
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
@@ -10,6 +10,11 @@ from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.metadata import Metadata
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
+
+class RelatedAsset(BaseModel):
+    id: str
+    name: str
 
 
 class Asset(SplightDatabaseBaseModel):
@@ -23,6 +28,7 @@ class Asset(SplightDatabaseBaseModel):
     metadata: List[Metadata] = []
     geometry: Optional[GeometryCollection] = None
     centroid_coordinates: Optional[Tuple[float, float]] = None
+    related_assets: Optional[RelatedAsset] = []
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
