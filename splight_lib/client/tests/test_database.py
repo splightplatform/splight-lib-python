@@ -1,8 +1,8 @@
 import os
-from unittest.mock import patch  # noqa E402
 
 import pytest  # noqa E402
 from furl import furl  # noqa E402
+from pytest_mock import MockerFixture
 
 from splight_lib.client.database.remote_client import (  # noqa E402
     RemoteDatabaseClient,
@@ -28,9 +28,29 @@ class MockResponse:
         return self.json_data
 
 
-@patch("splight_lib.client.database.remote_client.SplightAuthToken")
-@patch("splight_lib.client.database.remote_client.SplightRestClient")
-def test_initialization(mock_rest_client, mock_auth_token):
+def test_initialization(mocker: MockerFixture):
+    secret_key = os.getenv("SECRET_KEY")
+    access_id = os.getenv("ACCESS_ID")
+
+    mock = mocker.patch.object(
+        SplightRestClient,
+        "update_headers",
+        return_value=None,
+        # autospec=True
+    )
+
+    client = RemoteDatabaseClient(
+        base_url=base_url,
+        access_id=access_id,
+        secret_key=secret_key,
+    )
+
+    mock.assert_called_once_with(
+        {"Authorization": "Splight access_id secret_key"}
+    )
+
+
+def test_save_without_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
@@ -39,44 +59,23 @@ def test_initialization(mock_rest_client, mock_auth_token):
         access_id=access_id,
         secret_key=secret_key,
     )
-
-    mock_auth_token.assert_called_once_with(
-        access_key=access_id, secret_key=secret_key
-    )
-    assert client._base_url.url == base_url
-    mock_rest_client().update_headers.assert_called_once()
-
-
-@patch.object(
-    SplightRestClient,
-    "post",
-    return_value=MockResponse({"name": "instance_name", "id": "some_id"}),
-)
-def test_save_without_id(mock_post):
-    secret_key = os.getenv("SECRET_KEY")
-    access_id = os.getenv("ACCESS_ID")
-
-    client = RemoteDatabaseClient(
-        base_url=base_url,
-        access_id=access_id,
-        secret_key=secret_key,
+    mock = mocker.patch.object(
+        SplightRestClient,
+        "post",
+        return_value=MockResponse({"name": "instance_name", "id": "some_id"}),
     )
 
     mock_instance = {"name": "instance_name"}
     result = client.save("alert", mock_instance)
 
-    mock_post.assert_called_once()
+    # mock_post.assert_called_once()
+    mock.assert_called_once()
 
     assert "id" in result
     assert result["name"] == mock_instance["name"]
 
 
-@patch.object(
-    SplightRestClient,
-    "put",
-    return_value=MockResponse({"name": "instance_name", "id": "instance_id"}),
-)
-def test_save_with_id(mock_put):
+def test_save_with_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
@@ -86,9 +85,16 @@ def test_save_with_id(mock_put):
         secret_key=secret_key,
     )
 
+    mock_put = mocker.patch.object(
+        SplightRestClient,
+        "put",
+        return_value=MockResponse(
+            {"name": "instance_name", "id": "instance_id"}
+        ),
+    )
+
     mock_instance = {"id": "instance_id", "name": "instance_name"}
     result = client.save("alert", mock_instance)
-
     mock_put.assert_called_once_with(
         furl(f"{base_url}/v2/engine/alert/alerts/instance_id/"),
         json=mock_instance,
@@ -96,8 +102,7 @@ def test_save_with_id(mock_put):
     assert result == mock_instance
 
 
-@patch.object(SplightRestClient, "delete")
-def test_delete(mock_delete):
+def test_delete(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
@@ -105,6 +110,11 @@ def test_delete(mock_delete):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+    )
+
+    mock_delete = mocker.patch.object(
+        SplightRestClient,
+        "delete",
     )
     client.delete("alert", "instance_id")
     mock_delete.assert_called_once()
@@ -124,19 +134,23 @@ def test_delete_invalid_model_name():
         client.delete("invalid_resource_name", "instance_id")
 
 
-@patch.object(SplightRestClient, "get")
-def test_get_with_id(mock_get):
+def test_get_with_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
     mock_instance_id = "123"
-    mock_get.return_value = MockResponse(
-        {"name": "instance_name", "id": mock_instance_id}
-    )
     client = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+    )
+
+    mock_get = mocker.patch.object(
+        SplightRestClient,
+        "get",
+        return_value=MockResponse(
+            {"name": "instance_name", "id": mock_instance_id}
+        ),
     )
 
     result = client._get("alert", id=mock_instance_id)
@@ -144,12 +158,11 @@ def test_get_with_id(mock_get):
     assert result["id"] == mock_instance_id
 
 
-@patch.object(SplightRestClient, "get")
-def test_get_without_id(mock_get):
+def test_get_without_id(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
-    mock_get.return_value = MockResponse(
+    return_value = MockResponse(
         {
             "results": [{"name": "instance_name", "id": "instance_id"}],
             "next": None,
@@ -159,6 +172,10 @@ def test_get_without_id(mock_get):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+    )
+
+    mock_get = mocker.patch.object(
+        SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert")
 
@@ -166,12 +183,11 @@ def test_get_without_id(mock_get):
     assert result[0]["name"] == "instance_name"
 
 
-@patch.object(SplightRestClient, "get")
-def test_get_without_id_and_set_first(mock_get):
+def test_get_without_id_and_set_first(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
-    mock_get.return_value = MockResponse(
+    return_value = MockResponse(
         {
             "results": [{"name": "instance_name", "id": "instance_id"}],
             "next": None,
@@ -181,6 +197,10 @@ def test_get_without_id_and_set_first(mock_get):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+    )
+
+    mock_get = mocker.patch.object(
+        SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert", first=True)
 
