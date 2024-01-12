@@ -28,11 +28,11 @@ requests = ">=2.26.0"
 retry = "0.9.2"
 simplejson = "3.17.6"
 strenum = "0.4.9"
-stringcase = "1.2.0"
 typing-extensions = "^4.6.1"
 pydantic-settings = "2.0.3"
 email-validator = "^2.1.0.post1"
 apscheduler = "3.10.4"
+stringcase = {git = "https://github.com/okunishinishi/python-stringcase", rev = "57aae96649f5cf7fc98e50b1d62479456d492715"}
 
 [tool.poetry.group.dev.dependencies]
 black = "23.3.0"
