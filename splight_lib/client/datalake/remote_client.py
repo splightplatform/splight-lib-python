@@ -341,7 +341,7 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
     ) -> None:
         if buffer.should_flush():
             try:
-                self._send_documnens(collection, buffer.data)
+                self._send_documents(collection, buffer.data)
                 buffer.reset()
             except Exception:
                 logger.error("Unable to save documents", exc_info=True)
