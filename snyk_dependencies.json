@@ -3,7 +3,7 @@
   "ok": true,
   "dependencyCount": 64,
   "org": "thomas.vadora",
-  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-PYTHON-CRYPTOGRAPHY-6050294:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:41.764Z\n        created: 2024-01-04T18:45:41.768Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6126975:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:50.775Z\n        created: 2024-01-04T18:45:50.782Z\n        source: cli\n  'snyk:lic:pip:pyppmd:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:02.039Z\n        created: 2024-01-04T18:46:02.048Z\n        source: cli\n  'snyk:lic:pip:pybcj:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:13.007Z\n        created: 2024-01-04T18:46:13.015Z\n        source: cli\n  'snyk:lic:pip:py7zr:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:23.541Z\n        created: 2024-01-04T18:46:23.545Z\n        source: cli\n  'snyk:lic:pip:pathspec:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:32.210Z\n        created: 2024-01-04T18:46:32.220Z\n        source: cli\n  'snyk:lic:pip:multivolumefile:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:43.513Z\n        created: 2024-01-04T18:46:43.523Z\n        source: cli\n  'snyk:lic:pip:inflate64:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:52.077Z\n        created: 2024-01-04T18:46:52.084Z\n        source: cli\n  'snyk:lic:pip:certifi:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:47:01.021Z\n        created: 2024-01-04T18:47:01.030Z\n        source: cli\npatch: {}\n",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-PYTHON-CRYPTOGRAPHY-6050294:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:41.764Z\n        created: 2024-01-04T18:45:41.768Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6126975:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:50.775Z\n        created: 2024-01-04T18:45:50.782Z\n        source: cli\n  'snyk:lic:pip:pyppmd:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:02.039Z\n        created: 2024-01-04T18:46:02.048Z\n        source: cli\n  'snyk:lic:pip:pybcj:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:13.007Z\n        created: 2024-01-04T18:46:13.015Z\n        source: cli\n  'snyk:lic:pip:py7zr:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:23.541Z\n        created: 2024-01-04T18:46:23.545Z\n        source: cli\n  'snyk:lic:pip:pathspec:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:32.210Z\n        created: 2024-01-04T18:46:32.220Z\n        source: cli\n  'snyk:lic:pip:multivolumefile:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:43.513Z\n        created: 2024-01-04T18:46:43.523Z\n        source: cli\n  'snyk:lic:pip:inflate64:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:52.077Z\n        created: 2024-01-04T18:46:52.084Z\n        source: cli\n  'snyk:lic:pip:certifi:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:47:01.021Z\n        created: 2024-01-04T18:47:01.030Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6149518:\n    - '*':\n        reason: None Given\n        expires: 2024-02-10T19:55:21.354Z\n        created: 2024-01-11T19:55:21.367Z\n        source: cli\npatch: {}\n",
   "isPrivate": true,
   "licensesPolicy": {
     "severities": {},
@@ -96,7 +96,7 @@
     "reasonRequired": false,
     "disregardFilesystemIgnores": false
   },
-  "summary": "2 vulnerable dependency paths",
+  "summary": "3 vulnerable dependency paths",
   "remediation": {
     "unresolved": [],
     "upgrade": {},
@@ -207,7 +207,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.5.8",
+          "splight-lib@4.6.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -291,7 +291,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.5.8",
+          "splight-lib@4.6.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -305,6 +305,110 @@
               "reason": "None Given",
               "expires": "2030-02-03T18:45:50.775Z",
               "created": "2024-01-04T18:45:50.782Z",
+              "source": "cli",
+              "path": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "SNYK-PYTHON-CRYPTOGRAPHY-6149518",
+        "title": "Use of a Broken or Risky Cryptographic Algorithm",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "credit": [
+          "Sverker Eriksson"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[35.0.0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "python",
+        "severity": "medium",
+        "cvssScore": 5.9,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "cryptography",
+        "references": [
+          {
+            "url": "https://github.com/openssl/openssl/commit/050d26383d4e264966fb83428e72d5d48f402d35",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/5b139f95c9a47a55a0c54100f3837b1eee942b04",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/f3fc5808fe9ff74042d639839610d03b8fdcc015",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/pyca/cryptography/commit/89d0d56fb104ac4e0e6db63d78fc22b8c53d27e9",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://www.openssl.org/news/secadv/20240109.txt",
+            "title": "OpenSSL Advisory"
+          },
+          {
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2257571",
+            "title": "RedHat Bugzilla Bug"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 5.9,
+            "modificationTime": "2024-01-10T13:34:49.407262Z"
+          }
+        ],
+        "description": "## Overview\n\nAffected versions of this package are vulnerable to Use of a Broken or Risky Cryptographic Algorithm due to an issue in the `POLY1305` MAC implementation on PowerPC CPUs. An attacker can corrupt the application state and cause incorrect calculations or potential denial of service by influencing the use of the `POLY1305` MAC algorithm.\r\n\r\n**Note:**\r\n\r\nThis is only exploitable if the attacker has the ability to affect the algorithm's usage and the application relies on non-volatile XMM registers.\n## Remediation\nA fix was pushed into the `master` branch but not yet published.\n## References\n- [GitHub Commit](https://github.com/openssl/openssl/commit/050d26383d4e264966fb83428e72d5d48f402d35)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/5b139f95c9a47a55a0c54100f3837b1eee942b04)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/f3fc5808fe9ff74042d639839610d03b8fdcc015)\n- [GitHub Commit](https://github.com/pyca/cryptography/commit/89d0d56fb104ac4e0e6db63d78fc22b8c53d27e9)\n- [OpenSSL Advisory](https://www.openssl.org/news/secadv/20240109.txt)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=2257571)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [
+            "CVE-2023-6129"
+          ],
+          "CWE": [
+            "CWE-328"
+          ]
+        },
+        "packageName": "cryptography",
+        "proprietary": false,
+        "creationTime": "2024-01-10T13:39:49.004287Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2024-01-09T00:00:00Z",
+        "packageManager": "pip",
+        "publicationTime": "2024-01-10T15:08:56.822931Z",
+        "modificationTime": "2024-01-10T15:08:56.823334Z",
+        "socialTrendAlert": false,
+        "severityWithCritical": "medium",
+        "from": [
+          "splight-lib@4.6.0",
+          "cryptography@41.0.7"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "cryptography",
+        "version": "41.0.7",
+        "filtered": {
+          "ignored": [
+            {
+              "reason": "None Given",
+              "expires": "2024-02-10T19:55:21.354Z",
+              "created": "2024-01-11T19:55:21.367Z",
               "source": "cli",
               "path": [
                 "*"
