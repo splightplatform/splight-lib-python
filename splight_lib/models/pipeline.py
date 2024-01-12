@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from pydantic import BaseModel, PrivateAttr, validator
-from stringcase import camelcase
 
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.settings import settings
+from splight_lib.stringcase import camelcase
 
 
 def get_datalake_client() -> AbstractDatalakeClient:

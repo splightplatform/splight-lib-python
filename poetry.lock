@@ -2754,21 +2754,6 @@ release = ["twine"]
 test = ["pylint", "pytest", "pytest-black", "pytest-cov", "pytest-pylint"]
 
 [[package]]
-name = "stringcase"
-version = "0.1.dev39+g57aae96"
-description = "String case converter."
-optional = false
-python-versions = "*"
-files = []
-develop = false
-
-[package.source]
-type = "git"
-url = "https://github.com/okunishinishi/python-stringcase"
-reference = "57aae96649f5cf7fc98e50b1d62479456d492715"
-resolved_reference = "57aae96649f5cf7fc98e50b1d62479456d492715"
-
-[[package]]
 name = "texttable"
 version = "1.7.0"
 description = "module to create simple ASCII tables"
@@ -2926,4 +2911,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4"
-content-hash = "dc436dc30d3621f9273ac2517949d796507209e65162a8dad9a555376a87740d"
+content-hash = "0403fbd2e6a1837c5aaf7edf409c56463a95fa9e8524a70420521c3d889ab2be"
