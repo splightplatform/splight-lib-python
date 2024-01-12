@@ -1,7 +1,7 @@
 {
   "vulnerabilities": [],
   "ok": true,
-  "dependencyCount": 64,
+  "dependencyCount": 63,
   "org": "thomas.vadora",
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-PYTHON-CRYPTOGRAPHY-6050294:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:41.764Z\n        created: 2024-01-04T18:45:41.768Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6126975:\n    - '*':\n        reason: None Given\n        expires: 2030-02-03T18:45:50.775Z\n        created: 2024-01-04T18:45:50.782Z\n        source: cli\n  'snyk:lic:pip:pyppmd:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:02.039Z\n        created: 2024-01-04T18:46:02.048Z\n        source: cli\n  'snyk:lic:pip:pybcj:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:13.007Z\n        created: 2024-01-04T18:46:13.015Z\n        source: cli\n  'snyk:lic:pip:py7zr:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:23.541Z\n        created: 2024-01-04T18:46:23.545Z\n        source: cli\n  'snyk:lic:pip:pathspec:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:32.210Z\n        created: 2024-01-04T18:46:32.220Z\n        source: cli\n  'snyk:lic:pip:multivolumefile:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:43.513Z\n        created: 2024-01-04T18:46:43.523Z\n        source: cli\n  'snyk:lic:pip:inflate64:LGPL-2.1':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:46:52.077Z\n        created: 2024-01-04T18:46:52.084Z\n        source: cli\n  'snyk:lic:pip:certifi:MPL-2.0':\n    - '*':\n        reason: License issue\n        expires: 2030-02-03T18:47:01.021Z\n        created: 2024-01-04T18:47:01.030Z\n        source: cli\n  SNYK-PYTHON-CRYPTOGRAPHY-6149518:\n    - '*':\n        reason: None Given\n        expires: 2024-02-10T19:55:21.354Z\n        created: 2024-01-11T19:55:21.367Z\n        source: cli\npatch: {}\n",
   "isPrivate": true,
@@ -207,7 +207,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.0",
+          "splight-lib@4.6.1",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -291,7 +291,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.0",
+          "splight-lib@4.6.1",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -395,7 +395,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.0",
+          "splight-lib@4.6.1",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
