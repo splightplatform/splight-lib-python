@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
 from pydantic import BaseModel, Field
