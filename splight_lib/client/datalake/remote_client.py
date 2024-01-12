@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Union
 import pandas as pd
 from furl import furl
 from retry import retry
-from stringcase import camelcase
+from splight_lib.stringcase import camelcase
 
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
