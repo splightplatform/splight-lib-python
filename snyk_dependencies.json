@@ -207,7 +207,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.1",
+          "splight-lib@4.6.2",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -291,7 +291,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.1",
+          "splight-lib@4.6.2",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
@@ -395,7 +395,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.1",
+          "splight-lib@4.6.2",
           "cryptography@41.0.7"
         ],
         "upgradePath": [],
