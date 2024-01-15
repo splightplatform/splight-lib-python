@@ -81,6 +81,7 @@ class AssetFactory(ModelFactory[Asset]):
     metadata = ASSET_METADATA_SET
     attributes = AttributeFactory.batch(random.randint(1, 10))
     geometry = Use(lambda: GEOMETRIES[random.randint(0, len(GEOMETRIES) - 1)])
+    related_assets = []
 
 
 class FunctionItemFactory(ModelFactory[FunctionItem]):
