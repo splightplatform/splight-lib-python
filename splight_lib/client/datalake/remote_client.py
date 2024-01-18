@@ -13,6 +13,7 @@ from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.exceptions import InvalidCollectionName
+from splight_lib.client.datalake.schemas import DataRequest
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 from splight_lib.logging._internal import LogTags, get_splight_logger
@@ -23,7 +24,7 @@ logger = get_splight_logger()
 
 
 class RemoteDatalakeClient(AbstractDatalakeClient):
-    _PREFIX = "v2/engine/datalake"
+    _PREFIX = "/data"
 
     def __init__(
         self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
@@ -47,11 +48,13 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         instances: Union[List[Dict], Dict],
     ) -> List[dict]:
         instances = instances if isinstance(instances, list) else [instances]
-        url = self._base_url / f"{self._PREFIX}/save/"
+        url = self._base_url / f"{self._PREFIX}/write"
         collection = camelcase(collection)
-        response = self._restclient.post(
-            url, params={"source": collection}, json=instances
-        )
+        data = {
+            "collection": collection,
+            "records": instances,
+        }
+        response = self._restclient.post(url, json=data)
         response.raise_for_status()
         return instances
 
@@ -62,84 +65,104 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         instances: Union[List[Dict], Dict],
     ) -> List[dict]:
         instances = instances if isinstance(instances, list) else [instances]
-        url = self._base_url / f"{self._PREFIX}/save/"
-        response = await self._restclient.async_post(
-            url, params={"source": collection}, json=instances
-        )
+        url = self._base_url / f"{self._PREFIX}/write"
+        data = {
+            "collection": collection,
+            "records": instances,
+        }
+        response = await self._restclient.async_post(url, json=data)
         response.raise_for_status()
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _raw_get(
+    def _get(
         self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
+        asset: str,
+        attribute: str,
+        collection: str = "default",
+        sort_field: str = "timestamp",
+        sort_direction: int = -1,
+        limit: int = 10000,
         **filters,
-    ) -> List[Dict]:
-        # GET /datalake/data/
-        url = self._base_url / f"{self._PREFIX}/data/"
-
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "limit_": limit_,
-                "skip_": skip_,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
+    ):
+        url = self._base_url / f"{self._PREFIX}/read"
+        data_request = DataRequest(
+            collection=collection,
+            sort_field=sort_field,
+            sort_direction=sort_direction,
+            limit=limit,
+            traces=[
+                {
+                    "ref_id": "output",
+                    "type": "QUERY",
+                    "pipeline": [
+                        {
+                            "$match": {
+                                "asset": asset,
+                                "attribute": attribute,
+                            }
+                        }
+                    ],
+                    "expression": None,
+                }
+            ],
+            **filters,
         )
-
-        params = self._parse_params(**filters)
-        response = self._restclient.get(url, params=params)
+        response = self._restclient.post(url, json=data_request.dict())
         response.raise_for_status()
-        output = response.json()["results"]
+        return response.json()
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    def raw_get(
+        self,
+        data_request: DataRequest,
+    ) -> List[Dict]:
+        url = self._base_url / f"{self._PREFIX}/read"
+
+        response = self._restclient.post(url, json=data_request.dict())
+        response.raise_for_status()
+        output = response.json()
 
         return output
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    async def _async_raw_get(
+    async def _async_get(
         self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
+        asset: str,
+        attribute: str,
+        collection: str = "default",
+        sort_field: str = "timestamp",
+        sort_direction: int = -1,
+        limit: int = 10000,
         **filters,
     ) -> List[Dict]:
         # GET /datalake/data/
-        url = self._base_url / f"{self._PREFIX}/data/"
-
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "limit_": limit_,
-                "skip_": skip_,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
+        url = self._base_url / f"{self._PREFIX}/read"
+        data_request = DataRequest(
+            collection=collection,
+            sort_field=sort_field,
+            sort_direction=sort_direction,
+            limit=limit,
+            traces=[
+                {
+                    "ref_id": "output",
+                    "type": "QUERY",
+                    "pipeline": [
+                        {
+                            "$match": {
+                                "asset": asset,
+                                "attribute": attribute,
+                            }
+                        }
+                    ],
+                    "expression": None,
+                }
+            ],
+            **filters,
         )
-
-        params = self._parse_params(**filters)
-        response = await self._restclient.async_get(url, params=params)
+        response = self._restclient.async_post(url, json=data_request.dict())
         response.raise_for_status()
-        output = response.json()["results"]
-
-        return output
+        return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def delete(self, collection: str, **kwargs) -> None:
@@ -218,22 +241,22 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         response = self._restclient.post(url, json=data)
         response.raise_for_status()
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def raw_aggregate(
-        self, collection: str, pipeline: List[Dict]
-    ) -> List[Dict]:
-        logger.debug(
-            "Aggregate on datalake collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
-        )
-        # POST /datalake/aggregate/?source=collection
-        url = self._base_url / f"{self._PREFIX}/aggregate/"
-        params = {"source": collection}
-        data = {"pipeline": pipeline}
-        response = self._restclient.post(url, params=params, data=data)
-        response.raise_for_status()
-        return response.json()
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    # def raw_aggregate(
+    #     self, collection: str, pipeline: List[Dict]
+    # ) -> List[Dict]:
+    #     logger.debug(
+    #         "Aggregate on datalake collection: %s.",
+    #         collection,
+    #         tags=LogTags.DATALAKE,
+    #     )
+    #     # POST /datalake/aggregate/?source=collection
+    #     url = self._base_url / f"{self._PREFIX}/aggregate/"
+    #     params = {"source": collection}
+    #     data = {"pipeline": pipeline}
+    #     response = self._restclient.post(url, params=params, data=data)
+    #     response.raise_for_status()
+    #     return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def execute_query(

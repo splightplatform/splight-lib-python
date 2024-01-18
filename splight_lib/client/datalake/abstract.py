@@ -9,13 +9,13 @@ from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
 
 class AbstractDatalakeClient(AbstractRemoteClient):
     def get(self, *args, **kwargs) -> QuerySet:
-        kwargs["get_func"] = "_raw_get"
+        kwargs["get_func"] = "_get"
         kwargs["count_func"] = "None"
         return QuerySet(self, *args, **kwargs)
 
     async def async_get(self, *args, **kwargs):
         # TODO: consider using an async QuerySet
-        return await self._async_raw_get(*args, **kwargs)
+        return await self._async_get(*args, **kwargs)
 
     @abstractmethod
     def save(
@@ -54,11 +54,11 @@ class AbstractDatalakeClient(AbstractRemoteClient):
     def create_index(self, collection: str, indexes: List[Dict]) -> None:
         pass
 
-    @abstractmethod
-    def raw_aggregate(
-        self, collection: str, pipeline: List[Dict]
-    ) -> List[Dict]:
-        pass
+    # @abstractmethod
+    # def raw_aggregate(
+    #     self, collection: str, pipeline: List[Dict]
+    # ) -> List[Dict]:
+    #     pass
 
     @abstractmethod
     def _raw_get(
