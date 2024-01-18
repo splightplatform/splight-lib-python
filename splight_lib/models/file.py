@@ -13,7 +13,8 @@ from splight_lib.models.base import SplightDatabaseBaseModel
 class File(SplightDatabaseBaseModel):
     id: Optional[str] = None
     assets: List[Asset] = []
-    file: str
+    file: Optional[str] = None
+    name: Optional[str] = None
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
@@ -24,27 +25,24 @@ class File(SplightDatabaseBaseModel):
 
     @model_validator(mode="after")
     def validate_file(self):
-        self.file = self.file.replace("/", os.sep)
-        self.file = self.file.replace("\\", os.sep)
+        if self.file:
+            # self.file = self.file.replace("/", os.sep)
+            # self.file = self.file.replace("\\", os.sep)
 
-        # Compute the checksum if missing
-        if self.checksum is None:
-            hasher = hashlib.md5()
-            with open(self.file, "rb") as file:
-                # Read in chunks of 8KiB for large files
-                while chunk := file.read(8192):
-                    hasher.update(chunk)
-            self.checksum = hasher.hexdigest()
-
+            # # Compute the checksum if missing
+            # if self.checksum is None:
+            #     hasher = hashlib.md5()
+            #     with open(self.file, "rb") as file:
+            #         # Read in chunks of 8KiB for large files
+            #         while chunk := file.read(8192):
+            #             hasher.update(chunk)
+            #     self.checksum = hasher.hexdigest()
+            pass
         return self
 
     @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
         return json.loads(v) if isinstance(v, str) else v
-
-    @property
-    def name(self):
-        return self.file.split(os.sep)[-1]
 
     def download(self):
         file = self._db_client.download(
