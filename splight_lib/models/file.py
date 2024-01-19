@@ -52,14 +52,16 @@ class File(SplightDatabaseBaseModel):
 
     def model_dump(self, *args, **kwargs):
         res = super().model_dump(*args, **kwargs)
-        res["metadata"] = json.dumps(self.metadata)
+        if self.metadata:
+            res["metadata"] = json.dumps(self.metadata)
         return res
 
     def model_dump_json(self, *args, **kwargs):
-        prev_metadata = self.metadata
-        self.metadata = json.dumps(self.metadata)
         res = super().model_dump_json(*args, **kwargs)
-        self.metadata = prev_metadata
+        if self.metadata:
+            prev_metadata = self.metadata
+            self.metadata = json.dumps(self.metadata)
+            self.metadata = prev_metadata
         return res
 
     def save(self):
