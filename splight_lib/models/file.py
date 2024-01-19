@@ -26,18 +26,17 @@ class File(SplightDatabaseBaseModel):
     @model_validator(mode="after")
     def validate_file(self):
         if self.file:
-            # self.file = self.file.replace("/", os.sep)
-            # self.file = self.file.replace("\\", os.sep)
+            self.file = self.file.replace("/", os.sep)
+            self.file = self.file.replace("\\", os.sep)
 
-            # # Compute the checksum if missing
-            # if self.checksum is None:
-            #     hasher = hashlib.md5()
-            #     with open(self.file, "rb") as file:
-            #         # Read in chunks of 8KiB for large files
-            #         while chunk := file.read(8192):
-            #             hasher.update(chunk)
-            #     self.checksum = hasher.hexdigest()
-            pass
+            # Compute the checksum if missing
+            if self.checksum is None:
+                hasher = hashlib.md5()
+                with open(self.file, "rb") as file:
+                    # Read in chunks of 8KiB for large files
+                    while chunk := file.read(8192):
+                        hasher.update(chunk)
+                self.checksum = hasher.hexdigest()
         return self
 
     @field_validator("metadata", mode="before")
@@ -62,3 +61,14 @@ class File(SplightDatabaseBaseModel):
         res = super().model_dump_json(*args, **kwargs)
         self.metadata = prev_metadata
         return res
+
+    def save(self):
+        saved = self._db_client.save(
+            self.__class__.__name__, self.model_dump(exclude_none=True)
+        )
+        if not self.id:
+            self.id = saved["id"]
+        self.name = saved["name"]
+        self.content_type = saved["content_type"]
+        self.checksum = saved["checksum"]
+        self.url = saved["url"]
