@@ -172,60 +172,60 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         response = self._restclient.delete(url, params=params, json=kwargs)
         response.raise_for_status()
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def get_dataframe(
-        self,
-        resource_name: str,
-        collection: str,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
-    ) -> pd.DataFrame:
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "group_id": group_id,
-                "group_fields": group_fields,
-            }
-        )
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    # def get_dataframe(
+    #     self,
+    #     resource_name: str,
+    #     collection: str,
+    #     sort: Union[List, str] = ["timestamp__desc"],
+    #     group_id: Optional[Union[List, str]] = None,
+    #     group_fields: Optional[Union[List, str]] = None,
+    #     tzinfo: timezone = timezone(timedelta()),
+    #     **filters,
+    # ) -> pd.DataFrame:
+    #     filters.update(
+    #         {
+    #             "source": collection,
+    #             "output_format": resource_name,
+    #             "sort": sort,
+    #             "group_id": group_id,
+    #             "group_fields": group_fields,
+    #         }
+    #     )
 
-        # GET /datalake/dumpdata/?source=collection
-        url = self._base_url / f"{self._PREFIX}/dumpdata/"
-        params = self._parse_params(**filters)
+    #     # GET /datalake/dumpdata/?source=collection
+    #     url = self._base_url / f"{self._PREFIX}/dumpdata/"
+    #     params = self._parse_params(**filters)
 
-        response = self._restclient.get(url, params=params)
-        response.raise_for_status()
-        logger.debug(
-            "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
-        )
+    #     response = self._restclient.get(url, params=params)
+    #     response.raise_for_status()
+    #     logger.debug(
+    #         "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
+    #     )
 
-        df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
-        if df.empty:
-            return df
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-        df.set_index("timestamp", inplace=True)
-        return df
+    #     df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
+    #     if df.empty:
+    #         return df
+    #     df["timestamp"] = pd.to_datetime(df["timestamp"])
+    #     df.set_index("timestamp", inplace=True)
+    #     return df
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
-        logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
+    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    # def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
+    #     logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
 
-        # POST /datalake/loaddata/
-        url = self._base_url / f"{self._PREFIX}/loaddata/"
+    #     # POST /datalake/loaddata/
+    #     url = self._base_url / f"{self._PREFIX}/loaddata/"
 
-        tmp_file = NamedTemporaryFile("w")
-        with open(tmp_file.name, "wb") as fid:
-            dataframe.to_csv(fid)
-        response = self._restclient.post(
-            url,
-            data={"source": collection},
-            files={"file": open(tmp_file.name, mode="rb")},
-        )
-        response.raise_for_status()
+    #     tmp_file = NamedTemporaryFile("w")
+    #     with open(tmp_file.name, "wb") as fid:
+    #         dataframe.to_csv(fid)
+    #     response = self._restclient.post(
+    #         url,
+    #         data={"source": collection},
+    #         files={"file": open(tmp_file.name, mode="rb")},
+    #     )
+    #     response.raise_for_status()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def create_index(self, collection: str, indexes: List[Dict]) -> None:

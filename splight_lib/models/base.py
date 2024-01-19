@@ -111,16 +111,6 @@ class SplightDatalakeBaseModel(BaseModel):
         instances = [cls.model_validate(item) for item in instances]
         return instances
 
-    @classmethod
-    def get_dataframe(cls, **params: Dict) -> pd.DataFrame:
-        dl_client = cls.__get_datalake_client()
-        df = dl_client.get_dataframe(
-            resource_name=cls.__name__,
-            collection=cls._collection_name,
-            **params,
-        )
-        return df
-
     def save(self):
         dl_client = self.__get_datalake_client()
         instance_dict = json.loads(self.model_dump_json())
@@ -135,13 +125,6 @@ class SplightDatalakeBaseModel(BaseModel):
         await dl_client.async_save(
             collection=self._collection_name,
             instances=json.loads(self.model_dump_json()),
-        )
-
-    @classmethod
-    def save_dataframe(cls, dataframe: pd.DataFrame):
-        dl_client = cls.__get_datalake_client()
-        dl_client.save_dataframe(
-            collection=cls._collection_name, dataframe=dataframe
         )
 
     def dict(self, *args, **kwargs):

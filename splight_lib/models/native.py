@@ -1,5 +1,6 @@
 from typing import ClassVar, Dict, List, Literal, Optional, Union
 
+from datetime import datetime, timedelta
 import pandas as pd
 from pydantic import field_validator
 
@@ -29,15 +30,17 @@ class NativeOutput(SplightDatalakeBaseModel):
         params["output_format"] = cls._output_format
         return await super().async_get(**params)
 
-    @classmethod
-    def get_dataframe(cls, **params: Dict) -> pd.DataFrame:
-        params["output_format"] = cls._output_format
-        return super().get_dataframe(**params)
-
-    @classmethod
-    def save_dataframe(cls, dataframe: pd.DataFrame):
-        dataframe["output_format"] = cls._output_format
-        super().save_dataframe(dataframe)
+    def latest(self, expiration: timedelta):
+        from_timestamp = datetime.utcnow() - expiration
+        result = self.get(
+            asset=self.asset,
+            attribute=self.attribute,
+            from_timestamp=from_timestamp,
+            limit=1,
+        )
+        if result:
+            return result[0]
+        return None
 
 
 class Number(NativeOutput):
