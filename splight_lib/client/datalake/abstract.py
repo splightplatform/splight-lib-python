@@ -54,12 +54,6 @@ class AbstractDatalakeClient(AbstractRemoteClient):
     def create_index(self, collection: str, indexes: List[Dict]) -> None:
         pass
 
-    # @abstractmethod
-    # def raw_aggregate(
-    #     self, collection: str, pipeline: List[Dict]
-    # ) -> List[Dict]:
-    #     pass
-
     @abstractmethod
     def _raw_get(
         self,

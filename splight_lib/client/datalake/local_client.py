@@ -138,13 +138,6 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             "Skipping index creation when using Local datalake client."
         )
 
-    # def raw_aggregate(
-    #     self, collection: str, pipeline: List[Dict]
-    # ) -> List[Dict]:
-    #     logger.debug(
-    #         "Skipping raw aggregation when using Local datalake client."
-    #     )
-
     def execute_query(
         self,
         from_timestamp: datetime,
