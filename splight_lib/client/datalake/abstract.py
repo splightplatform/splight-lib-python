@@ -51,10 +51,6 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         pass
 
     @abstractmethod
-    def create_index(self, collection: str, indexes: List[Dict]) -> None:
-        pass
-
-    @abstractmethod
     def _raw_get(
         self,
         resource_name: str,

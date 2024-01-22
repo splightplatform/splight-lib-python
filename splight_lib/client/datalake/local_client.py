@@ -133,11 +133,6 @@ class LocalDatalakeClient(AbstractDatalakeClient):
             "Skipping deleting objects when using Local datalake client."
         )
 
-    def create_index(self, collection: str, index: list) -> None:
-        logger.debug(
-            "Skipping index creation when using Local datalake client."
-        )
-
     def execute_query(
         self,
         from_timestamp: datetime,

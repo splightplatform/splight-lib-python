@@ -173,20 +173,6 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         response.raise_for_status()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def create_index(self, collection: str, indexes: List[Dict]) -> None:
-        # POST /datalake/index/
-        logger.debug(
-            "Creating index for collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
-        )
-
-        url = self._base_url / f"{self._PREFIX}/index/"
-        data = {"source": collection, "index": indexes}
-        response = self._restclient.post(url, json=data)
-        response.raise_for_status()
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def execute_query(
         self,
         from_timestamp: datetime,

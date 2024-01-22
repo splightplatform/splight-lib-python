@@ -134,25 +134,6 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    @classmethod
-    def create_indexes(cls, parameters: List[Dict]):
-        indices: Set[Tuple[str, int]] = set(
-            [
-                ("output_format", 1),
-                ("instance_id", 1),
-                ("instance_type", 1),
-                ("asset", 1),
-                ("attribute", 1),
-                ("timestamp", -1),
-            ]
-        )
-        for param in parameters:
-            if param["filterable"]:
-                indices.add((param["name"], 1))
-        indices = list(indices)
-        dl_client = cls.__get_datalake_client()
-        dl_client.create_index(cls._collection_name, indices)
-
     @staticmethod
     def __get_datalake_client() -> AbstractDatalakeClient:
         db_client = DatalakeClientBuilder.build(
