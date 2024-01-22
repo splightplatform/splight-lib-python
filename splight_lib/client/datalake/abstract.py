@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Union
 import pandas as pd
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
+from splight_lib.client.datalake.schemas import DataRequest
 
 
 class AbstractDatalakeClient(AbstractRemoteClient):
@@ -34,48 +35,21 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         pass
 
     @abstractmethod
-    def get_dataframe(
+    def raw_get(
         self,
-        resource_name: str,
-        collection: str,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
-    ) -> pd.DataFrame:
-        pass
-
-    @abstractmethod
-    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
-        pass
-
-    @abstractmethod
-    def _raw_get(
-        self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
+        data_request: DataRequest,
     ) -> List[Dict]:
         pass
 
     @abstractmethod
-    async def _async_raw_get(
+    async def _async_get(
         self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
+        asset: str,
+        attribute: str,
+        collection: str = "default",
+        sort_field: str = "timestamp",
+        sort_direction: int = -1,
+        limit: int = 10000,
         **filters,
     ) -> List[Dict]:
         pass
