@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, Iterator, List, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class TraceType(str, Enum):
@@ -18,13 +18,11 @@ class TraceType(str, Enum):
 
 
 class Trace(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
     ref_id: str
     type: Optional[TraceType] = None
     expression: Optional[dict] = None
     pipeline: Optional[List[dict]] = None
-
-    class Config:
-        use_enum_values = True
 
 
 PipelineStep: TypeVar = Dict[str, str]
