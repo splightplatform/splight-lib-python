@@ -31,6 +31,7 @@ DataResponse: TypeVar = Iterator[Dict]
 
 
 class DataRequest(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     collection: str = "default"
     sort_field: str = "timestamp"
     sort_direction: int = Field(-1, ge=-1, le=1)
@@ -41,9 +42,6 @@ class DataRequest(BaseModel):
     to_timestamp: Optional[datetime] = None
     traces: List[Trace]
     aggregation_query: Optional[Dict] = None
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def dict(self):
         result = self.model_dump()
