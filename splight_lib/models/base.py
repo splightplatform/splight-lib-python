@@ -88,27 +88,51 @@ class SplightDatalakeBaseModel(BaseModel):
         return value if value else ""
 
     @classmethod
-    def get(cls, **params: Dict) -> List["SplightDatalakeBaseModel"]:
+    def get(
+        cls, asset: str, attribute: str, **params
+    ) -> List["SplightDatalakeBaseModel"]:
         dl_client = cls.__get_datalake_client()
         instances = dl_client.get(
-            resource_name=cls.__name__,
             collection=cls._collection_name,
+            asset=asset,
+            attribute=attribute,
             **params,
         )
-        instances = [cls.model_validate(item) for item in instances]
+        instances = [
+            cls.model_validate(
+                {
+                    "asset": asset,
+                    "attribute": attribute,
+                    "value": item["output"],
+                    "timestamp": item["timestamp"],
+                }
+            )
+            for item in instances
+        ]
         return instances
 
     @classmethod
     async def async_get(
-        cls, **params: Dict
+        cls, asset: str, attribute: str, **params: Dict
     ) -> List["SplightDatalakeBaseModel"]:
         dl_client = cls.__get_datalake_client()
         instances = await dl_client.async_get(
-            resource_name=cls.__name__,
             collection=cls._collection_name,
+            asset=asset,
+            attribute=attribute,
             **params,
         )
-        instances = [cls.model_validate(item) for item in instances]
+        instances = [
+            cls.model_validate(
+                {
+                    "asset": asset,
+                    "attribute": attribute,
+                    "value": item["output"],
+                    "timestamp": item["timestamp"],
+                }
+            )
+            for item in instances
+        ]
         return instances
 
     def save(self):
