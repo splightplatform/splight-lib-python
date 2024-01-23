@@ -30,13 +30,14 @@ class NativeOutput(SplightDatalakeBaseModel):
         params["output_format"] = cls._output_format
         return await super().async_get(**params)
 
-    def latest(self, expiration: timedelta = None):
+    @classmethod
+    def latest(cls, asset: str, attribute: str, expiration: timedelta = None):
         from_timestamp = None
         if expiration:
             from_timestamp = datetime.utcnow() - expiration
-        result = self.get(
-            asset=self.asset,
-            attribute=self.attribute,
+        result = cls.get(
+            asset=asset,
+            attribute=attribute,
             from_timestamp=from_timestamp,
             limit=1,
         )

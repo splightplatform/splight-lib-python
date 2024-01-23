@@ -46,8 +46,8 @@ class DataRequest(BaseModel):
     def dict(self):
         result = self.model_dump()
         for key, value in result.items():
-            if isinstance(value, timezone):
-                result[key] = str(value)
+            if isinstance(value, datetime):
+                result[key] = value.isoformat()
         return result
 
 

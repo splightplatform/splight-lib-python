@@ -208,7 +208,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
 
 
 class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
-    _PREFIX = "v2/engine/datalake"
+    _PREFIX = "data"
 
     def __init__(
         self,
