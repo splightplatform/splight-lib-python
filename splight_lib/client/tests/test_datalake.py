@@ -76,8 +76,8 @@ def test_raw_get(mocker: MockerFixture):
 
     mock_get = mocker.patch.object(
         SplightRestClient,
-        "get",
-        return_value=MockResponse({"results": [{"key": "value"}]}),
+        "post",
+        return_value=MockResponse([{"key": "value"}]),
     )
     data_request = DataRequest(
         collection="default_collection",
