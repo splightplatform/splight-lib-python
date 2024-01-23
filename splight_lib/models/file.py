@@ -13,7 +13,8 @@ from splight_lib.models.base import SplightDatabaseBaseModel
 class File(SplightDatabaseBaseModel):
     id: Optional[str] = None
     assets: List[Asset] = []
-    file: str
+    file: Optional[str] = None
+    name: Optional[str] = None
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
@@ -24,27 +25,23 @@ class File(SplightDatabaseBaseModel):
 
     @model_validator(mode="after")
     def validate_file(self):
-        self.file = self.file.replace("/", os.sep)
-        self.file = self.file.replace("\\", os.sep)
+        if self.file:
+            self.file = self.file.replace("/", os.sep)
+            self.file = self.file.replace("\\", os.sep)
 
-        # Compute the checksum if missing
-        if self.checksum is None:
-            hasher = hashlib.md5()
-            with open(self.file, "rb") as file:
-                # Read in chunks of 8KiB for large files
-                while chunk := file.read(8192):
-                    hasher.update(chunk)
-            self.checksum = hasher.hexdigest()
-
+            # Compute the checksum if missing
+            if self.checksum is None:
+                hasher = hashlib.md5()
+                with open(self.file, "rb") as file:
+                    # Read in chunks of 8KiB for large files
+                    while chunk := file.read(8192):
+                        hasher.update(chunk)
+                self.checksum = hasher.hexdigest()
         return self
 
     @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
         return json.loads(v) if isinstance(v, str) else v
-
-    @property
-    def name(self):
-        return self.file.split(os.sep)[-1]
 
     def download(self):
         file = self._db_client.download(
@@ -55,12 +52,25 @@ class File(SplightDatabaseBaseModel):
 
     def model_dump(self, *args, **kwargs):
         res = super().model_dump(*args, **kwargs)
-        res["metadata"] = json.dumps(self.metadata)
+        if self.metadata:
+            res["metadata"] = json.dumps(self.metadata)
         return res
 
     def model_dump_json(self, *args, **kwargs):
-        prev_metadata = self.metadata
-        self.metadata = json.dumps(self.metadata)
         res = super().model_dump_json(*args, **kwargs)
-        self.metadata = prev_metadata
+        if self.metadata:
+            prev_metadata = self.metadata
+            self.metadata = json.dumps(self.metadata)
+            self.metadata = prev_metadata
         return res
+
+    def save(self):
+        saved = self._db_client.save(
+            self.__class__.__name__, self.model_dump(exclude_none=True)
+        )
+        if not self.id:
+            self.id = saved["id"]
+        self.name = saved["name"]
+        self.content_type = saved["content_type"]
+        self.checksum = saved["checksum"]
+        self.url = saved["url"]
