@@ -7,6 +7,7 @@ from splight_lib.client.datalake import RemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
     SplightRestClient,
 )
+from splight_lib.client.datalake.schemas import DataRequest
 
 base_url = "http://test.com"
 os.environ["ACCESS_ID"] = "access_id"
@@ -78,8 +79,25 @@ def test_raw_get(mocker: MockerFixture):
         "get",
         return_value=MockResponse({"results": [{"key": "value"}]}),
     )
-    collection = "collection_name"
-    result = client._raw_get("resource", collection)
+    data_request = DataRequest(
+        collection="default_collection",
+        traces=[
+            {
+                "ref_id": "output",
+                "type": "QUERY",
+                "pipeline": [
+                    {
+                        "$match": {
+                            "asset": "a",
+                            "attribute": "b",
+                        }
+                    }
+                ],
+                "expression": None,
+            }
+        ],
+    )
+    result = client._raw_get(data_request)
     mock_get.assert_called_once()
     assert result == [{"key": "value"}]
 
@@ -97,36 +115,3 @@ def test_delete(mocker: MockerFixture):
     collection = "collection_name"
     client.delete(collection)
     mock_delete.assert_called_once()
-
-
-def test_save_dataframe(mocker: MockerFixture):
-    secret_key = os.getenv("SECRET_KEY")
-    access_id = os.getenv("ACCESS_ID")
-
-    client = RemoteDatalakeClient(base_url, access_id, secret_key)
-    collection = "collection_name"
-    dataframe = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
-    mock_post = mocker.patch.object(
-        SplightRestClient,
-        "post",
-        return_value=MockResponse(None),
-    )
-    client.save_dataframe(collection, dataframe)
-    mock_post.assert_called_once()
-
-
-def test_raw_aggregate(mocker: MockerFixture):
-    secret_key = os.getenv("SECRET_KEY")
-    access_id = os.getenv("ACCESS_ID")
-
-    client = RemoteDatalakeClient(base_url, access_id, secret_key)
-    collection = "collection_name"
-    pipeline = [{"$match": {"key": "value"}}]
-    mock_post = mocker.patch.object(
-        SplightRestClient,
-        "post",
-        return_value=MockResponse([{"key": "value"}]),
-    )
-    result = client.raw_aggregate(collection, pipeline)
-    mock_post.assert_called_once()
-    assert result == [{"key": "value"}]
