@@ -97,7 +97,7 @@ def test_raw_get(mocker: MockerFixture):
             }
         ],
     )
-    result = client._raw_get(data_request)
+    result = client.raw_get(data_request)
     mock_get.assert_called_once()
     assert result == [{"key": "value"}]
 
