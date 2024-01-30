@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import auto
 from typing import Set, Tuple
 
 import pytz
@@ -31,10 +31,10 @@ class ExecutionEngine:
         )
         self._critical_jobs: Set[str] = set()
         self._blocking_sch.add_listener(
-            self._task_fail_callbak, EVENT_JOB_ERROR
+            self._task_fail_callback, EVENT_JOB_ERROR
         )
         self._background_sch.add_listener(
-            self._task_fail_callbak, EVENT_JOB_ERROR
+            self._task_fail_callback, EVENT_JOB_ERROR
         )
         self._running = True
         self._state = EngineStatus.INITIALIZED
@@ -97,7 +97,7 @@ class ExecutionEngine:
             self._critical_jobs.add(job.id)
         self._logger.info(f"Job {job.id} added", tags=LogTags.RUNTIME)
 
-    def _task_fail_callbak(self, event: JobExecutionEvent):
+    def _task_fail_callback(self, event: JobExecutionEvent):
         if event.job_id in self._critical_jobs:
             self._logger.error(
                 "An error ocurred in job execution. Stopping engine"
