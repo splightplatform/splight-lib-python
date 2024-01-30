@@ -1,11 +1,10 @@
 from abc import abstractmethod
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
-from splight_lib.client.datalake.schemas import DataRequest
 
 
 class AbstractDatalakeClient(AbstractRemoteClient):
@@ -27,25 +26,25 @@ class AbstractDatalakeClient(AbstractRemoteClient):
     @abstractmethod
     async def async_save(
         self, collection: str, instances: Union[List[Dict], Dict]
-    ) -> List[dict]:
+    ) -> List[Dict]:
         pass
 
     @abstractmethod
-    def delete(self, collection: str, **kwargs) -> None:
-        pass
-
-    @abstractmethod
-    def raw_get(
+    def _get(
         self,
-        data_request: DataRequest,
+        match: Dict[str, str],
+        collection: str = "default",
+        sort_field: str = "timestamp",
+        sort_direction: int = -1,
+        limit: int = 10000,
+        **filters,
     ) -> List[Dict]:
         pass
 
     @abstractmethod
     async def _async_get(
         self,
-        asset: str,
-        attribute: str,
+        match: Dict[str, str],
         collection: str = "default",
         sort_field: str = "timestamp",
         sort_direction: int = -1,
