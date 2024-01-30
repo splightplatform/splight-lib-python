@@ -119,7 +119,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         limit: int = 10000,
         **filters,
     ) -> List[Dict]:
-        # GET /data/read
+        # POST /data/read
         url = self._base_url / f"{self._PREFIX}/read"
         data_request = DataRequest(
             collection=collection,

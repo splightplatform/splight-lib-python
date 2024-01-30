@@ -1,13 +1,11 @@
 import os
 
-import pandas as pd  # noqa E402
 from pytest_mock import MockerFixture
 
 from splight_lib.client.datalake import RemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
     SplightRestClient,
 )
-from splight_lib.client.datalake.schemas import DataRequest
 
 base_url = "http://test.com"
 os.environ["ACCESS_ID"] = "access_id"
