@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
+from splight_lib.constants import DEFAULT_COLLECTION, DEFAULT_SORT_FIELD
 
 
 class AbstractDatalakeClient(AbstractRemoteClient):
@@ -33,8 +33,8 @@ class AbstractDatalakeClient(AbstractRemoteClient):
     def _get(
         self,
         match: Dict[str, str],
-        collection: str = "default",
-        sort_field: str = "timestamp",
+        collection: str = DEFAULT_COLLECTION,
+        sort_field: str = DEFAULT_SORT_FIELD,
         sort_direction: int = -1,
         limit: int = 10000,
         **filters,
@@ -45,8 +45,8 @@ class AbstractDatalakeClient(AbstractRemoteClient):
     async def _async_get(
         self,
         match: Dict[str, str],
-        collection: str = "default",
-        sort_field: str = "timestamp",
+        collection: str = DEFAULT_COLLECTION,
+        sort_field: str = DEFAULT_SORT_FIELD,
         sort_direction: int = -1,
         limit: int = 10000,
         **filters,
@@ -54,10 +54,18 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         pass
 
     @abstractmethod
-    def execute_query(
+    def save_dataframe(
+        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def get_dataframe(
         self,
-        from_timestamp: datetime,
-        to_timestamp: Optional[datetime],
-        query: Dict,
+        match: Dict[str, str],
+        sort_field: str = DEFAULT_SORT_FIELD,
+        sort_direction: int = -1,
+        limit: int = 10000,
+        **filters,
     ) -> pd.DataFrame:
         pass
