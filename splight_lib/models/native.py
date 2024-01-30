@@ -21,14 +21,21 @@ class NativeOutput(SplightDatalakeBaseModel):
         return cls._output_format
 
     @classmethod
-    def get(cls, **params: Dict) -> List["NativeOutput"]:
+    def get(
+        cls, asset: str, attribute: str, **params: Dict
+    ) -> List["NativeOutput"]:
         params["output_format"] = cls._output_format
-        return super().get(**params)
+        return super().get(asset, attribute, **params)
 
     @classmethod
     async def async_get(cls, **params: Dict) -> List["NativeOutput"]:
         params["output_format"] = cls._output_format
         return await super().async_get(**params)
+
+    @classmethod
+    def get_dataframe(cls, asset: str, attribute: str, **params: Dict):
+        params["output_format"] = cls._output_format
+        return super().get_dataframe(asset, attribute, **params)
 
     @classmethod
     def latest(cls, asset: str, attribute: str, expiration: timedelta = None):

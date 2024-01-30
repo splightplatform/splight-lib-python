@@ -80,22 +80,18 @@ class SplightDatalakeBaseModel(BaseModel):
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
-    # class Config:
-    #     json_dumps = datalake_model_serializer
-
     @field_validator("instance_id", "instance_type", mode="before")
     def convert_to_string(cls, value: Optional[str]):
         return value if value else ""
 
     @classmethod
     def get(
-        cls, asset: str, attribute: str, **params
+        cls, asset: str, attribute: str, **params: Dict
     ) -> List["SplightDatalakeBaseModel"]:
         dl_client = cls.__get_datalake_client()
         instances = dl_client.get(
             collection=cls._collection_name,
-            asset=asset,
-            attribute=attribute,
+            match={"asset": asset, "attribute": attribute},
             **params,
         )
         instances = [
@@ -118,8 +114,7 @@ class SplightDatalakeBaseModel(BaseModel):
         dl_client = cls.__get_datalake_client()
         instances = await dl_client.async_get(
             collection=cls._collection_name,
-            asset=asset,
-            attribute=attribute,
+            match={"asset": asset, "attribute": attribute},
             **params,
         )
         instances = [
@@ -151,7 +146,25 @@ class SplightDatalakeBaseModel(BaseModel):
             instances=json.loads(self.model_dump_json()),
         )
 
-    def dict(self, *args, **kwargs):
+    @classmethod
+    def get_dataframe(
+        cls, asset: str, attribute: str, **params: Dict
+    ) -> pd.DataFrame:
+        dl_client = cls.__get_datalake_client()
+        df = dl_client.get_dataframe(
+            match={"asset": asset, "attribute": attribute}, **params
+        )
+        return df
+
+    @classmethod
+    def save_dataframe(cls, df: pd.DataFrame):
+        dl_client = cls.__get_datalake_client()
+        dl_client.save_dataframe(
+            df,
+            collection=cls._collection_name,
+        )
+
+    def dict(self, *args, **kwargs) -> Dict:
         d = super().model_dump(*args, **kwargs)
         return {
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
