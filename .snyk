@@ -57,4 +57,9 @@ ignore:
         reason: None Given
         expires: 2024-03-02T14:30:04.283Z
         created: 2024-02-01T14:30:04.316Z
+  SNYK-PYTHON-CRYPTOGRAPHY-6210214:
+    - '*':
+        reason: None Given
+        expires: 2024-03-02T15:29:20.304Z
+        created: 2024-02-01T15:29:20.329Z
 patch: {}
