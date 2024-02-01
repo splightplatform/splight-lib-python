@@ -5,6 +5,7 @@ MODEL_NAME_MAP = {
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/assets/",
     "attribute": f"{ENGINE_PREFIX}/attributes/",
+    "metadata": f"{ENGINE_PREFIX}/metadata/",
     "chart": f"{ENGINE_PREFIX}/dashboard/charts/",
     "chartitem": f"{ENGINE_PREFIX}/dashboard/chartitems/",
     "component": f"{ENGINE_PREFIX}/component/components/",
