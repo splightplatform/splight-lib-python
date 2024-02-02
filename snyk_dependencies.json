@@ -209,7 +209,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.4",
+          "splight-lib@4.6.5",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -298,7 +298,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.4",
+          "splight-lib@4.6.5",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -425,7 +425,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.4",
+          "splight-lib@4.6.5",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -541,7 +541,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.4",
+          "splight-lib@4.6.5",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -654,7 +654,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "low",
         "from": [
-          "splight-lib@4.6.4",
+          "splight-lib@4.6.5",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
