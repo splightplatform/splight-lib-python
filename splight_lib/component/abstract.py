@@ -8,6 +8,7 @@ from time import sleep
 from typing import Callable, Dict, Optional, Type
 
 from pydantic import BaseModel
+from pydantic_core import ValidationError
 
 from splight_lib.component.spec import Spec
 from splight_lib.execution.engine import EngineStatus, ExecutionEngine
@@ -80,6 +81,26 @@ class SplightBaseComponent(ABC):
             daemon=False,
         )
 
+        self._spec = None
+        self._input = None
+        self._output = None
+        self._custom_types = None
+        self._routines = None
+        try:
+            self._setup_component(component_id)
+        except ValidationError as exc:
+            logger.debug(
+                "There was an error validating the component configuration"
+            )
+            logger.exception(exc, tags=LogTags.COMPONENT)
+            self.stop()
+        except Exception as exc:
+            logger.exception(exc, tags=LogTags.COMPONENT)
+            self.stop()
+
+        self.start = self._wrap_start(self.start)
+
+    def _setup_component(self, component_id: str):
         self._spec = self._load_spec()
         self._input = self._spec.component_input(component_id)
         self._output = self._spec.get_output_models(component_id)
@@ -98,8 +119,6 @@ class SplightBaseComponent(ABC):
         }
         self._custom_types = self._get_custom_type_model(component_objects)
         self._routines = self._get_routine_model(routine_objects)
-
-        self.start = self._wrap_start(self.start)
 
     @property
     def input(self) -> BaseModel:

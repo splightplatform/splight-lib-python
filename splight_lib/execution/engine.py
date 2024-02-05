@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import auto
 from typing import Set, Tuple
 
 import pytz
@@ -25,16 +25,21 @@ class ExecutionEngine:
         self._logger.info(
             "Execution client initialized.", tags=LogTags.RUNTIME
         )
-        self._blocking_sch = BlockingScheduler(timezone=pytz.UTC)
+        self._blocking_sch = BlockingScheduler(
+            job_defaults={"misfire_grace_time": None},
+            timezone=pytz.UTC,
+        )
         self._background_sch = BackgroundScheduler(
-            timezone=pytz.UTC, daemon=True
+            job_defaults={"misfire_grace_time": None},
+            timezone=pytz.UTC,
+            daemon=True,
         )
         self._critical_jobs: Set[str] = set()
         self._blocking_sch.add_listener(
-            self._task_fail_callbak, EVENT_JOB_ERROR
+            self._task_fail_callback, EVENT_JOB_ERROR
         )
         self._background_sch.add_listener(
-            self._task_fail_callbak, EVENT_JOB_ERROR
+            self._task_fail_callback, EVENT_JOB_ERROR
         )
         self._running = True
         self._state = EngineStatus.INITIALIZED
@@ -75,6 +80,7 @@ class ExecutionEngine:
         task: BaseTask,
         in_background: bool = True,
         exit_on_fail: bool = False,
+        max_instances: int = 1,
     ):
         """Adds new task to the corresponding scheduler.
 
@@ -88,16 +94,23 @@ class ExecutionEngine:
         exit_on_fail: bool
             Used to stop the engine if the task execution failed. This
             parameter is usefull to declare critical tasks.
+        max_instances: int = 1
+            Maximum number of concurrently running instances allowed for this
+            job
         """
         if in_background:
-            job = self._background_sch.add_job(**task.as_job())
+            job = self._background_sch.add_job(
+                **task.as_job(), max_instances=max_instances
+            )
         else:
-            job = self._blocking_sch.add_job(**task.as_job())
+            job = self._blocking_sch.add_job(
+                **task.as_job(), max_instances=max_instances
+            )
         if exit_on_fail:
             self._critical_jobs.add(job.id)
         self._logger.info(f"Job {job.id} added", tags=LogTags.RUNTIME)
 
-    def _task_fail_callbak(self, event: JobExecutionEvent):
+    def _task_fail_callback(self, event: JobExecutionEvent):
         if event.job_id in self._critical_jobs:
             self._logger.error(
                 "An error ocurred in job execution. Stopping engine"
