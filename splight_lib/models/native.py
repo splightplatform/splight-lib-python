@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import ClassVar, Dict, List, Literal, Optional, Union
 
-import pandas as pd
 from pydantic import field_validator
 
 from splight_lib.models.asset import Asset
