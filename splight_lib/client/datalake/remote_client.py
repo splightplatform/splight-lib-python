@@ -167,11 +167,12 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
             match, collection, sort_field, sort_direction, limit, **filters
         )
         df = pd.DataFrame(data)
-        df.index = pd.to_datetime(df["timestamp"])
-        df.drop(columns=["timestamp"], inplace=True)
-        df.rename(columns={"output": "value"}, inplace=True)
-        for key, value in match.items():
-            df[key] = value
+        if not df.empty:
+            df.index = pd.to_datetime(df["timestamp"])
+            df.drop(columns=["timestamp"], inplace=True)
+            df.rename(columns={"output": "value"}, inplace=True)
+            for key, value in match.items():
+                df[key] = value
         return df
 
 
