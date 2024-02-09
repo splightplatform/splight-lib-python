@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta
 from typing import ClassVar, Dict, List, Literal, Optional, Union
 
-import pandas as pd
 from pydantic import field_validator
 
 from splight_lib.models.asset import Asset
@@ -20,9 +20,11 @@ class NativeOutput(SplightDatalakeBaseModel):
         return cls._output_format
 
     @classmethod
-    def get(cls, **params: Dict) -> List["NativeOutput"]:
+    def get(
+        cls, asset: str, attribute: str, **params: Dict
+    ) -> List["NativeOutput"]:
         params["output_format"] = cls._output_format
-        return super().get(**params)
+        return super().get(asset, attribute, **params)
 
     @classmethod
     async def async_get(cls, **params: Dict) -> List["NativeOutput"]:
@@ -30,14 +32,24 @@ class NativeOutput(SplightDatalakeBaseModel):
         return await super().async_get(**params)
 
     @classmethod
-    def get_dataframe(cls, **params: Dict) -> pd.DataFrame:
+    def get_dataframe(cls, asset: str, attribute: str, **params: Dict):
         params["output_format"] = cls._output_format
-        return super().get_dataframe(**params)
+        return super().get_dataframe(asset, attribute, **params)
 
     @classmethod
-    def save_dataframe(cls, dataframe: pd.DataFrame):
-        dataframe["output_format"] = cls._output_format
-        super().save_dataframe(dataframe)
+    def latest(cls, asset: str, attribute: str, expiration: timedelta = None):
+        from_timestamp = None
+        if expiration:
+            from_timestamp = datetime.utcnow() - expiration
+        result = cls.get(
+            asset=asset,
+            attribute=attribute,
+            from_timestamp=from_timestamp,
+            limit=1,
+        )
+        if result:
+            return result[0]
+        return None
 
 
 class Number(NativeOutput):

@@ -87,62 +87,9 @@ class LocalDatalakeClient(AbstractDatalakeClient):
 
         return documents
 
-    def get_dataframe(
-        self,
-        resource_name: str,
-        collection: str,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
-    ) -> pd.DataFrame:
-        logger.debug(
-            "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
-        )
-
-        filters.update(
-            {
-                "resource_name": resource_name,
-                "collection": collection,
-                "sort": sort,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                "tzinfo": tzinfo,
-            }
-        )
-
-        documents = self._raw_get(**filters)
-        df = pd.DataFrame(documents)
-
-        if not df.empty:
-            df["timestamp"] = pd.to_datetime(df["timestamp"])
-            df.set_index("timestamp", inplace=True, verify_integrity=False)
-
-        return df
-
-    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
-        logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
-
-        dataframe["timestamp"] = dataframe["timestamp"].astype(str)
-        instances = list(dataframe.to_dict("index").values())
-        _ = self.save(collection, instances)
-
     def delete(self, collection: str, **kwargs) -> None:
         logger.debug(
             "Skipping deleting objects when using Local datalake client."
-        )
-
-    def create_index(self, collection: str, index: list) -> None:
-        logger.debug(
-            "Skipping index creation when using Local datalake client."
-        )
-
-    def raw_aggregate(
-        self, collection: str, pipeline: List[Dict]
-    ) -> List[Dict]:
-        logger.debug(
-            "Skipping raw aggregation when using Local datalake client."
         )
 
     def execute_query(

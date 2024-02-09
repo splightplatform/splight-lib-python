@@ -232,9 +232,6 @@ class Spec(BaseModel):
                 class_vars=class_vars,
                 base_class=SplightDatalakeBaseModel,
             )
-            model_class.create_indexes(
-                [param.model_dump() for param in output.fields]
-            )
             fields.update({output.name: model_class})
 
         output_model_class = namedtuple(

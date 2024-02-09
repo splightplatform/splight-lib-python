@@ -1,9 +1,6 @@
-from datetime import datetime, timedelta, timezone
-from io import StringIO
-from tempfile import NamedTemporaryFile
 from threading import Lock, Thread
 from time import sleep
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 from furl import furl
@@ -13,8 +10,14 @@ from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.exceptions import InvalidCollectionName
+from splight_lib.client.datalake.schemas import DataRequest
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
-from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
+from splight_lib.constants import (
+    DEFAULT_COLLECTION,
+    DEFAULT_SORT_FIELD,
+    DL_BUFFER_SIZE,
+    DL_BUFFER_TIMEOUT,
+)
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
 from splight_lib.stringcase import camelcase
@@ -23,7 +26,7 @@ logger = get_splight_logger()
 
 
 class RemoteDatalakeClient(AbstractDatalakeClient):
-    _PREFIX = "v2/engine/datalake"
+    _PREFIX = "/data"
 
     def __init__(
         self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
@@ -46,12 +49,15 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         collection: str,
         instances: Union[List[Dict], Dict],
     ) -> List[dict]:
+        # POST /data/write
         instances = instances if isinstance(instances, list) else [instances]
-        url = self._base_url / f"{self._PREFIX}/save/"
+        url = self._base_url / f"{self._PREFIX}/write"
         collection = camelcase(collection)
-        response = self._restclient.post(
-            url, params={"source": collection}, json=instances
-        )
+        data = {
+            "collection": collection,
+            "records": instances,
+        }
+        response = self._restclient.post(url, json=data)
         response.raise_for_status()
         return instances
 
@@ -61,217 +67,117 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         collection: str,
         instances: Union[List[Dict], Dict],
     ) -> List[dict]:
+        # POST /data/write
         instances = instances if isinstance(instances, list) else [instances]
-        url = self._base_url / f"{self._PREFIX}/save/"
-        response = await self._restclient.async_post(
-            url, params={"source": collection}, json=instances
-        )
+        url = self._base_url / f"{self._PREFIX}/write"
+        data = {
+            "collection": collection,
+            "records": instances,
+        }
+        response = await self._restclient.async_post(url, json=data)
         response.raise_for_status()
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _raw_get(
+    def _get(
         self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
+        match: Dict[str, str],
+        collection: str = DEFAULT_COLLECTION,
+        sort_field: str = DEFAULT_SORT_FIELD,
+        sort_direction: int = -1,
+        limit: int = 10000,
         **filters,
     ) -> List[Dict]:
-        # GET /datalake/data/
-        url = self._base_url / f"{self._PREFIX}/data/"
-
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "limit_": limit_,
-                "skip_": skip_,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
+        # POST /data/read
+        url = self._base_url / f"{self._PREFIX}/read"
+        data_request = DataRequest(
+            collection=collection,
+            sort_field=sort_field,
+            sort_direction=sort_direction,
+            limit=limit,
+            traces=[
+                {
+                    "ref_id": "output",
+                    "type": "QUERY",
+                    "pipeline": [{"$match": match}],
+                    "expression": None,
+                }
+            ],
+            **filters,
         )
-
-        params = self._parse_params(**filters)
-        response = self._restclient.get(url, params=params)
-        response.raise_for_status()
-        output = response.json()["results"]
-
-        return output
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    async def _async_raw_get(
-        self,
-        resource_name: str,
-        collection: str,
-        limit_: int = 50,
-        skip_: int = 0,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
-    ) -> List[Dict]:
-        # GET /datalake/data/
-        url = self._base_url / f"{self._PREFIX}/data/"
-
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "limit_": limit_,
-                "skip_": skip_,
-                "group_id": group_id,
-                "group_fields": group_fields,
-                # "tzinfo": tzinfo
-            }
-        )
-
-        params = self._parse_params(**filters)
-        response = await self._restclient.async_get(url, params=params)
-        response.raise_for_status()
-        output = response.json()["results"]
-
-        return output
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def delete(self, collection: str, **kwargs) -> None:
-        # DELETE /datalake/delete/
-        url = self._base_url / f"{self._PREFIX}/delete/"
-        params = {"source": collection}
-        response = self._restclient.delete(url, params=params, json=kwargs)
-        response.raise_for_status()
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def get_dataframe(
-        self,
-        resource_name: str,
-        collection: str,
-        sort: Union[List, str] = ["timestamp__desc"],
-        group_id: Optional[Union[List, str]] = None,
-        group_fields: Optional[Union[List, str]] = None,
-        tzinfo: timezone = timezone(timedelta()),
-        **filters,
-    ) -> pd.DataFrame:
-        filters.update(
-            {
-                "source": collection,
-                "output_format": resource_name,
-                "sort": sort,
-                "group_id": group_id,
-                "group_fields": group_fields,
-            }
-        )
-
-        # GET /datalake/dumpdata/?source=collection
-        url = self._base_url / f"{self._PREFIX}/dumpdata/"
-        params = self._parse_params(**filters)
-
-        response = self._restclient.get(url, params=params)
-        response.raise_for_status()
-        logger.debug(
-            "Retrieving dataframe from datalake.", tags=LogTags.DATALAKE
-        )
-
-        df: pd.DataFrame = pd.DataFrame(pd.read_csv(StringIO(response.text)))
-        if df.empty:
-            return df
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-        df.set_index("timestamp", inplace=True)
-        return df
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
-        logger.debug("Saving dataframe.", tags=LogTags.DATALAKE)
-
-        # POST /datalake/loaddata/
-        url = self._base_url / f"{self._PREFIX}/loaddata/"
-
-        tmp_file = NamedTemporaryFile("w")
-        with open(tmp_file.name, "wb") as fid:
-            dataframe.to_csv(fid)
-        response = self._restclient.post(
-            url,
-            data={"source": collection},
-            files={"file": open(tmp_file.name, mode="rb")},
-        )
-        response.raise_for_status()
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def create_index(self, collection: str, indexes: List[Dict]) -> None:
-        # POST /datalake/index/
-        logger.debug(
-            "Creating index for collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
-        )
-
-        url = self._base_url / f"{self._PREFIX}/index/"
-        data = {"source": collection, "index": indexes}
-        response = self._restclient.post(url, json=data)
-        response.raise_for_status()
-
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def raw_aggregate(
-        self, collection: str, pipeline: List[Dict]
-    ) -> List[Dict]:
-        logger.debug(
-            "Aggregate on datalake collection: %s.",
-            collection,
-            tags=LogTags.DATALAKE,
-        )
-        # POST /datalake/aggregate/?source=collection
-        url = self._base_url / f"{self._PREFIX}/aggregate/"
-        params = {"source": collection}
-        data = {"pipeline": pipeline}
-        response = self._restclient.post(url, params=params, data=data)
+        response = self._restclient.post(url, json=data_request.dict())
         response.raise_for_status()
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def execute_query(
+    async def _async_get(
         self,
-        from_timestamp: datetime,
-        to_timestamp: Optional[datetime],
-        query: Dict,
-    ) -> pd.DataFrame:
-        url = self._base_url / f"{self._PREFIX}/data/request/csv/"
-        to_timestamp = to_timestamp.isoformat() if to_timestamp else None
-        data = {
-            "from_timestamp": from_timestamp.isoformat(),
-            "to_timestamp": to_timestamp,
-            "traces": [
+        match: Dict[str, str],
+        collection: str = DEFAULT_COLLECTION,
+        sort_field: str = DEFAULT_SORT_FIELD,
+        sort_direction: int = -1,
+        limit: int = 10000,
+        **filters,
+    ) -> List[Dict]:
+        # POST /data/read
+        url = self._base_url / f"{self._PREFIX}/read"
+        data_request = DataRequest(
+            collection=collection,
+            sort_field=sort_field,
+            sort_direction=sort_direction,
+            limit=limit,
+            traces=[
                 {
                     "ref_id": "output",
                     "type": "QUERY",
+                    "pipeline": [
+                        {
+                            "$match": match,
+                        }
+                    ],
                     "expression": None,
-                    "pipeline": query,
                 }
             ],
-        }
-        response = self._restclient.post(url, json=data)
-        response.raise_for_status()
-
-        df: pd.DataFrame = pd.DataFrame(
-            pd.read_csv(StringIO(response.text), index_col=False)
+            **filters,
         )
-        if df.empty:
-            return df
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-        df.drop(labels="Unnamed: 0", axis=1, inplace=True)
-        df.set_index("timestamp", inplace=True)
+        response = self._restclient.async_post(url, json=data_request.dict())
+        response.raise_for_status()
+        return response.json()
+
+    def save_dataframe(
+        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
+    ) -> None:
+        dataframe["timestamp"] = pd.Series(
+            dataframe["timestamp"].dt.to_pydatetime(),
+            dtype="object",
+        ).apply(lambda x: x.isoformat())
+        docs = dataframe.to_dict("records")
+        self.save(collection, docs)
+
+    def get_dataframe(
+        self,
+        match: Dict[str, str],
+        collection: str = DEFAULT_COLLECTION,
+        sort_field: str = DEFAULT_SORT_FIELD,
+        sort_direction: int = -1,
+        limit: int = 10000,
+        **filters,
+    ) -> pd.DataFrame:
+        data = self._get(
+            match, collection, sort_field, sort_direction, limit, **filters
+        )
+        df = pd.DataFrame(data)
+        if not df.empty:
+            df.index = pd.to_datetime(df["timestamp"])
+            df.drop(columns=["timestamp"], inplace=True)
+            df.rename(columns={"output": "value"}, inplace=True)
+            for key, value in match.items():
+                df[key] = value
         return df
 
 
 class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
-    _PREFIX = "v2/engine/datalake"
+    _PREFIX = "data"
 
     def __init__(
         self,
@@ -325,8 +231,14 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
             self._data_buffers[collection].add_documents(instances)
         return instances
 
-    def save_dataframe(self, collection: str, dataframe: pd.DataFrame) -> None:
+    def save_dataframe(
+        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
+    ) -> None:
         logger.debug("Saving dataframe in datalake")
+        dataframe["timestamp"] = pd.Series(
+            dataframe["timestamp"].dt.to_pydatetime(),
+            dtype="object",
+        ).apply(lambda x: x.isoformat())
         instances = dataframe.to_dict("records")
         self.save(collection, instances)
 
@@ -348,10 +260,13 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: List[Dict]) -> List[Dict]:
-        url = self._base_url / f"{self._PREFIX}/save/"
+        url = self._base_url / f"{self._PREFIX}/write"
         collection = camelcase(collection)
-        response = self._restclient.post(
-            url, params={"source": collection}, json=docs
-        )
+        collection = camelcase(collection)
+        data = {
+            "collection": collection,
+            "records": docs,
+        }
+        response = self._restclient.post(url, json=data)
         response.raise_for_status()
         return docs
