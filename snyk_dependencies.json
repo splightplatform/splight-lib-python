@@ -177,15 +177,15 @@
           },
           {
             "assigner": "SUSE",
-            "severity": "high",
-            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-            "cvssV3BaseScore": 7.5,
-            "modificationTime": "2023-11-22T11:02:51.571843Z"
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+            "cvssV3BaseScore": 5.3,
+            "modificationTime": "2024-02-06T23:02:37.691670Z"
           }
         ],
         "description": "## Overview\n\nAffected versions of this package are vulnerable to Denial of Service (DoS) when the `DH_generate_key()`, `DH_check_pub_key()`, `DH_check_pub_key_ex()`, `EVP_PKEY_public_check()`, and `EVP_PKEY_generate()` functions are used. An attacker can cause long delays and potentially a Denial of Service by supplying excessively long X9.42 DH keys or parameters obtained from an untrusted source. \r\n\r\n**Note:**\r\n\r\nThis is only exploitable if the application uses these functions to generate or check an X9.42 DH key or parameters. Also, the OpenSSL `pkey` command line application, when using the `-pubcheck` option, as well as the OpenSSL `genpkey` command line application, are vulnerable to this issue.\n## Remediation\nUpgrade `cryptography` to version 42.0.0 or higher.\n## References\n- [GitHub Commit](https://github.com/openssl/openssl/commit/db925ae2e65d0d925adef429afc37f75bd1c2017)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/ddeb4b6c6d527e54ce9a99cba785c0f7776e54b6)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/ec061bf8ff2add8050599058557178c03295bcc0)\n- [GitHub Commit](https://github.com/pyca/cryptography/commit/01d55b2af8ae167315288c03b192c59c86425009)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=2248616)\n- [Security Advisory](https://www.openssl.org/news/secadv/20231106.txt)\n",
         "epssDetails": {
-          "percentile": "0.33049",
+          "percentile": "0.32973",
           "probability": "0.00079",
           "modelVersion": "v2023.03.01"
         },
@@ -205,11 +205,11 @@
         "disclosureTime": "2023-10-24T00:00:00Z",
         "packageManager": "pip",
         "publicationTime": "2023-11-08T15:16:15.075620Z",
-        "modificationTime": "2024-01-26T12:43:37.247062Z",
+        "modificationTime": "2024-02-06T23:02:37.691670Z",
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.5",
+          "splight-lib@5.0.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -298,7 +298,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.5",
+          "splight-lib@5.0.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -425,7 +425,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.5",
+          "splight-lib@5.0.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -541,7 +541,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.5",
+          "splight-lib@5.0.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
@@ -569,7 +569,7 @@
       {
         "id": "SNYK-PYTHON-CRYPTOGRAPHY-6210214",
         "title": "NULL Pointer Dereference",
-        "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+        "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
         "credit": [
           "Bahaa Naamneh"
         ],
@@ -587,8 +587,8 @@
           "triageAdvice": null
         },
         "language": "python",
-        "severity": "low",
-        "cvssScore": 3.3,
+        "severity": "medium",
+        "cvssScore": 5.5,
         "functions": [],
         "malicious": false,
         "isDisputed": false,
@@ -630,10 +630,21 @@
             "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
             "cvssV3BaseScore": 3.3,
             "modificationTime": "2024-01-25T13:59:48.995274Z"
+          },
+          {
+            "assigner": "NVD",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 5.5,
+            "modificationTime": "2024-02-03T01:11:14.382067Z"
           }
         ],
         "description": "## Overview\n\nAffected versions of this package are vulnerable to NULL Pointer Dereference when processing a maliciously formatted PKCS12 file. The vulnerability exists due to improper handling of optional `ContentInfo` fields, which can be set to null. An attacker can cause a denial of service by sending crafted input that leads to applications loading files in PKCS12 format from untrusted sources to terminate abruptly.\n## Remediation\nUpgrade `cryptography` to version 42.0.2 or higher.\n## References\n- [GitHub Commit](https://github.com/alexcrichton/openssl-src-rs/commit/add20f73b6b42be7451af2e1044d4e0e778992b2)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/09df4395b5071217b76dc7d3d2e630eb8c5a79c2)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/775acfdbd0c6af9ac855f34969cdab0c0c90844a)\n- [GitHub Commit](https://github.com/openssl/openssl/commit/d135eeab8a5dbf72b3da5240bab9ddb7678dbd2c)\n- [GitHub Commit](https://github.com/pyca/cryptography/commit/3519591d255d4506fbcd0d04037d45271903c64d)\n- [GitHub PR](https://github.com/openssl/openssl/pull/23362)\n- [OpenSSL Advisory](https://www.openssl.org/news/secadv/20240125.txt)\n",
-        "epssDetails": null,
+        "epssDetails": {
+          "percentile": "0.61053",
+          "probability": "0.00228",
+          "modelVersion": "v2023.03.01"
+        },
         "identifiers": {
           "CVE": [
             "CVE-2024-0727"
@@ -650,11 +661,11 @@
         "disclosureTime": "2024-01-22T00:00:00Z",
         "packageManager": "pip",
         "publicationTime": "2024-01-31T17:09:40.537426Z",
-        "modificationTime": "2024-01-31T17:09:40.537723Z",
+        "modificationTime": "2024-02-04T12:40:05.827562Z",
         "socialTrendAlert": false,
-        "severityWithCritical": "low",
+        "severityWithCritical": "medium",
         "from": [
-          "splight-lib@4.6.5",
+          "splight-lib@5.0.0",
           "cryptography@41.0.7"
         ],
         "upgradePath": [
