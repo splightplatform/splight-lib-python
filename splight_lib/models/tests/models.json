@@ -341,7 +341,7 @@
         "id":"org_5hfnqcWToRaieJsE",
         "name":"Splight"
       },
-      "splight_cli_version":"0.2.7",
+      "splight_lib_version":"0.2.7",
       "name":"MODBUS",
       "version":"0_1",
       "privacy_policy":"public",
