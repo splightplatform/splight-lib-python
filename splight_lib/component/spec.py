@@ -80,8 +80,11 @@ def check_parameter_dependency(parameters: List[InputParameter]):
 class Spec(BaseModel):
     name: str = Field(pattern=r"^[a-zA-Z0-9\s]+$")
     version: str = Field(pattern=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
-    splight_cli_version: str = Field(
-        pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
+    splight_lib_version: Optional[str] = Field(
+        None, pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
+    )
+    splight_cli_version: Optional[str] = Field(
+        None, pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
     )
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH

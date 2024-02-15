@@ -1,11 +1,18 @@
 import json
 import os
+import warnings
 from enum import auto
 from glob import glob
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import py7zr
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import (
+    BaseModel,
+    Field,
+    PrivateAttr,
+    ValidationInfo,
+    model_validator,
+)
 from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
@@ -30,6 +37,8 @@ from splight_lib.utils.hub import (
     get_spec,
 )
 
+warnings.simplefilter("always", DeprecationWarning)
+
 
 class HubComponentVerificationEnum(LowercaseStrEnum):
     VERIFIED = auto()
@@ -49,7 +58,8 @@ class HubComponent(BaseModel):
     id: Optional[str] = None
     name: str
     version: str
-    splight_cli_version: str
+    splight_lib_version: Optional[str] = None
+    splight_cli_version: Optional[str] = None
     build_status: Optional[str] = None
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
@@ -81,6 +91,22 @@ class HubComponent(BaseModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._hub_client = get_hub_client()
+
+    @model_validator(mode="before")
+    def check_lib_version(cls, data: Any, info: ValidationInfo) -> Any:
+        if cli_version := data.get("splight_cli_version"):
+            warnings.warn(
+                (
+                    "splight_cli_version is deprecated"
+                    "use splight_lib_version instead"
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        if not data.get("splight_lib_version") and not cli_version:
+            raise ValueError("splight_lib_version is required")
+        return data
 
     @classmethod
     def list_mine(cls, **params) -> List["HubComponent"]:
