@@ -12,7 +12,6 @@ from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
     Binding,
-    Command,
     Component,
     ComponentObjectInstance,
     ComponentType,
@@ -97,7 +96,6 @@ class Spec(BaseModel):
     output: List[Output] = []
     bindings: List[Binding] = []
     routines: List[Routine] = []
-    commands: List[Command] = []
     endpoints: List[Endpoint] = []
 
     @field_validator("custom_types", mode="after")

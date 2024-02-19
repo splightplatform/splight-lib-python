@@ -139,11 +139,6 @@ class Routine(BaseModel):
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
 
 
-class Command(BaseModel):
-    name: str
-    fields: List[InputParameter] = []
-
-
 class Endpoint(BaseModel):
     name: Optional[str]
     port: Union[int, str]
@@ -211,7 +206,6 @@ class Component(SplightDatabaseBaseModel):
     component_type: ComponentType = ComponentType.CONNECTOR
     input: List[InputParameter] = []
     output: List[Output] = []
-    commands: List[Command] = []
     endpoints: List[Endpoint] = []
     bindings: List[Binding] = []
     routines: List[Routine] = []
