@@ -19,7 +19,6 @@ from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.component import (
-    Binding,
     ComponentType,
     CustomType,
     Endpoint,
@@ -82,7 +81,6 @@ class HubComponent(BaseModel):
     routines: List[Routine] = []
     custom_types: List[CustomType] = []
     endpoints: List[Endpoint] = []
-    bindings: List[Binding] = []
 
     _hub_client: AbstractHubClient = PrivateAttr()
 
@@ -188,7 +186,6 @@ class HubComponent(BaseModel):
             "custom_types",
             "input",
             "output",
-            "bindings",
             "endpoints",
         ]
         for key in to_json:

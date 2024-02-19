@@ -144,13 +144,6 @@ class Endpoint(BaseModel):
     port: Union[int, str]
 
 
-class Binding(BaseModel):
-    name: str
-    object_type: str
-    # TODO: Change to use EventAction from Communicaction
-    object_action: str
-
-
 class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
@@ -207,7 +200,6 @@ class Component(SplightDatabaseBaseModel):
     input: List[InputParameter] = []
     output: List[Output] = []
     endpoints: List[Endpoint] = []
-    bindings: List[Binding] = []
     routines: List[Routine] = []
 
 

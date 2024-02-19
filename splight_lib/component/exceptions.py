@@ -12,27 +12,6 @@ class ParameterDependencyError(Exception):
     pass
 
 
-class MissingBindingCallback(Exception):
-    def __init__(self, binding_name: str):
-        msg = f"Missing method {binding_name} associated with a Binding"
-        super().__init__(msg)
-
-
-class MissingRoutineCallback(Exception):
-    def __init__(self, routine_name: str, action: str):
-        msg = (
-            f"Missing method associated with a Routine: {routine_name} "
-            f"{action}_handler event"
-        )
-        super().__init__(msg)
-
-
-class InvalidBidingObject(Exception):
-    def __init__(self, model_name: str):
-        msg = f"Model {model_name} is not a valid model for a binding"
-        super().__init__(msg)
-
-
 class MissingSetPointCallback(Exception):
     def __init__(self, method_name: str):
         msg = f"Missing method {method_name} associated with a SetPoint"

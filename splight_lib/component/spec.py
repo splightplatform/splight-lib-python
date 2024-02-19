@@ -11,7 +11,6 @@ from splight_lib.component.exceptions import (
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
-    Binding,
     Component,
     ComponentObjectInstance,
     ComponentType,
@@ -94,7 +93,6 @@ class Spec(BaseModel):
     custom_types: List[CustomType] = []
     input: List[InputParameter] = []
     output: List[Output] = []
-    bindings: List[Binding] = []
     routines: List[Routine] = []
     endpoints: List[Endpoint] = []
 

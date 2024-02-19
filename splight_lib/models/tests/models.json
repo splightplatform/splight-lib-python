@@ -187,9 +187,6 @@
       "endpoints":[
         
       ],
-      "bindings":[
-        
-      ],
       "routines":[
         {
           "name":"IncomingRoutine",
@@ -453,9 +450,6 @@
         }
       ],
       "endpoints":[
-        
-      ],
-      "bindings":[
         
       ],
       "routines":[
