@@ -147,10 +147,9 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
     def save_dataframe(
         self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
     ) -> None:
-        dataframe["timestamp"] = pd.Series(
-            dataframe["timestamp"].dt.to_pydatetime(),
-            dtype="object",
-        ).apply(lambda x: x.isoformat())
+        dataframe["timestamp"] = dataframe["timestamp"].apply(
+            lambda x: x.tz_localize(tz="UTC").isoformat()
+        )
         docs = dataframe.to_dict("records")
         self.save(collection, docs)
 
@@ -235,10 +234,9 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
     ) -> None:
         logger.debug("Saving dataframe in datalake")
-        dataframe["timestamp"] = pd.Series(
-            dataframe["timestamp"].dt.to_pydatetime(),
-            dtype="object",
-        ).apply(lambda x: x.isoformat())
+        dataframe["timestamp"] = dataframe["timestamp"].apply(
+            lambda x: x.tz_localize(tz="UTC").isoformat()
+        )
         instances = dataframe.to_dict("records")
         self.save(collection, instances)
 
