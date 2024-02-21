@@ -171,7 +171,7 @@
         "socialTrendAlert": false,
         "severityWithCritical": "medium",
         "from": [
-          "splight-lib@5.2.0",
+          "splight-lib@5.2.1",
           "email-validator@2.1.0.post1",
           "dnspython@2.4.2"
         ],
