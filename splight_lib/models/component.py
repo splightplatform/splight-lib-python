@@ -286,7 +286,7 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
         )
     elif field.type in DATALAKE_TYPES:
         model_class = DATALAKE_TYPES[field.type]
-        value = field.value.copy()
+        value = field.value.model_copy()
         value = value if multiple else [value]
         for item in value:
             item.type = field.value_type
