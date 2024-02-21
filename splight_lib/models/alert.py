@@ -191,7 +191,7 @@ class AlertSeverity(LowercaseStrEnum):
 
 
 class AlertThreshold(BaseModel):
-    value: int
+    value: float
     status: ThresholdStatus
     status_text: Optional[str]
 
