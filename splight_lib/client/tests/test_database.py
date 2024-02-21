@@ -39,7 +39,7 @@ def test_initialization(mocker: MockerFixture):
         # autospec=True
     )
 
-    client = RemoteDatabaseClient(
+    _ = RemoteDatabaseClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
@@ -174,7 +174,7 @@ def test_get_without_id(mocker: MockerFixture):
         secret_key=secret_key,
     )
 
-    mock_get = mocker.patch.object(
+    _ = mocker.patch.object(
         SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert")
@@ -199,7 +199,7 @@ def test_get_without_id_and_set_first(mocker: MockerFixture):
         secret_key=secret_key,
     )
 
-    mock_get = mocker.patch.object(
+    _ = mocker.patch.object(
         SplightRestClient, "get", return_value=return_value
     )
     result = client._get("alert", first=True)

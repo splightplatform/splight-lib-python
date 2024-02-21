@@ -13,16 +13,12 @@ from splight_lib.logging.logging import (
 )
 
 
-# TODO: add more tags
 class LogTags(UppercaseStrEnum):
     RUNTIME = auto()
-    BINDING = auto()
-    COMMUNICATION = auto()
     INDEX = auto()
     SECRET = auto()
     HOOK = auto()
     SETPOINT = auto()
-    COMMAND = auto()
     PARAMETER = auto()
     COMPONENT = auto()
     DATABASE = auto()

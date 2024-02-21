@@ -51,7 +51,7 @@ class HealthCheckProcessor:
         self._running = True
         # Check when there is no task in engine
         while self._running:
-            is_running, status = self._engine.healthcheck()
+            is_running, _ = self._engine.healthcheck()
             if not is_running:
                 self._logger.info("Healthcheck finished", tags=LogTags.RUNTIME)
                 self._health_file.close()

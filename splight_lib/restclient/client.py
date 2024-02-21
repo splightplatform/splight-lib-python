@@ -1,13 +1,13 @@
 from typing import Any, Callable, List, Mapping, Optional, Union
 
 import httpx
+from httpx._transports.base import BaseTransport
 
 from splight_lib.restclient.types import (
     DEFAULT_LIMITS,
     DEFAULT_MAX_REDIRECTS,
     DEFAULT_TIMEOUT_CONFIG,
     AuthTypes,
-    BaseTransport,
     CertTypes,
     CookieTypes,
     EventHook,

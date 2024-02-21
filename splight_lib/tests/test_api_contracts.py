@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import sys
 import uuid
 from collections import namedtuple
 from typing import Any, Dict
@@ -179,14 +178,13 @@ def test_api_contract():
         instances = factory.batch(random.randint(10, 30))
         model_schema = models_def[schema_name]
 
-        for item in instances:
-            # TODO: Key config should not be excluded, this is because
-            # for RoutineObject, the config is a JSON field and the
-            # validation fails
-            _ = [
-                validate(
-                    instance=item.model_dump(exclude={"config"}),
-                    schema=model_schema,
-                )
-                for item in instances
-            ]
+        # TODO: Key config should not be excluded, this is because
+        # for RoutineObject, the config is a JSON field and the
+        # validation fails
+        _ = [
+            validate(
+                instance=item.model_dump(exclude={"config"}),
+                schema=model_schema,
+            )
+            for item in instances
+        ]

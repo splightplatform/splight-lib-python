@@ -139,21 +139,9 @@ class Routine(BaseModel):
     _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
 
 
-class Command(BaseModel):
-    name: str
-    fields: List[InputParameter] = []
-
-
 class Endpoint(BaseModel):
     name: Optional[str]
     port: Union[int, str]
-
-
-class Binding(BaseModel):
-    name: str
-    object_type: str
-    # TODO: Change to use EventAction from Communicaction
-    object_action: str
 
 
 class SplightObject(SplightDatabaseBaseModel):
@@ -211,9 +199,7 @@ class Component(SplightDatabaseBaseModel):
     component_type: ComponentType = ComponentType.CONNECTOR
     input: List[InputParameter] = []
     output: List[Output] = []
-    commands: List[Command] = []
     endpoints: List[Endpoint] = []
-    bindings: List[Binding] = []
     routines: List[Routine] = []
 
 
@@ -256,7 +242,7 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     match = pattern.search(raw_value)
     if not match:
         return raw_value
-    class_key, secret_name = match.groups()
+    _, secret_name = match.groups()
     # TODO: handle errors (not found or not allowed)
     secret = Secret.decrypt(name=secret_name)
     return secret.value

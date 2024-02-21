@@ -1,2 +1,0 @@
-class ClientNotReady(Exception):
-    pass
