@@ -67,7 +67,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = Field(default="", max_length=200)
+    description: str = Field(default="", max_length=100)
     type: str = "str"
     required: bool = False
     multiple: bool = False
