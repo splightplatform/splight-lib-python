@@ -2,7 +2,7 @@ import warnings
 from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute

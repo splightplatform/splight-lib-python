@@ -40,7 +40,7 @@ class NativeOutput(SplightDatalakeBaseModel):
     def latest(cls, asset: str, attribute: str, expiration: timedelta = None):
         from_timestamp = None
         if expiration:
-            from_timestamp = datetime.utcnow() - expiration
+            from_timestamp = datetime.now(datetime.UTC) - expiration
         result = cls.get(
             asset=asset,
             attribute=attribute,

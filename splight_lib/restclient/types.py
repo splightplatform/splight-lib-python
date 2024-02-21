@@ -21,7 +21,6 @@ from furl import furl
 from httpx._auth import Auth
 from httpx._config import Limits, Proxy, Timeout
 from httpx._models import Cookies, Headers, Request
-from httpx._transports.base import BaseTransport  # used in client
 from httpx._urls import QueryParams
 
 # Currently, this types are based on httpx._types.

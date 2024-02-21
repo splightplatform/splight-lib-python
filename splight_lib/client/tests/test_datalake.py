@@ -34,7 +34,7 @@ def test_initialization(mocker: MockerFixture):
         "update_headers",
         return_value=None,
     )
-    client = RemoteDatalakeClient(
+    _ = RemoteDatalakeClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
