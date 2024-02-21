@@ -171,7 +171,6 @@ def test_api_contract():
     models_def = data["components"]["schemas"]
 
     for model_name in MODEL_MAPPING:
-        __import__("ipdb").set_trace()
         mapping = MODEL_MAPPING[model_name]
         factory = mapping.factory
         schema_name = mapping.schema
