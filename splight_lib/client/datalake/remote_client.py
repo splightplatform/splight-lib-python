@@ -140,7 +140,9 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
             ],
             **filters,
         )
-        response = self._restclient.async_post(url, json=data_request.dict())
+        response = await self._restclient.async_post(
+            url, json=data_request.dict()
+        )
         response.raise_for_status()
         return response.json()
 
