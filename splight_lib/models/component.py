@@ -132,7 +132,7 @@ class CustomType(BaseModel):
 class Routine(BaseModel):
     name: str
 
-    config: Optional[List[Parameter]] = []
+    config: Optional[List[InputParameter]] = []
     input: List[DataAddress] = []
     output: List[DataAddress] = []
 
