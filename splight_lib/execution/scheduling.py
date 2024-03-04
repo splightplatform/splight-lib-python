@@ -1,7 +1,12 @@
 from datetime import datetime, timezone
 from typing import Optional, Union
 
-from pydantic import BaseModel, ValidationInfo, field_validator
+from pydantic import (
+    BaseModel,
+    ValidationInfo,
+    field_validator,
+    model_serializer,
+)
 
 from splight_lib.execution.exceptions import InvalidCronString
 
@@ -90,3 +95,14 @@ class Crontab(BaseModel):
             month=elements[3],
             day_of_week=elements[4],
         )
+
+    @model_serializer
+    def custom_serializer(self) -> str:
+        """Serializes Crontab as a string.
+
+        Returns
+        -------
+        str
+            The crontab string.
+        """
+        return f"{self.minute} {self.hour} {self.day} {self.month} {self.day_of_week}"

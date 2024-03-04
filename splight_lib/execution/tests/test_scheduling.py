@@ -36,50 +36,9 @@ def test_create_crontab_from_str_error(cron_str: str):
 
 
 @pytest.mark.parametrize(
-    "cron_str,output",
-    [
-        (
-            "* * * * *",
-            {
-                "month": "*",
-                "day": "*",
-                "day_of_week": "*",
-                "hour": "*",
-                "minute": "*",
-            },
-        ),
-        (
-            "*/1 * * * *",
-            {
-                "month": "*",
-                "day": "*",
-                "day_of_week": "*",
-                "hour": "*",
-                "minute": "*/1",
-            },
-        ),
-        (
-            "*/1 * 2 * *",
-            {
-                "month": "*",
-                "day": 2,
-                "day_of_week": "*",
-                "hour": "*",
-                "minute": "*/1",
-            },
-        ),
-        (
-            "* * * 3 3",
-            {
-                "month": 3,
-                "day": "*",
-                "day_of_week": 3,
-                "hour": "*",
-                "minute": "*",
-            },
-        ),
-    ],
+    "cron_str",
+    ["* * * * *", "*/1 * * * *", "*/1 * 2 * *", "* * * 3 3"],
 )
-def test_create_crontab_from_string(cron_str: str, output: Dict):
+def test_create_crontab_from_string(cron_str: str):
     crontab = Crontab.from_string(cron_str)
-    assert crontab.model_dump(exclude_none=True) == output
+    assert crontab.model_dump(exclude_none=True) == cron_str
