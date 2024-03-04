@@ -188,6 +188,7 @@ class RoutineObject(SplightObject):
 
         if self.status != status:
             self.status = status
+            # TODO: We need an endpoint to update only the status, not the entire routine.
             self.save()
 
 
