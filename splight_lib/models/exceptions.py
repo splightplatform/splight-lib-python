@@ -30,5 +30,5 @@ class MissingAlertItemExpression(Exception):
     pass
 
 
-class ForbidenOperation(Exception):
+class ForbiddenOperation(Exception):
     pass
