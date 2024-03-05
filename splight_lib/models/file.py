@@ -4,9 +4,9 @@ from typing import Dict, List, Optional
 from pydantic import Field, field_validator
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.exceptions import ForbidenOperation
 from splight_lib.models.asset import Asset
 from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.exceptions import ForbidenOperation
 
 
 class File(SplightDatabaseBaseModel):
