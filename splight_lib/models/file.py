@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from pydantic import Field, field_validator
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
+from splight_lib.models.exceptions import ForbidenOperation
 from splight_lib.models.asset import Asset
 from splight_lib.models.base import SplightDatabaseBaseModel
 
@@ -46,6 +47,10 @@ class File(SplightDatabaseBaseModel):
         return res
 
     def save(self):
+        if self.id:
+            raise ForbidenOperation(
+                "File object already exists in database. Can't be updated"
+            )
         saved = self._db_client.save(
             self.__class__.__name__, self.model_dump(exclude_none=True)
         )
