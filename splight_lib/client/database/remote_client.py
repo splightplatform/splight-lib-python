@@ -214,7 +214,6 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             length = int(response.headers.get("content-length"))
             chunk_size = 8192
             total_chunks = length // chunk_size + 1
-            # widgets = ["Downloading: ", progressbar.AnimatedMarker()]
             widgets = ["Downloading: ", progressbar.Bar("#")]
             bar = progressbar.ProgressBar(
                 max_value=total_chunks, widgets=widgets
@@ -300,8 +299,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         file_name = instance["name"]
         with open(file_path, "rb") as fid:
             file = {"file": (file_name, fid)}
-            response = requests.put(upload_url, files=file)
+            response = requests.put(
+                upload_url,
+                files=file,
+            )
             response.raise_for_status()
+        logger.debug(
+            "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
+        )
 
     @staticmethod
     def _get_api_path(resource_name: str) -> str:
