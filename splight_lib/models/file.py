@@ -48,7 +48,7 @@ class File(SplightDatabaseBaseModel):
 
     def save(self):
         if self.id:
-            raise ForbidenOperation(
+            raise ForbiddenOperation(
                 "File object already exists in database. Can't be updated"
             )
         saved = self._db_client.save(
