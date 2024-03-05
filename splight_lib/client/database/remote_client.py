@@ -25,7 +25,6 @@ from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
 
-
 logger = get_splight_logger()
 
 
@@ -254,16 +253,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
         if model_name == "file":
-            with open(instance["file"], "rb") as f:
-                file = {"file": f}
-                response = self._restclient.post(
-                    url, data=instance, files=file
-                )
+            instance = self._create_file(instance, url)
         else:
             response = self._restclient.post(url, json=instance)
-
-        response.raise_for_status()
-        instance = response.json()
+            response.raise_for_status()
+            instance = response.json()
         logger.debug(
             "Instance %s created", instance["id"], tags=LogTags.DATABASE
         )
@@ -285,6 +279,29 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         response.raise_for_status()
         return response.json()
+
+    def _create_file(self, instance: Dict, url: furl):
+        response = self._restclient.post(url, data=instance)
+        response.raise_for_status()
+        file_path = instance["file"]
+        # Check is this is handled somewher
+        created_instance = response.json()
+        self._upload_file(created_instance, file_path=file_path)
+        return created_instance
+
+    def _upload_file(self, instance: Dict, file_path: str):
+        api_path = self._get_api_path("file")
+        resource_id = instance.get("id")
+        url = self._base_url / api_path / f"{resource_id}/upload_url/"
+        response = self._restclient.get(url)
+        response.raise_for_status()
+        upload_url = response.json().get("url")
+        file = open(file_path, "rb")
+        file_name = instance["name"]
+        with open(file_path, "rb") as fid:
+            file = {"file": (file_name, fid)}
+            response = requests.put(upload_url, files=file)
+            response.raise_for_status()
 
     @staticmethod
     def _get_api_path(resource_name: str) -> str:
