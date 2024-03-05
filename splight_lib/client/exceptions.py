@@ -30,3 +30,7 @@ class InstanceNotFound(Exception):
 
     def __str__(self) -> str:
         return self._msg
+
+
+class InvalidModel(Exception):
+    ...

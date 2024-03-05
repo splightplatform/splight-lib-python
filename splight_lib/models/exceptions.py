@@ -28,3 +28,7 @@ class InvalidAlertConfiguration(Exception):
 
 class MissingAlertItemExpression(Exception):
     pass
+
+
+class ForbiddenOperation(Exception):
+    pass

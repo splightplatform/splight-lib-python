@@ -1,6 +1,8 @@
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Generator, List, Optional, Union
 
+import progressbar
+import requests
 from furl import furl
 from httpx._status_codes import codes
 from retry import retry
@@ -16,6 +18,7 @@ from splight_lib.client.database.classmap import (
 from splight_lib.client.exceptions import (
     SPLIGHT_REQUEST_EXCEPTIONS,
     InstanceNotFound,
+    InvalidModel,
     InvalidModelName,
 )
 from splight_lib.constants import ENGINE_PREFIX
@@ -145,7 +148,6 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()
 
-    # @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _retrieve_multiple(
         self, resource_name: str, first: bool = False, **kwargs
     ) -> List[Dict]:
@@ -196,16 +198,33 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModelName thrown when the model name is not correct.
         """
+        if resource_name.lower() != "file":
+            raise InvalidModel("Only files can be downloaded.")
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")
-        url = self._base_url / api_path / f"{resource_id}/download/"
+        url = self._base_url / api_path / f"{resource_id}/download_url/"
         response = self._restclient.get(url)
         response.raise_for_status()
-        f = NamedTemporaryFile("wb+")
-        f.write(response.content)
-        f.seek(0)
+        download_url = response.json().get("url")
+
+        file = NamedTemporaryFile(mode="wb+", suffix=instance["name"])
+        # TODO: Check why python wget is raised and error with code 403
+        response = requests.get(download_url, stream=True)
+        with open(file.name, "wb") as f:
+            length = int(response.headers.get("content-length"))
+            chunk_size = 8192
+            total_chunks = length // chunk_size + 1
+            widgets = ["Downloading: ", progressbar.Bar("#")]
+            bar = progressbar.ProgressBar(
+                max_value=total_chunks, widgets=widgets
+            ).start()
+            for counter, chunk in enumerate(
+                response.iter_content(chunk_size=chunk_size)
+            ):
+                f.write(chunk)
+                bar.update(counter)
         logger.debug("Downloaded instance %s.", id, tags=LogTags.DATABASE)
-        return f
+        return file
 
     def _pages(
         self, url: furl, **kwargs
@@ -233,16 +252,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
         if model_name == "file":
-            with open(instance["file"], "rb") as f:
-                file = {"file": f}
-                response = self._restclient.post(
-                    url, data=instance, files=file
-                )
+            instance = self._create_file(instance, url)
         else:
             response = self._restclient.post(url, json=instance)
-
-        response.raise_for_status()
-        instance = response.json()
+            response.raise_for_status()
+            instance = response.json()
         logger.debug(
             "Instance %s created", instance["id"], tags=LogTags.DATABASE
         )
@@ -264,6 +278,35 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
         response.raise_for_status()
         return response.json()
+
+    def _create_file(self, instance: Dict, url: furl):
+        response = self._restclient.post(url, data=instance)
+        response.raise_for_status()
+        file_path = instance["file"]
+        # Check is this is handled somewher
+        created_instance = response.json()
+        self._upload_file(created_instance, file_path=file_path)
+        return created_instance
+
+    def _upload_file(self, instance: Dict, file_path: str):
+        api_path = self._get_api_path("file")
+        resource_id = instance.get("id")
+        url = self._base_url / api_path / f"{resource_id}/upload_url/"
+        response = self._restclient.get(url)
+        response.raise_for_status()
+        upload_url = response.json().get("url")
+        file = open(file_path, "rb")
+        file_name = instance["name"]
+        with open(file_path, "rb") as fid:
+            file = {"file": (file_name, fid)}
+            response = requests.put(
+                upload_url,
+                files=file,
+            )
+            response.raise_for_status()
+        logger.debug(
+            "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
+        )
 
     @staticmethod
     def _get_api_path(resource_name: str) -> str:
