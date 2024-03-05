@@ -22,6 +22,7 @@ class File(SplightDatabaseBaseModel):
     content_type: Optional[str] = None
     url: Optional[str] = None
     checksum: Optional[str] = None
+    parent: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_file(self):
