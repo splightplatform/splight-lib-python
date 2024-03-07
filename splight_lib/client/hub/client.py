@@ -65,18 +65,21 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def upload(self, data: Dict, files: Dict) -> Tuple:
-        url = self._hub_url / "upload/"
-        response = self._session.post(
-            url,
-            files=files,
-            data=data,
-        )
-        status_code = response.status_code
-        assert (
-            status_code == 201
-        ), f"Unable to upload component to HUB: {response.json()}"
-        return response.json()
+    def upload(self, id: str, file_path) -> Tuple:
+        print("\n\n\n\n")
+        url = self._hub_url / f"components/{id}/upload_url/"
+        response = self._session.get(url)
+        response.raise_for_status()
+        upload_url = response.json().get("url")
+
+        with open(file_path, "rb") as fid:
+            response = requests.put(
+                upload_url,
+                data=fid,
+            )
+            response.raise_for_status()
+
+        # return response.json()
 
     def download(self, id: str, name: str) -> NamedTemporaryFile:
         url = self._hub_url / f"components/{id}/download_url/"

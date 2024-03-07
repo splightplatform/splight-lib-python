@@ -155,6 +155,11 @@ class HubComponent(BaseModel):
         spec = get_spec(path)
         name = spec["name"]
         version = spec["version"]
+        hub_component = HubComponent(**hub_client.get(name=name, version=version, first=True))
+
+        if not hub_component:
+            return "NO EXISTE EL COMPONENTE"
+
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
@@ -190,12 +195,12 @@ class HubComponent(BaseModel):
         for key in to_json:
             data[key] = json.dumps(data[key])
 
-        files = {
-            "file": open(file_name, "rb"),
-            "readme": open(readme_path, "rb"),
-        }
+        # files = {
+        #     "file": open(file_name, "rb"),
+        #     "readme": open(readme_path, "rb"),
+        # }
         try:
-            component = hub_client.upload(data=data, files=files)
+            component = hub_client.upload(id=hub_component.id, file_path=file_name)
         except Exception as exc:
             raise exc
         finally:
