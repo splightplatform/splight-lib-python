@@ -1,5 +1,7 @@
+from tempfile import NamedTemporaryFile
 from typing import Dict, List, Tuple
 
+import progressbar
 import requests
 from furl import furl
 from pydantic import BaseModel
@@ -76,14 +78,30 @@ class SplightHubClient(AbstractHubClient):
         ), f"Unable to upload component to HUB: {response.json()}"
         return response.json()
 
-    def download(self, data: Dict) -> Tuple:
-        url = self._hub_url / "download/"
-        response = self._session.post(url, data=data)
-        status_code = response.status_code
-        assert (
-            status_code == 200
-        ), f"Unable to download component: {response.json()}"
-        return response.content
+    def download(self, id: str, name: str) -> NamedTemporaryFile:
+        url = self._hub_url / f"components/{id}/download_url/"
+        response = self._session.get(url)
+        response.raise_for_status()
+        download_url = response.json().get("url")
+
+        file = NamedTemporaryFile(mode="wb+", suffix=name)
+        # TODO: Check why python wget is raised and error with code 403
+        response = requests.get(download_url, stream=True)
+        with open(file.name, "wb") as f:
+            length = int(response.headers.get("content-length"))
+            chunk_size = 8192
+            total_chunks = length // chunk_size + 1
+            widgets = ["Downloading: ", progressbar.Bar("#")]
+            bar = progressbar.ProgressBar(
+                # max_value=total_chunks, 
+                widgets=widgets
+            ).start()
+            for counter, chunk in enumerate(
+                response.iter_content(chunk_size=chunk_size)
+            ):
+                f.write(chunk)
+                bar.update(counter)
+        return file
 
     def delete(self, id: str) -> None:
         url = self._hub_url / f"components/{id}/"

@@ -147,8 +147,7 @@ class HubComponent(BaseModel):
 
     def download(self):
         hub_client = get_hub_client()
-        params = {"name": self.name, "version": self.version}
-        return hub_client.download(data=params)
+        return hub_client.download(id=self.id, name=self.name)
 
     @classmethod
     def upload(cls, path: str):
