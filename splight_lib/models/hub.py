@@ -155,10 +155,11 @@ class HubComponent(BaseModel):
         spec = get_spec(path)
         name = spec["name"]
         version = spec["version"]
-        hub_component = HubComponent(**hub_client.get(name=name, version=version, first=True))
-
-        if not hub_component:
-            return "NO EXISTE EL COMPONENTE"
+        raw_hub_component = hub_client.get(name=name, version=version, first=True)
+        if raw_hub_component:
+            hub_component = HubComponent(**raw_hub_component)
+        else:
+            raise Exception(f"Hub component {name} not found")
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
@@ -200,10 +201,9 @@ class HubComponent(BaseModel):
         #     "readme": open(readme_path, "rb"),
         # }
         try:
-            component = hub_client.upload(id=hub_component.id, file_path=file_name)
+            hub_client.upload(id=hub_component.id, file_path=file_name)
         except Exception as exc:
             raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
-        return cls.model_validate(component)

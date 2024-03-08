@@ -66,7 +66,6 @@ class SplightHubClient(AbstractHubClient):
         return self._org_id
 
     def upload(self, id: str, file_path) -> Tuple:
-        print("\n\n\n\n")
         url = self._hub_url / f"components/{id}/upload_url/"
         response = self._session.get(url)
         response.raise_for_status()
@@ -78,8 +77,6 @@ class SplightHubClient(AbstractHubClient):
                 data=fid,
             )
             response.raise_for_status()
-
-        # return response.json()
 
     def download(self, id: str, name: str) -> NamedTemporaryFile:
         url = self._hub_url / f"components/{id}/download_url/"
@@ -96,7 +93,7 @@ class SplightHubClient(AbstractHubClient):
             total_chunks = length // chunk_size + 1
             widgets = ["Downloading: ", progressbar.Bar("#")]
             bar = progressbar.ProgressBar(
-                # max_value=total_chunks, 
+                maxval=total_chunks, 
                 widgets=widgets
             ).start()
             for counter, chunk in enumerate(
