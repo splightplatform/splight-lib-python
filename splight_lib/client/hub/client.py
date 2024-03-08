@@ -93,8 +93,7 @@ class SplightHubClient(AbstractHubClient):
             total_chunks = length // chunk_size + 1
             widgets = ["Downloading: ", progressbar.Bar("#")]
             bar = progressbar.ProgressBar(
-                maxval=total_chunks, 
-                widgets=widgets
+                maxval=total_chunks, widgets=widgets
             ).start()
             for counter, chunk in enumerate(
                 response.iter_content(chunk_size=chunk_size)

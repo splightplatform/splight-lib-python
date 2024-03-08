@@ -155,7 +155,9 @@ class HubComponent(BaseModel):
         spec = get_spec(path)
         name = spec["name"]
         version = spec["version"]
-        raw_hub_component = hub_client.get(name=name, version=version, first=True)
+        raw_hub_component = hub_client.get(
+            name=name, version=version, first=True
+        )
         if raw_hub_component:
             hub_component = HubComponent(**raw_hub_component)
         else:
