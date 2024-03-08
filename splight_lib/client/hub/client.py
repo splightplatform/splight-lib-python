@@ -65,7 +65,7 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def upload(self, id: str, file_path) -> Tuple:
+    def upload(self, id: str, file_path):
         url = self._hub_url / f"components/{id}/upload_url/"
         response = self._session.get(url)
         response.raise_for_status()

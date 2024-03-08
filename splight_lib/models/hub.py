@@ -209,3 +209,4 @@ class HubComponent(BaseModel):
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
+        return hub_component
