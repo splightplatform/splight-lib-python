@@ -149,13 +149,13 @@ class HubComponent(BaseModel):
         hub_client = get_hub_client()
         return hub_client.download(id=self.id, name=self.name)
 
-    def create(self):
+    def save(self):
         hub_client = get_hub_client()
-        return hub_client.create(instance=self)
+        return hub_client.save(instance=self)
 
     def build(self):
         hub_client = get_hub_client()
-        return hub_client.build(instance=self)
+        return hub_client.build(id=self.id)
 
     @classmethod
     def upload(cls, path: str):
@@ -166,10 +166,16 @@ class HubComponent(BaseModel):
         raw_hub_component = hub_client.get(
             name=name, version=version, first=True
         )
-        if raw_hub_component:
-            hub_component = HubComponent(**raw_hub_component)
-        else:
-            raise Exception(f"Hub component {name} not found")
+        if not raw_hub_component:
+            raw_hub_component = HubComponent(
+                name=name,
+                version=version,
+                splight_lib_version=spec.get("splight_lib_version", None),
+                splight_cli_version=spec.get("splight_cli_version", None),
+                privacy_policy=spec.get("privacy_policy"),
+                component_type=spec.get("component_type"),
+            ).save()
+        hub_component = HubComponent(**raw_hub_component)
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)

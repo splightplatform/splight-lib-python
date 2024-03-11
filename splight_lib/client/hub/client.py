@@ -66,7 +66,7 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def create(self, instance: BaseModel) -> BaseModel:
+    def _create(self, instance: BaseModel) -> BaseModel:
         url = self._hub_url / "components/"
         response = self._session.post(
             url, json=json.loads(instance.model_dump_json())
@@ -75,7 +75,7 @@ class SplightHubClient(AbstractHubClient):
         instance = response.json()
         return instance
 
-    def build(self, instance: BaseModel):
+    def build(self, id: str):
         url = self._hub_url / f"versions/{id}/build/"
         response = self._session.post(url)
         response.raise_for_status()
@@ -87,7 +87,7 @@ class SplightHubClient(AbstractHubClient):
         upload_url = response.json().get("url")
 
         with open(file_path, "rb") as fid:
-            response = self._session.put(
+            response = requests.put(
                 upload_url,
                 data=fid,
             )
@@ -125,4 +125,7 @@ class SplightHubClient(AbstractHubClient):
         ), f"Failed to delete component: {response.json()}"
 
     def save(self, instance: BaseModel) -> BaseModel:
-        raise NotImplementedError
+        if instance.id:
+            raise NotImplementedError
+        else:
+            return self._create(instance)
