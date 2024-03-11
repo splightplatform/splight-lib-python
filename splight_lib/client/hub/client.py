@@ -74,7 +74,7 @@ class SplightHubClient(AbstractHubClient):
         response.raise_for_status()
         instance = response.json()
         return instance
-    
+
     def build(self, instance: BaseModel):
         url = self._hub_url / f"versions/{id}/build/"
         response = self._session.post(url)
