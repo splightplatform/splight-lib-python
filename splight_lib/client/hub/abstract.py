@@ -21,7 +21,7 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def upload(self, data: Dict, files: Dict) -> Tuple:
+    def upload(self, id: str, file_path: str, type: str) -> BaseModel:
         pass
 
     @abstractmethod

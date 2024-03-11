@@ -212,15 +212,18 @@ class HubComponent(BaseModel):
         for key in to_json:
             data[key] = json.dumps(data[key])
 
-        # files = {
-        #     "file": open(file_name, "rb"),
-        #     "readme": open(readme_path, "rb"),
-        # }
         try:
-            hub_client.upload(id=hub_component.id, file_path=file_name)
+            hub_client.upload(
+                id=hub_component.id, file_path=file_name, type="source"
+            )
+            hub_client.upload(
+                id=hub_component.id, file_path=readme_path, type="readme"
+            )
         except Exception as exc:
             raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
+
+        hub_component.build()
         return hub_component
