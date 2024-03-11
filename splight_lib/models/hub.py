@@ -149,6 +149,14 @@ class HubComponent(BaseModel):
         hub_client = get_hub_client()
         return hub_client.download(id=self.id, name=self.name)
 
+    def create(self):
+        hub_client = get_hub_client()
+        return hub_client.create(instance=self)
+
+    def build(self):
+        hub_client = get_hub_client()
+        return hub_client.build(instance=self)
+
     @classmethod
     def upload(cls, path: str):
         hub_client = get_hub_client()

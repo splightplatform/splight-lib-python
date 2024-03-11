@@ -1,3 +1,4 @@
+import json
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Tuple
 
@@ -65,28 +66,42 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
+    def create(self, instance: BaseModel) -> BaseModel:
+        url = self._hub_url / "components/"
+        response = self._session.post(
+            url, json=json.loads(instance.model_dump_json())
+        )
+        response.raise_for_status()
+        instance = response.json()
+        return instance
+    
+    def build(self, instance: BaseModel):
+        url = self._hub_url / f"versions/{id}/build/"
+        response = self._session.post(url)
+        response.raise_for_status()
+
     def upload(self, id: str, file_path):
-        url = self._hub_url / f"components/{id}/upload_url/"
+        url = self._hub_url / f"versions/{id}/upload_url/"
         response = self._session.get(url)
         response.raise_for_status()
         upload_url = response.json().get("url")
 
         with open(file_path, "rb") as fid:
-            response = requests.put(
+            response = self._session.put(
                 upload_url,
                 data=fid,
             )
             response.raise_for_status()
 
     def download(self, id: str, name: str) -> NamedTemporaryFile:
-        url = self._hub_url / f"components/{id}/download_url/"
+        url = self._hub_url / f"versions/{id}/download_url/"
         response = self._session.get(url)
         response.raise_for_status()
         download_url = response.json().get("url")
 
         file = NamedTemporaryFile(mode="wb+", suffix=name)
         # TODO: Check why python wget is raised and error with code 403
-        response = requests.get(download_url, stream=True)
+        response = self._session.get(download_url, stream=True)
         with open(file.name, "wb") as f:
             length = int(response.headers.get("content-length"))
             chunk_size = 8192
