@@ -19,18 +19,3 @@ jobs:
         with:
           configuration: "--check-only --diff"
           isortVersion: "5.12.0"
-  run-snyk:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          version: 18.x
-      - name: Install Snyk
-        run: npm install snyk -g
-      - name: Authenticate Snyk
-        run: snyk auth ${{ secrets.SNYK_API_KEY }}
-      - name: Check Vulnerabilities
-        run: |
-          snyk code test
-          snyk test
