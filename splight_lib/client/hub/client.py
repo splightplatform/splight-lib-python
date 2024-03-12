@@ -94,22 +94,23 @@ class SplightHubClient(AbstractHubClient):
             )
             response.raise_for_status()
 
-    def download(self, id: str, name: str) -> NamedTemporaryFile:
+    def download(self, id: str, name: str, type: str) -> NamedTemporaryFile:
         url = self._hub_url / f"versions/{id}/download_url/"
-        response = self._session.get(url)
+        params = {"type": type}
+        response = self._session.get(url, params=params)
         response.raise_for_status()
         download_url = response.json().get("url")
 
         file = NamedTemporaryFile(mode="wb+", suffix=name)
         # TODO: Check why python wget is raised and error with code 403
-        response = self._session.get(download_url, stream=True)
+        response = requests.get(download_url, stream=True)
         with open(file.name, "wb") as f:
             length = int(response.headers.get("content-length"))
             chunk_size = 8192
             total_chunks = length // chunk_size + 1
             widgets = ["Downloading: ", progressbar.Bar("#")]
             bar = progressbar.ProgressBar(
-                maxval=total_chunks, widgets=widgets
+                max_value=total_chunks, widgets=widgets
             ).start()
             for counter, chunk in enumerate(
                 response.iter_content(chunk_size=chunk_size)

@@ -147,7 +147,7 @@ class HubComponent(BaseModel):
 
     def download(self):
         hub_client = get_hub_client()
-        return hub_client.download(id=self.id, name=self.name)
+        return hub_client.download(id=self.id, name=self.name, type="source")
 
     def save(self):
         hub_client = get_hub_client()
