@@ -68,9 +68,7 @@ class SplightHubClient(AbstractHubClient):
 
     def _create(self, instance: Dict) -> Dict:
         url = self._hub_url / "components/"
-        response = self._session.post(
-            url, json=instance
-        )
+        response = self._session.post(url, json=instance)
         response.raise_for_status()
         instance = response.json()
         return instance
