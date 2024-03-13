@@ -151,7 +151,7 @@ class HubComponent(BaseModel):
 
     def save(self):
         hub_client = get_hub_client()
-        return hub_client.save(instance=self)
+        return hub_client.save(instance=self.model_dump())
 
     def build(self):
         hub_client = get_hub_client()
@@ -167,14 +167,7 @@ class HubComponent(BaseModel):
             name=name, version=version, first=True
         )
         if not raw_hub_component:
-            raw_hub_component = HubComponent(
-                name=name,
-                version=version,
-                splight_lib_version=spec.get("splight_lib_version", None),
-                splight_cli_version=spec.get("splight_cli_version", None),
-                privacy_policy=spec.get("privacy_policy"),
-                component_type=spec.get("component_type"),
-            ).save()
+            raw_hub_component = HubComponent(**spec).save()
         hub_component = HubComponent(**raw_hub_component)
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
@@ -219,11 +212,11 @@ class HubComponent(BaseModel):
             hub_client.upload(
                 id=hub_component.id, file_path=readme_path, type="readme"
             )
+            hub_component.build()
         except Exception as exc:
             raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
 
-        hub_component.build()
         return hub_component

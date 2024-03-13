@@ -66,10 +66,10 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def _create(self, instance: BaseModel) -> BaseModel:
+    def _create(self, instance: Dict) -> Dict:
         url = self._hub_url / "components/"
         response = self._session.post(
-            url, json=json.loads(instance.model_dump_json())
+            url, json=instance
         )
         response.raise_for_status()
         instance = response.json()
@@ -126,8 +126,8 @@ class SplightHubClient(AbstractHubClient):
             response.status_code == 204
         ), f"Failed to delete component: {response.json()}"
 
-    def save(self, instance: BaseModel) -> BaseModel:
-        if instance.id:
+    def save(self, instance: Dict) -> Dict:
+        if instance.get("id"):
             raise NotImplementedError
         else:
             return self._create(instance)

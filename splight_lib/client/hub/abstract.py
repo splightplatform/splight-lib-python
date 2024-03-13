@@ -21,7 +21,7 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def upload(self, id: str, file_path: str, type: str) -> BaseModel:
+    def upload(self, id: str, file_path: str, type: str):
         pass
 
     @abstractmethod
@@ -33,5 +33,5 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def save(self, instance: BaseModel) -> BaseModel:
+    def save(self, instance: Dict) -> Dict:
         pass
