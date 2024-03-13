@@ -147,8 +147,15 @@ class HubComponent(BaseModel):
 
     def download(self):
         hub_client = get_hub_client()
-        params = {"name": self.name, "version": self.version}
-        return hub_client.download(data=params)
+        return hub_client.download(id=self.id, name=self.name, type="source")
+
+    def save(self):
+        hub_client = get_hub_client()
+        return hub_client.save(instance=self.model_dump())
+
+    def build(self):
+        hub_client = get_hub_client()
+        return hub_client.build(id=self.id)
 
     @classmethod
     def upload(cls, path: str):
@@ -156,6 +163,13 @@ class HubComponent(BaseModel):
         spec = get_spec(path)
         name = spec["name"]
         version = spec["version"]
+        raw_hub_component = hub_client.get(
+            name=name, version=version, first=True
+        )
+        if not raw_hub_component:
+            raw_hub_component = HubComponent(**spec).save()
+        hub_component = HubComponent(**raw_hub_component)
+
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
@@ -191,15 +205,18 @@ class HubComponent(BaseModel):
         for key in to_json:
             data[key] = json.dumps(data[key])
 
-        files = {
-            "file": open(file_name, "rb"),
-            "readme": open(readme_path, "rb"),
-        }
         try:
-            component = hub_client.upload(data=data, files=files)
+            hub_client.upload(
+                id=hub_component.id, file_path=file_name, type="source"
+            )
+            hub_client.upload(
+                id=hub_component.id, file_path=readme_path, type="readme"
+            )
+            hub_component.build()
         except Exception as exc:
             raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
-        return cls.model_validate(component)
+
+        return hub_component

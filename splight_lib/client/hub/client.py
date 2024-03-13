@@ -1,5 +1,8 @@
+import json
+from tempfile import NamedTemporaryFile
 from typing import Dict, List, Tuple
 
+import progressbar
 import requests
 from furl import furl
 from pydantic import BaseModel
@@ -63,27 +66,56 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def upload(self, data: Dict, files: Dict) -> Tuple:
-        url = self._hub_url / "upload/"
-        response = self._session.post(
-            url,
-            files=files,
-            data=data,
-        )
-        status_code = response.status_code
-        assert (
-            status_code == 201
-        ), f"Unable to upload component to HUB: {response.json()}"
-        return response.json()
+    def _create(self, instance: Dict) -> Dict:
+        url = self._hub_url / "components/"
+        response = self._session.post(url, json=instance)
+        response.raise_for_status()
+        instance = response.json()
+        return instance
 
-    def download(self, data: Dict) -> Tuple:
-        url = self._hub_url / "download/"
-        response = self._session.post(url, data=data)
-        status_code = response.status_code
-        assert (
-            status_code == 200
-        ), f"Unable to download component: {response.json()}"
-        return response.content
+    def build(self, id: str):
+        url = self._hub_url / f"versions/{id}/build/"
+        response = self._session.post(url)
+        response.raise_for_status()
+
+    def upload(self, id: str, file_path: str, type: str):
+        url = self._hub_url / f"versions/{id}/upload_url/"
+        params = {"type": type}
+        response = self._session.get(url, params=params)
+        response.raise_for_status()
+        upload_url = response.json().get("url")
+
+        with open(file_path, "rb") as fid:
+            response = requests.put(
+                upload_url,
+                data=fid,
+            )
+            response.raise_for_status()
+
+    def download(self, id: str, name: str, type: str) -> NamedTemporaryFile:
+        url = self._hub_url / f"versions/{id}/download_url/"
+        params = {"type": type}
+        response = self._session.get(url, params=params)
+        response.raise_for_status()
+        download_url = response.json().get("url")
+
+        file = NamedTemporaryFile(mode="wb+", suffix=name)
+        # TODO: Check why python wget is raised and error with code 403
+        response = requests.get(download_url, stream=True)
+        with open(file.name, "wb") as f:
+            length = int(response.headers.get("content-length"))
+            chunk_size = 8192
+            total_chunks = length // chunk_size + 1
+            widgets = ["Downloading: ", progressbar.Bar("#")]
+            bar = progressbar.ProgressBar(
+                max_value=total_chunks, widgets=widgets
+            ).start()
+            for counter, chunk in enumerate(
+                response.iter_content(chunk_size=chunk_size)
+            ):
+                f.write(chunk)
+                bar.update(counter)
+        return file
 
     def delete(self, id: str) -> None:
         url = self._hub_url / f"components/{id}/"
@@ -92,5 +124,8 @@ class SplightHubClient(AbstractHubClient):
             response.status_code == 204
         ), f"Failed to delete component: {response.json()}"
 
-    def save(self, instance: BaseModel) -> BaseModel:
-        raise NotImplementedError
+    def save(self, instance: Dict) -> Dict:
+        if instance.get("id"):
+            raise NotImplementedError
+        else:
+            return self._create(instance)
