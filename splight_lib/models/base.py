@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import ClassVar, Dict, List
 
 import pandas as pd
-from pydantic import BaseModel, Field, PrivateAttr, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
