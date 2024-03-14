@@ -1,6 +1,7 @@
+from datetime import datetime
 from threading import Lock, Thread
 from time import sleep
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from furl import furl
@@ -85,12 +86,18 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         collection: str = DEFAULT_COLLECTION,
         sort_field: str = DEFAULT_SORT_FIELD,
         sort_direction: int = -1,
+        from_timestamp: Optional[datetime] = None,
+        to_timestamp: Optional[datetime] = None,
+        extra_pipeline: List[Dict] = [],
+        aggregation_query: Dict = {},
         limit: int = 10000,
-        **filters,
     ) -> List[Dict]:
         # POST /data/read
         url = self._base_url / f"{self._PREFIX}/read"
+        pipeline = [{"$match": match}, *extra_pipeline]
         data_request = DataRequest(
+            from_timestmap=from_timestamp,
+            to_timestamp=to_timestamp,
             collection=collection,
             sort_field=sort_field,
             sort_direction=sort_direction,
@@ -99,11 +106,12 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
                 {
                     "ref_id": "output",
                     "type": "QUERY",
-                    "pipeline": [{"$match": match}],
+                    # "pipeline": [{"$match": match}, {"$addField": ...}],
+                    "pipeline": pipeline,
                     "expression": None,
                 }
             ],
-            **filters,
+            aggregation_query=aggregation_query,
         )
         response = self._restclient.post(url, json=data_request.dict())
         response.raise_for_status()
@@ -161,11 +169,23 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         collection: str = DEFAULT_COLLECTION,
         sort_field: str = DEFAULT_SORT_FIELD,
         sort_direction: int = -1,
+        from_timestamp: Optional[datetime] = None,
+        to_timestamp: Optional[datetime] = None,
+        extra_pipeline: List[Dict] = [],
+        aggregation_query: Dict = {},
         limit: int = 10000,
-        **filters,
+        **kwargs,
     ) -> pd.DataFrame:
         data = self._get(
-            match, collection, sort_field, sort_direction, limit, **filters
+            match,
+            collection,
+            sort_field,
+            sort_direction,
+            from_timestamp,
+            to_timestamp,
+            extra_pipeline,
+            aggregation_query,
+            limit,
         )
         df = pd.DataFrame(data)
         if not df.empty:
