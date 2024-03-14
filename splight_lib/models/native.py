@@ -23,21 +23,24 @@ class NativeOutput(SplightDatalakeBaseModel):
     def get(
         cls, asset: str, attribute: str, **params: Dict
     ) -> List["NativeOutput"]:
-        params["output_format"] = cls._output_format
         return super().get(asset, attribute, **params)
 
     @classmethod
-    async def async_get(cls, **params: Dict) -> List["NativeOutput"]:
-        params["output_format"] = cls._output_format
-        return await super().async_get(**params)
+    async def async_get(
+        cls, asset: str, attribute: str, **params: Dict
+    ) -> List["NativeOutput"]:
+        return await super().async_get(asset, attribute, **params)
 
     @classmethod
     def get_dataframe(cls, asset: str, attribute: str, **params: Dict):
-        params["output_format"] = cls._output_format
-        return super().get_dataframe(asset, attribute, **params)
+        df = super().get_dataframe(asset, attribute, **params)
+        df["output_format"] = cls._output_format
+        return df
 
     @classmethod
-    def latest(cls, asset: str, attribute: str, expiration: timedelta = None):
+    def latest(
+        cls, asset: str, attribute: str, expiration: Optional[timedelta] = None
+    ):
         from_timestamp = None
         if expiration:
             from_timestamp = datetime.now(timezone.utc) - expiration
