@@ -277,16 +277,17 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
     def _flush_buffer(
         self, collection: str, buffer: DatalakeDocumentBuffer
     ) -> None:
-        if buffer.should_flush():
-            try:
-                logger.debug(
-                    "Flushing datalake buffer with %s elements",
-                    len(buffer.data),
-                )
-                self._send_documents(collection, buffer.data)
-                buffer.reset()
-            except Exception:
-                logger.error("Unable to save documents", exc_info=True)
+        with self._lock:
+            if buffer.should_flush():
+                try:
+                    logger.debug(
+                        "Flushing datalake buffer with %s elements",
+                        len(buffer.data),
+                    )
+                    self._send_documents(collection, buffer.data)
+                    buffer.reset()
+                except Exception:
+                    logger.error("Unable to save documents", exc_info=True)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: List[Dict]) -> List[Dict]:
