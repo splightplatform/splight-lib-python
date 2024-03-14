@@ -177,7 +177,7 @@ class SplightDatalakeBaseModel(BaseModel):
                 "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
                 "access_id": settings.SPLIGHT_ACCESS_ID,
                 "secret_key": settings.SPLIGHT_SECRET_KEY,
-                "buffers_size": settings.DL_BUFFER_SIZE,
+                "buffer_size": settings.DL_BUFFER_SIZE,
                 "buffer_timeout": settings.DL_BUFFER_TIMEOUT,
             },
         )

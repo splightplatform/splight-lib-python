@@ -228,6 +228,11 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
 
+        logger.debug(
+            "Initializing buffer with size %s and timeout %s",
+            buffer_size,
+            buffer_timeout,
+        )
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
             "routine_evaluations": DatalakeDocumentBuffer(
@@ -274,6 +279,10 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
     ) -> None:
         if buffer.should_flush():
             try:
+                logger.debug(
+                    "Flushing datalake buffer with %s elements",
+                    len(buffer.data),
+                )
                 self._send_documents(collection, buffer.data)
                 buffer.reset()
             except Exception:
