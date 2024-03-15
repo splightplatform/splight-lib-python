@@ -2,7 +2,7 @@ import os
 
 from pytest_mock import MockerFixture
 
-from splight_lib.client.datalake import RemoteDatalakeClient  # noqa E402
+from splight_lib.client.datalake import SyncRemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
     SplightRestClient,
 )
@@ -34,7 +34,7 @@ def test_initialization(mocker: MockerFixture):
         "update_headers",
         return_value=None,
     )
-    _ = RemoteDatalakeClient(
+    _ = SyncRemoteDatalakeClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
@@ -49,7 +49,7 @@ def test_save(mocker: MockerFixture):
     secret_key = os.getenv("SECRET_KEY")
     access_id = os.getenv("ACCESS_ID")
 
-    client = RemoteDatalakeClient(
+    client = SyncRemoteDatalakeClient(
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,

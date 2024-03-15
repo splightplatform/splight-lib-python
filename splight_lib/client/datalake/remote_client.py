@@ -26,7 +26,7 @@ from splight_lib.stringcase import camelcase
 logger = get_splight_logger()
 
 
-class RemoteDatalakeClient(AbstractDatalakeClient):
+class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     _PREFIX = "/data"
 
     def __init__(
@@ -198,7 +198,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         return df
 
 
-class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
+class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
 
     def __init__(
@@ -302,7 +302,7 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
         return docs
 
 
-class BufferedSynchronousRemoteDataClient(RemoteDatalakeClient):
+class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
 
     def __init__(

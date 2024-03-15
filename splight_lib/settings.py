@@ -6,7 +6,11 @@ from pydantic import ConfigDict, model_validator
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
+from splight_lib.constants import (
+    DL_BUFFER_SIZE,
+    DL_BUFFER_TIMEOUT,
+    DL_DEFAULT_CLIENT_TYPE,
+)
 
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
 
@@ -58,12 +62,13 @@ class SplightSettings(BaseSettings, Singleton):
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     # Parameters for local environment
+    # TODO: to deprecate this and its effects
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str] = None
 
-    # Parameters for Buffered Datalake Client
+    # Parameters for the datalake client
     # Review if is better to use another class for only the DL Client settings
-    USE_BUFFER: bool = True
+    DL_CLIENT_TYPE: str = DL_DEFAULT_CLIENT_TYPE
     DL_BUFFER_SIZE: int = DL_BUFFER_SIZE
     DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
 
