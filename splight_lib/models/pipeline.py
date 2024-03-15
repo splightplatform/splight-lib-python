@@ -12,7 +12,7 @@ from splight_lib.stringcase import camelcase
 
 def get_datalake_client() -> AbstractDatalakeClient:
     client = DatalakeClientBuilder.build(
-        local=settings.LOCAL_ENVIRONMENT,
+        dl_client_type=settings.DL_CLIENT_TYPE,
         parameters={
             "path": settings.CURRENT_DIR,
             "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
