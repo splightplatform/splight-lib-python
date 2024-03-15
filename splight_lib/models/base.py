@@ -1,9 +1,9 @@
 import json
 from datetime import datetime, timezone
-from typing import ClassVar, Dict, List, Optional
+from typing import ClassVar, Dict, List
 
 import pandas as pd
-from pydantic import BaseModel, Field, PrivateAttr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
@@ -75,14 +75,10 @@ class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    instance_id: str = ""
-    instance_type: str = ""
     _collection_name: ClassVar[str] = "DatalakeModel"
     _dl_client: AbstractDatalakeClient = PrivateAttr()
 
-    @field_validator("instance_id", "instance_type", mode="before")
-    def convert_to_string(cls, value: Optional[str]):
-        return value if value else ""
+    model_config = ConfigDict(extra="ignore")
 
     @classmethod
     def get(
