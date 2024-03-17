@@ -23,10 +23,4 @@ class DatalakeClientBuilder:
         dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
         parameters: Dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
-        if not dl_client_type in set(DatalakeClientType):
-            raise ValueError(
-                "Value '%s' is not one of the available buffers: %s",
-                dl_client_type,
-                set(DatalakeClientType),
-            )
         return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)
