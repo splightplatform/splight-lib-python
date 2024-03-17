@@ -239,9 +239,9 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                 buffer_size, buffer_timeout
             ),
         }
+        self._lock = Lock()
         self._flush_thread = Thread(target=self._flusher, daemon=True)
         self._flush_thread.start()
-        self._lock = Lock()
         logger.debug(
             "Buffered Remote datalake client initialized.",
             tags=LogTags.DATALAKE,
