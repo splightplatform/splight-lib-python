@@ -359,6 +359,10 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         buffer = self._data_buffers[collection]
         with self._lock:
             if buffer.should_flush():
+                logger.debug(
+                    "Flushing datalake buffer with %s elements",
+                    len(buffer.data),
+                )
                 self._send_documents(collection, buffer.data)
                 buffer.reset()
             buffer.add_documents(instances)
