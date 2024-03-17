@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from typing import Any, Dict, Optional, Tuple, Type
 
 import yaml
@@ -6,13 +7,16 @@ from pydantic import ConfigDict, model_validator
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from splight_lib.constants import (
-    DL_BUFFER_SIZE,
-    DL_BUFFER_TIMEOUT,
-    DL_DEFAULT_CLIENT_TYPE,
-)
+from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
+
+
+class DatalakeClientType(str, Enum):
+    LOCAL = "local"
+    SYNC = "sync"
+    BUFFERED_SYNC = "buffered_sync"
+    BUFFERED_ASYNC = "buffered_async"
 
 
 class Singleton:
@@ -68,7 +72,7 @@ class SplightSettings(BaseSettings, Singleton):
 
     # Parameters for the datalake client
     # Review if is better to use another class for only the DL Client settings
-    DL_CLIENT_TYPE: str = DL_DEFAULT_CLIENT_TYPE
+    DL_CLIENT_TYPE: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC
     DL_BUFFER_SIZE: int = DL_BUFFER_SIZE
     DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
 

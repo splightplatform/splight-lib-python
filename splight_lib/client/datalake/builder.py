@@ -7,9 +7,9 @@ from splight_lib.client.datalake.remote_client import (
     BufferedSyncRemoteDataClient,
     SyncRemoteDatalakeClient,
 )
-from splight_lib.constants import DL_CLIENT_ALLOWED_TYPES
+from splight_lib.settings import DatalakeClientType
 
-dl_client_type_map = {
+DL_CLIENT_TYPE_MAP = {
     "buffered_async": BufferedAsyncRemoteDatalakeClient,
     "buffered_sync": BufferedSyncRemoteDataClient,
     "sync": SyncRemoteDatalakeClient,
@@ -20,13 +20,7 @@ dl_client_type_map = {
 class DatalakeClientBuilder:
     @staticmethod
     def build(
-        dl_client_type: str = "buffered_sync",
+        dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
         parameters: Dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
-        if not dl_client_type in DL_CLIENT_ALLOWED_TYPES:
-            raise ValueError(
-                "Expected value in %s. Got %s",
-                DL_CLIENT_ALLOWED_TYPES,
-                dl_client_type,
-            )
-        return dl_client_type_map[dl_client_type](**parameters)
+        return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)
