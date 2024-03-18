@@ -170,8 +170,7 @@ class SplightDatalakeBaseModel(BaseModel):
     @staticmethod
     def __get_datalake_client() -> AbstractDatalakeClient:
         db_client = DatalakeClientBuilder.build(
-            local=settings.LOCAL_ENVIRONMENT,
-            use_buffer=settings.USE_BUFFER,
+            dl_client_type=settings.DL_CLIENT_TYPE,
             parameters={
                 "path": settings.CURRENT_DIR,
                 "base_url": settings.SPLIGHT_PLATFORM_API_HOST,

@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from typing import Any, Dict, Optional, Tuple, Type
 
 import yaml
@@ -9,6 +10,13 @@ from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 from splight_lib.constants import DL_BUFFER_SIZE, DL_BUFFER_TIMEOUT
 
 SPLIGHT_HOME = os.path.join(os.path.expanduser("~"), ".splight")
+
+
+class DatalakeClientType(str, Enum):
+    LOCAL = "local"
+    SYNC = "sync"
+    BUFFERED_SYNC = "buffered_sync"
+    BUFFERED_ASYNC = "buffered_async"
 
 
 class Singleton:
@@ -58,12 +66,13 @@ class SplightSettings(BaseSettings, Singleton):
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     # Parameters for local environment
+    # TODO: to deprecate this and its effects
     LOCAL_ENVIRONMENT: bool = False
     CURRENT_DIR: Optional[str] = None
 
-    # Parameters for Buffered Datalake Client
+    # Parameters for the datalake client
     # Review if is better to use another class for only the DL Client settings
-    USE_BUFFER: bool = True
+    DL_CLIENT_TYPE: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC
     DL_BUFFER_SIZE: int = DL_BUFFER_SIZE
     DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
 

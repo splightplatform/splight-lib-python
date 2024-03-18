@@ -3,22 +3,24 @@ from typing import Any, Dict
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.local_client import LocalDatalakeClient
 from splight_lib.client.datalake.remote_client import (
-    BufferedRemoteDatalakeClient,
-    RemoteDatalakeClient,
+    BufferedAsyncRemoteDatalakeClient,
+    BufferedSyncRemoteDataClient,
+    SyncRemoteDatalakeClient,
 )
+from splight_lib.settings import DatalakeClientType
+
+DL_CLIENT_TYPE_MAP = {
+    DatalakeClientType.BUFFERED_ASYNC: BufferedAsyncRemoteDatalakeClient,
+    DatalakeClientType.BUFFERED_SYNC: BufferedSyncRemoteDataClient,
+    DatalakeClientType.SYNC: SyncRemoteDatalakeClient,
+    DatalakeClientType.LOCAL: LocalDatalakeClient,
+}
 
 
 class DatalakeClientBuilder:
     @staticmethod
     def build(
-        local: bool = False,
-        use_buffer: bool = True,
+        dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
         parameters: Dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
-        if local:
-            dl_client = LocalDatalakeClient(**parameters)
-        elif use_buffer:
-            dl_client = BufferedRemoteDatalakeClient(**parameters)
-        else:
-            dl_client = RemoteDatalakeClient(**parameters)
-        return dl_client
+        return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)

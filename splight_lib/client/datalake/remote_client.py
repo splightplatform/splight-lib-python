@@ -26,7 +26,7 @@ from splight_lib.stringcase import camelcase
 logger = get_splight_logger()
 
 
-class RemoteDatalakeClient(AbstractDatalakeClient):
+class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     _PREFIX = "/data"
 
     def __init__(
@@ -198,7 +198,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         return df
 
 
-class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
+class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
 
     def __init__(
@@ -239,9 +239,9 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
                 buffer_size, buffer_timeout
             ),
         }
+        self._lock = Lock()
         self._flush_thread = Thread(target=self._flusher, daemon=True)
         self._flush_thread.start()
-        self._lock = Lock()
         logger.debug(
             "Buffered Remote datalake client initialized.",
             tags=LogTags.DATALAKE,
@@ -277,21 +277,110 @@ class BufferedRemoteDatalakeClient(RemoteDatalakeClient):
     def _flush_buffer(
         self, collection: str, buffer: DatalakeDocumentBuffer
     ) -> None:
-        if buffer.should_flush():
-            try:
+        with self._lock:
+            if buffer.should_flush():
+                try:
+                    logger.debug(
+                        "Flushing datalake buffer with %s elements",
+                        len(buffer.data),
+                    )
+                    self._send_documents(collection, buffer.data)
+                    buffer.reset()
+                except Exception:
+                    logger.error("Unable to save documents", exc_info=True)
+
+    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    def _send_documents(self, collection: str, docs: List[Dict]) -> List[Dict]:
+        url = self._base_url / f"{self._PREFIX}/write"
+        collection = camelcase(collection)
+        data = {
+            "collection": collection,
+            "records": docs,
+        }
+        response = self._restclient.post(url, json=data)
+        response.raise_for_status()
+        return docs
+
+
+class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
+    _PREFIX = "data"
+
+    def __init__(
+        self,
+        base_url: str,
+        access_id: str,
+        secret_key: str,
+        buffer_size: int = DL_BUFFER_SIZE,
+        buffer_timeout: float = DL_BUFFER_TIMEOUT,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            base_url,
+            access_id,
+            secret_key,
+            buffer_size,
+            buffer_timeout,
+            *args,
+            **kwargs,
+        )
+        self._base_url = furl(base_url)
+        token = SplightAuthToken(
+            access_key=access_id,
+            secret_key=secret_key,
+        )
+        self._restclient = SplightRestClient()
+        self._restclient.update_headers(token.header)
+
+        logger.debug(
+            "Initializing buffer with size %s and timeout %s",
+            buffer_size,
+            buffer_timeout,
+        )
+        self._data_buffers = {
+            "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
+            "routine_evaluations": DatalakeDocumentBuffer(
+                buffer_size, buffer_timeout
+            ),
+        }
+        self._lock = Lock()
+        logger.debug(
+            "Synchronous Buffered Remote datalake client initialized.",
+            tags=LogTags.DATALAKE,
+        )
+
+    def save(
+        self, collection: str, instances: Union[List[Dict], Dict]
+    ) -> List[Dict]:
+        logger.debug("Saving documents in datalake")
+        instances = instances if isinstance(instances, List) else [instances]
+        if collection not in self._data_buffers:
+            raise InvalidCollectionName(collection)
+        buffer = self._data_buffers[collection]
+        with self._lock:
+            if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                 )
                 self._send_documents(collection, buffer.data)
                 buffer.reset()
-            except Exception:
-                logger.error("Unable to save documents", exc_info=True)
+            buffer.add_documents(instances)
+        return instances
+
+    def save_dataframe(
+        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
+    ) -> None:
+        logger.debug("Saving dataframe in datalake")
+        dataframe["timestamp"] = dataframe["timestamp"].apply(
+            lambda x: x.tz_localize(tz="UTC").isoformat()
+        )
+        instances = dataframe.to_dict("records")
+        self.save(collection, instances)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: List[Dict]) -> List[Dict]:
         url = self._base_url / f"{self._PREFIX}/write"
-        collection = camelcase(collection)
         collection = camelcase(collection)
         data = {
             "collection": collection,
