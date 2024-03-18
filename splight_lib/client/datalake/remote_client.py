@@ -198,7 +198,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return df
 
 
-class BufferedAsyncRemoteDatalakeClient(AbstractDatalakeClient):
+class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
 
     def __init__(
@@ -302,7 +302,7 @@ class BufferedAsyncRemoteDatalakeClient(AbstractDatalakeClient):
         return docs
 
 
-class BufferedSyncRemoteDataClient(AbstractDatalakeClient):
+class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
 
     def __init__(
