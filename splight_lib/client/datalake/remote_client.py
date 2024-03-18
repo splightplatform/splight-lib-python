@@ -96,7 +96,7 @@ class RemoteDatalakeClient(AbstractDatalakeClient):
         url = self._base_url / f"{self._PREFIX}/read"
         pipeline = [{"$match": match}, *extra_pipeline]
         data_request = DataRequest(
-            from_timestmap=from_timestamp,
+            from_timestamp=from_timestamp,
             to_timestamp=to_timestamp,
             collection=collection,
             sort_field=sort_field,
