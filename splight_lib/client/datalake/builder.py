@@ -10,10 +10,10 @@ from splight_lib.client.datalake.remote_client import (
 from splight_lib.settings import DatalakeClientType
 
 DL_CLIENT_TYPE_MAP = {
-    "buffered_async": BufferedAsyncRemoteDatalakeClient,
-    "buffered_sync": BufferedSyncRemoteDataClient,
-    "sync": SyncRemoteDatalakeClient,
-    "local": LocalDatalakeClient,
+    DatalakeClientType.BUFFERED_ASYNC: BufferedAsyncRemoteDatalakeClient,
+    DatalakeClientType.BUFFERED_SYNC: BufferedSyncRemoteDataClient,
+    DatalakeClientType.SYNC: SyncRemoteDatalakeClient,
+    DatalakeClientType.LOCAL: LocalDatalakeClient,
 }
 
 
