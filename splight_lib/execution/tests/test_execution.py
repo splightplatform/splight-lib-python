@@ -13,7 +13,7 @@ def test_task_with_error():
     task = PeriodicTask(target=task_function, period=1)
 
     engine = ExecutionEngine()
-    assert engine.state == EngineStatus.INITIALIZED
+    assert engine.state == EngineStatus.UNKNOWN
 
     engine.add_task(task, in_background=False, exit_on_fail=True)
 
@@ -30,7 +30,7 @@ def test_task_with_error_on_background():
     task = PeriodicTask(target=task_function, period=1)
 
     engine = ExecutionEngine()
-    assert engine.state == EngineStatus.INITIALIZED
+    assert engine.state == EngineStatus.UNKNOWN
 
     engine.add_task(task, in_background=True, exit_on_fail=True)
 
