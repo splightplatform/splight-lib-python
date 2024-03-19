@@ -17,6 +17,7 @@ class EngineStatus(PascalCaseStrEnum):
     FINISHED = auto()
     FAILED = auto()
     INITIALIZED = auto()
+    UNKNOWN = auto()
 
 
 class ExecutionEngine:
@@ -42,7 +43,7 @@ class ExecutionEngine:
             self._task_fail_callback, EVENT_JOB_ERROR
         )
         self._running = True
-        self._state = EngineStatus.INITIALIZED
+        self._state = EngineStatus.UNKNOWN
 
     @property
     def running(self) -> bool:
