@@ -73,6 +73,13 @@ class SplightHubClient(AbstractHubClient):
         instance = response.json()
         return instance
 
+    def _update(self, instance: Dict) -> Dict:
+        url = self._hub_url / "components/"
+        response = self._session.put(url, json=instance)
+        response.raise_for_status()
+        instance = response.json()
+        return instance
+
     def build(self, id: str):
         url = self._hub_url / f"versions/{id}/build/"
         response = self._session.post(url)
@@ -126,6 +133,6 @@ class SplightHubClient(AbstractHubClient):
 
     def save(self, instance: Dict) -> Dict:
         if instance.get("id"):
-            raise NotImplementedError
+            return self._update(instance)
         else:
             return self._create(instance)

@@ -63,7 +63,7 @@ class HubComponent(BaseModel):
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     privacy_policy: Optional[str] = None
-    component_type: Optional[str] = None
+    component_type: ComponentType = ComponentType.CONNECTOR
     tenant: Optional[str] = None
     readme: Optional[str] = None
     picture: Optional[str] = None
@@ -166,9 +166,13 @@ class HubComponent(BaseModel):
         raw_hub_component = hub_client.get(
             name=name, version=version, first=True
         )
-        if not raw_hub_component:
-            raw_hub_component = HubComponent(**spec).save()
-        hub_component = HubComponent(**raw_hub_component)
+
+        new_hub_component = HubComponent(**spec)
+        if raw_hub_component:
+            old_hub_component = HubComponent(**raw_hub_component)
+            new_hub_component.id = old_hub_component.id
+        new_raw_hub_component = new_hub_component.save()
+        hub_component = HubComponent(**new_raw_hub_component)
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
