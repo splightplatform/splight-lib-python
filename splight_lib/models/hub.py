@@ -167,12 +167,12 @@ class HubComponent(BaseModel):
             name=name, version=version, first=True
         )
 
-        new_hub_component = HubComponent(**spec)
+        new_hub_component = HubComponent.model_validate(spec)
         if raw_hub_component:
-            old_hub_component = HubComponent(**raw_hub_component)
+            old_hub_component = HubComponent.model_validate(raw_hub_component)
             new_hub_component.id = old_hub_component.id
         new_raw_hub_component = new_hub_component.save()
-        hub_component = HubComponent(**new_raw_hub_component)
+        hub_component = HubComponent.model_validate(new_raw_hub_component)
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
