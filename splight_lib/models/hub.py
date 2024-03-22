@@ -151,7 +151,9 @@ class HubComponent(BaseModel):
 
     def save(self):
         hub_client = get_hub_client()
-        return hub_client.save(instance=self.model_dump())
+        saved = hub_client.save(instance=self.model_dump())
+        if not self.id:
+            self.id = saved["id"]
 
     def build(self):
         hub_client = get_hub_client()
@@ -167,12 +169,11 @@ class HubComponent(BaseModel):
             name=name, version=version, first=True
         )
 
-        new_hub_component = HubComponent.model_validate(spec)
+        hub_component = HubComponent.model_validate(spec)
         if raw_hub_component:
             old_hub_component = HubComponent.model_validate(raw_hub_component)
-            new_hub_component.id = old_hub_component.id
-        new_raw_hub_component = new_hub_component.save()
-        hub_component = HubComponent.model_validate(new_raw_hub_component)
+            hub_component.id = old_hub_component.id
+        hub_component.save()
 
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)

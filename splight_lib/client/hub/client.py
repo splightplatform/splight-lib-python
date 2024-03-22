@@ -74,7 +74,8 @@ class SplightHubClient(AbstractHubClient):
         return instance
 
     def _update(self, instance: Dict) -> Dict:
-        url = self._hub_url / "components/"
+        instance_id = instance.get("id")
+        url = self._hub_url / "components" / f"{instance_id}/"
         response = self._session.put(url, json=instance)
         response.raise_for_status()
         instance = response.json()
