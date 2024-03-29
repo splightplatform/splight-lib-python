@@ -254,8 +254,16 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         instances = instances if isinstance(instances, List) else [instances]
         if collection not in self._data_buffers:
             raise InvalidCollectionName(collection)
+        buffer = self._data_buffers[collection]
         with self._lock:
-            self._data_buffers[collection].add_documents(instances)
+            if buffer.should_flush():
+                logger.debug(
+                    "Flushing datalake buffer with %s elements",
+                    len(buffer.data),
+                )
+                self._send_documents(collection, buffer.data)
+                buffer.reset()
+            buffer.add_documents(instances)
         return instances
 
     def save_dataframe(
