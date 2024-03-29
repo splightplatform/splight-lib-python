@@ -17,8 +17,8 @@ help:
 
 clean: clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-set-version:
-	poetry version $(version)
+update-version:
+	poetry version $(scope)
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
