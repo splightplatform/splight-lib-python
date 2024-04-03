@@ -131,6 +131,7 @@ class CustomType(BaseModel):
 
 class Routine(BaseModel):
     name: str
+    max_instances: Optional[int] = None
 
     config: Optional[List[InputParameter]] = []
     input: List[DataAddress] = []

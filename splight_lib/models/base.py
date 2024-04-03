@@ -32,7 +32,9 @@ class SplightDatabaseBaseModel(BaseModel):
 
     def save(self):
         saved = self._db_client.save(
-            self.__class__.__name__, self.model_dump(exclude_none=True)
+            self.__class__.__name__,
+            # TODO: improve the following line
+            json.loads(self.model_dump_json(exclude_none=True)),
         )
         if not self.id:
             self.id = saved["id"]

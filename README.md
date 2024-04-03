@@ -31,6 +31,18 @@ Then to insall the library you can use the command
 poetry install
 ```
 
+#### Managing versions
+
+The package is managed using `poetry` so we should use this tool for handling
+versioning. In particular, the repository contains a `Makefile` that contains 
+the commands for updating the splight-lib versions. So, if you need to update
+the version you should use the command
+
+```bash
+make update-version scope=<scope>
+```
+where scope can be `mayor`, `minor` or `patch`.
+
 ## Tests
 
 ```
