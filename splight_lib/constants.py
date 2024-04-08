@@ -1,4 +1,5 @@
 ENGINE_PREFIX: str = "v2/engine"
+HUB_PREFIX: str = "v2/hub"
 DESCRIPTION_MAX_LENGTH = 500
 
 DL_BUFFER_SIZE = 500
