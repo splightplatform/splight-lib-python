@@ -30,6 +30,5 @@ def test_all_splight_restclient_methods_have_equal_response_to_other_libraries(
         getattr(restclient_response, attr)
         == getattr(httpx_response, attr)
         == getattr(session_response, attr)
-        == getattr(requests_response, attr),
-        f"Error in {attr} atributte.",
-    )
+        == getattr(requests_response, attr)
+    ), f"Error in {attr} atributte."
