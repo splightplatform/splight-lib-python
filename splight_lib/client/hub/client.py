@@ -1,6 +1,5 @@
-import json
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import progressbar
 import requests
