@@ -62,7 +62,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         )
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def save(self, resource_name: str, instance: Dict) -> Dict:
+    def save(
+        self,
+        resource_name: str,
+        instance: Dict,
+        files: Optional[Dict[str, str]] = None,
+    ) -> Dict:
         """Creates or updates a resource depending on the name if
         it contains the id or not.
 
@@ -72,6 +77,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             The name of the resource to be created or updated.
         instance : Dict
             A dictionary with resource to be created or updated
+        files: Optional[Dict[str, srt]] = None
+            A dictionary with the name and the file path to the files to be
+            pushed
 
         Returns
         -------
@@ -82,9 +90,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         InvalidModelName thrown when the model name is not correct.
         """
         if instance.get("id"):
-            output = self._update(resource_name, instance["id"], instance)
+            output = self._update(
+                resource_name, instance["id"], instance, files
+            )
         else:
-            output = self._create(resource_name, instance)
+            output = self._create(resource_name, instance, files)
         return output
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
@@ -246,7 +256,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response.raise_for_status()
         return response.json()
 
-    def _create(self, resource_name: str, instance: Dict) -> Dict:
+    def _create(
+        self,
+        resource_name: str,
+        instance: Dict,
+        files: Optional[Dict[str, str]] = None,
+    ) -> Dict:
         logger.debug("Saving new instance", tags=LogTags.DATABASE)
         model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
@@ -254,7 +269,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if model_name == "file":
             instance = self._create_file(instance, url)
         else:
-            response = self._restclient.post(url, json=instance)
+            files_payload = (
+                {key: open(value, "rb") for key, value in files.items()}
+                if files
+                else None
+            )
+            response = self._restclient.post(
+                url, data=instance, files=files_payload
+            )
             response.raise_for_status()
             instance = response.json()
         logger.debug(
@@ -263,7 +285,11 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return instance
 
     def _update(
-        self, resource_name: str, resource_id: str, instance: Dict
+        self,
+        resource_name: str,
+        resource_id: str,
+        instance: Dict,
+        files: Optional[Dict[str, str]] = None,
     ) -> Dict:
         logger.debug("Saving instance %s", resource_id, tags=LogTags.DATABASE)
         model_name = resource_name.lower()
@@ -274,7 +300,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 file = {"file": f}
                 response = self._restclient.put(url, data=instance, files=file)
         else:
-            response = self._restclient.put(url, json=instance)
+            files_payload = (
+                {key: open(value, "rb") for key, value in files.items()}
+                if files
+                else None
+            )
+            response = self._restclient.put(
+                url, data=instance, files=files_payload
+            )
 
         response.raise_for_status()
         return response.json()
