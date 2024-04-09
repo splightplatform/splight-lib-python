@@ -1,4 +1,4 @@
-from splight_lib.constants import ENGINE_PREFIX
+from splight_lib.constants import ENGINE_PREFIX, HUB_PREFIX
 
 MODEL_NAME_MAP = {
     "advancedfilter": f"{ENGINE_PREFIX}/alert/advancedfilters/",
@@ -19,6 +19,7 @@ MODEL_NAME_MAP = {
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
+    "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
 }
 
 CUSTOM_PATHS_MAP = {

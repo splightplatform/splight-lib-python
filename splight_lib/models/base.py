@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
-from typing import ClassVar, Dict, List
+from pathlib import Path
+from typing import ClassVar, Dict, List, Optional, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -19,6 +20,9 @@ def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
     return json.dumps(new_data, default=default, **dumps_kwargs)
 
 
+FilePath = TypeVar("FilePath", str, Path)
+
+
 class SplightDatabaseBaseModel(BaseModel):
     _db_client: AbstractDatabaseClient = PrivateAttr()
 
@@ -31,10 +35,12 @@ class SplightDatabaseBaseModel(BaseModel):
         return f"{type_.lower()}-{action.lower()}"
 
     def save(self):
+        files_dict = self._get_model_files_dict()
         saved = self._db_client.save(
             self.__class__.__name__,
             # TODO: improve the following line
             json.loads(self.model_dump_json(exclude_none=True)),
+            files=files_dict,
         )
         if not self.id:
             self.id = saved["id"]
@@ -71,6 +77,9 @@ class SplightDatabaseBaseModel(BaseModel):
             },
         )
         return db_client
+
+    def _get_model_files_dict(self) -> Optional[Dict]:
+        return None
 
 
 class SplightDatalakeBaseModel(BaseModel):
