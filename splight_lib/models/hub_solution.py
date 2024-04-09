@@ -1,7 +1,6 @@
-import json
 from typing import Dict, List, Optional
 
-from pydantic import Field, field_serializer
+from pydantic import Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import FilePath, SplightDatabaseBaseModel
@@ -19,10 +18,6 @@ class HubSolution(SplightDatabaseBaseModel):
     main_file: Optional[FilePath] = Field(default=None, exclude=True)
     variables_file: Optional[FilePath] = Field(default=None, exclude=True)
     values_file: Optional[FilePath] = Field(default=None, exclude=True)
-
-    @field_serializer("tags", return_type="str", when_used="always")
-    def tags_serializer(tags: List[str]) -> str:
-        return json.dumps(tags)
 
     def save(self) -> None:
         if not all([self.main_file, self.variables_file, self.values_file]):
