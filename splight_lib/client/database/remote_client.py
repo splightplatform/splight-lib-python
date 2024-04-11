@@ -274,9 +274,13 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 if files
                 else None
             )
-            response = self._restclient.post(
-                url, data=instance, files=files_payload
-            )
+            # TODO: Fix in API so here we only use data argument
+            if files_payload:
+                req_args = {"data": instance, "files": files_payload}
+            else:
+                req_args = {"json": instance}
+
+            response = self._restclient.post(url, **req_args)
             response.raise_for_status()
             instance = response.json()
         logger.debug(
@@ -305,8 +309,15 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 if files
                 else None
             )
+
+            # TODO: Fix in API so here we only use data argument
+            if files_payload:
+                req_args = {"data": instance, "files": files_payload}
+            else:
+                req_args = {"json": instance}
+
             response = self._restclient.put(
-                url, data=instance, files=files_payload
+                url, **req_args
             )
 
         response.raise_for_status()
