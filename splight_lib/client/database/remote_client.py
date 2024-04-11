@@ -316,9 +316,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             else:
                 req_args = {"json": instance}
 
-            response = self._restclient.put(
-                url, **req_args
-            )
+            response = self._restclient.put(url, **req_args)
 
         response.raise_for_status()
         return response.json()
