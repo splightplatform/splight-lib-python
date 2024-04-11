@@ -91,6 +91,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         extra_pipeline: List[Dict] = [],
         aggregation_query: Dict = {},
         limit: int = 10000,
+        max_time_ms: Optional[int] = 10000,
     ) -> List[Dict]:
         # POST /data/read
         url = self._base_url / f"{self._PREFIX}/read"
@@ -102,6 +103,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             sort_field=sort_field,
             sort_direction=sort_direction,
             limit=limit,
+            max_time_ms=max_time_ms,
             traces=[
                 {
                     "ref_id": "output",
@@ -128,6 +130,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         extra_pipeline: List[Dict] = [],
         aggregation_query: Dict = {},
         limit: int = 10000,
+        max_time_ms: Optional[int] = 10000,
     ) -> List[Dict]:
         # POST /data/read
         url = self._base_url / f"{self._PREFIX}/read"
@@ -139,6 +142,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             sort_field=sort_field,
             sort_direction=sort_direction,
             limit=limit,
+            max_time_ms=max_time_ms,
             traces=[
                 {
                     "ref_id": "output",
@@ -175,6 +179,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         extra_pipeline: List[Dict] = [],
         aggregation_query: Dict = {},
         limit: int = 10000,
+        max_time_ms: Optional[int] = 10000,
         **kwargs,
     ) -> pd.DataFrame:
         data = self._get(
@@ -187,6 +192,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             extra_pipeline,
             aggregation_query,
             limit,
+            max_time_ms,
         )
         df = pd.DataFrame(data)
         if not df.empty:
