@@ -37,7 +37,7 @@ class DataRequest(BaseModel):
     sort_direction: int = Field(-1, ge=-1, le=1)
     limit: int = Field(10000, ge=1, le=10000)
     # tzinfo: timezone = timezone.utc
-    max_time_ms: int = Field(3000, ge=1, le=3000)
+    max_time_ms: int = Field(10000, ge=1, le=10000)
     from_timestamp: Optional[datetime] = None
     to_timestamp: Optional[datetime] = None
     traces: List[Trace]
