@@ -98,7 +98,7 @@ def test_save_with_id(instance_dict):
     ) as mock:
         resource = Resource.model_validate(instance_dict)
         resource.save()
-        mock.assert_called_with(Resource.__name__, instance_dict)
+        mock.assert_called_with(Resource.__name__, instance_dict, files=None)
         assert resource.model_dump() == instance_dict
 
 
@@ -114,7 +114,7 @@ def test_save_without_id(instance_dict):
         resource.id = None
         resource_dict = resource.model_dump(exclude_none=True)
         resource.save()
-        mock.assert_called_with(Resource.__name__, resource_dict)
+        mock.assert_called_with(Resource.__name__, resource_dict, files=None)
         assert resource.model_dump() == instance_dict
 
 
