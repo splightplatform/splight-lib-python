@@ -1,11 +1,6 @@
 import sys
 
-from pep440 import is_canonical
-
-
-class InvalidReleaseVersion(Exception):
-    """Raised when the version is not a valid release version."""
-
+from pkg_resources import parse_version as parse
 
 if __name__ == "__main__":
     """Verify if the format is release for a given string version.
@@ -21,8 +16,4 @@ if __name__ == "__main__":
         version.
     """
     string_version = sys.argv[1]
-    if not is_canonical(string_version):
-        raise InvalidReleaseVersion(
-            f"Current library version {string_version} is not a valid "
-            "release version."
-        )
+    parse(string_version)

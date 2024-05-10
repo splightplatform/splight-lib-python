@@ -1486,21 +1486,6 @@ files = [
 ]
 
 [[package]]
-name = "pep440"
-version = "0.1.2"
-description = "A simple package with utils to check whether versions number match PEP 440."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "pep440-0.1.2-py3-none-any.whl", hash = "sha256:36d6ad73f2b5d07769294cafe183500ac89d848c922a3d3f521b968481880d51"},
-    {file = "pep440-0.1.2.tar.gz", hash = "sha256:58b37246cc2b13fee1ca2a3c092cb3704d21ecf621a5bdbb168e44e697f6d04d"},
-]
-
-[package.extras]
-lint = ["check-manifest", "mypy"]
-test = ["pytest", "pytest-console-scripts", "pytest-cov"]
-
-[[package]]
 name = "pexpect"
 version = "4.9.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -3022,4 +3007,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4"
-content-hash = "a145a68eb3b66eb757e119c802a3d9ba15a56b545f1dd53c696c3aafdc8e261e"
+content-hash = "b799cbac60a88c6ac948f0c4dc772421a384b04c417fd1724fb537902f052f46"
