@@ -372,6 +372,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
             raise InvalidCollectionName(collection)
         buffer = self._data_buffers[collection]
         with self._lock:
+            buffer.add_documents(instances)
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
@@ -379,7 +380,6 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
                 )
                 self._send_documents(collection, buffer.data)
                 buffer.reset()
-            buffer.add_documents(instances)
         return instances
 
     def save_dataframe(
