@@ -21,7 +21,14 @@ class HubSolution(SplightDatabaseBaseModel):
     readme_file: Optional[FilePath] = Field(default=None, exclude=True)
 
     def save(self) -> None:
-        if not all([self.main_file, self.variables_file, self.values_file, self.readme_file]):
+        if not all(
+            [
+                self.main_file,
+                self.variables_file,
+                self.values_file,
+                self.readme_file,
+            ]
+        ):
             raise ValueError("Missing one of the required files")
         return super().save()
 
