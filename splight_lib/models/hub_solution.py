@@ -18,9 +18,10 @@ class HubSolution(SplightDatabaseBaseModel):
     main_file: Optional[FilePath] = Field(default=None, exclude=True)
     variables_file: Optional[FilePath] = Field(default=None, exclude=True)
     values_file: Optional[FilePath] = Field(default=None, exclude=True)
+    readme_file: Optional[FilePath] = Field(default=None, exclude=True)
 
     def save(self) -> None:
-        if not all([self.main_file, self.variables_file, self.values_file]):
+        if not all([self.main_file, self.variables_file, self.values_file, self.readme_file]):
             raise ValueError("Missing one of the required files")
         return super().save()
 
@@ -29,4 +30,5 @@ class HubSolution(SplightDatabaseBaseModel):
             "main_file": self.main_file,
             "variables_file": self.variables_file,
             "values_file": self.values_file,
+            "readme_file": self.readme_file,
         }
