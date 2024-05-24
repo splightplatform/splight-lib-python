@@ -87,10 +87,14 @@ def test_retrieve(instance_dict):
         RemoteDatabaseClient, "_get", return_value=instance_dict
     ) as mock:
         with patch.object(
-            RemoteDatabaseClient, "_get_api_path", return_value="/api/resource/"
+            RemoteDatabaseClient,
+            "_get_api_path",
+            return_value="/api/resource/",
         ):
             instance = Resource.retrieve(instance_dict["id"])
-            mock.assert_called_with(Resource.__name__, id=instance.id, first=True)
+            mock.assert_called_with(
+                Resource.__name__, id=instance.id, first=True
+            )
             assert instance.model_dump() == instance_dict
 
 
@@ -103,11 +107,15 @@ def test_save_with_id(instance_dict):
         RemoteDatabaseClient, "save", return_value=instance_dict
     ) as mock:
         with patch.object(
-            RemoteDatabaseClient, "_get_api_path", return_value="/api/resource/"
+            RemoteDatabaseClient,
+            "_get_api_path",
+            return_value="/api/resource/",
         ):
             resource = Resource.model_validate(instance_dict)
             resource.save()
-            mock.assert_called_with(Resource.__name__, instance_dict, files=None)
+            mock.assert_called_with(
+                Resource.__name__, instance_dict, files=None
+            )
             assert resource.model_dump() == instance_dict
 
 
@@ -120,13 +128,17 @@ def test_save_without_id(instance_dict):
         RemoteDatabaseClient, "save", return_value=instance_dict
     ) as mock:
         with patch.object(
-            RemoteDatabaseClient, "_get_api_path", return_value="/api/resource/"
+            RemoteDatabaseClient,
+            "_get_api_path",
+            return_value="/api/resource/",
         ):
             resource = Resource.model_validate(instance_dict)
             resource.id = None
             resource_dict = resource.model_dump(exclude_none=True)
             resource.save()
-            mock.assert_called_with(Resource.__name__, resource_dict, files=None)
+            mock.assert_called_with(
+                Resource.__name__, resource_dict, files=None
+            )
             assert resource.model_dump() == instance_dict
 
 
@@ -139,7 +151,9 @@ def test_delete(instance_dict):
         RemoteDatabaseClient, "delete", return_value=instance_dict
     ) as mock:
         with patch.object(
-            RemoteDatabaseClient, "_get_api_path", return_value="/api/resource/"
+            RemoteDatabaseClient,
+            "_get_api_path",
+            return_value="/api/resource/",
         ):
             resource = Resource.model_validate(instance_dict)
             resource.delete()
