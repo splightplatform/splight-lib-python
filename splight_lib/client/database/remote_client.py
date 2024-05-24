@@ -20,6 +20,7 @@ from splight_lib.client.exceptions import (
     InstanceNotFound,
     InvalidModel,
     InvalidModelName,
+    RequestError,
 )
 from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.logging._internal import LogTags, get_splight_logger
@@ -116,7 +117,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{id}/"
         response = self._restclient.delete(url)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
     def _get(
@@ -155,7 +157,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         api_path = api_path.format_map({"prefix": ENGINE_PREFIX, **instance})
         url = self._base_url / api_path
         response = self._restclient.post(url, json=instance)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         return response.json()
 
     def _retrieve_multiple(
@@ -181,7 +184,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if response.status_code == codes.NOT_FOUND:
             raise InstanceNotFound(resource_name, id)
         else:
-            response.raise_for_status()
+            if response.is_error:
+                raise RequestError(response.status_code, response.text)
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
@@ -214,7 +218,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         resource_id = instance.get("id")
         url = self._base_url / api_path / f"{resource_id}/download_url/"
         response = self._restclient.get(url)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         download_url = response.json().get("url")
 
         file = NamedTemporaryFile(mode="wb+", suffix=instance["name"])
@@ -253,7 +258,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def _list(self, url: furl, **kwargs) -> PaginatedResponse:
         params = self._parse_params(**kwargs)
         response = self._restclient.get(url, params=params)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         return response.json()
 
     def _create(
@@ -281,7 +287,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 req_args = {"json": instance}
 
             response = self._restclient.post(url, **req_args)
-            response.raise_for_status()
+            if response.is_error:
+                raise RequestError(response.status_code, response.text)
             instance = response.json()
         logger.debug(
             "Instance %s created", instance["id"], tags=LogTags.DATABASE
@@ -318,12 +325,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
             response = self._restclient.put(url, **req_args)
 
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         return response.json()
 
     def _create_file(self, instance: Dict, url: furl):
         response = self._restclient.post(url, data=instance)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         file_path = instance["file"]
         # Check is this is handled somewher
         created_instance = response.json()
@@ -335,7 +344,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         resource_id = instance.get("id")
         url = self._base_url / api_path / f"{resource_id}/upload_url/"
         response = self._restclient.get(url)
-        response.raise_for_status()
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
         upload_url = response.json().get("url")
         file = open(file_path, "rb")
         file_name = instance["name"]
@@ -345,7 +355,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 upload_url,
                 files=file,
             )
-            response.raise_for_status()
+            if response.is_error:
+                raise RequestError(response.status_code, response.text)
         logger.debug(
             "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
         )
