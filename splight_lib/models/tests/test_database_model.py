@@ -9,9 +9,6 @@ from uuid import uuid4  # noqa: E402
 
 import pytest  # noqa: E402
 
-from splight_lib.client.database.local_client import (  # noqa: E402
-    LocalDatabaseClient,
-)
 from splight_lib.client.database.remote_client import (  # noqa: E402
     RemoteDatabaseClient,
 )
