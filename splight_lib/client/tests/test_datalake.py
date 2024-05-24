@@ -18,6 +18,10 @@ class MockResponse:
     def __init__(self, json_data):
         self.json_data = json_data
 
+    @property
+    def is_error(self) -> bool:
+        return False if self.status_code < 400 else True
+
     def raise_for_status(self):
         return None
 
