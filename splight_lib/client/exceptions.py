@@ -16,6 +16,14 @@ SPLIGHT_REQUEST_EXCEPTIONS = (
 )
 
 
+class RequestError(Exception):
+    def __init__(self, status_code: int, text: str):
+        self._msg = f"Got an error status code: {status_code} - {text}"
+
+    def __str__(self) -> str:
+        return self._msg
+
+
 class InvalidModelName(Exception):
     def __init__(self, model_name: str):
         self._msg = f"Model {model_name} is not a valid database model"

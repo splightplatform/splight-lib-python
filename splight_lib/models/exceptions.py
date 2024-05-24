@@ -1,3 +1,7 @@
+class MethodNotAllowed(Exception):
+    pass
+
+
 class InvalidObjectInstance(Exception):
     pass
 
