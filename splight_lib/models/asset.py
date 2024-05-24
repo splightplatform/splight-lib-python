@@ -8,6 +8,7 @@ from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.metadata import Metadata
+from splight_lib.models.exceptions import MethodNotAllowed
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -26,6 +27,17 @@ class AssetRelationship(BaseModel):
     related_asset: AssetRepr
 
 
+class AssetKind(SplightDatabaseBaseModel):
+    id: Optional[str] = None
+    name: str
+
+    def save(self):
+        raise MethodNotAllowed("AssetKind objects are read-only")
+
+    def delete(self):
+        raise MethodNotAllowed("AssetKind objects are read-only")
+
+
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
@@ -37,6 +49,7 @@ class Asset(SplightDatabaseBaseModel):
     metadata: List[Metadata] = []
     geometry: Optional[GeometryCollection] = None
     centroid_coordinates: Optional[Tuple[float, float]] = None
+    kind: Optional[AssetKind] = None
     related_to: List[AssetRelationship] = []
     related_from: List[AssetRelationship] = []
 

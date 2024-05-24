@@ -1,5 +1,5 @@
 from splight_lib.models.alert import Alert, AlertItem
-from splight_lib.models.asset import Asset
+from splight_lib.models.asset import Asset, AssetKind
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
@@ -30,6 +30,7 @@ __all__ = [
     Alert,
     AlertItem,
     Asset,
+    AssetKind,
     Attribute,
     Boolean,
     Chart,

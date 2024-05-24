@@ -3,7 +3,9 @@ from splight_lib.constants import ENGINE_PREFIX, HUB_PREFIX
 MODEL_NAME_MAP = {
     "advancedfilter": f"{ENGINE_PREFIX}/alert/advancedfilters/",
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
-    "asset": f"{ENGINE_PREFIX}/assets/",
+    "asset": f"{ENGINE_PREFIX}/asset/assets/",
+    "assetkind": f"{ENGINE_PREFIX}/asset/kinds/",
+    # TODO: update to new endpoint for attributes
     "attribute": f"{ENGINE_PREFIX}/attributes/",
     "metadata": f"{ENGINE_PREFIX}/metadata/",
     "chart": f"{ENGINE_PREFIX}/dashboard/charts/",
