@@ -183,9 +183,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._restclient.get(url)
         if response.status_code == codes.NOT_FOUND:
             raise InstanceNotFound(resource_name, id)
-        else:
-            if response.is_error:
-                raise RequestError(response.status_code, response.text)
+        elif response.is_error:
+            raise RequestError(response.status_code, response.text)
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)

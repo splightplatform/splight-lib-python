@@ -18,7 +18,7 @@ SPLIGHT_REQUEST_EXCEPTIONS = (
 
 class RequestError(Exception):
     def __init__(self, status_code: int, text: str):
-        self._msg = f"Got a non valid status code: {status_code} - {text}"
+        self._msg = f"Got an error status code: {status_code} - {text}"
 
     def __str__(self) -> str:
         return self._msg
