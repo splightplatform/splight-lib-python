@@ -2,8 +2,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, TypeVar
+from enum import auto
 
 import pandas as pd
+from strenum import LowercaseStrEnum
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from splight_lib.client.database import DatabaseClientBuilder
@@ -21,6 +23,11 @@ def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
 
 
 FilePath = TypeVar("FilePath", str, Path)
+
+
+class PrivacyPolicy(LowercaseStrEnum):
+    PUBLIC = auto()
+    PRIVATE = auto()
 
 
 class SplightDatabaseBaseModel(BaseModel):

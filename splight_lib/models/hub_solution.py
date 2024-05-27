@@ -6,7 +6,11 @@ import py7zr
 from pydantic import Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.base import FilePath, SplightDatabaseBaseModel
+from splight_lib.models.base import (
+    FilePath,
+    PrivacyPolicy,
+    SplightDatabaseBaseModel,
+)
 from splight_lib.models.component import InputParameter
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
@@ -29,6 +33,7 @@ class HubSolution(SplightDatabaseBaseModel):
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     tags: List[str] = Field(default=[])
+    privacy_policy: Optional[PrivacyPolicy] = PrivacyPolicy.PUBLIC
 
     config: List[InputParameter] = []
     resources: List[InputAsset] = []
