@@ -354,7 +354,33 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 upload_url,
                 files=file,
             )
-            if response.is_error:
+            if response.ok:
+                raise RequestError(response.status_code, response.text)
+        logger.debug(
+            "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
+        )
+
+    def upload(
+        self,
+        resource_name: str,
+        instance: Dict,
+        file_path: str,
+        type_: Optional[str] = None,
+    ):
+        api_path = self._get_api_path(resource_name)
+        resource_id = instance.get("id")
+        params = {"type": type_} if type_ else {}
+        url = self._base_url / api_path / f"{resource_id}/upload_url/"
+        response = self._restclient.get(url, params=params)
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
+        upload_url = response.json().get("url")
+        with open(file_path, "rb") as fid:
+            response = requests.put(
+                upload_url,
+                data=fid,
+            )
+            if not response.ok:
                 raise RequestError(response.status_code, response.text)
         logger.debug(
             "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE

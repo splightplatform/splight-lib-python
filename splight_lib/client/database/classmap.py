@@ -22,6 +22,7 @@ MODEL_NAME_MAP = {
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
+    "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
 }
 
 CUSTOM_PATHS_MAP = {
