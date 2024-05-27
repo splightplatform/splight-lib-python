@@ -1,12 +1,12 @@
 import json
 from datetime import datetime, timezone
+from enum import auto
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, TypeVar
-from enum import auto
 
 import pandas as pd
-from strenum import LowercaseStrEnum
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from strenum import LowercaseStrEnum
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
