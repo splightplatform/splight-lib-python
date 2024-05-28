@@ -1,5 +1,6 @@
 import os
 from glob import glob
+from tempfile import NamedTemporaryFile
 from typing import List, Literal, Optional
 
 import py7zr
@@ -96,3 +97,11 @@ class HubSolution(SplightDatabaseBaseModel):
             if os.path.exists(file_name):
                 os.remove(file_name)
         return solution
+
+    def download(self) -> NamedTemporaryFile:
+        db_client = self._SplightDatabaseBaseModel__get_database_client()
+        return db_client.download(
+            resource_name="hubsolutionversion",
+            instance=self.model_dump(),
+            type_="source",
+        )
