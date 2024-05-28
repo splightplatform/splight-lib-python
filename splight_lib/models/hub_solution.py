@@ -21,7 +21,7 @@ class HubSolution(SplightDatabaseBaseModel):
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     tags: Optional[List[str]] = Field(default=None)
-    privacy_policy = PrivacyPolicy.PUBLIC
+    privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     main_file: Optional[FilePath] = Field(default=None, exclude=True)
     variables_file: Optional[FilePath] = Field(default=None, exclude=True)
