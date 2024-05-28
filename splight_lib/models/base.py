@@ -180,7 +180,6 @@ class SplightDatalakeBaseModel(BaseModel):
         db_client = DatalakeClientBuilder.build(
             dl_client_type=settings.DL_CLIENT_TYPE,
             parameters={
-                "path": settings.CURRENT_DIR,
                 "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
                 "access_id": settings.SPLIGHT_ACCESS_ID,
                 "secret_key": settings.SPLIGHT_SECRET_KEY,
