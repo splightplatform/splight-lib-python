@@ -59,9 +59,12 @@ class HubSolution(SplightDatabaseBaseModel):
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
+        main_file = os.path.join(path, "__main__.py")
         readme_path = os.path.join(path, README_FILE_1)
+        if not os.path.exists(main_file):
+            raise FileNotFoundError(f"__main__.py file not found: {main_file}")
         if not os.path.exists(readme_path):
-            raise FileNotFoundError(f"README file not found: {readme_path}")
+            raise FileNotFoundError(f"README.md file not found: {readme_path}")
         with py7zr.SevenZipFile(file_name, "w") as archive:
             all_files = glob(f"{path}/**", recursive=True)
             for filepath in all_files:
