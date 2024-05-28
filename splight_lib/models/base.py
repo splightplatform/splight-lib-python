@@ -67,9 +67,7 @@ class SplightDatabaseBaseModel(BaseModel):
     @staticmethod
     def __get_database_client() -> AbstractDatabaseClient:
         db_client = DatabaseClientBuilder.build(
-            local=settings.LOCAL_ENVIRONMENT,
             parameters={
-                "path": settings.CURRENT_DIR,
                 "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
                 "access_id": settings.SPLIGHT_ACCESS_ID,
                 "secret_key": settings.SPLIGHT_SECRET_KEY,
