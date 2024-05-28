@@ -1,9 +1,16 @@
+from enum import auto
 from typing import Dict, List, Optional
 
 from pydantic import Field
+from strenum import LowercaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import FilePath, SplightDatabaseBaseModel
+
+
+class PrivacyPolicy(LowercaseStrEnum):
+    PUBLIC = auto()
+    PRIVATE = auto()
 
 
 class HubSolution(SplightDatabaseBaseModel):
@@ -14,6 +21,7 @@ class HubSolution(SplightDatabaseBaseModel):
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
     tags: Optional[List[str]] = Field(default=None)
+    privacy_policy = PrivacyPolicy.PUBLIC
 
     main_file: Optional[FilePath] = Field(default=None, exclude=True)
     variables_file: Optional[FilePath] = Field(default=None, exclude=True)
