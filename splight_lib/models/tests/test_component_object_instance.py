@@ -15,9 +15,7 @@ from splight_lib.models.component import (  # noqa: E402
     CustomType,
 )
 from splight_lib.models.exceptions import InvalidObjectInstance  # noqa: E402
-from splight_lib.settings import settings  # noqa: E402
 
-settings.configure(LOCAL_ENVIRONMENT=True)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
