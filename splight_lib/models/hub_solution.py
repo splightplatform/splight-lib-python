@@ -1,8 +1,8 @@
 import os
+from enum import auto
 from glob import glob
 from tempfile import NamedTemporaryFile
 from typing import List, Literal, Optional
-from enum import auto
 
 import py7zr
 from pydantic import Field
