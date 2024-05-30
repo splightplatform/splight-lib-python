@@ -13,9 +13,6 @@ from splight_lib.client.database.remote_client import (  # noqa: E402
     RemoteDatabaseClient,
 )
 from splight_lib.models.base import SplightDatabaseBaseModel  # noqa: E402
-from splight_lib.settings import settings  # noqa: E402
-
-settings.configure(LOCAL_ENVIRONMENT=True)
 
 
 class Resource(SplightDatabaseBaseModel):

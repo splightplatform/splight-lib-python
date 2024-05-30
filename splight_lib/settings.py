@@ -1,9 +1,9 @@
 import os
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Dict, Tuple, Type
 
 import yaml
-from pydantic import ConfigDict, model_validator
+from pydantic import ConfigDict
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
@@ -65,11 +65,6 @@ class SplightSettings(BaseSettings, Singleton):
     SPLIGHT_SECRET_KEY: str = ""
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
-    # Parameters for local environment
-    # TODO: to deprecate this and its effects
-    LOCAL_ENVIRONMENT: bool = False
-    CURRENT_DIR: Optional[str] = None
-
     # Parameters for the datalake client
     # Review if is better to use another class for only the DL Client settings
     DL_CLIENT_TYPE: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC
@@ -77,15 +72,6 @@ class SplightSettings(BaseSettings, Singleton):
     DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
 
     model_config = ConfigDict(extra="ignore")
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_local_environment(
-        cls, instance: "SplightSettings"
-    ) -> "SplightSettings":
-        if instance.LOCAL_ENVIRONMENT:
-            instance.CURRENT_DIR = os.getcwd()
-        return instance
 
     def configure(self, **params: Dict):
         self.model_validate(params)

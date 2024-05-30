@@ -2,9 +2,11 @@ import os
 from glob import glob
 from tempfile import NamedTemporaryFile
 from typing import List, Literal, Optional
+from enum import auto
 
 import py7zr
 from pydantic import Field
+from strenum import LowercaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import (
@@ -33,8 +35,8 @@ class HubSolution(SplightDatabaseBaseModel):
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
-    tags: List[str] = Field(default=[])
-    privacy_policy: Optional[PrivacyPolicy] = PrivacyPolicy.PUBLIC
+    tags: Optional[List[str]] = Field(default=None)
+    privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: List[InputParameter] = []
     resources: List[InputAsset] = []

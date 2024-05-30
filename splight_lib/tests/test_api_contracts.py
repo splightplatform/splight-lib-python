@@ -13,7 +13,7 @@ from openapi_schema_validator import validate
 from polyfactory import Use
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from splight_lib.models import (  # Component,; Function,
+from splight_lib.models import (
     Asset,
     Attribute,
     Function,
@@ -145,21 +145,7 @@ def read_swagger(url: str) -> Dict[str, Any]:
     return yaml.safe_load(response.text)
 
 
-# if __name__ == "__main__":
 def test_api_contract():
-    # if len(sys.argv) == 1:
-    #     models_to_validate = list(MODEL_MAPPING.keys())
-    # elif len(sys.argv) == 2:
-    #     model_name = sys.argv[1]
-    #     if model_name not in MODEL_MAPPING:
-    #         valid_names = list(MODEL_MAPPING.keys())
-    #         raise ValueError(
-    #             f"Got invalid model name. Valid models are {valid_names}"
-    #         )
-    #     models_to_validate = [sys.argv[1]]
-    # elif len(sys.argv) > 2:
-    #     raise ValueError("Invalid number of arguments")
-
     api_url = os.getenv(
         "SPLIGHT_PLATFORM_API_HOST", "https://integrationapi.splight-ai.com"
     )

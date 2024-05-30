@@ -14,9 +14,6 @@ from splight_lib.models import (
     File,
 )
 from splight_lib.models.component import CustomType, Parameter
-from splight_lib.settings import settings
-
-settings.configure(LOCAL_ENVIRONMENT=True)
 
 FAKE_NATIVE_VALUES = {
     "int": 1,
