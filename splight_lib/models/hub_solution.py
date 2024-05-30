@@ -1,12 +1,10 @@
 import os
-from enum import auto
 from glob import glob
 from tempfile import NamedTemporaryFile
 from typing import List, Literal, Optional
 
 import py7zr
 from pydantic import Field
-from strenum import LowercaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import (
