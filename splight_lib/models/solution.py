@@ -79,7 +79,7 @@ def load_solution_resources(
 class Solution(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
-    description: str
+    description: Optional[str] = None
     hub_solution: HubSolution
     raw_config: list[dict] = Field(alias="config")
     raw_resources: list[dict] = Field(alias="resources")
