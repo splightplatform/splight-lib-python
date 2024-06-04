@@ -48,8 +48,7 @@ class SplightDatabaseBaseModel(BaseModel):
             self.model_dump(exclude_none=True, mode="json"),
             files=files_dict,
         )
-        for field in self.model_fields:
-            setattr(self, field, saved.get(field))
+        return self.model_validate(saved)
 
     def delete(self):
         self._db_client.delete(

@@ -33,7 +33,7 @@ class HubSolution(SplightDatabaseBaseModel):
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
-    tags: Optional[List[str]] = Field(default=None)
+    tags: Optional[List[str]] = Field(default=[])
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: List[InputParameter] = []

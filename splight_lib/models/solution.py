@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 from pydantic import Field, computed_field
 
@@ -77,7 +77,7 @@ def load_solution_resources(
 
 
 class Solution(SplightDatabaseBaseModel):
-    id: str
+    id: Optional[str] = None
     name: str
     description: str
     hub_solution: HubSolution
