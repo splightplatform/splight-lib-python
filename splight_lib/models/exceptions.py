@@ -36,3 +36,31 @@ class MissingAlertItemExpression(Exception):
 
 class ForbiddenOperation(Exception):
     pass
+
+
+class InvalidConfigType(Exception):
+    def __init__(self, name: str, type_: str):
+        msg = (
+            f"Config parameter {name} has an invalid type {type_}. The only "
+            "valid type is 'Asset'"
+        )
+        super().__init__(msg)
+
+
+class InvalidResourceType(Exception):
+    def __init__(self, name: str, type_: str):
+        msg = (
+            f"Resource {name} has an invalid type {type_}. The only "
+            "valid type is 'Asset'"
+        )
+        super().__init__(msg)
+
+
+class MissingAsset(Exception):
+    def __init__(self, name: str):
+        msg = f"Resource {name} is missing the asset value"
+        super().__init__(msg)
+
+
+class InvalidArgument(Exception):
+    pass
