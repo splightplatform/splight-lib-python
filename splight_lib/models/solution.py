@@ -61,21 +61,6 @@ def load_solution_resources(
     return resources
 
 
-# class Solution(BaseModel):
-#     id: str
-#     name: str
-#     description: str
-#     hub_solution: HubSolution
-#
-#     @classmethod
-#     def list(cls) -> list[Self]:
-#         return [solution.parse() for solution in RawSolution.list()]
-#
-#     @classmethod
-#     def retrieve(cls, solution_id: str) -> Self:
-#         return RawSolution.retrieve(solution_id).parse()
-
-
 class Solution(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
@@ -135,27 +120,3 @@ class Solution(SplightDatabaseBaseModel):
                 if item["name"] == key:
                     item["value"] = value
                     break
-
-    # def parse(self) -> Solution:
-    #     config = load_solution_config(self.config)
-    #     config_type = NamedTuple(
-    #         "Config", [(x["name"], Any) for x in self.config]
-    #     )
-    #     resources = load_solution_resources(self.resources)
-    #     resouces_type = NamedTuple(
-    #         "Resources", [(x["name"], Any) for x in self.resources]
-    #     )
-    #     model = create_model(
-    #         "Solution",
-    #         __base__=Solution,
-    #         config=(config_type, ...),
-    #         resources=(resouces_type, ...),
-    #     )
-    #     return model(
-    #         id=self.id,
-    #         name=self.name,
-    #         description=self.description,
-    #         hub_solution=self.hub_solution,
-    #         config=config,
-    #         resources=resources,
-    #     )
