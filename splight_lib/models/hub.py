@@ -64,16 +64,10 @@ class HubComponent(BaseModel):
     )
     privacy_policy: Optional[str] = None
     component_type: ComponentType = ComponentType.CONNECTOR
-    tenant: Optional[str] = None
     readme: Optional[str] = None
-    picture: Optional[str] = None
     file: Optional[str] = None
     verification: Optional[HubComponentVerificationEnum] = None
-    created_at: Optional[str] = None
-    last_modified: Optional[str] = None
     tags: List[str] = []
-    min_component_capacity: Optional[str] = None
-    usage_count: int = 0
 
     custom_types: List[CustomType] = []
     input: List[InputParameter] = []
@@ -197,6 +191,7 @@ class HubComponent(BaseModel):
         spec.setdefault("component_type", ComponentType.CONNECTOR.value)
         data_cls = cls.model_validate(spec)
 
+        # TODO: Check if this is needed
         data = data_cls.model_dump(exclude_none=True)
 
         to_json = [

@@ -1,10 +1,12 @@
 import json
 from datetime import datetime, timezone
+from enum import auto
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from strenum import LowercaseStrEnum
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
@@ -21,6 +23,11 @@ def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
 
 
 FilePath = TypeVar("FilePath", str, Path)
+
+
+class PrivacyPolicy(LowercaseStrEnum):
+    PUBLIC = auto()
+    PRIVATE = auto()
 
 
 class SplightDatabaseBaseModel(BaseModel):
@@ -41,8 +48,9 @@ class SplightDatabaseBaseModel(BaseModel):
             self.model_dump(exclude_none=True, mode="json"),
             files=files_dict,
         )
-        for field in self.model_fields:
-            setattr(self, field, saved.get(field))
+        instance = self.model_validate(saved)
+        for key, field in self.model_fields.items():
+            setattr(self, key, getattr(instance, key))
 
     def delete(self):
         self._db_client.delete(

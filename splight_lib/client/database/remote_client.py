@@ -192,7 +192,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         self,
         resource_name: str,
         instance: Dict,
-        decrypt: bool = True,
+        type_: Optional[str] = None,
         **kwargs,
     ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
@@ -211,12 +211,15 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModelName thrown when the model name is not correct.
         """
-        if resource_name.lower() != "file":
-            raise InvalidModel("Only files can be downloaded.")
+        if resource_name.lower() not in ["file", "hubsolutionversion"]:
+            raise InvalidModel(
+                "Only files and hub solution can be downloaded."
+            )
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")
         url = self._base_url / api_path / f"{resource_id}/download_url/"
-        response = self._restclient.get(url)
+        params = {"type": type_} if type_ else {}
+        response = self._restclient.get(url, params=params)
         if response.is_error:
             raise RequestError(response.status_code, response.text)
         download_url = response.json().get("url")
@@ -354,7 +357,33 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 upload_url,
                 files=file,
             )
-            if response.is_error:
+            if response.ok:
+                raise RequestError(response.status_code, response.text)
+        logger.debug(
+            "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
+        )
+
+    def upload(
+        self,
+        resource_name: str,
+        instance: Dict,
+        file_path: str,
+        type_: Optional[str] = None,
+    ):
+        api_path = self._get_api_path(resource_name)
+        resource_id = instance.get("id")
+        params = {"type": type_} if type_ else {}
+        url = self._base_url / api_path / f"{resource_id}/upload_url/"
+        response = self._restclient.get(url, params=params)
+        if response.is_error:
+            raise RequestError(response.status_code, response.text)
+        upload_url = response.json().get("url")
+        with open(file_path, "rb") as fid:
+            response = requests.put(
+                upload_url,
+                data=fid,
+            )
+            if not response.ok:
                 raise RequestError(response.status_code, response.text)
         logger.debug(
             "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE

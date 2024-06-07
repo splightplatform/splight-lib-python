@@ -22,7 +22,7 @@ class AssetRelationship(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
-    related_asset_kind: Optional[str] = None
+    related_asset_kind: Optional[AssetRepr] = None
     asset: AssetRepr
     related_asset: AssetRepr
 

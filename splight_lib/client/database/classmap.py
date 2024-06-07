@@ -20,8 +20,10 @@ MODEL_NAME_MAP = {
     "routineobject": f"{ENGINE_PREFIX}/component/routines/",
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
+    "solution": f"{ENGINE_PREFIX}/solution/solutions/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
+    "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
 }
 
 CUSTOM_PATHS_MAP = {
