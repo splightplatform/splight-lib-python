@@ -52,20 +52,22 @@ class AlertItem(BaseModel):
 
     ref_id: str = Field(max_length=5)
     type: AlertItemType = AlertItemType.QUERY
+    label: Optional[str] = None
 
-    expression: str = ""
-    expression_plain: str = ""
+    expression: Optional[str] = None
+    expression_plain: Optional[str] = ""
 
     query_filter_asset: Optional[QueryFilter] = None
     query_filter_attribute: Optional[QueryFilter] = None
+    query_filter_metadata: Optional[QueryFilter] = None
 
-    query_group_function: GroupCriteria = GroupCriteria.EMPTY
-    query_group_unit: GroupUnit = GroupUnit.EMPTY
+    query_group_function: Optional[GroupCriteria] = None
+    query_group_unit: Optional[GroupUnit] = None
 
-    query_sort_field: str = ""
-    query_sort_direction: int = Field(-1, ge=-1, le=1)
+    query_sort_field: Optional[str] = None
+    query_sort_direction: Optional[int] = Field(-1, ge=-1, le=1)
 
-    query_plain: str = ""
+    query_plain: Optional[str] = ""
     query_limit: int = Field(10000, ge=1, le=10000)
 
     @model_validator(mode="after")
