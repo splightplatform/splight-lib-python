@@ -24,7 +24,7 @@ class AssetRelationship(BaseModel):
     description: Optional[str] = None
     related_asset_kind: Optional[AssetRepr] = None
     asset: AssetRepr
-    related_asset: AssetRepr
+    related_asset: Optional[AssetRepr] = None
 
 
 class AssetKind(SplightDatabaseBaseModel):
