@@ -48,7 +48,8 @@ class HubSolution(SplightDatabaseBaseModel):
 
         raw_hub_solution = db_client.get(
             resource_name=cls.__name__,
-            filters={"name": name, "version": version},
+            name=name,
+            version=version,
         )
         solution = cls.model_validate(spec)
         if raw_hub_solution:
