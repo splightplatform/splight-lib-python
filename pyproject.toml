@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "splight-lib"
-version = "5.8.2"
+version = "5.8.3"
 description = "Splight Library"
 authors = ["Splight Dev <dev@splight-ae.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8.1,<4"
+python = ">=3.9,<4"
 concurrent-log-handler = "0.9.21"
 cryptography = "42.0.4"
 furl = "2.1.3"
@@ -34,6 +34,7 @@ email-validator = "^2.1.0.post1"
 apscheduler = "3.10.4"
 typer = "0.9.0"
 progressbar2 = "4.4.1"
+numpy = "1.26.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "23.3.0"
