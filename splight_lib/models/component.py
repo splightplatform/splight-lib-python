@@ -189,8 +189,16 @@ class RoutineObject(SplightObject):
 
         if self.status != status:
             self.status = status
-            # TODO: We need an endpoint to update only the status, not the entire routine.
-            self.save()
+            self._update_status()
+
+    def _update_status(self):
+        _ = self._db_client.operate(
+            resource_name="routine-status",
+            instance={
+                "routine": self.id,
+                "status": self.status,
+            },
+        )
 
 
 class Component(SplightDatabaseBaseModel):

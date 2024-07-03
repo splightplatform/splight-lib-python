@@ -159,7 +159,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         response = self._restclient.post(url, json=instance)
         if response.is_error:
             raise RequestError(response.status_code, response.text)
-        return response.json()
+        return response.json() if response.text else {}
 
     def _retrieve_multiple(
         self, resource_name: str, first: bool = False, **kwargs
