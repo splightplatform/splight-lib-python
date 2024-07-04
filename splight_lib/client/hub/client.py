@@ -1,3 +1,4 @@
+import os
 from tempfile import NamedTemporaryFile
 from typing import Dict, List
 
@@ -7,6 +8,7 @@ from furl import furl
 from pydantic import BaseModel
 
 from splight_lib.auth import SplightAuthToken
+from splight_lib.client.exceptions import RequestError
 from splight_lib.client.hub.abstract import AbstractHubClient
 
 
@@ -85,19 +87,22 @@ class SplightHubClient(AbstractHubClient):
         response = self._session.post(url)
         response.raise_for_status()
 
-    def upload(self, id: str, file_path: str, type: str):
+    def upload(self, id: str, file_path: str, type_: str):
         url = self._hub_url / f"versions/{id}/upload_url/"
-        params = {"type": type}
+        params = {"type": type_}
         response = self._session.get(url, params=params)
         response.raise_for_status()
         upload_url = response.json().get("url")
+        file_name = os.path.basename(file_path)
 
         with open(file_path, "rb") as fid:
+            file = {"file": (file_name, fid)}
             response = requests.put(
                 upload_url,
-                data=fid,
+                files=file,
             )
-            response.raise_for_status()
+            if not response.ok:
+                raise RequestError(response.status_code, response.text)
 
     def download(self, id: str, name: str, type: str) -> NamedTemporaryFile:
         url = self._hub_url / f"versions/{id}/download_url/"

@@ -154,8 +154,9 @@ class HubComponent(BaseModel):
         return hub_client.build(id=self.id)
 
     @classmethod
-    def upload(cls, path: str):
+    def upload(cls, path: str, image_file: str):
         hub_client = get_hub_client()
+        image_path = os.path.join(path, image_file)
         spec = get_spec(path)
         name = spec["name"]
         version = spec["version"]
@@ -182,6 +183,8 @@ class HubComponent(BaseModel):
                     continue
                 if os.path.isdir(filepath):
                     continue
+                if image_file in filepath:
+                    continue
                 rel_filename = os.path.relpath(filepath, path)
                 new_filepath = os.path.join(versioned_path, rel_filename)
                 archive.write(filepath, new_filepath)
@@ -207,16 +210,20 @@ class HubComponent(BaseModel):
 
         try:
             hub_client.upload(
-                id=hub_component.id, file_path=file_name, type="source"
+                id=hub_component.id, file_path=file_name, type_="source"
             )
             hub_client.upload(
-                id=hub_component.id, file_path=readme_path, type="readme"
+                id=hub_component.id, file_path=readme_path, type_="readme"
             )
-            hub_component.build()
+            hub_client.upload(
+                id=hub_component.id, file_path=image_path, type_="image"
+            )
         except Exception as exc:
             raise exc
         finally:
             if os.path.exists(file_name):
                 os.remove(file_name)
+            if os.path.exists(image_path):
+                os.remove(image_path)
 
         return hub_component
