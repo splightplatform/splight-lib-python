@@ -1,4 +1,3 @@
-import os
 from tempfile import NamedTemporaryFile
 from typing import Dict, List
 
