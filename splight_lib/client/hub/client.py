@@ -95,10 +95,7 @@ class SplightHubClient(AbstractHubClient):
         upload_url = response.json().get("url")
 
         with open(file_path, "rb") as fid:
-            response = requests.put(
-                upload_url,
-                data=fid
-            )
+            response = requests.put(upload_url, data=fid)
             if not response.ok:
                 raise RequestError(response.status_code, response.text)
 
