@@ -93,13 +93,11 @@ class SplightHubClient(AbstractHubClient):
         response = self._session.get(url, params=params)
         response.raise_for_status()
         upload_url = response.json().get("url")
-        file_name = os.path.basename(file_path)
 
         with open(file_path, "rb") as fid:
-            file = {"file": (file_name, fid)}
             response = requests.put(
                 upload_url,
-                files=file,
+                data=fid
             )
             if not response.ok:
                 raise RequestError(response.status_code, response.text)
