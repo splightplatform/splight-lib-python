@@ -357,7 +357,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
                 upload_url,
                 files=file,
             )
-            if response.ok:
+            if not response.ok:
                 raise RequestError(response.status_code, response.text)
         logger.debug(
             "File uploaded succesfully %s.", resource_id, tags=LogTags.DATABASE
