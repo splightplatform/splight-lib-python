@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from typing import Dict, List
+from typing import Any, Dict, Generator, List, Optional, TypedDict
 
 import progressbar
 import requests
@@ -9,6 +9,13 @@ from pydantic import BaseModel
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.exceptions import RequestError
 from splight_lib.client.hub.abstract import AbstractHubClient
+
+
+class PaginatedResponse(TypedDict):
+    count: int
+    next: Optional[str]
+    previous: Optional[str]
+    results: List[Any]
 
 
 class SplightHubClient(AbstractHubClient):
@@ -54,14 +61,12 @@ class SplightHubClient(AbstractHubClient):
     ) -> List[BaseModel]:
         url = self._hub_url / "versions/"
         params = self._get_params(limit_, skip_, **kwargs)
-        response = self._session.get(url, params=params)
-        assert (
-            response.status_code == 200
-        ), f"Failed to get components: {response.json()}"
-        queryset = response.json()["results"]
+        instances = []
+        for page in self._pages(url, page=1, **params):
+            instances.extend(page["results"])
         if first:
-            return queryset[0] if queryset else None
-        return queryset
+            return instances[0] if instances else None
+        return instances
 
     def get_org_id(self):
         return self._org_id
@@ -135,3 +140,34 @@ class SplightHubClient(AbstractHubClient):
             return self._update(instance)
         else:
             return self._create(instance)
+
+    def _pages(
+        self, url: furl, **kwargs
+    ) -> Generator[PaginatedResponse, None, None]:
+        next_page = kwargs["page"]
+        while next_page:
+            response = self._list(url, **kwargs)
+            yield response
+            next_page = (
+                furl(response["next"]).query.params["page"]
+                if response["next"]
+                else None
+            )
+            kwargs["page"] = next_page
+
+    def _list(self, url: furl, **kwargs) -> PaginatedResponse:
+        params = self._parse_params(**kwargs)
+        response = self._session.get(url, params=params)
+        if not response.ok:
+            raise RequestError(response.status_code, response.text)
+        return response.json()
+
+    def _parse_params(self, **kwargs):
+        params = {}
+        for key, value in kwargs.items():
+            if value is None:
+                continue
+            params[key] = value
+            if isinstance(value, list):
+                params[key] = ",".join(value)
+        return params
