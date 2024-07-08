@@ -55,19 +55,19 @@ class RoutineStatus(LowercaseStrEnum):
     RUNNING = auto()
     FAILED = auto()
     PENDING = auto()
-    # HEALTHY = auto()
-    # UNHEALTHY = auto()
 
 
 class ValueType(PascalCaseStrEnum):
     NUMBER = auto()
     STRING = auto()
     BOOLEAN = auto()
+    # The following is just for wrong Routines configurations
+    ASSET_ATTRIBUTE = auto()
 
 
 class Parameter(BaseModel):
     name: str
-    description: str = Field(default="", max_length=100)
+    description: str = Field(default="")
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -110,7 +110,7 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = Field(default="", max_length=100)
+    description: str = Field(default="")
     type: str
     choices: Optional[List[Any]] = None
     depends_on: Optional[str] = None
@@ -149,7 +149,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
     component_id: Optional[str] = None
-    description: str = Field(default="", max_length=100)
+    description: str = Field(default="")
     type: str
 
     def save(self):
