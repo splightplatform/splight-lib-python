@@ -383,10 +383,14 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
                 for item in field_value
             ]
         else:
-            value = {
-                "asset": field_value.asset,
-                "attribute": field_value.attribute,
-            }
+            value = (
+                None
+                if field_value is None
+                else {
+                    "asset": field_value.asset,
+                    "attribute": field_value.attribute,
+                }
+            )
         parameter = field.model_dump()
         parameter.update({"value": value})
         return InputDataAddress.model_validate(parameter)
