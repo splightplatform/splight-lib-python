@@ -25,12 +25,14 @@ from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
 from splight_lib.models.solution import Solution
+from splight_lib.models.tag import Tag
 
 __all__ = [
     AdvancedFilter,
     Alert,
     AlertItem,
     Asset,
+    Tag,
     AssetKind,
     Attribute,
     Boolean,

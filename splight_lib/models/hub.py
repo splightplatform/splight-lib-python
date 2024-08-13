@@ -26,6 +26,7 @@ from splight_lib.models.component import (
     Output,
     Routine,
 )
+from splight_lib.models.tag import Tag
 from splight_lib.settings import settings
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
@@ -69,7 +70,7 @@ class HubComponent(BaseModel):
     readme: Optional[str] = None
     file: Optional[str] = None
     verification: Optional[HubComponentVerificationEnum] = None
-    tags: List[str] = []
+    tags: List[Tag] = []
 
     custom_types: List[CustomType] = []
     input: List[InputParameter] = []

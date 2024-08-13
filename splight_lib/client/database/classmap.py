@@ -4,6 +4,7 @@ MODEL_NAME_MAP = {
     "advancedfilter": f"{ENGINE_PREFIX}/alert/advancedfilters/",
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/asset/assets/",
+    "tag": "v2/account/tags/",
     "assetkind": f"{ENGINE_PREFIX}/asset/kinds/",
     # TODO: update to new endpoint for attributes
     "attribute": f"{ENGINE_PREFIX}/attributes/",

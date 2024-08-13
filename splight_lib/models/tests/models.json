@@ -458,9 +458,7 @@
       "min_component_capacity":"small",
       "usage_count":4,
       "namespace":"org5hfnqcwtoraiejse",
-      "tags":[
-        "modbus"
-      ]
+      "tags": []
     }
   ]
 }
