@@ -9,6 +9,7 @@ from splight_lib.models.attribute import Attribute
 from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import MethodNotAllowed
 from splight_lib.models.metadata import Metadata
+from splight_lib.models.tag import Tag
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
