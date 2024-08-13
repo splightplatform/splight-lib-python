@@ -38,11 +38,6 @@ class AssetKind(SplightDatabaseBaseModel):
         raise MethodNotAllowed("AssetKind objects are read-only")
 
 
-class Tag(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    name: str
-
-
 class Asset(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str

@@ -13,6 +13,7 @@ from splight_lib.models.base import (
     SplightDatabaseBaseModel,
 )
 from splight_lib.models.component import InputParameter
+from splight_lib.models.tag import Tag
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
     README_FILE_1,
@@ -33,7 +34,7 @@ class HubSolution(SplightDatabaseBaseModel):
     description: Optional[str] = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
-    tags: Optional[List[str]] = Field(default=[])
+    tags: Optional[List[Tag]] = Field(default=[])
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: List[InputParameter] = []

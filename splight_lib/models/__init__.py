@@ -1,5 +1,5 @@
 from splight_lib.models.alert import Alert, AlertItem
-from splight_lib.models.asset import Asset, AssetKind, Tag
+from splight_lib.models.asset import Asset, AssetKind
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
@@ -25,6 +25,7 @@ from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
 from splight_lib.models.solution import Solution
+from splight_lib.models.tag import Tag
 
 __all__ = [
     AdvancedFilter,
