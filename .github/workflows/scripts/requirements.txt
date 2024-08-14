@@ -1,2 +1,2 @@
-requests==2.30.0
+requests==2.32.2
 pypi-cleanup==0.1.4
