@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.base import SplightDatabaseBaseModel, ResourceSummary
+from splight_lib.models.base import ResourceSummary, SplightDatabaseBaseModel
 from splight_lib.models.exceptions import MethodNotAllowed
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.tag import Tag
