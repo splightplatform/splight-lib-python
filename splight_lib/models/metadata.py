@@ -12,6 +12,7 @@ class Metadata(SplightDatabaseBaseModel):
     asset: Optional[str] = None
     type: ValueTypeEnum = ValueTypeEnum.NUMBER
     value: Optional[Any] = None
+    unit: Optional[str] = None
 
     @model_validator(mode="after")
     def check_value_type(cls, model):
