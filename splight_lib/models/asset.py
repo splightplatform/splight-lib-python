@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.base import SplightDatabaseBaseModel, ResourceSummary
 from splight_lib.models.exceptions import MethodNotAllowed
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.tag import Tag
@@ -14,18 +14,13 @@ from splight_lib.models.tag import Tag
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-class AssetRepr(BaseModel):
-    id: str
-    name: str
-
-
 class AssetRelationship(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
-    related_asset_kind: Optional[AssetRepr] = None
-    asset: AssetRepr
-    related_asset: Optional[AssetRepr] = None
+    related_asset_kind: Optional[ResourceSummary] = None
+    asset: ResourceSummary
+    related_asset: Optional[ResourceSummary] = None
 
 
 class AssetKind(SplightDatabaseBaseModel):
@@ -51,6 +46,7 @@ class Asset(SplightDatabaseBaseModel):
     geometry: Optional[GeometryCollection] = None
     centroid_coordinates: Optional[Tuple[float, float]] = None
     kind: Optional[AssetKind] = None
+    actions: Optional[List[ResourceSummary]] = None
     related_to: List[AssetRelationship] = []
     related_from: List[AssetRelationship] = []
 

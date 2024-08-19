@@ -2,6 +2,7 @@ from splight_lib.constants import ENGINE_PREFIX, HUB_PREFIX
 
 MODEL_NAME_MAP = {
     "advancedfilter": f"{ENGINE_PREFIX}/alert/advancedfilters/",
+    "action": f"{ENGINE_PREFIX}/asset/actions/",
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/asset/assets/",
     "tag": "v2/account/tags/",

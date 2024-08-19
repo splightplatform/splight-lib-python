@@ -1,3 +1,4 @@
+from splight_lib.models.actions import Action, SetPoint
 from splight_lib.models.alert import Alert, AlertItem
 from splight_lib.models.asset import Asset, AssetKind
 from splight_lib.models.attribute import Attribute
@@ -28,6 +29,7 @@ from splight_lib.models.solution import Solution
 from splight_lib.models.tag import Tag
 
 __all__ = [
+    Action,
     AdvancedFilter,
     Alert,
     AlertItem,
@@ -52,9 +54,10 @@ __all__ = [
     Metadata,
     Number,
     RoutineEvaluation,
-    String,
     Secret,
+    SetPoint,
     Solution,
+    String,
     RoutineObject,
     RoutineObjectInstance,
     Tab,
