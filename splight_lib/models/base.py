@@ -30,6 +30,11 @@ class PrivacyPolicy(LowercaseStrEnum):
     PRIVATE = auto()
 
 
+class ResourceSummary(BaseModel):
+    id: str | None = None
+    name: str
+
+
 class SplightDatabaseBaseModel(BaseModel):
     _db_client: AbstractDatabaseClient = PrivateAttr()
 

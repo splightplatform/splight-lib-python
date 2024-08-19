@@ -91,7 +91,7 @@ def test_save_with_id(mocker: MockerFixture):
 
     mock_put = mocker.patch.object(
         SplightRestClient,
-        "put",
+        "patch",
         return_value=MockResponse(
             {"name": "instance_name", "id": "instance_id"}
         ),
