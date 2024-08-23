@@ -42,6 +42,7 @@ class PrivacyPolicy(LowercaseStrEnum):
     PUBLIC = auto()
     PRIVATE = auto()
 
+
 class ValueType(PascalCaseStrEnum):
     NUMBER = auto()
     STRING = auto()
@@ -62,6 +63,7 @@ class Parameter(BaseModel):
 class ConfigParameter(Parameter):
     value: Optional[Any] = None
 
+
 class Port(BaseModel):
     name: Optional[str]
     internal_port: int
@@ -78,6 +80,7 @@ class SplightObject(SplightDatabaseBaseModel):
         if self.server_id is None:
             raise ValueError("server_id cannot be None.")
         super().save()
+
 
 class Server(SplightDatabaseBaseModel):
     id: Optional[str] = None

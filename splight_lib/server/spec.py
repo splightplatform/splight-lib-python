@@ -3,17 +3,15 @@ from typing import List, Optional, Set, Type
 
 from pydantic import AnyUrl, BaseModel, Field, field_validator
 
-from splight_lib.server.exceptions import (
-    DuplicatedValuesError,
-)
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.server import (
-    Server,
-    Port,
     ConfigParameter,
+    Port,
     PrivacyPolicy,
-    get_field_value, 
+    Server,
+    get_field_value,
 )
+from splight_lib.server.exceptions import DuplicatedValuesError
 from splight_lib.utils.custom_model import create_custom_model
 
 VALID_PARAMETER_VALUES = {
@@ -27,6 +25,7 @@ VALID_PARAMETER_VALUES = {
     "File": None,  # UUID
 }
 
+
 def check_unique_values(values: List[str]):
     """Checks if there are repeated values in a list of strings.
 
@@ -36,6 +35,7 @@ def check_unique_values(values: List[str]):
     """
     if len(values) != len(set(values)):
         raise DuplicatedValuesError("The list contains duplicated values")
+
 
 class Spec(BaseModel):
     name: str = Field(pattern=r"^[a-zA-Z0-9\s]+$")
@@ -58,9 +58,7 @@ class Spec(BaseModel):
         except DuplicatedValuesError as exc:
             raise ValueError("Repeated Config parameters in spec") from exc
 
-        valid_types_names: List[str] = (
-            list(VALID_PARAMETER_VALUES.keys())
-        )
+        valid_types_names: List[str] = list(VALID_PARAMETER_VALUES.keys())
 
         for parameter in config:
             if parameter.type not in valid_types_names:
@@ -78,10 +76,18 @@ class Spec(BaseModel):
 
         # Check for valid port ranges
         for port in ports:
-            if isinstance(port.internal_port, int) and not (0 <= port.internal_port <= 65535):
-                raise ValueError(f"Internal port {port.internal_port} is out of valid range (0-65535)")
-            if isinstance(port.external_port, int) and not (0 <= port.external_port <= 65535):
-                raise ValueError(f"External port {port.external_port} is out of valid range (0-65535)")
+            if isinstance(port.internal_port, int) and not (
+                0 <= port.internal_port <= 65535
+            ):
+                raise ValueError(
+                    f"Internal port {port.internal_port} is out of valid range (0-65535)"
+                )
+            if isinstance(port.external_port, int) and not (
+                0 <= port.external_port <= 65535
+            ):
+                raise ValueError(
+                    f"External port {port.external_port} is out of valid range (0-65535)"
+                )
 
         return ports
 

@@ -40,5 +40,4 @@ class InstanceNotFound(Exception):
         return self._msg
 
 
-class InvalidModel(Exception):
-    ...
+class InvalidModel(Exception): ...

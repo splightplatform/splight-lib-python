@@ -1,16 +1,17 @@
 import os
 from abc import ABC
-from typing import  Optional
+from typing import Optional
 
 from pydantic import BaseModel
 from pydantic_core import ValidationError
 
-from splight_lib.server.spec import Spec
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import ConnectError, HTTPError, Timeout
+from splight_lib.server.spec import Spec
 
 REQUEST_EXCEPTIONS = (ConnectError, HTTPError, Timeout)
 logger = get_splight_logger("Base Server")
+
 
 class SplightBaseServer(ABC):
     def __init__(
@@ -42,11 +43,11 @@ class SplightBaseServer(ABC):
     @property
     def config(self) -> BaseModel:
         return self._config
-    
+
     @property
     def ports(self) -> BaseModel:
         return self._ports
-    
+
     @property
     def environment(self) -> BaseModel:
         return self._environment
