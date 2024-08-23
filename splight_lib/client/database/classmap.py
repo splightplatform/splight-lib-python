@@ -23,6 +23,7 @@ MODEL_NAME_MAP = {
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
     "solution": f"{ENGINE_PREFIX}/solution/solutions/",
+    "server": f"{ENGINE_PREFIX}/server/servers/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
     "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
