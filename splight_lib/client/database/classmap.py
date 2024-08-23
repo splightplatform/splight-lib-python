@@ -26,6 +26,8 @@ MODEL_NAME_MAP = {
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
     "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
+    "hubserver": f"{HUB_PREFIX}/server/servers/",
+    "hubserverversion": f"{HUB_PREFIX}/server/versions/",
 }
 
 CUSTOM_PATHS_MAP = {

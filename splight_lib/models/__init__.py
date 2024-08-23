@@ -22,6 +22,7 @@ from splight_lib.models.file import File
 from splight_lib.models.function import Function, FunctionItem, QueryFilter
 from splight_lib.models.hub import HubComponent
 from splight_lib.models.hub_solution import HubSolution
+from splight_lib.models.hub_server import HubServer
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
@@ -50,6 +51,7 @@ __all__ = [
     FunctionItem,
     HubSolution,
     HubComponent,
+    HubServer,
     QueryFilter,
     Metadata,
     Number,

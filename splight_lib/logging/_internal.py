@@ -24,6 +24,7 @@ class LogTags(UppercaseStrEnum):
     DATABASE = auto()
     DATALAKE = auto()
     CACHE = auto()
+    SERVER = auto()
 
 
 # don't used now
