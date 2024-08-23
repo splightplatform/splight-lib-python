@@ -13,7 +13,6 @@ from splight_lib.models.base import (
     SplightDatabaseBaseModel,
 )
 from splight_lib.models.component import InputParameter
-from splight_lib.models.tag import Tag
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
     README_FILE_1,
