@@ -4,17 +4,11 @@ from datetime import datetime
 from enum import auto
 from typing import Any, List, Optional, Union
 
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    Field,
-)
+from pydantic import AnyUrl, BaseModel, Field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.execution.scheduling import Crontab
-from splight_lib.models.base import (
-    SplightDatabaseBaseModel,
-)
+from splight_lib.models.base import SplightDatabaseBaseModel
 from splight_lib.models.file import File
 from splight_lib.models.secret import Secret
 
