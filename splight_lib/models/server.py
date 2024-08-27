@@ -81,13 +81,13 @@ def load_server_ports(
             0 <= port["internal_port"] <= 65535
         ):
             raise ValueError(
-                f"Internal port {port["internal_port"]} is out of valid range (0-65535)"
+                f"Internal port {port['internal_port']} is out of valid range (0-65535)"
             )
         if isinstance(port["exposed_port"], int) and not (
             0 <= port["exposed_port"] <= 65535
         ):
             raise ValueError(
-                f"External port {port["exposed_port"]} is out of valid range (0-65535)"
+                f"External port {port['exposed_port']} is out of valid range (0-65535)"
             )
         ports_dict.update({port["name"]: port})
     resources = model_class(**ports_dict)
