@@ -1,5 +1,5 @@
-from splight_lib.server.abstract import SplightBaseServer
+from splight_lib.server.server import ServerLoader
 
 __all__ = [
-    SplightBaseServer,
+    ServerLoader,
 ]

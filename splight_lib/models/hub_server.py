@@ -1,10 +1,10 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import py7zr
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.base import (
@@ -20,6 +20,11 @@ from splight_lib.utils.hub import (
     get_spec,
 )
 
+class Port(BaseModel):
+    name: Optional[str]
+    internal_port: int
+    exposed_port: int
+
 
 class HubServer(SplightDatabaseBaseModel):
     id: Optional[str] = None
@@ -32,7 +37,7 @@ class HubServer(SplightDatabaseBaseModel):
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: List[InputParameter] = []
-    ports: List[Dict[str, Any]] = []
+    ports: List[Port] = []
     environment: List[Dict[str, str]] = []
 
     @classmethod

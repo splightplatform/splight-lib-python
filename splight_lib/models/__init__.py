@@ -26,6 +26,7 @@ from splight_lib.models.hub_solution import HubSolution
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
+from splight_lib.models.server import Server
 from splight_lib.models.solution import Solution
 from splight_lib.models.tag import Tag
 
@@ -57,6 +58,7 @@ __all__ = [
     Number,
     RoutineEvaluation,
     Secret,
+    Server,
     SetPoint,
     Solution,
     String,
