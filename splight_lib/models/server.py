@@ -89,6 +89,10 @@ def load_server_ports(
             raise ValueError(
                 f"External port {port['exposed_port']} is out of valid range (0-65535)"
             )
+        if port["protocol"] not in ["tcp", "udp"]:
+            raise ValueError(
+                f"Protocol {port['protocol']} is not valid. Must be 'tcp' or 'udp'"
+            )
         ports_dict.update({port["name"]: port})
     resources = model_class(**ports_dict)
     return resources
