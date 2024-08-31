@@ -18,6 +18,19 @@ def hash(string: str) -> str:
     return sha256(string.encode("utf-8")).hexdigest()
 
 
+def get_datalake_client() -> AbstractDatalakeClient:
+    return DatalakeClientBuilder.build(
+        dl_client_type=settings.DL_CLIENT_TYPE,
+        parameters={
+            "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
+            "access_id": settings.SPLIGHT_ACCESS_ID,
+            "secret_key": settings.SPLIGHT_SECRET_KEY,
+            "buffer_size": settings.DL_BUFFER_SIZE,
+            "buffer_timeout": settings.DL_BUFFER_TIMEOUT,
+        },
+    )
+
+
 class TraceType(str, Enum):
     QUERY = "QUERY"
     EXPRESSION = "EXPRESSION"
@@ -87,14 +100,14 @@ class DataRequest(Generic[T], BaseModel):
         return [step.to_step() for step in self.pipeline]
 
     def apply(self) -> list[T]:
-        dl_client = self.__get_datalake_client()
+        dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
         response = dl_client.get(request)
         data = self._parse_respose(response)
         return data
 
     async def async_apply(self) -> list[T]:
-        dl_client = self.__get_datalake_client()
+        dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
         response = await dl_client.async_get(request)
         data = self._parse_respose(response)
@@ -115,16 +128,11 @@ class DataRequest(Generic[T], BaseModel):
             data.extend(values)
         return data
 
-    @staticmethod
-    def __get_datalake_client() -> AbstractDatalakeClient:
-        db_client = DatalakeClientBuilder.build(
-            dl_client_type=settings.DL_CLIENT_TYPE,
-            parameters={
-                "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
-                "access_id": settings.SPLIGHT_ACCESS_ID,
-                "secret_key": settings.SPLIGHT_SECRET_KEY,
-                "buffer_size": settings.DL_BUFFER_SIZE,
-                "buffer_timeout": settings.DL_BUFFER_TIMEOUT,
-            },
-        )
-        return db_client
+
+class DataRecords(BaseModel):
+    collection: Literal["default"] = "default"
+    records: list[dict[str, Any]] = []
+
+    def apply(self) -> None:
+        dl_client = get_datalake_client()
+        dl_client.save(self.model_dump(mode="json"))
