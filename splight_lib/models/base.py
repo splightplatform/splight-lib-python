@@ -125,6 +125,19 @@ class SplightDatalakeBaseModel(BaseModel):
         instances = await request.async_apply()
         return instances
 
+    @classmethod
+    def get_dataframe(
+        cls, asset: str, attribute: str, **params: Dict
+    ) -> pd.DataFrame:
+        request = DataRequest[cls](
+            from_timestamp=params.get("from_timestamp"),
+            to_timestamp=params.get("to_timestamp"),
+        )
+        request.add_trace(Trace.from_address(asset, attribute))
+        instances = request.apply()
+        df = pd.DataFrame([instance.dict() for instance in instances])
+        return df
+
     def save(self) -> None:
         records = self._to_record()
         records.apply()
@@ -134,22 +147,14 @@ class SplightDatalakeBaseModel(BaseModel):
         await records.async_apply()
 
     @classmethod
-    def get_dataframe(
-        cls, asset: str, attribute: str, **params: Dict
-    ) -> pd.DataFrame:
-        dl_client = cls.__get_datalake_client()
-        df = dl_client.get_dataframe(
-            match={"asset": asset, "attribute": attribute}, **params
-        )
-        return df
-
-    @classmethod
     def save_dataframe(cls, df: pd.DataFrame):
-        dl_client = cls.__get_datalake_client()
-        dl_client.save_dataframe(
-            df,
+        df = _fix_dataframe_timestamp(df)
+        instances = df.to_dict("records")
+        records = DataRecords(
             collection=cls._collection_name,
+            records=instances,
         )
+        records.apply()
 
     def dict(self, *args, **kwargs) -> Dict:
         d = super().model_dump(*args, **kwargs)
@@ -164,16 +169,14 @@ class SplightDatalakeBaseModel(BaseModel):
             records=[self.model_dump(mode="json")],
         )
 
-    @staticmethod
-    def __get_datalake_client() -> AbstractDatalakeClient:
-        db_client = DatalakeClientBuilder.build(
-            dl_client_type=settings.DL_CLIENT_TYPE,
-            parameters={
-                "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
-                "access_id": settings.SPLIGHT_ACCESS_ID,
-                "secret_key": settings.SPLIGHT_SECRET_KEY,
-                "buffer_size": settings.DL_BUFFER_SIZE,
-                "buffer_timeout": settings.DL_BUFFER_TIMEOUT,
-            },
+
+def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:
+    if df["timestamp"][0].tz is None:
+        df["timestamp"] = df["timestamp"].apply(
+            lambda x: x.tz_localize(tz="UTC").strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         )
-        return db_client
+    else:
+        df["timestamp"] = df["timestamp"].apply(
+            lambda x: x.tz_convert(tz="UTC").strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        )
+    return df

@@ -1,4 +1,3 @@
-from datetime import datetime
 from threading import Lock, Thread
 from time import sleep
 from typing import Any, TypedDict
@@ -13,8 +12,6 @@ from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.constants import (
-    DEFAULT_COLLECTION,
-    DEFAULT_SORT_FIELD,
     DL_BUFFER_SIZE,
     DL_BUFFER_TIMEOUT,
 )
@@ -83,48 +80,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
 
-    def save_dataframe(
-        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
-    ) -> None:
-        dataframe = _fix_dataframe_timestamp(dataframe)
-        instances = dataframe.to_dict("records")
-        self.save({"collection": collection, "records": instances})
-
-    def get_dataframe(
-        self,
-        match: dict[str, str],
-        collection: str = DEFAULT_COLLECTION,
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        from_timestamp: datetime | None = None,
-        to_timestamp: datetime | None = None,
-        extra_pipeline: list[dict] = [],
-        aggregation_query: dict = {},
-        limit: int = 10000,
-        max_time_ms: int = 10000,
-        **kwargs,
-    ) -> pd.DataFrame:
-        data = self._get(
-            match,
-            collection,
-            sort_field,
-            sort_direction,
-            from_timestamp,
-            to_timestamp,
-            extra_pipeline,
-            aggregation_query,
-            limit,
-            max_time_ms,
-        )
-        df = pd.DataFrame(data)
-        if not df.empty:
-            df.index = pd.to_datetime(df["timestamp"])
-            df.drop(columns=["timestamp"], inplace=True)
-            df.rename(columns={"output": "value"}, inplace=True)
-            for key, value in match.items():
-                df[key] = value
-        return df
-
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     _PREFIX = "data"
@@ -190,14 +145,6 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                 buffer.reset()
             buffer.add_documents(instances)
         return instances
-
-    def save_dataframe(
-        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
-    ) -> None:
-        logger.debug("Saving dataframe in datalake", tags=LogTags.DATALAKE)
-        dataframe = _fix_dataframe_timestamp(dataframe)
-        instances = dataframe.to_dict("records")
-        self.save({"collection": collection, "records": instances})
 
     def _flusher(self):
         while True:
@@ -297,17 +244,6 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
                 buffer.reset()
         return records["records"]
 
-    def save_dataframe(
-        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
-    ) -> None:
-        logger.debug("Saving dataframe in datalake", tag=LogTags.DATALAKE)
-        # dataframe["timestamp"] = dataframe["timestamp"].apply(
-        #     lambda x: x.tz_localize(tz="UTC").isoformat()
-        # )
-        dataframe = _fix_dataframe_timestamp(dataframe)
-        instances = dataframe.to_dict("records")
-        self.save(collection, instances)
-
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/write"
@@ -319,15 +255,3 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
         return docs
-
-
-def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:
-    if df["timestamp"][0].tz is None:
-        df["timestamp"] = df["timestamp"].apply(
-            lambda x: x.tz_localize(tz="UTC").strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        )
-    else:
-        df["timestamp"] = df["timestamp"].apply(
-            lambda x: x.tz_convert(tz="UTC").strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        )
-    return df
