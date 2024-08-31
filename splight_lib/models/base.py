@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 from enum import auto
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, TypeVar, Self
+from typing import ClassVar, Dict, List, Optional, Self, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -12,7 +12,7 @@ from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.models.datalake import DataRequest, Trace, DataRecords
+from splight_lib.models.datalake import DataRecords, DataRequest, Trace
 from splight_lib.settings import settings
 
 
@@ -103,9 +103,7 @@ class SplightDatalakeBaseModel(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     @classmethod
-    def get(
-        cls, asset: str, attribute: str, **params: Dict
-    ) -> list[Self]:
+    def get(cls, asset: str, attribute: str, **params: Dict) -> list[Self]:
         request = DataRequest[cls](
             from_timestamp=params.get("from_timestamp"),
             to_timestamp=params.get("to_timestamp"),
