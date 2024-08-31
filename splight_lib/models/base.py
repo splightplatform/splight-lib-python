@@ -10,7 +10,6 @@ from strenum import LowercaseStrEnum
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
-from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.models.datalake import DataRecords, DataRequest, Trace
 from splight_lib.settings import settings

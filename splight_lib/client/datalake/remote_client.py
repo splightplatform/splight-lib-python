@@ -2,7 +2,6 @@ from threading import Lock, Thread
 from time import sleep
 from typing import Any, TypedDict
 
-import pandas as pd
 from furl import furl
 from retry import retry
 

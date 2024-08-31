@@ -1,8 +1,6 @@
 from abc import abstractmethod
 from typing import Dict, List, Union
 
-import pandas as pd
-
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
 from splight_lib.constants import DEFAULT_COLLECTION, DEFAULT_SORT_FIELD
 
