@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 from enum import auto
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, TypeVar
+from typing import ClassVar, Dict, List, Optional, TypeVar, Self
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
@@ -12,6 +12,7 @@ from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
+from splight_lib.models.datalake import DataRequest, Trace
 from splight_lib.settings import settings
 
 
@@ -104,47 +105,24 @@ class SplightDatalakeBaseModel(BaseModel):
     @classmethod
     def get(
         cls, asset: str, attribute: str, **params: Dict
-    ) -> List["SplightDatalakeBaseModel"]:
-        dl_client = cls.__get_datalake_client()
-        instances = dl_client.get(
-            collection=cls._collection_name,
-            match={"asset": asset, "attribute": attribute},
-            **params,
+    ) -> list[Self]:
+        request = DataRequest[cls](
+            from_timestamp=params.get("from_timestamp"),
+            to_timestamp=params.get("to_timestamp"),
         )
-        instances = [
-            cls.model_validate(
-                {
-                    "asset": asset,
-                    "attribute": attribute,
-                    "value": item["output"],
-                    "timestamp": item["timestamp"],
-                }
-            )
-            for item in instances
-        ]
-        return instances
+        request.add_trace(Trace.from_address(asset, attribute))
+        return request.apply()
 
     @classmethod
     async def async_get(
         cls, asset: str, attribute: str, **params: Dict
-    ) -> List["SplightDatalakeBaseModel"]:
-        dl_client = cls.__get_datalake_client()
-        instances = await dl_client.async_get(
-            collection=cls._collection_name,
-            match={"asset": asset, "attribute": attribute},
-            **params,
+    ) -> list[Self]:
+        request = DataRequest[cls](
+            from_timestamp=params.get("from_timestamp"),
+            to_timestamp=params.get("to_timestamp"),
         )
-        instances = [
-            cls.model_validate(
-                {
-                    "asset": asset,
-                    "attribute": attribute,
-                    "value": item["output"],
-                    "timestamp": item["timestamp"],
-                }
-            )
-            for item in instances
-        ]
+        request.add_trace(Trace.from_address(asset, attribute))
+        instances = await request.async_apply()
         return instances
 
     def save(self):
