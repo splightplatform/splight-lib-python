@@ -10,8 +10,10 @@ from retry import retry
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
-from splight_lib.client.datalake.exceptions import InvalidCollectionName
-from splight_lib.client.datalake.schemas import DataRequest
+from splight_lib.client.datalake.exceptions import (
+    DatalakeRequestError,
+    InvalidCollectionName,
+)
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.constants import (
     DEFAULT_COLLECTION,
@@ -80,83 +82,19 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _get(
-        self,
-        match: Dict[str, str],
-        collection: str = DEFAULT_COLLECTION,
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        from_timestamp: Optional[datetime] = None,
-        to_timestamp: Optional[datetime] = None,
-        extra_pipeline: List[Dict] = [],
-        aggregation_query: Dict = {},
-        limit: int = 10000,
-        max_time_ms: Optional[int] = 10000,
-    ) -> List[Dict]:
-        # POST /data/read
+    def _get(self, request: dict) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/read"
-        pipeline = [{"$match": match}, *extra_pipeline]
-        data_request = DataRequest(
-            from_timestamp=from_timestamp,
-            to_timestamp=to_timestamp,
-            collection=collection,
-            sort_field=sort_field,
-            sort_direction=sort_direction,
-            limit=limit,
-            max_time_ms=max_time_ms,
-            traces=[
-                {
-                    "ref_id": "output",
-                    "type": "QUERY",
-                    "pipeline": pipeline,
-                    "expression": None,
-                }
-            ],
-            aggregation_query=aggregation_query,
-        )
-        response = self._restclient.post(url, json=data_request.dict())
-        response.raise_for_status()
+        response = self._restclient.post(url, json=request)
+        if response.is_error:
+            raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
-    async def _async_get(
-        self,
-        match: Dict[str, str],
-        collection: str = DEFAULT_COLLECTION,
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        from_timestamp: Optional[datetime] = None,
-        to_timestamp: Optional[datetime] = None,
-        extra_pipeline: List[Dict] = [],
-        aggregation_query: Dict = {},
-        limit: int = 10000,
-        max_time_ms: Optional[int] = 10000,
-    ) -> List[Dict]:
-        # POST /data/read
+    async def _async_get(self, request: dict) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/read"
-        pipeline = [{"$match": match}, *extra_pipeline]
-        data_request = DataRequest(
-            from_timestamp=from_timestamp,
-            to_timestamp=to_timestamp,
-            collection=collection,
-            sort_field=sort_field,
-            sort_direction=sort_direction,
-            limit=limit,
-            max_time_ms=max_time_ms,
-            traces=[
-                {
-                    "ref_id": "output",
-                    "type": "QUERY",
-                    "pipeline": pipeline,
-                    "expression": None,
-                }
-            ],
-            aggregation_query=aggregation_query,
-        )
-        response = await self._restclient.async_post(
-            url, json=data_request.dict()
-        )
-        response.raise_for_status()
+        response = await self._restclient.async_post(url, json=request)
+        if response.is_error:
+            raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
 
     def save_dataframe(
