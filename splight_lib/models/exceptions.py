@@ -64,3 +64,9 @@ class MissingAsset(Exception):
 
 class InvalidArgument(Exception):
     pass
+
+
+class TraceAlreadyExistsError(Exception):
+    def __init__(self, ref_id: str):
+        msg = f"Trace with ref_id {ref_id} already exists"
+        super().__init__(msg)
