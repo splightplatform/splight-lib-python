@@ -52,20 +52,3 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         **filters,
     ) -> List[Dict]:
         pass
-
-    @abstractmethod
-    def save_dataframe(
-        self, dataframe: pd.DataFrame, collection: str = DEFAULT_COLLECTION
-    ) -> None:
-        pass
-
-    @abstractmethod
-    def get_dataframe(
-        self,
-        match: Dict[str, str],
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        limit: int = 10000,
-        **filters,
-    ) -> pd.DataFrame:
-        pass
