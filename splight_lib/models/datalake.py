@@ -78,7 +78,7 @@ class Trace(BaseModel):
 
 class DataRequest(Generic[T], BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    collection: Literal["default"] = "default"
+    collection: str = "default"
     sort_field: str = "timestamp"
     sort_direction: Literal[-1, 1] = -1
     limit: Annotated[int, Field(ge=1, le=10000)] = 10000
@@ -130,7 +130,7 @@ class DataRequest(Generic[T], BaseModel):
 
 
 class DataRecords(BaseModel):
-    collection: Literal["default"] = "default"
+    collection: str = "default"
     records: list[dict[str, Any]] = []
 
     def apply(self) -> None:

@@ -6,6 +6,7 @@ from splight_lib.client.datalake import SyncRemoteDatalakeClient  # noqa E402
 from splight_lib.client.datalake.remote_client import (  # noqa E402
     SplightRestClient,
 )
+from splight_lib.models.datalake import DataRecords
 
 base_url = "http://test.com"
 os.environ["ACCESS_ID"] = "access_id"
@@ -65,6 +66,7 @@ def test_save(mocker: MockerFixture):
     )
     collection = "collection_name"
     instances = [{"key": "value"}]
-    result = client.save(collection=collection, instances=instances)
+    records = {"collection": collection, "records": instances}
+    result = client.save(records)
     mock_post.assert_called_once()
     assert result == instances
