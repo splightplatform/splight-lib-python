@@ -136,3 +136,7 @@ class DataRecords(BaseModel):
     def apply(self) -> None:
         dl_client = get_datalake_client()
         dl_client.save(self.model_dump(mode="json"))
+
+    async def async_apply(self) -> None:
+        dl_client = get_datalake_client()
+        await dl_client.async_save(self.model_dump(mode="json"))

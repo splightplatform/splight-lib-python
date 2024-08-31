@@ -12,7 +12,7 @@ from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.models.datalake import DataRequest, Trace
+from splight_lib.models.datalake import DataRequest, Trace, DataRecords
 from splight_lib.settings import settings
 
 
@@ -125,21 +125,13 @@ class SplightDatalakeBaseModel(BaseModel):
         instances = await request.async_apply()
         return instances
 
-    def save(self):
-        dl_client = self.__get_datalake_client()
-        instance_dict = json.loads(self.model_dump_json())
-        dl_client.save(
-            collection=self._collection_name,
-            instances=instance_dict,
-        )
+    def save(self) -> None:
+        records = self._to_record()
+        records.apply()
 
-    async def async_save(self):
-        dl_client = self.__get_datalake_client()
-
-        await dl_client.async_save(
-            collection=self._collection_name,
-            instances=json.loads(self.model_dump_json()),
-        )
+    async def async_save(self) -> None:
+        records = self._to_record()
+        await records.async_apply()
 
     @classmethod
     def get_dataframe(
@@ -165,6 +157,12 @@ class SplightDatalakeBaseModel(BaseModel):
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()
         }
+
+    def _to_record(self) -> DataRecords:
+        return DataRecords(
+            collection=self._collection_name,
+            records=[self.model_dump(mode="json")],
+        )
 
     @staticmethod
     def __get_datalake_client() -> AbstractDatalakeClient:
