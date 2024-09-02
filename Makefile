@@ -50,3 +50,11 @@ isort: ## run isort formatter
 	isort .
 
 format: black isort
+
+check_isort:
+	isort --check-only --diff splight_lib/
+
+check_ruff:
+	ruff format --check --diff splight_lib/
+
+check_format: check_ruff check_isort 
