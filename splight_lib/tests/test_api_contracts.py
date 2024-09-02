@@ -65,7 +65,8 @@ with open(
 GEOMETRIES.insert(0, None)
 
 
-class GeometryCollectionFactory(ModelFactory[GeometryCollection]): ...
+class GeometryCollectionFactory(ModelFactory[GeometryCollection]):
+    pass
 
 
 class AttributeFactory(ModelFactory[Attribute]):
