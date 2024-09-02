@@ -1,8 +1,12 @@
 from abc import abstractmethod
-from typing import Dict, List, Union
+from typing import Any, TypedDict
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
-from splight_lib.constants import DEFAULT_COLLECTION, DEFAULT_SORT_FIELD
+
+
+class Records(TypedDict):
+    collection: str
+    records: list[dict[str, Any]]
 
 
 class AbstractDatalakeClient(AbstractRemoteClient):
@@ -16,37 +20,17 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         return await self._async_get(*args, **kwargs)
 
     @abstractmethod
-    def save(
-        self, collection: str, instances: Union[List[Dict], Dict]
-    ) -> List[dict]:
+    def save(self, records: Records) -> list[dict]:
         pass
 
     @abstractmethod
-    async def async_save(
-        self, collection: str, instances: Union[List[Dict], Dict]
-    ) -> List[Dict]:
+    async def async_save(self, records: Records) -> list[dict]:
         pass
 
     @abstractmethod
-    def _get(
-        self,
-        match: Dict[str, str],
-        collection: str = DEFAULT_COLLECTION,
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        limit: int = 10000,
-        **filters,
-    ) -> List[Dict]:
+    def _get(self, request: dict) -> list[dict]:
         pass
 
     @abstractmethod
-    async def _async_get(
-        self,
-        match: Dict[str, str],
-        collection: str = DEFAULT_COLLECTION,
-        sort_field: str = DEFAULT_SORT_FIELD,
-        sort_direction: int = -1,
-        limit: int = 10000,
-        **filters,
-    ) -> List[Dict]:
+    async def _async_get(self, request: dict) -> list[dict]:
         pass

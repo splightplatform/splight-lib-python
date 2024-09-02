@@ -29,20 +29,16 @@ class SplightDatalakeBaseModel(BaseModel):
     def get(
         cls, asset: str | Asset, attribute: str, **params: Dict
     ) -> list[Self]:
-        asset_id = asset.id if isinstance(asset, Asset) else asset
-        attribute_id = (
-            attribute.id if isinstance(attribute, Attribute) else attribute
-        )
         request = DataRequest[cls](
             from_timestamp=params.get("from_timestamp"),
             to_timestamp=params.get("to_timestamp"),
         )
-        request.add_trace(Trace.from_address(asset_id, attribute_id))
+        request.add_trace(Trace.from_address(asset, attribute))
         return request.apply()
 
     @classmethod
     async def async_get(
-        cls, asset: str, attribute: str, **params: Dict
+        cls, asset: str | Asset, attribute: str | Attribute, **params: Dict
     ) -> list[Self]:
         request = DataRequest[cls](
             from_timestamp=params.get("from_timestamp"),
@@ -54,7 +50,7 @@ class SplightDatalakeBaseModel(BaseModel):
 
     @classmethod
     def get_dataframe(
-        cls, asset: str, attribute: str, **params: Dict
+        cls, asset: str | Asset, attribute: str | Attribute, **params: Dict
     ) -> pd.DataFrame:
         request = DataRequest[cls](
             from_timestamp=params.get("from_timestamp"),

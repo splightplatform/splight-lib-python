@@ -10,8 +10,8 @@ from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 
 
 class NativeOutput(SplightDatalakeBaseModel):
-    asset: Asset | str
-    attribute: Attribute | str
+    asset: str | Asset
+    attribute: str | Attribute
     output_format: str | None = None
     _collection_name: ClassVar[str] = "default"
     _output_format: ClassVar[str] = "default"
@@ -21,18 +21,20 @@ class NativeOutput(SplightDatalakeBaseModel):
         return cls._output_format
 
     @classmethod
-    def get(cls, asset: str, attribute: str, **params: dict) -> list[Self]:
+    def get(
+        cls, asset: str | Asset, attribute: str | Attribute, **params: dict
+    ) -> list[Self]:
         return super().get(asset, attribute, **params)
 
     @classmethod
     async def async_get(
-        cls, asset: str, attribute: str, **params: dict
+        cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
         return await super().async_get(asset, attribute, **params)
 
     @classmethod
     def get_dataframe(
-        cls, asset: str, attribute: str, **params: dict
+        cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> pd.DataFrame:
         df = super().get_dataframe(asset, attribute, **params)
         df["output_format"] = cls._output_format
@@ -40,7 +42,10 @@ class NativeOutput(SplightDatalakeBaseModel):
 
     @classmethod
     def latest(
-        cls, asset: str, attribute: str, expiration: timedelta | None = None
+        cls,
+        asset: str | Asset,
+        attribute: str | Attribute,
+        expiration: timedelta | None = None,
     ) -> Self:
         from_timestamp = None
         if expiration:

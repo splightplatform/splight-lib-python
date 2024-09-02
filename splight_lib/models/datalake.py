@@ -8,10 +8,13 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.constants import StepName
+from splight_lib.models.asset import Asset
+from splight_lib.models.attribute import Attribute
+from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.exceptions import TraceAlreadyExistsError
 from splight_lib.settings import settings
 
-T = TypeVar("T")
+T = TypeVar("T", bound=SplightDatalakeBaseModel)
 
 
 def hash(string: str) -> str:
@@ -60,18 +63,22 @@ class Trace(BaseModel):
 
     @classmethod
     def from_address(
-        cls, asset: str, attribute: str
+        cls, asset: str | Asset, attribute: str | Attribute
     ) -> Self:
+        asset_id = asset.id if isinstance(asset, Asset) else asset
+        attribute_id = (
+            attribute.id if isinstance(attribute, Attribute) else attribute
+        )
         return cls(
-            ref_id=hash(f"{asset}_{attribute}"),
+            ref_id=hash(f"{asset_id}_{attribute_id}"),
             type=TraceType.QUERY,
             pipeline=[
                 PipelineStep(
                     name=StepName.MATCH,
-                    operation={"asset": asset, "attribute": attribute},
+                    operation={"asset": asset_id, "attribute": attribute_id},
                 ).to_step()
             ],
-            address={"asset": asset, "attribute": attribute},
+            address={"asset": asset_id, "attribute": attribute_id},
         )
 
     def add_step(self, step: PipelineStep) -> None:
