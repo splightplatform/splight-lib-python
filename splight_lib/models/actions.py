@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from splight_lib.models.base import ResourceSummary, SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
 
 
 class SetPoint(SplightDatabaseBaseModel):

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class Filter(SplightDatabaseBaseModel):
