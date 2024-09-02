@@ -9,7 +9,7 @@ from splight_lib.component.exceptions import (
     ParameterDependencyError,
 )
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.base import SplightDatalakeBaseModel
+from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
     Component,
     ComponentObjectInstance,
