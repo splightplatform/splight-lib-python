@@ -9,7 +9,6 @@ from splight_lib.component.exceptions import (
     ParameterDependencyError,
 )
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.component import (
     Component,
     ComponentObjectInstance,
@@ -22,6 +21,7 @@ from splight_lib.models.component import (
     Routine,
     get_field_value,
 )
+from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.utils.custom_model import create_custom_model
 
 VALID_PARAMETER_VALUES = {

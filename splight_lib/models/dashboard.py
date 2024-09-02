@@ -39,9 +39,9 @@ class ChartItem(SplightDatabaseBaseModel):
     aggregate_period: Optional[str] = None
     source: Optional[str] = None
     source_label: Optional[str] = None
-    source_type: Optional[
-        str
-    ] = None  # TODO: define options (component, native)
+    source_type: Optional[str] = (
+        None  # TODO: define options (component, native)
+    )
     source_component_label: Optional[str] = None
     source_component_id: Optional[str] = None
     output_format: Optional[str] = None
