@@ -10,11 +10,10 @@ from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.constants import StepName
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.exceptions import TraceAlreadyExistsError
 from splight_lib.settings import settings
 
-T = TypeVar("T", bound=SplightDatalakeBaseModel)
+T = TypeVar("T")
 
 
 def hash(string: str) -> str:
