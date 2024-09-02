@@ -47,6 +47,11 @@ class PipelineStep(BaseModel):
     name: StepName
     operation: str | dict[str, Any]
 
+    @classmethod
+    def from_dict(cls, step_dict: dict[str, Any]) -> Self:
+        (name, operation), *aux = step_dict.items()
+        return cls(name=name.lstrip("$"), operation=operation)
+
     def to_step(self) -> dict[str, dict[str, Any]]:
         return {f"${self.name.value}": self.operation}
 

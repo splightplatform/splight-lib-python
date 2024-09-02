@@ -1,20 +1,18 @@
 import json
 from datetime import datetime, timezone
-from typing import ClassVar, Dict, Self
+from typing import Any, ClassVar, Dict, Self, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.datalake import DataRecords, DataRequest, Trace
-
-
-def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
-    new_data = {
-        k: v if not isinstance(v, dict) else v["id"] for k, v in data.items()
-    }
-    return json.dumps(new_data, default=default, **dumps_kwargs)
+from splight_lib.models.datalake import (
+    DataRecords,
+    DataRequest,
+    PipelineStep,
+    Trace,
+)
 
 
 class SplightDatalakeBaseModel(BaseModel):
@@ -27,22 +25,28 @@ class SplightDatalakeBaseModel(BaseModel):
 
     @classmethod
     def get(
-        cls, asset: str | Asset, attribute: str, **params: Dict
+        cls,
+        asset: str | Asset,
+        attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = {},
+        **params: Dict,
     ) -> list[Self]:
-        request = DataRequest[cls](
-            from_timestamp=params.get("from_timestamp"),
-            to_timestamp=params.get("to_timestamp"),
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
         )
         request.add_trace(Trace.from_address(asset, attribute))
         return request.apply()
 
     @classmethod
     async def async_get(
-        cls, asset: str | Asset, attribute: str | Attribute, **params: Dict
+        cls,
+        asset: str | Asset,
+        attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = {},
+        **params: Dict,
     ) -> list[Self]:
-        request = DataRequest[cls](
-            from_timestamp=params.get("from_timestamp"),
-            to_timestamp=params.get("to_timestamp"),
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
         )
         request.add_trace(Trace.from_address(asset, attribute))
         instances = await request.async_apply()
@@ -50,13 +54,15 @@ class SplightDatalakeBaseModel(BaseModel):
 
     @classmethod
     def get_dataframe(
-        cls, asset: str | Asset, attribute: str | Attribute, **params: Dict
+        cls,
+        asset: str | Asset,
+        attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = {},
+        **params: Dict,
     ) -> pd.DataFrame:
-        request = DataRequest[cls](
-            from_timestamp=params.get("from_timestamp"),
-            to_timestamp=params.get("to_timestamp"),
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
         )
-        request.add_trace(Trace.from_address(asset, attribute))
         instances = request.apply()
         df = pd.DataFrame([instance.dict() for instance in instances])
         return df
@@ -91,6 +97,33 @@ class SplightDatalakeBaseModel(BaseModel):
             collection=self._collection_name,
             records=[self.model_dump(mode="json")],
         )
+
+
+def _to_data_request(
+    model_class: TypeVar("T"),
+    asset: str | Asset,
+    attribute: str | Attribute,
+    extra_pipeline: list[dict[str, Any]] = {},
+    **params: Dict,
+) -> DataRequest:
+    if not isinstance(extra_pipeline, list):
+        raise ValueError("extra_pipeline must be a list of dicts")
+    request = DataRequest[model_class](
+        from_timestamp=params.get("from_timestamp"),
+        to_timestamp=params.get("to_timestamp"),
+    )
+    trace = Trace.from_address(asset, attribute)
+    for step in extra_pipeline:
+        trace.add_step(PipelineStep.from_dict(step))
+    request.add_trace(trace)
+    return request
+
+
+def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
+    new_data = {
+        k: v if not isinstance(v, dict) else v["id"] for k, v in data.items()
+    }
+    return json.dumps(new_data, default=default, **dumps_kwargs)
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:
