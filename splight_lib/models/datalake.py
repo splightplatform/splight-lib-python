@@ -104,7 +104,6 @@ class DataRequest(Generic[T], BaseModel):
     def apply(self) -> list[T]:
         dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
-        __import__('ipdb').set_trace()
         response = dl_client.get(request)
         data = self._parse_respose(response)
         return data
