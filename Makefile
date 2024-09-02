@@ -49,7 +49,9 @@ black: ## run black formatter
 isort: ## run isort formatter
 	isort .
 
-format: black isort
+format: 
+	isort splight_lib/
+	ruff format splight_lib/
 
 check_isort:
 	isort --check-only --diff splight_lib/
