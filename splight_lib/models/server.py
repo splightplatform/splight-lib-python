@@ -8,7 +8,7 @@ from typing import Any, NamedTuple, Optional
 from pydantic import AnyUrl, BaseModel, Field, computed_field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import (
     InvalidArgument,
     InvalidServerConfigType,
