@@ -18,6 +18,8 @@ from splight_lib.restclient import SplightRestClient
 
 logger = get_splight_logger()
 
+EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
+
 
 class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     _PREFIX = "/data"
@@ -37,7 +39,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             "Remote datalake client initialized.", tags=LogTags.DATALAKE
         )
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def save(self, records: Records) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/write"
         response = self._restclient.post(url, json=records)
@@ -45,7 +47,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             raise DatalakeRequestError(response.status_code, response.text)
         return records["records"]
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     async def async_save(
         self,
         records: Records,
@@ -57,15 +59,16 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             raise DatalakeRequestError(response.status_code, response.text)
         return records["records"]
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _get(self, request: dict) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/read"
         response = self._restclient.post(url, json=request)
         if response.is_error:
+            __import__('ipdb').set_trace()
             raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     async def _async_get(self, request: dict) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/read"
         response = await self._restclient.async_post(url, json=request)
@@ -160,7 +163,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                 except Exception:
                     logger.error("Unable to save documents", exc_info=True)
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/write"
         data = {
@@ -237,7 +240,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
                 buffer.reset()
         return records["records"]
 
-    @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=2, jitter=1)
+    @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self._PREFIX}/write"
         data = {
