@@ -1,6 +1,6 @@
-from collections import namedtuple
 import re
 import warnings
+from collections import namedtuple
 from datetime import datetime
 from enum import auto
 from typing import Any, NamedTuple, Optional
@@ -9,7 +9,10 @@ from pydantic import AnyUrl, BaseModel, Field, computed_field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.base import SplightDatabaseBaseModel
-from splight_lib.models.exceptions import InvalidArgument, InvalidServerConfigType
+from splight_lib.models.exceptions import (
+    InvalidArgument,
+    InvalidServerConfigType,
+)
 from splight_lib.models.file import File
 from splight_lib.models.hub_server import HubServer
 from splight_lib.models.secret import Secret
@@ -34,6 +37,7 @@ DB_MODEL_TYPE_MAPPING = {
     **DATABASE_TYPES,
 }
 
+
 def get_field_value(field: dict):
     field_multiple = field.get("multiple", False)
     field_type = field.get("type")
@@ -54,12 +58,14 @@ def get_field_value(field: dict):
             model_class.retrieve(field_value)
             if not field_multiple
             else [model_class.retrieve(item) for item in field_value]
-        ) 
+        )
     return value
+
 
 def get_model_class(config: BaseModel, name: str) -> NamedTuple:
     config_class = namedtuple(name, [x.name for x in config])
     return config_class
+
 
 def load_server_config(
     config: list[dict], config_class: NamedTuple
@@ -71,6 +77,7 @@ def load_server_config(
         config_dict.update({item["name"]: get_field_value(item)})
     config = config_class(**config_dict)
     return config
+
 
 def load_server_ports(
     ports: list[dict], model_class: NamedTuple
@@ -97,6 +104,7 @@ def load_server_ports(
     resources = model_class(**ports_dict)
     return resources
 
+
 class ServerStatus(PascalCaseStrEnum):
     RUNNING = auto()
     FAILED = auto()
@@ -111,6 +119,7 @@ class ServerStatus(PascalCaseStrEnum):
 class PrivacyPolicy(LowercaseStrEnum):
     PUBLIC = auto()
     PRIVATE = auto()
+
 
 class Port(BaseModel):
     name: Optional[str]
@@ -130,25 +139,25 @@ class Server(SplightDatabaseBaseModel):
     def model_dump(self, *args, **kwargs):
         kwargs.update({"by_alias": True})
         return super().model_dump(*args, **kwargs)
-    
+
     def model_dump_json(self, *args, **kwargs):
         kwargs.update({"by_alias": True})
         return super().model_dump_json(*args, **kwargs)
-    
+
     @computed_field(alias="parsed_config")
     @property
     def config(self) -> NamedTuple:
         model_class = get_model_class(self.hub_server.config, "Config")
         config = load_server_config(self.raw_config, model_class)
         return config
-    
+
     @computed_field(alias="parsed_ports")
     @property
     def ports(self) -> NamedTuple:
         model_class = get_model_class(self.hub_server.ports, "Ports")
         ports = load_server_ports(self.raw_ports, model_class)
         return ports
-    
+
     def update_config(self, **kwargs: dict):
         valid_params = [x["name"] for x in self.raw_config]
         for key, value in kwargs.items():

@@ -65,6 +65,7 @@ class MissingAsset(Exception):
 class InvalidArgument(Exception):
     pass
 
+
 class InvalidServerConfigType(Exception):
     def __init__(self, name: str, type_: str):
         msg = (
@@ -72,6 +73,7 @@ class InvalidServerConfigType(Exception):
             "valid types are native and 'File'"
         )
         super().__init__(msg)
+
 
 class TraceAlreadyExistsError(Exception):
     def __init__(self, ref_id: str):

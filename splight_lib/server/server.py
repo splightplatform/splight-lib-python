@@ -2,9 +2,7 @@ import json
 import os
 
 from splight_lib.models import Server
-from splight_lib.server.exceptions import (
-    MissingInstanceEnvVar,
-)
+from splight_lib.server.exceptions import MissingInstanceEnvVar
 
 ENV_VAR = "SPLIGHT_SERVER_ID"
 

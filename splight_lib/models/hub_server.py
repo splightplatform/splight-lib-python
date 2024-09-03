@@ -20,6 +20,7 @@ from splight_lib.utils.hub import (
     get_spec,
 )
 
+
 class Port(BaseModel):
     name: Optional[str]
     protocol: str = "tcp"
