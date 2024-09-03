@@ -64,7 +64,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         url = self._base_url / f"{self._PREFIX}/read"
         response = self._restclient.post(url, json=request)
         if response.is_error:
-            __import__('ipdb').set_trace()
             raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
 
