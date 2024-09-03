@@ -28,7 +28,7 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
-        extra_pipeline: list[dict[str, Any]] = {},
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> list[Self]:
         request = _to_data_request(
@@ -42,7 +42,7 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
-        extra_pipeline: list[dict[str, Any]] = {},
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> list[Self]:
         request = _to_data_request(
@@ -57,7 +57,7 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
-        extra_pipeline: list[dict[str, Any]] = {},
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> pd.DataFrame:
         request = _to_data_request(
@@ -65,6 +65,8 @@ class SplightDatalakeBaseModel(BaseModel):
         )
         instances = request.apply()
         df = pd.DataFrame([instance.dict() for instance in instances])
+        df.index = df["timestamp"]
+        df.drop(columns="timestamp", inplace=True)
         return df
 
     def save(self) -> None:
@@ -103,7 +105,7 @@ def _to_data_request(
     model_class: TypeVar("T"),
     asset: str | Asset,
     attribute: str | Attribute,
-    extra_pipeline: list[dict[str, Any]] = {},
+    extra_pipeline: list[dict[str, Any]] = [],
     **params: Dict,
 ) -> DataRequest:
     if not isinstance(extra_pipeline, list):
