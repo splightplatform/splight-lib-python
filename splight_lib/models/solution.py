@@ -4,7 +4,7 @@ from typing import NamedTuple, Optional
 from pydantic import Field, computed_field
 
 from splight_lib.models.asset import Asset
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import (
     InvalidArgument,
     InvalidConfigType,

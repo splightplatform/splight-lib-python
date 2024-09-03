@@ -20,11 +20,9 @@ from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.execution.scheduling import Crontab
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
-from splight_lib.models.base import (
-    SplightDatabaseBaseModel,
-    SplightDatalakeBaseModel,
-)
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
+from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.secret import Secret

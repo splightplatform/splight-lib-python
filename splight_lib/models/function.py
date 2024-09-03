@@ -14,7 +14,7 @@ from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,

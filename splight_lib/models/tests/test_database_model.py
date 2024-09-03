@@ -12,7 +12,9 @@ import pytest  # noqa: E402
 from splight_lib.client.database.remote_client import (  # noqa: E402
     RemoteDatabaseClient,
 )
-from splight_lib.models.base import SplightDatabaseBaseModel  # noqa: E402
+from splight_lib.models.database_base import (  # noqa: E402
+    SplightDatabaseBaseModel,
+)
 
 
 class Resource(SplightDatabaseBaseModel):

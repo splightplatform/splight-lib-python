@@ -41,4 +41,4 @@ class InstanceNotFound(Exception):
 
 
 class InvalidModel(Exception):
-    ...
+    pass

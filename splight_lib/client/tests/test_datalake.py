@@ -65,6 +65,7 @@ def test_save(mocker: MockerFixture):
     )
     collection = "collection_name"
     instances = [{"key": "value"}]
-    result = client.save(collection=collection, instances=instances)
+    records = {"collection": collection, "records": instances}
+    result = client.save(records)
     mock_post.assert_called_once()
     assert result == instances
