@@ -29,13 +29,3 @@ class StepName(str, Enum):
     SORT = "sort"
     UNSET = "unset"
     UNWIND = "unwind"
-
-
-class TraceType(str, Enum):
-    QUERY = "QUERY"
-    EXPRESSION = "EXPRESSION"
-    METADATA = "METADATA"
-
-    @classmethod
-    def choices(cls):
-        return tuple((i.name, i.value) for i in cls)
