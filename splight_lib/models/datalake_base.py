@@ -34,7 +34,6 @@ class SplightDatalakeBaseModel(BaseModel):
         request = _to_data_request(
             cls, asset, attribute, extra_pipeline, **params
         )
-        request.add_trace(Trace.from_address(asset, attribute))
         return request.apply()
 
     @classmethod
@@ -48,7 +47,6 @@ class SplightDatalakeBaseModel(BaseModel):
         request = _to_data_request(
             cls, asset, attribute, extra_pipeline, **params
         )
-        request.add_trace(Trace.from_address(asset, attribute))
         instances = await request.async_apply()
         return instances
 
@@ -119,13 +117,6 @@ def _to_data_request(
         trace.add_step(PipelineStep.from_dict(step))
     request.add_trace(trace)
     return request
-
-
-def datalake_model_serializer(data: Dict, default=str, **dumps_kwargs):
-    new_data = {
-        k: v if not isinstance(v, dict) else v["id"] for k, v in data.items()
-    }
-    return json.dumps(new_data, default=default, **dumps_kwargs)
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:

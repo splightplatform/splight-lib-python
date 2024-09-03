@@ -104,9 +104,9 @@ class DataRequest(Generic[T], BaseModel):
     _traces_ref: dict[str, dict] = {}
 
     def add_trace(self, trace: Trace) -> None:
-        self.traces.append(trace)
         if trace.ref_id in self._traces_ref:
             raise TraceAlreadyExistsError(trace.ref_id)
+        self.traces.append(trace)
         self._traces_ref.update({trace.ref_id: trace.address})
 
     def as_pipeline(self) -> list[dict[str, Any]]:
