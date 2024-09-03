@@ -101,6 +101,11 @@ class ServerStatus(PascalCaseStrEnum):
     RUNNING = auto()
     FAILED = auto()
     SUCCEEDED = auto()
+    PENDING = auto()
+    START_REQUESTED = auto()
+    STOP_REQUESTED = auto()
+    STOPPED = auto()
+    UNKNOWN = auto()
 
 
 class PrivacyPolicy(LowercaseStrEnum):
@@ -111,18 +116,6 @@ class Port(BaseModel):
     name: Optional[str]
     internal_port: int
     exposed_port: int
-
-
-class SplightObject(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    name: str
-    server_id: Optional[str] = None
-    description: str = Field(default="")
-
-    def save(self):
-        if self.server_id is None:
-            raise ValueError("server_id cannot be None.")
-        super().save()
 
 
 class Server(SplightDatabaseBaseModel):
@@ -185,6 +178,15 @@ class Server(SplightDatabaseBaseModel):
                 if item["name"] == key:
                     item["value"] = value
                     break
+
+    def update_status(self, status: ServerStatus):
+        _ = self._db_client.operate(
+            resource_name="server-status",
+            instance={
+                "server": self.id,
+                "deployment_status": status,
+            },
+        )
 
 
 def parse_variable_string(raw_value: Optional[str]) -> Any:

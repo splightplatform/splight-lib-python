@@ -36,4 +36,5 @@ CUSTOM_PATHS_MAP = {
     "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
     "decrypt-secret": "{prefix}/secrets/decrypt/",
     "routine-status": "{prefix}/component/routines/{routine}/update_status/",
+    "server-status": "{prefix}/server/servers/{server}/update-status/",
 }
