@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Get version from feature branch
-        run: echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+        run: echo "CURRENT_VERSION=$(grep version pyproject.toml | head -1 | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Create tag
         uses: softprops/action-gh-release@v1
@@ -67,7 +67,7 @@ jobs:
         run: pip install -r .github/workflows/scripts/requirements.txt
 
       - name: Get version from feature branch
-        run: echo "CURRENT_VERSION=$(grep version pyproject.toml | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
+        run: echo "CURRENT_VERSION=$(grep version pyproject.toml | head -1 | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Remove all developer versions from pypi
         run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
