@@ -10,7 +10,8 @@ from splight_lib.execution.trigger import IntervalTrigger
 
 class BaseTask(ABC):
     @abstractmethod
-    def as_job(self) -> Dict: ...
+    def as_job(self) -> Dict:
+        pass
 
 
 class PeriodicTask(BaseTask):

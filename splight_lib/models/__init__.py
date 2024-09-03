@@ -18,6 +18,7 @@ from splight_lib.models.dashboard import (
     Filter,
     Tab,
 )
+from splight_lib.models.datalake import DataRequest, PipelineStep, Trace
 from splight_lib.models.file import File
 from splight_lib.models.function import Function, FunctionItem, QueryFilter
 from splight_lib.models.hub import HubComponent
@@ -46,6 +47,7 @@ __all__ = [
     ComponentObject,
     ComponentObjectInstance,
     Dashboard,
+    DataRequest,
     File,
     Filter,
     Function,
@@ -56,6 +58,7 @@ __all__ = [
     QueryFilter,
     Metadata,
     Number,
+    PipelineStep,
     RoutineEvaluation,
     Secret,
     Server,
@@ -65,4 +68,5 @@ __all__ = [
     RoutineObject,
     RoutineObjectInstance,
     Tab,
+    Trace,
 ]

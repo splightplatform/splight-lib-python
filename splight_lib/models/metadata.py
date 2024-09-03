@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from pydantic import model_validator
 
-from splight_lib.models.base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.generic import ValueTypeEnum, cast_value
 
 
