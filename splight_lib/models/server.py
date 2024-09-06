@@ -104,6 +104,11 @@ def load_server_ports(
     resources = model_class(**ports_dict)
     return resources
 
+def load_server_env_vars(
+    env_vars: list[dict]
+) -> namedtuple:
+    ntuple = namedtuple("EnvVars", ["name", "value"])
+    return [ntuple(**env_var) for env_var in env_vars]
 
 class ServerStatus(PascalCaseStrEnum):
     RUNNING = auto()
@@ -123,9 +128,9 @@ class PrivacyPolicy(LowercaseStrEnum):
 
 class Port(BaseModel):
     name: Optional[str]
+    protocol: str
     internal_port: int
     exposed_port: int
-
 
 class Server(SplightDatabaseBaseModel):
     id: Optional[str] = None
@@ -157,6 +162,12 @@ class Server(SplightDatabaseBaseModel):
         model_class = get_model_class(self.hub_server.ports, "Ports")
         ports = load_server_ports(self.raw_ports, model_class)
         return ports
+    
+    @computed_field(alias="parsed_env_vars")
+    @property
+    def env_vars(self) -> NamedTuple:
+        env_vars = load_server_env_vars(self.raw_env_vars)
+        return env_vars
 
     def update_config(self, **kwargs: dict):
         valid_params = [x["name"] for x in self.raw_config]
@@ -164,26 +175,11 @@ class Server(SplightDatabaseBaseModel):
             if key not in valid_params:
                 raise InvalidArgument(
                     (
-                        f"Got invalid parameter {key}. Valid config parameter "
+                        f"Got invalid parameter {key}. Valid config parameters "
                         f"are {valid_params}"
                     )
                 )
             for item in self.raw_config:
-                if item["name"] == key:
-                    item["value"] = value
-                    break
-
-    def update_ports(self, **kwargs: dict):
-        valid_params = [x["name"] for x in self.raw_ports]
-        for key, value in kwargs.items():
-            if key not in valid_params:
-                raise InvalidArgument(
-                    (
-                        f"Got invalid parameter {key}. Valid port "
-                        f"parameter are {valid_params}"
-                    )
-                )
-            for item in self.raw_ports:
                 if item["name"] == key:
                     item["value"] = value
                     break
