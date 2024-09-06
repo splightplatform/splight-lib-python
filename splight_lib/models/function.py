@@ -15,6 +15,7 @@ from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.generic import ValueTypeEnum
 from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,
@@ -34,7 +35,7 @@ class QueryFilter(TypedDict):
 class TypedQueryFilter(TypedDict):
     id: str
     name: str
-    type: Literal["Boolean", "Number", "String"]
+    type: ValueTypeEnum
 
 
 class GroupUnit(LowercaseStrEnum):
