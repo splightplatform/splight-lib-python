@@ -16,8 +16,8 @@ from splight_lib.models.database_base import (
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
     README_FILE_1,
-    SPEC_FILE,
     RUN_FILE,
+    SPEC_FILE,
     get_ignore_pathspec,
     get_spec,
 )
