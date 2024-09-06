@@ -15,7 +15,7 @@ from splight_lib.models.database_base import (
 )
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
-    README_FILE,
+    README_FILE_1,
     SPEC_FILE,
     RUN_FILE,
     get_ignore_pathspec,
@@ -67,7 +67,7 @@ class HubServer(SplightDatabaseBaseModel):
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
-        readme_path = os.path.join(path, README_FILE)
+        readme_path = os.path.join(path, README_FILE_1)
         spec_path = os.path.join(path, SPEC_FILE)
         run_path = os.path.join(path, RUN_FILE)
         if not os.path.exists(spec_path):
