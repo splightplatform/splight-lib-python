@@ -1,4 +1,3 @@
-import json
 import os
 
 from splight_lib.models import Server

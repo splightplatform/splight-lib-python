@@ -104,11 +104,11 @@ def load_server_ports(
     resources = model_class(**ports_dict)
     return resources
 
-def load_server_env_vars(
-    env_vars: list[dict]
-) -> namedtuple:
+
+def load_server_env_vars(env_vars: list[dict]) -> namedtuple:
     ntuple = namedtuple("EnvVars", ["name", "value"])
     return [ntuple(**env_var) for env_var in env_vars]
+
 
 class ServerStatus(PascalCaseStrEnum):
     RUNNING = auto()
@@ -131,6 +131,7 @@ class Port(BaseModel):
     protocol: str
     internal_port: int
     exposed_port: int
+
 
 class Server(SplightDatabaseBaseModel):
     id: Optional[str] = None
@@ -162,7 +163,7 @@ class Server(SplightDatabaseBaseModel):
         model_class = get_model_class(self.hub_server.ports, "Ports")
         ports = load_server_ports(self.raw_ports, model_class)
         return ports
-    
+
     @computed_field(alias="parsed_env_vars")
     @property
     def env_vars(self) -> NamedTuple:
