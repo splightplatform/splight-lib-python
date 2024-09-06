@@ -31,6 +31,12 @@ class QueryFilter(TypedDict):
     name: str
 
 
+class TypedQueryFilter(TypedDict):
+    id: str
+    name: str
+    type: Literal["Boolean", "Number", "String"]
+
+
 class GroupUnit(LowercaseStrEnum):
     EMPTY = ""
     SECOND = auto()
@@ -62,7 +68,7 @@ class FunctionItem(BaseModel):
     expression_plain: str = ""
 
     query_filter_asset: Optional[QueryFilter] = None
-    query_filter_attribute: Optional[QueryFilter] = None
+    query_filter_attribute: Optional[TypedQueryFilter] = None
 
     query_group_function: GroupCriteria = GroupCriteria.EMPTY
     query_group_unit: GroupUnit = GroupUnit.EMPTY
@@ -170,7 +176,7 @@ class Function(SplightDatabaseBaseModel):
     type: Literal["cron", "rate"]
     target_variable: str
     target_asset: QueryFilter  # NOTE: optional in API
-    target_attribute: QueryFilter  # NOTE: optional in API
+    target_attribute: TypedQueryFilter  # NOTE: optional in API
 
     cron_minutes: Optional[str] = None
     cron_hours: Optional[str] = None
