@@ -15,7 +15,9 @@ from splight_lib.models.database_base import (
 )
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
-    README_FILE_1,
+    README_FILE,
+    SPEC_FILE,
+    RUN_FILE,
     get_ignore_pathspec,
     get_spec,
 )
@@ -65,8 +67,13 @@ class HubServer(SplightDatabaseBaseModel):
         file_name = f"{name}-{version}.{COMPRESSION_TYPE}"
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
-        # TODO: Add required files validations
-        readme_path = os.path.join(path, README_FILE_1)
+        readme_path = os.path.join(path, README_FILE)
+        spec_path = os.path.join(path, SPEC_FILE)
+        run_path = os.path.join(path, RUN_FILE)
+        if not os.path.exists(spec_path):
+            raise FileNotFoundError(f"spec.json file not found: {spec_path}")
+        if not os.path.exists(run_path):
+            raise FileNotFoundError(f"run.sh file not found: {run_path}")
         if not os.path.exists(readme_path):
             raise FileNotFoundError(f"README.md file not found: {readme_path}")
         with py7zr.SevenZipFile(file_name, "w") as archive:
