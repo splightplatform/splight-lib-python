@@ -224,7 +224,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         )
 
     def save(self, records: Records) -> list[dict]:
-        logger.debug("Saving documents in datalake", tag=LogTags.DATALAKE)
+        logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
         collection = records["collection"]
         buffer = self._data_buffers[collection]
         with self._lock:
