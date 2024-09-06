@@ -15,11 +15,11 @@ from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.database_base import SplightDatabaseBaseModel
-from splight_lib.models.generic import ValueTypeEnum
 from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,
 )
+from splight_lib.models.generic import ValueTypeEnum
 
 
 class FunctionItemType(UppercaseStrEnum):
