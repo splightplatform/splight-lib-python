@@ -31,7 +31,7 @@ class Port(BaseModel):
 
 
 class HubServer(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
     version: str
     description: Optional[str] = Field(
