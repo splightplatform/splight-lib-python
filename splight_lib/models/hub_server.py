@@ -24,7 +24,7 @@ from splight_lib.utils.hub import (
 
 
 class Port(BaseModel):
-    name: Optional[str]
+    name: str | None = None
     protocol: str = "tcp"
     internal_port: int
     exposed_port: int
