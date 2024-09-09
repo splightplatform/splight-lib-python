@@ -70,12 +70,9 @@ class HubServer(SplightDatabaseBaseModel):
         readme_path = os.path.join(path, README_FILE_1)
         spec_path = os.path.join(path, SPEC_FILE)
         run_path = os.path.join(path, RUN_FILE)
-        if not os.path.exists(spec_path):
-            raise FileNotFoundError(f"spec.json file not found: {spec_path}")
-        if not os.path.exists(run_path):
-            raise FileNotFoundError(f"run.sh file not found: {run_path}")
-        if not os.path.exists(readme_path):
-            raise FileNotFoundError(f"README.md file not found: {readme_path}")
+        for req_file in ["spec.json", "run.sh", "README.md"]:
+            if not os.path.exists(os.path.join(self.path, req_file)):
+                raise FileNotFoundError(f"Required file not found: {req_file}")
         with py7zr.SevenZipFile(file_name, "w") as archive:
             all_files = glob(f"{path}/**", recursive=True)
             for filepath in all_files:
