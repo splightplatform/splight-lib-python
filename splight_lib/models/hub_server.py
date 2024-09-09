@@ -40,7 +40,7 @@ class HubServer(SplightDatabaseBaseModel):
     tags: Optional[List[str]] = Field(default=[])
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
-    config: List[InputParameter] = []
+    config: list[InputParameter] = []
     ports: List[Port] = []
     environment: List[Dict[str, str]] = []
 
