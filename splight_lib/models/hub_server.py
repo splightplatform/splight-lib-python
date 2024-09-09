@@ -41,7 +41,7 @@ class HubServer(SplightDatabaseBaseModel):
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: list[InputParameter] = []
-    ports: List[Port] = []
+    ports: list[Port] = []
     environment: List[Dict[str, str]] = []
 
     @classmethod
