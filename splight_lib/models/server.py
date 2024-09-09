@@ -170,7 +170,7 @@ class Server(SplightDatabaseBaseModel):
         env_vars = load_server_env_vars(self.raw_env_vars)
         return env_vars
 
-    def update_config(self, **kwargs: dict):
+    def update_config(self, **kwargs: dict) -> None:
         valid_params = [x["name"] for x in self.raw_config]
         for key, value in kwargs.items():
             if key not in valid_params:
