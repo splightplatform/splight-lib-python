@@ -62,8 +62,9 @@ class SplightDatalakeBaseModel(BaseModel):
         )
         instances = request.apply()
         df = pd.DataFrame([instance.dict() for instance in instances])
-        df.index = df["timestamp"]
-        df.drop(columns="timestamp", inplace=True)
+        if not df.empty:
+            df.index = df["timestamp"]
+            df.drop(columns="timestamp", inplace=True)
         return df
 
     def save(self) -> None:

@@ -19,6 +19,7 @@ from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,
 )
+from splight_lib.models.generic import ValueTypeEnum
 
 
 class FunctionItemType(UppercaseStrEnum):
@@ -29,6 +30,12 @@ class FunctionItemType(UppercaseStrEnum):
 class QueryFilter(TypedDict):
     id: str
     name: str
+
+
+class TypedQueryFilter(TypedDict):
+    id: str
+    name: str
+    type: ValueTypeEnum
 
 
 class GroupUnit(LowercaseStrEnum):
@@ -62,7 +69,7 @@ class FunctionItem(BaseModel):
     expression_plain: str = ""
 
     query_filter_asset: Optional[QueryFilter] = None
-    query_filter_attribute: Optional[QueryFilter] = None
+    query_filter_attribute: Optional[TypedQueryFilter] = None
 
     query_group_function: GroupCriteria = GroupCriteria.EMPTY
     query_group_unit: GroupUnit = GroupUnit.EMPTY
@@ -170,7 +177,7 @@ class Function(SplightDatabaseBaseModel):
     type: Literal["cron", "rate"]
     target_variable: str
     target_asset: QueryFilter  # NOTE: optional in API
-    target_attribute: QueryFilter  # NOTE: optional in API
+    target_attribute: TypedQueryFilter  # NOTE: optional in API
 
     cron_minutes: Optional[str] = None
     cron_hours: Optional[str] = None

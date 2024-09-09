@@ -73,6 +73,7 @@ class AttributeFactory(ModelFactory[Attribute]):
     id: str = Use(lambda: str(uuid.uuid4()))
     asset: str = Use(lambda: str(uuid.uuid4()))
     unit: str = Use(lambda: random.choice(["m", "cm", "mm"]))
+    type: str = Use(lambda: random.choice(["Number", "String", "Boolean"]))
 
 
 class AssetFactory(ModelFactory[Asset]):
@@ -89,7 +90,11 @@ class FunctionItemFactory(ModelFactory[FunctionItem]):
         lambda: {"id": str(uuid.uuid4()), "name": "asset"}
     )
     query_filter_attribute = Use(
-        lambda: {"id": str(uuid.uuid4()), "name": "attribute"}
+        lambda: {
+            "id": str(uuid.uuid4()),
+            "name": "attribute",
+            "type": "Number",
+        }
     )
 
 
