@@ -42,7 +42,7 @@ class HubServer(SplightDatabaseBaseModel):
 
     config: list[InputParameter] = []
     ports: list[Port] = []
-    environment: List[Dict[str, str]] = []
+    environment: list[dict[str, str]] = []
 
     @classmethod
     def upload(cls, path: FilePath, image_file: str) -> "HubServer":
