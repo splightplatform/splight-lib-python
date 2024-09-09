@@ -3,7 +3,7 @@ import warnings
 from collections import namedtuple
 from datetime import datetime
 from enum import auto
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple
 
 from pydantic import AnyUrl, BaseModel, Field, computed_field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
@@ -127,15 +127,15 @@ class PrivacyPolicy(LowercaseStrEnum):
 
 
 class Port(BaseModel):
-    name: Optional[str]
+    name: str | None = None
     protocol: str
     internal_port: int
     exposed_port: int
 
 
 class Server(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    name: Optional[str] = None
+    id: str | None = None
+    name: str | None = None
     version: str
     hub_server: HubServer
     raw_config: list[dict] = Field(alias="config")
@@ -185,7 +185,7 @@ class Server(SplightDatabaseBaseModel):
                     item["value"] = value
                     break
 
-    def update_status(self, status: ServerStatus):
+    def update_status(self, status: ServerStatus) -> None:
         _ = self._db_client.operate(
             resource_name="server-status",
             instance={
@@ -195,7 +195,7 @@ class Server(SplightDatabaseBaseModel):
         )
 
 
-def parse_variable_string(raw_value: Optional[str]) -> Any:
+def parse_variable_string(raw_value: str | None) -> Any:
     if raw_value is None:
         return ""
     pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")

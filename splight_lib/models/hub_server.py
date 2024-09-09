@@ -1,7 +1,7 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Optional
+from typing import Annotated, Self
 
 import py7zr
 from pydantic import BaseModel, Field
@@ -34,10 +34,10 @@ class HubServer(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     version: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
-    tags: Optional[List[str]] = Field(default=[])
+    description: Annotated[
+        str | None, Field(max_length=DESCRIPTION_MAX_LENGTH)
+    ] = None
+    tags: Annotated[list[str] | None, Field()] = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: list[InputParameter] = []
@@ -45,7 +45,7 @@ class HubServer(SplightDatabaseBaseModel):
     environment: list[dict[str, str]] = []
 
     @classmethod
-    def upload(cls, path: FilePath, image_file: str) -> "HubServer":
+    def upload(cls, path: FilePath, image_file: str) -> Self:
         db_client = cls._SplightDatabaseBaseModel__get_database_client()
         image_path = os.path.join(path, image_file)
         spec = get_spec(path)
@@ -68,10 +68,8 @@ class HubServer(SplightDatabaseBaseModel):
         ignore_pathspec = get_ignore_pathspec(path)
         versioned_path = f"{name}-{version}"
         readme_path = os.path.join(path, README_FILE_1)
-        spec_path = os.path.join(path, SPEC_FILE)
-        run_path = os.path.join(path, RUN_FILE)
-        for req_file in ["spec.json", "run.sh", "README.md"]:
-            if not os.path.exists(os.path.join(self.path, req_file)):
+        for req_file in [SPEC_FILE, RUN_FILE, README_FILE_1]:
+            if not os.path.exists(os.path.join(path, req_file)):
                 raise FileNotFoundError(f"Required file not found: {req_file}")
         with py7zr.SevenZipFile(file_name, "w") as archive:
             all_files = glob(f"{path}/**", recursive=True)
