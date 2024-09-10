@@ -29,12 +29,12 @@ class AssetKind(SplightDatabaseBaseModel):
 
 
 class AssetRelationship(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    description: Optional[str] = None
-    related_asset_kind: Optional[AssetKind] = None
-    asset: Optional[ResourceSummary] = None
-    related_asset: Optional[ResourceSummary] = None
+    description: str | None = None
+    related_asset_kind: AssetKind | None = None
+    asset: ResourceSummary | None = None
+    related_asset: ResourceSummary | None = None
 
 
 class Asset(SplightDatabaseBaseModel):
