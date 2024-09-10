@@ -32,6 +32,7 @@ class AbstractRemoteClient(AbstractClient):
         return params
 
 
+# TODO: Remove this class
 class QuerySet(UserList):
     def __init__(
         self,
@@ -70,7 +71,7 @@ class QuerySet(UserList):
             return self._cached_results[i]
 
         if isinstance(i, slice):
-            skip_ = self._kwargs.get("skip_", 0) + i.start
+            # skip_ = self._kwargs.get("skip_", 0) + i.start
 
             limit_ = i.stop - i.start
             if "limit_" in self._kwargs:
@@ -78,8 +79,8 @@ class QuerySet(UserList):
                 limit_ = min(limit_, old_limit_)
 
             kwargs = {**self._kwargs}
-            kwargs["skip_"] = skip_
-            kwargs["limit_"] = limit_
+            # kwargs["skip_"] = skip_
+            # kwargs["limit_"] = limit_
             kwargs.pop("get_func", None)
             kwargs.pop("count_func", None)
             return QuerySet(
