@@ -9,11 +9,13 @@ class Records(TypedDict):
     records: list[dict[str, Any]]
 
 
+# TODO: Fix this class after delete QuerySet
 class AbstractDatalakeClient(AbstractRemoteClient):
     def get(self, *args, **kwargs) -> QuerySet:
-        kwargs["get_func"] = "_get"
-        kwargs["count_func"] = "None"
-        return QuerySet(self, *args, **kwargs)
+        # kwargs["get_func"] = "_get"
+        # kwargs["count_func"] = "None"
+        # return QuerySet(self, *args, **kwargs)
+        return self._get(*args, **kwargs)
 
     async def async_get(self, *args, **kwargs):
         # TODO: consider using an async QuerySet
