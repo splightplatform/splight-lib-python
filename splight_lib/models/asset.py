@@ -2,7 +2,7 @@ import warnings
 from typing import Any, List, Optional, Tuple
 
 from geojson_pydantic import GeometryCollection
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
@@ -17,15 +17,6 @@ from splight_lib.models.tag import Tag
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-class AssetRelationship(BaseModel):
-    id: str
-    name: str
-    description: Optional[str] = None
-    related_asset_kind: Optional[ResourceSummary] = None
-    asset: ResourceSummary
-    related_asset: Optional[ResourceSummary] = None
-
-
 class AssetKind(SplightDatabaseBaseModel):
     id: Optional[str] = None
     name: str
@@ -35,6 +26,15 @@ class AssetKind(SplightDatabaseBaseModel):
 
     def delete(self):
         raise MethodNotAllowed("AssetKind objects are read-only")
+
+
+class AssetRelationship(SplightDatabaseBaseModel):
+    id: Optional[str] = None
+    name: str
+    description: Optional[str] = None
+    related_asset_kind: Optional[AssetKind] = None
+    asset: Optional[ResourceSummary] = None
+    related_asset: Optional[ResourceSummary] = None
 
 
 class Asset(SplightDatabaseBaseModel):

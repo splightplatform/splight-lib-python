@@ -96,6 +96,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             )
         else:
             output = self._create(resource_name, instance, files)
+            __import__("ipdb").set_trace()
         return output
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
