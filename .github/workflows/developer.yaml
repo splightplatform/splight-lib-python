@@ -37,7 +37,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.8"
+          python-version: "3.11"
 
       # validate versions
       - name: Validates version is a dev version.
