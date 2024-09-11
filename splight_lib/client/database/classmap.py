@@ -24,9 +24,12 @@ MODEL_NAME_MAP = {
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
     "solution": f"{ENGINE_PREFIX}/solution/solutions/",
+    "server": f"{ENGINE_PREFIX}/server/servers/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "hubsolution": f"{HUB_PREFIX}/solution/solutions/",
     "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
+    "hubserver": f"{HUB_PREFIX}/server/servers/",
+    "hubserverversion": f"{HUB_PREFIX}/server/versions/",
 }
 
 CUSTOM_PATHS_MAP = {
@@ -34,4 +37,5 @@ CUSTOM_PATHS_MAP = {
     "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
     "decrypt-secret": "{prefix}/secrets/decrypt/",
     "routine-status": "{prefix}/component/routines/{routine}/update_status/",
+    "server-status": "{prefix}/server/servers/{server}/update-status/",
 }

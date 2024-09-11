@@ -211,9 +211,13 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModelName thrown when the model name is not correct.
         """
-        if resource_name.lower() not in ["file", "hubsolutionversion"]:
+        if resource_name.lower() not in [
+            "file",
+            "hubsolutionversion",
+            "hubserverversion",
+        ]:
             raise InvalidModel(
-                "Only files and hub solution can be downloaded."
+                "Only files, hub solution and hub servers can be downloaded."
             )
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")
