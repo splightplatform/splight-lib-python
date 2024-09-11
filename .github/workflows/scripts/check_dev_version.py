@@ -24,5 +24,5 @@ if __name__ == "__main__":
 
     version = parse(version_line)
 
-    if not version.is_devrelease:
+    if not (version.is_prerelease or version.is_devrelease):
         raise VersionError(f"Version {version} is not a developer version")
