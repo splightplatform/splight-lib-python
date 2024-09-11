@@ -1,93 +1,98 @@
-from typing import Any, Dict, List, Optional
+from enum import auto
+from typing import Annotated, Any
 
 from pydantic import Field
+from strenum import UppercaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
+
+
+class ChartItemType(UppercaseStrEnum):
+    QUERY = auto()
+    EXPRESSION = auto()
 
 
 class Filter(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     chart_item: str
-    operator: Optional[str] = None
-    key: Optional[str] = None
-    value: Optional[str] = None
-    label: Optional[str] = None
+    operator: str | None = None
+    key: str | None = None
+    value: str | None = None
+    label: str | None = None
 
 
 class AdvancedFilter(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     chart_item: str
-    operator: Optional[str] = None
-    key: Optional[str] = None
-    field: Optional[str] = None
-    value: Optional[str] = None
+    operator: str | None = None
+    key: str | None = None
+    field: str | None = None
+    value: str | None = None
 
 
 class ChartItem(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    chart: str
+    id: str | None = None
+    type: ChartItemType = ChartItemType.QUERY
+    ref_id: str
+    # chart: str | None = None
     label: str
-    order: Optional[int] = None
-    color: Optional[str] = None
-    position_x: Optional[str] = None
-    position_y: Optional[str] = None
-    width: Optional[str] = None
-    height: Optional[str] = None
-    split_by: Optional[str] = None
-    aggregate_criteria: Optional[str] = None
-    aggregate_period: Optional[str] = None
-    source: Optional[str] = None
-    source_label: Optional[str] = None
-    source_type: Optional[str] = None
-    source_component_label: Optional[str] = None
-    source_component_id: Optional[str] = None
-    output_format: Optional[str] = None
-    target: Optional[str] = None
-    old_source: Optional[str] = None
-    old_source_label: Optional[str] = None
-    filters: Optional[List[Filter]] = None
-    advanced_filters: Optional[List[AdvancedFilter]] = None
-    query_params: Optional[str] = None
+    order: int | None = None
+    color: str | None = None
+    hidden: bool = False
+    query_filter_asset: ResourceSummary | None = None
+    query_filter_attribute: ResourceSummary | None = None
+    query_group_unit: str | None = None
+    query_group_function: str | None = None
+    query_sort_field: str | None = None
+    query_sort_direction: int | None = -1
+    query_limit: int = 10000
+    query_plain: str = ""
+    position_x: int | None = None
+    position_y: int | None = None
+    expression: str | None = None
+    expression_plain: str | None = None
 
 
 class Chart(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
-    items: Optional[List[ChartItem]] = None
+    description: Annotated[
+        str | None, Field(max_length=DESCRIPTION_MAX_LENGTH)
+    ] = None
+    items: list[ChartItem] | None = None
     tab: str
-    position_x: Optional[str] = 0
-    position_y: Optional[str] = 0
-    height: Optional[str] = 28
-    width: Optional[str] = 80
-    min_height: Optional[str] = 14
-    min_width: Optional[str] = 14
-    type: Optional[str] = None
-    timestamp_gte: Optional[str] = None
-    timestamp_lte: Optional[str] = None
-    refresh_interval: Optional[str] = None
-    relative_window_time: Optional[str] = None
-    external_resource: Optional[str] = None
-    external_resource_type: Optional[str] = None
-    y_axis_max_limit: Optional[str] = None
-    y_axis_min_limit: Optional[str] = None
-    config: Optional[Dict[str, Any]] = None
+    position_x: int | None = None
+    position_y: int | None = None
+    height: int | None = 28
+    width: int | None = 80
+    min_height: int | None = 14
+    min_width: int | None = 14
+    type: str | None = None
+    timestamp_gte: str | None = None
+    timestamp_lte: str | None = None
+    refresh_interval: str | None = None
+    relative_window_time: str | None = None
+    y_axis_max_limit: int | None = None
+    y_axis_min_limit: int | None = None
+    config: dict[str, Any] | None = None
+    chart_items: list[ChartItem] = []
 
 
 class Tab(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    charts: Optional[List[Chart]] = None
-    order: Optional[int] = None
+    charts: list[Chart] | None = None
+    order: int | None = None
     dashboard: str
 
 
 class Dashboard(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )

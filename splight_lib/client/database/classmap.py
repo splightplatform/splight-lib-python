@@ -12,7 +12,7 @@ MODEL_NAME_MAP = {
     "attribute": f"{ENGINE_PREFIX}/attributes/",
     "metadata": f"{ENGINE_PREFIX}/metadata/",
     "chart": f"{ENGINE_PREFIX}/dashboard/charts/",
-    "chartitem": f"{ENGINE_PREFIX}/dashboard/chartitems/",
+    "chartitem": f"{ENGINE_PREFIX}/dashboard/items/",
     "component": f"{ENGINE_PREFIX}/component/components/",
     "componentobject": f"{ENGINE_PREFIX}/component/objects/",
     "dashboard": f"{ENGINE_PREFIX}/dashboard/dashboards/",
