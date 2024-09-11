@@ -1,7 +1,7 @@
 from enum import auto
 from typing import Annotated, Any
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 from strenum import UppercaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
@@ -34,7 +34,7 @@ class AdvancedFilter(SplightDatabaseBaseModel):
     value: str | None = None
 
 
-class ChartItem(SplightDatabaseBaseModel):
+class ChartItem(BaseModel):
     id: str | None = None
     type: ChartItemType = ChartItemType.QUERY
     ref_id: str
