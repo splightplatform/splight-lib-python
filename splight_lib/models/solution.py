@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import NamedTuple, Optional
 
-from pydantic import Field, computed_field
+from pydantic import BaseModel, Field, computed_field
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.database_base import SplightDatabaseBaseModel
@@ -21,7 +21,7 @@ CAST_TO = {
 }
 
 
-def get_model_class(config: list[dict], name: str) -> NamedTuple:
+def get_model_class(config: BaseModel, name: str) -> NamedTuple:
     config_class = namedtuple(name, [x.name for x in config])
     return config_class
 

@@ -7,6 +7,7 @@ import pathspec
 SPLIGHT_IGNORE = ".splightignore"
 COMPRESSION_TYPE = "7z"
 SPEC_FILE = "spec.json"
+RUN_FILE = "run.sh"
 README_FILE_1 = "README.md"
 README_FILE_2 = "README"
 
