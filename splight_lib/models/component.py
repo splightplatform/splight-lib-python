@@ -209,6 +209,7 @@ class Component(SplightDatabaseBaseModel):
     endpoints: List[Endpoint] = []
     routines: List[Routine] = []
 
+
 DATABASE_TYPES = {
     "Component": Component,
     "Asset": Asset,

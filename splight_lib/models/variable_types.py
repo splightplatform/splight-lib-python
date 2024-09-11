@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import AnyUrl
+
 from splight_lib.execution.scheduling import Crontab
 
 NATIVE_TYPES = {

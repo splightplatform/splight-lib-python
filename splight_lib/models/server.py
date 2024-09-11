@@ -71,9 +71,19 @@ def load_server_config(
     config = config_class(**config_dict)
     return config
 
+
 def validate_in_range(value: int, min_value: int, max_value: int) -> None:
     if not (min_value <= value <= max_value):
-        raise ValueError(f"{value} is out of valid range ({min_value}-{max_value})")
+        raise ValueError(
+            f"{value} is out of valid range ({min_value}-{max_value})"
+        )
+
+
+def validate_protocol(protocol: str, valid_protocols: list[str]) -> None:
+    if protocol not in valid_protocols:
+        raise ValueError(
+            f"Protocol {protocol} is not valid. Must be 'tcp' or 'udp'"
+        )
 
 
 def load_server_ports(
@@ -83,10 +93,7 @@ def load_server_ports(
     for port in ports:
         validate_in_range(int(port["internal_port"]), 0, 65535)
         validate_in_range(int(port["exposed_port"]), 0, 65535)
-        if port["protocol"] not in ["tcp", "udp"]:
-            raise ValueError(
-                f"Protocol {port['protocol']} is not valid. Must be 'tcp' or 'udp'"
-            )
+        validate_protocol(port["protocol"], ["tcp", "udp"])
         ports_dict.update({port["name"]: port})
     resources = model_class(**ports_dict)
     return resources
@@ -111,6 +118,7 @@ class ServerStatus(PascalCaseStrEnum):
 class PrivacyPolicy(LowercaseStrEnum):
     PUBLIC = auto()
     PRIVATE = auto()
+
 
 class Server(SplightDatabaseBaseModel):
     id: str | None = None
