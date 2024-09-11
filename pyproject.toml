@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "splight-lib"
-version = "5.10.3"
+version = "5.10.4"
 description = "Splight Library"
 authors = ["Splight Dev <dev@splight-ae.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = ">=3.11,<4.0.0"
 concurrent-log-handler = "0.9.21"
 cryptography = "42.0.4"
 furl = "2.1.3"
