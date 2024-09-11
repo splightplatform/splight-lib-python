@@ -23,8 +23,7 @@ from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.secret import Secret
-from splight_lib.models.server import NATIVE_TYPES
-from splight_lib.models.variable_types import CUSTOM_TYPES
+from splight_lib.models.variable_types import CUSTOM_TYPES, NATIVE_TYPES
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
