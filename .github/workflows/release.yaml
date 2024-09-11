@@ -37,6 +37,11 @@ jobs:
       - name: Checkout to feature branch
         uses: actions/checkout@v3
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Setup poetry
         run: pip install poetry==1.7.0
 
@@ -62,6 +67,11 @@ jobs:
       - name: Checkout to feature branch
         uses: actions/checkout@v3
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       # install requests and pypi-cleanup
       - name: Install requirements
         run: pip install -r .github/workflows/scripts/requirements.txt
@@ -70,4 +80,4 @@ jobs:
         run: echo "CURRENT_VERSION=$(grep version pyproject.toml | head -1 | awk '{print $3}' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Remove all developer versions from pypi
-        run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD}}
+        run: python .github/workflows/scripts/cleanup_pypi.py $LIBRARY_NAME ${{ env.CURRENT_VERSION }} ${{ secrets.PYPI_USERNAME }} ${{ secrets.PYPI_PASSWORD }}
