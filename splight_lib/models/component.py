@@ -1,12 +1,10 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
-from datetime import datetime
 from enum import auto
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
 
 from pydantic import (
-    AnyUrl,
     BaseModel,
     Field,
     PrivateAttr,
@@ -17,7 +15,6 @@ from pydantic import (
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.execution.scheduling import Crontab
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
@@ -26,6 +23,8 @@ from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models.exceptions import InvalidObjectInstance
 from splight_lib.models.file import File
 from splight_lib.models.secret import Secret
+from splight_lib.models.server import NATIVE_TYPES
+from splight_lib.models.variable_types import CUSTOM_TYPES
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -209,20 +208,6 @@ class Component(SplightDatabaseBaseModel):
     output: List[Output] = []
     endpoints: List[Endpoint] = []
     routines: List[Routine] = []
-
-
-NATIVE_TYPES = {
-    "int": int,
-    "bool": bool,
-    "str": str,
-    "float": float,
-    "datetime": datetime,
-    "url": AnyUrl,
-}
-
-CUSTOM_TYPES = {
-    "crontab": Crontab,
-}
 
 DATABASE_TYPES = {
     "Component": Component,

@@ -1,11 +1,9 @@
 import re
-import warnings
 from collections import namedtuple
-from datetime import datetime
 from enum import auto
 from typing import Any, NamedTuple
 
-from pydantic import AnyUrl, BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
 from splight_lib.models.database_base import SplightDatabaseBaseModel
@@ -16,23 +14,16 @@ from splight_lib.models.exceptions import (
 from splight_lib.models.file import File
 from splight_lib.models.hub_server import HubServer
 from splight_lib.models.secret import Secret
+from splight_lib.models.variable_types import CUSTOM_TYPES, NATIVE_TYPES
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-
-NATIVE_TYPES = {
-    "int": int,
-    "bool": bool,
-    "str": str,
-    "float": float,
-    "datetime": datetime,
-    "url": AnyUrl,
-}
+# warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 DATABASE_TYPES = {
     "File": File,
 }
 
 DB_MODEL_TYPE_MAPPING = {
+    **CUSTOM_TYPES,
     **NATIVE_TYPES,
     **DATABASE_TYPES,
 }
@@ -52,6 +43,8 @@ def get_field_value(field: dict):
             if not isinstance(field_value, str)
             else parse_variable_string(field_value)
         )
+    elif field.type in CUSTOM_TYPES:
+        value = CUSTOM_TYPES.get(field.type).from_string(field.value)
     elif field_type in DATABASE_TYPES:
         model_class = DATABASE_TYPES[field_type]
         value = (
@@ -78,24 +71,18 @@ def load_server_config(
     config = config_class(**config_dict)
     return config
 
+def validate_in_range(value: int, min_value: int, max_value: int) -> None:
+    if not (min_value <= value <= max_value):
+        raise ValueError(f"{value} is out of valid range ({min_value}-{max_value})")
+
 
 def load_server_ports(
     ports: list[dict], model_class: NamedTuple
 ) -> namedtuple:
     ports_dict = {}
     for port in ports:
-        if isinstance(port["internal_port"], int) and not (
-            0 <= port["internal_port"] <= 65535
-        ):
-            raise ValueError(
-                f"Internal port {port['internal_port']} is out of valid range (0-65535)"
-            )
-        if isinstance(port["exposed_port"], int) and not (
-            0 <= port["exposed_port"] <= 65535
-        ):
-            raise ValueError(
-                f"External port {port['exposed_port']} is out of valid range (0-65535)"
-            )
+        validate_in_range(int(port["internal_port"]), 0, 65535)
+        validate_in_range(int(port["exposed_port"]), 0, 65535)
         if port["protocol"] not in ["tcp", "udp"]:
             raise ValueError(
                 f"Protocol {port['protocol']} is not valid. Must be 'tcp' or 'udp'"
@@ -124,14 +111,6 @@ class ServerStatus(PascalCaseStrEnum):
 class PrivacyPolicy(LowercaseStrEnum):
     PUBLIC = auto()
     PRIVATE = auto()
-
-
-class Port(BaseModel):
-    name: str | None = None
-    protocol: str
-    internal_port: int
-    exposed_port: int
-
 
 class Server(SplightDatabaseBaseModel):
     id: str | None = None
