@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "splight-lib"
-version = "5.11.1"
+version = "5.11.2"
 description = "Splight Library"
 authors = ["Splight Dev <dev@splight-ae.com>"]
 readme = "README.md"
