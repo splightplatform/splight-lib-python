@@ -16,6 +16,30 @@ class ChartItemType(UppercaseStrEnum):
     EXPRESSION = auto()
 
 
+class Threshold(BaseModel):
+    color: str | None = None
+    display_text: str | None = None
+    value: float | None = None
+
+
+class ValueMapping(BaseModel):
+    display_text: str | None = None
+    order: int = 0
+
+
+class ExactMatchValueMapping(ValueMapping):
+    match_value: str | None = None
+
+
+class RangeValueMapping(ValueMapping):
+    range_start: float | None = None
+    range_end: float | None = None
+
+
+class RegexMatchValueMapping(ValueMapping):
+    regular_expression: str | None = None
+
+
 class Filter(SplightDatabaseBaseModel):
     id: str | None = None
     chart_item: str
@@ -38,7 +62,6 @@ class ChartItem(BaseModel):
     id: str | None = None
     type: ChartItemType = ChartItemType.QUERY
     ref_id: str
-    # chart: str | None = None
     label: str
     order: int | None = None
     color: str | None = None
@@ -80,6 +103,10 @@ class Chart(SplightDatabaseBaseModel):
     y_axis_min_limit: int | None = None
     config: dict[str, Any] | None = None
     chart_items: list[ChartItem] = []
+    thresholds: list[Threshold] = []
+    value_mappings: list[
+        ExactMatchValueMapping | RangeValueMapping | RegexMatchValueMapping
+    ] = []
 
 
 class Tab(SplightDatabaseBaseModel):
