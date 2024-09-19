@@ -1,7 +1,7 @@
 import json
 import re
 from enum import Enum, auto
-from typing import List, Literal, Optional
+from typing import Annotated, Literal
 
 from pydantic import (
     BaseModel,
@@ -48,27 +48,27 @@ class GroupCriteria(LowercaseStrEnum):
 
 
 class AlertItem(BaseModel):
-    id: Optional[str] = Field(None, max_length=100)
+    id: Annotated[str | None, Field(max_length=100)]
 
     ref_id: str = Field(max_length=5)
     type: AlertItemType = AlertItemType.QUERY
-    label: Optional[str] = None
+    label: str | None = None
 
-    expression: Optional[str] = None
-    expression_plain: Optional[str] = ""
+    expression: str | None = None
+    expression_plain: str | None = ""
 
-    query_filter_asset: Optional[QueryFilter] = None
-    query_filter_attribute: Optional[QueryFilter] = None
-    query_filter_metadata: Optional[QueryFilter] = None
+    query_filter_asset: QueryFilter | None = None
+    query_filter_attribute: QueryFilter | None = None
+    query_filter_metadata: QueryFilter | None = None
 
-    query_group_function: Optional[GroupCriteria] = None
-    query_group_unit: Optional[GroupUnit] = None
+    query_group_function: GroupCriteria | None = None
+    query_group_unit: GroupUnit | None = None
 
-    query_sort_field: Optional[str] = None
-    query_sort_direction: Optional[int] = Field(-1, ge=-1, le=1)
+    query_sort_field: str | None = None
+    query_sort_direction: Annotated[int | None, Field(-1, ge=-1, le=1)]
 
-    query_plain: Optional[str] = ""
-    query_limit: int = Field(10000, ge=1, le=10000)
+    query_plain: str | None = ""
+    query_limit: Annotated[int, Field(10000, ge=1, le=10000)]
 
     @model_validator(mode="after")
     def validate_expression(self):
@@ -195,7 +195,7 @@ class AlertSeverity(LowercaseStrEnum):
 class AlertThreshold(BaseModel):
     value: float
     status: ThresholdStatus
-    status_text: Optional[str]
+    status_text: str | None
 
 
 class StatementAggregation(LowercaseStrEnum):
@@ -207,42 +207,44 @@ class StatementAggregation(LowercaseStrEnum):
 
 
 class Alert(SplightDatabaseBaseModel):
-    id: Optional[str] = Field(None, max_length=100)
+    id: Annotated[str | None, Field(None, max_length=100)]
     name: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: Annotated[
+        str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
+    ]
 
-    assets: List[QueryFilter] = []
-    alert_items: List[AlertItem] = []
-    destinations_list: List[str] = []
+    assets: list[QueryFilter] = []
+    alert_items: list[AlertItem] = []
+    destinations_list: list[str] = []
 
     type: AlertType
 
     active: bool = True
     status: AlertStatus = AlertStatus.NO_ALERT
-    status_text: Optional[str] = Field(default=None, max_length=400)
+    status_text: Annotated[str | None, Field(default=None, max_length=400)]
 
     stmt_time_window: int
-    stmt_target_variable: Optional[str] = Field(default=None, max_length=5)
+    stmt_target_variable: Annotated[
+        str | None, Field(default=None, max_length=5)
+    ]
     stmt_operator: StatementOperator
     stmt_aggregation: StatementAggregation
-    stmt_thresholds: List[AlertThreshold]
+    stmt_thresholds: list[AlertThreshold]
 
     notify_no_data: bool = True
     notify_error: bool = True
     notify_timeout: bool = True
-    custom_message: Optional[str] = Field(default=None, max_length=200)
+    custom_message: Annotated[str | None, Field(default=None, max_length=200)]
 
-    cron_minutes: Optional[str] = None
-    cron_hours: Optional[str] = None
-    cron_dom: Optional[str] = None
-    cron_month: Optional[str] = None
-    cron_dow: Optional[str] = None
-    cron_year: Optional[str] = None
+    cron_minutes: str | None = None
+    cron_hours: str | None = None
+    cron_dom: str | None = None
+    cron_month: str | None = None
+    cron_dow: str | None = None
+    cron_year: str | None = None
 
-    rate_value: Optional[PositiveInt] = None
-    rate_unit: Optional[Literal["day", "hour", "minute"]] = None
+    rate_value: PositiveInt | None = None
+    rate_unit: Literal["day", "hour", "minute"] | None = None
 
     @model_validator(mode="after")
     def validate_type(self):
