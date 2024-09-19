@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from hashlib import sha256
-from typing import Annotated, Any, Generic, Literal, Self, TypeVar, Generator
+from typing import Annotated, Any, Generator, Generic, Literal, Self, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
