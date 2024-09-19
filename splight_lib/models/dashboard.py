@@ -107,6 +107,7 @@ class Chart(SplightDatabaseBaseModel):
     value_mappings: list[
         ExactMatchValueMapping | RangeValueMapping | RegexMatchValueMapping
     ] = []
+    timezone: str | None = None
 
 
 class Tab(SplightDatabaseBaseModel):
