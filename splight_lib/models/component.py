@@ -2,7 +2,7 @@ import re
 import warnings
 from abc import ABC, abstractmethod
 from enum import auto
-from typing import Any, ClassVar, Literal, Optional, Type
+from typing import Annotated, Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
@@ -63,7 +63,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: Annotated[str, Field("")]
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -105,7 +105,7 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: str = ""
     type: str
     choices: list[Any] | None = None
     depends_on: str | None = None
@@ -291,7 +291,9 @@ def get_field_value(field: InputParameter | list[InputParameter]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: str | None = None
     name: str = ""
-    description: str = Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
+    description: Annotated[
+        str, Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
+    ]
 
     _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
@@ -494,7 +496,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
 
 
 class RoutineObjectInstance(AbstractObjectInstance):
-    _schema: ClassVar[Optional[Routine]] = None
+    _schema: ClassVar[Routine | None] = None
     _database_class: ClassVar[Type[SplightDatabaseBaseModel]] = RoutineObject
 
     def to_object(self) -> RoutineObject:
@@ -538,7 +540,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def from_routine(
         cls,
         routine: Routine,
-        component_id: Optional[str] = None,
+        component_id: str | None = None,
     ) -> Type["ComponentObjectInstance"]:
         Config = cls._create_config_model(routine.config)
         Input = cls._create_input_model(routine.input)

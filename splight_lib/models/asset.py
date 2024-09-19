@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, List, Optional, Tuple
+from typing import Annotated, Any
 
 from geojson_pydantic import GeometryCollection
 from pydantic import Field
@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class AssetKind(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
 
     def save(self):
@@ -38,20 +38,20 @@ class AssetRelationship(SplightDatabaseBaseModel):
 
 
 class Asset(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
-    tags: List[Tag] = []
-    attributes: List[Attribute] = []
-    metadata: List[Metadata] = []
-    geometry: Optional[GeometryCollection] = None
-    centroid_coordinates: Optional[Tuple[float, float]] = None
-    kind: Optional[AssetKind] = None
-    actions: Optional[List[ResourceSummary]] = None
-    related_to: List[AssetRelationship] = []
-    related_from: List[AssetRelationship] = []
+    description: Annotated[
+        str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+    ]
+    tags: list[Tag] = []
+    attributes: list[Attribute] = []
+    metadata: list[Metadata] = []
+    geometry: GeometryCollection | None = None
+    centroid_coordinates: tuple[float, float] | None = None
+    kind: AssetKind | None = None
+    actions: list[ResourceSummary] | None = None
+    related_to: list[AssetRelationship] = []
+    related_from: list[AssetRelationship] = []
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
