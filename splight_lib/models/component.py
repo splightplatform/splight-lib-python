@@ -2,7 +2,7 @@ import re
 import warnings
 from abc import ABC, abstractmethod
 from enum import auto
-from typing import Any, ClassVar, Literal, Optional, Type
+from typing import Annotated, Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
@@ -63,7 +63,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: str = ""
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -105,7 +105,7 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: str = ""
     type: str
     choices: list[Any] | None = None
     depends_on: str | None = None
@@ -144,7 +144,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     component_id: str | None = None
-    description: str | None = None
+    description: str = ""
     type: str
 
     def save(self):
@@ -291,7 +291,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: str | None = None
     name: str = ""
-    description: str = Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
+    description: Annotated[str, Field("", max_length=DESCRIPTION_MAX_LENGTH)]
 
     _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
