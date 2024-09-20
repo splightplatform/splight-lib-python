@@ -14,9 +14,9 @@ class File(SplightDatabaseBaseModel):
     assets: list[Asset] = []
     file: str | None = None
     name: str | None = None
-    description: Annotated[str | None, Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )]
+    description: Annotated[
+        str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+    ]
     metadata: dict = {}
     content_type: str | None = None
     parent: str | None = None

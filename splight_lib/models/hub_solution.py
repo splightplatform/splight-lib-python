@@ -1,7 +1,7 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Literal, Annotated
+from typing import Annotated, Literal
 
 import py7zr
 from pydantic import Field
@@ -31,9 +31,9 @@ class HubSolution(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     version: str
-    description: Annotated[str | None, Field(
-        None, max_length=DESCRIPTION_MAX_LENGTH
-    )]
+    description: Annotated[
+        str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
+    ]
     tags: list[Tag] | None = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
