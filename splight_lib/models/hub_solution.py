@@ -1,7 +1,7 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import List, Literal, Optional
+from typing import Literal, Annotated
 
 import py7zr
 from pydantic import Field
@@ -28,20 +28,20 @@ class InputAsset(InputParameter):
 
 
 class HubSolution(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
     version: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
-    tags: Optional[List[Tag]] = Field(default=[])
+    description: Annotated[str | None, Field(
+        None, max_length=DESCRIPTION_MAX_LENGTH
+    )]
+    tags: list[Tag] | None = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
-    config: List[InputParameter] = []
-    resources: List[InputAsset] = []
+    config: list[InputParameter] = []
+    resources: list[InputAsset] = []
 
     @classmethod
-    def upload(cls, path: FilePath):
+    def upload(cls, path: FilePath) -> None:
         db_client = cls._SplightDatabaseBaseModel__get_database_client()
         spec = get_spec(path)
         name = spec.get("name")
