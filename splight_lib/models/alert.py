@@ -50,7 +50,7 @@ class GroupCriteria(LowercaseStrEnum):
 class AlertItem(BaseModel):
     id: Annotated[str | None, Field(max_length=100)]
 
-    ref_id: Annotated[str, Field(max_length=100)]
+    ref_id: Annotated[str, Field(max_length=5)]
     type: AlertItemType = AlertItemType.QUERY
     label: str | None = None
 

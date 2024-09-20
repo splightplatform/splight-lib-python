@@ -62,7 +62,7 @@ class FunctionItem(BaseModel):
 
     id: Annotated[str | None, Field(None, max_length=100)]
 
-    ref_id: Annotated[str, Field(max_length=100)]
+    ref_id: Annotated[str, Field(max_length=5)]
     type: FunctionItemType = FunctionItemType.QUERY
 
     expression: str = ""
