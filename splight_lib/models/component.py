@@ -63,7 +63,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: Annotated[str, Field("")]
+    description: str = ""
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -144,7 +144,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     component_id: str | None = None
-    description: str | None = None
+    description: str = ""
     type: str
 
     def save(self):
@@ -291,9 +291,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: str | None = None
     name: str = ""
-    description: Annotated[
-        str, Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
-    ]
+    description: Annotated[str, Field("", max_length=DESCRIPTION_MAX_LENGTH)]
 
     _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
