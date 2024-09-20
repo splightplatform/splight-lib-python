@@ -1,5 +1,4 @@
 from enum import auto
-from typing import Set, Tuple
 
 import pytz
 from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
@@ -35,7 +34,7 @@ class ExecutionEngine:
             timezone=pytz.UTC,
             daemon=True,
         )
-        self._critical_jobs: Set[str] = set()
+        self._critical_jobs: set[str] = set()
         self._blocking_sch.add_listener(
             self._task_fail_callback, EVENT_JOB_ERROR
         )
@@ -53,7 +52,7 @@ class ExecutionEngine:
     def state(self) -> EngineStatus:
         return self._state
 
-    def healthcheck(self) -> Tuple[bool, str]:
+    def healthcheck(self) -> tuple[bool, str]:
         return (self._running, self._state.value)
 
     def start(self):
