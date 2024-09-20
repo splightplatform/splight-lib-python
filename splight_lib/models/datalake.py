@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from hashlib import sha256
-from typing import Annotated, Any, Generic, Literal, Self, TypeVar
+from typing import Annotated, Any, Generator, Generic, Literal, Self, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -13,6 +13,7 @@ from splight_lib.models.attribute import Attribute
 from splight_lib.models.exceptions import TraceAlreadyExistsError
 from splight_lib.settings import settings
 
+MAX_NUM_TRACES = 500
 T = TypeVar("T")
 
 
@@ -115,15 +116,22 @@ class DataRequest(Generic[T], BaseModel):
     def apply(self) -> list[T]:
         dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
-        response = dl_client.get(request)
-        data = self._parse_respose(response)
+        traces = request.pop("traces")
+        data = []
+        for batch in chunk_list(traces, MAX_NUM_TRACES):
+            request["traces"] = batch
+            response = dl_client.get(request)
+            data.extend(self._parse_respose(response))
         return data
 
     async def async_apply(self) -> list[T]:
         dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
-        response = await dl_client.async_get(request)
-        data = self._parse_respose(response)
+        data = []
+        for batch in chunk_list(self.traces, MAX_NUM_TRACES):
+            request["traces"] = batch
+            response = await dl_client.async_get(request)
+            data.extend(self._parse_respose(response))
         return data
 
     def _parse_respose(self, response: dict) -> list[T]:
@@ -153,3 +161,23 @@ class DataRecords(BaseModel):
     async def async_apply(self) -> None:
         dl_client = get_datalake_client()
         await dl_client.async_save(self.model_dump(mode="json"))
+
+
+def chunk_list(
+    datas: list[Any], chunksize: int
+) -> Generator[list[Any], None, None]:
+    """Split list into chunks
+
+    Parameters
+    ----------
+    datas : list[Any]
+        the list of data
+    chunksize : int
+        the size of chunk
+
+    Returns
+    -------
+    Generator with the chunks
+    """
+    for i in range(0, len(datas), chunksize):
+        yield datas[i : i + chunksize]

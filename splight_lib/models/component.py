@@ -2,7 +2,7 @@ import re
 import warnings
 from abc import ABC, abstractmethod
 from enum import auto
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union
+from typing import Annotated, Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
@@ -63,17 +63,17 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: str = ""
     type: str = "str"
     required: bool = False
     multiple: bool = False
     sensitive: bool = False
-    choices: Optional[List[Any]] = None
-    depends_on: Optional[str] = None
+    choices: list[Any] | None = None
+    depends_on: str | None = None
 
 
 class InputParameter(Parameter):
-    value: Optional[Any] = None
+    value: Any | None = None
 
 
 class DataAddress(Parameter):
@@ -91,7 +91,7 @@ class DataAddress(Parameter):
 
 
 class InputDataAddress(DataAddress):
-    value: Optional[Union[List[DLDataAddress], DLDataAddress]] = None
+    value: list[DLDataAddress] | DLDataAddress | None = None
 
     # NOTE: this is a patch.
     # API returns [] as default for InputDataAddress with multiple set
@@ -100,52 +100,51 @@ class InputDataAddress(DataAddress):
     def validate_file(self):
         if self.multiple and self.value is None:
             self.value = []
-
         return self
 
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = Field(default="")
+    description: str = ""
     type: str
-    choices: Optional[List[Any]] = None
-    depends_on: Optional[str] = None
+    choices: list[Any] | None = None
+    depends_on: str | None = None
     filterable: bool = False
 
 
 class Output(BaseModel):
     name: str
-    fields: List[OutputParameter]
+    fields: list[OutputParameter]
 
 
 class CustomType(BaseModel):
     name: str
-    fields: List[Parameter]
+    fields: list[Parameter]
 
-    _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
+    _reserved_names: ClassVar[list[str]] = ["id", "name", "description"]
 
 
 class Routine(BaseModel):
     name: str
-    max_instances: Optional[int] = None
+    max_instances: int | None = None
 
-    config: Optional[List[InputParameter]] = []
-    input: List[DataAddress] = []
-    output: List[DataAddress] = []
+    config: list[InputParameter] | None = []
+    input: list[DataAddress] = []
+    output: list[DataAddress] = []
 
-    _reserved_names: ClassVar[List[str]] = ["id", "name", "description"]
+    _reserved_names: ClassVar[list[str]] = ["id", "name", "description"]
 
 
 class Endpoint(BaseModel):
-    name: Optional[str]
-    port: Union[int, str]
+    name: str | None = None
+    port: int | str
 
 
 class SplightObject(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    component_id: Optional[str] = None
-    description: str = Field(default="")
+    component_id: str | None = None
+    description: str = ""
     type: str
 
     def save(self):
@@ -155,7 +154,7 @@ class SplightObject(SplightDatabaseBaseModel):
 
 
 class ComponentObject(SplightObject):
-    data: List[InputParameter] = []
+    data: list[InputParameter] = []
 
 
 class RoutineEvaluation(SplightDatalakeBaseModel):
@@ -163,18 +162,18 @@ class RoutineEvaluation(SplightDatalakeBaseModel):
 
     routine: str
     status: RoutineStatus
-    status_text: Optional[str]
+    status_text: str | None
 
 
 class RoutineObject(SplightObject):
     status: RoutineStatus = RoutineStatus.RUNNING
 
-    config: Optional[List[InputParameter]] = []
-    input: List[InputDataAddress] = []
-    output: List[InputDataAddress] = []
+    config: list[InputParameter] | None = []
+    input: list[InputDataAddress] = []
+    output: list[InputDataAddress] = []
 
     def report_status(
-        self, status: RoutineStatus, status_text: Optional[str] = None
+        self, status: RoutineStatus, status_text: str | None = None
     ):
         evaluation_status = RoutineEvaluation(
             routine=str(self.id),
@@ -198,15 +197,15 @@ class RoutineObject(SplightObject):
 
 
 class Component(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    name: Optional[str] = None
+    id: str | None = None
+    name: str | None = None
     version: str
-    custom_types: List[CustomType] = []
+    custom_types: list[CustomType] = []
     component_type: ComponentType = ComponentType.CONNECTOR
-    input: List[InputParameter] = []
-    output: List[Output] = []
-    endpoints: List[Endpoint] = []
-    routines: List[Routine] = []
+    input: list[InputParameter] = []
+    output: list[Output] = []
+    endpoints: list[Endpoint] = []
+    routines: list[Routine] = []
 
 
 DATABASE_TYPES = {
@@ -228,7 +227,7 @@ DB_MODEL_TYPE_MAPPING = {
 }
 
 
-def parse_variable_string(raw_value: Optional[str]) -> Any:
+def parse_variable_string(raw_value: str | None) -> Any:
     if raw_value is None:
         return ""
     pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
@@ -241,7 +240,7 @@ def parse_variable_string(raw_value: Optional[str]) -> Any:
     return secret.value
 
 
-def get_field_value(field: Union[InputParameter, List[InputParameter]]):
+def get_field_value(field: InputParameter | list[InputParameter]):
     multiple = field.multiple
 
     value = field.value
@@ -290,16 +289,16 @@ def get_field_value(field: Union[InputParameter, List[InputParameter]]):
 
 
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str = ""
-    description: str = Field(default="", max_length=DESCRIPTION_MAX_LENGTH)
+    description: Annotated[str, Field("", max_length=DESCRIPTION_MAX_LENGTH)]
 
-    _default_attrs: List[str] = PrivateAttr(
+    _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
     )
-    _schema: ClassVar[Optional[BaseModel]] = None
-    _database_class: ClassVar[Optional[Type[SplightDatabaseBaseModel]]] = None
-    _component_id: ClassVar[Optional[str]] = None
+    _schema: ClassVar[BaseModel | None] = None
+    _database_class: ClassVar[Type[SplightDatabaseBaseModel] | None] = None
+    _component_id: ClassVar[str | None] = None
 
     def save(self):
         component_obj = self.to_object()
@@ -312,7 +311,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
         component_obj.delete()
 
     @classmethod
-    def list(cls, **params: Dict) -> List["AbstractObjectInstance"]:
+    def list(cls, **params: dict) -> list["AbstractObjectInstance"]:
         if not cls._schema or not cls._component_id:
             raise InvalidObjectInstance(
                 (
@@ -407,7 +406,7 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
 
 
 class ComponentObjectInstance(AbstractObjectInstance):
-    _schema: ClassVar[Optional[CustomType]] = None
+    _schema: ClassVar[CustomType | None] = None
     _database_class: ClassVar[Type[SplightDatabaseBaseModel]] = ComponentObject
 
     def to_object(self) -> ComponentObject:
@@ -432,13 +431,13 @@ class ComponentObjectInstance(AbstractObjectInstance):
     def from_custom_type(
         cls,
         custom_type: CustomType,
-        component_id: Optional[str] = None,
+        component_id: str | None = None,
     ) -> Type["ComponentObjectInstance"]:
         fields = {}
 
         for field in custom_type.fields:
             field_type = DB_MODEL_TYPE_MAPPING.get(field.type, cls)
-            field_type = List[field_type] if field.multiple else field_type
+            field_type = list[field_type] if field.multiple else field_type
             field_type = (
                 Optional[field_type] if not field.required else field_type
             )
@@ -487,7 +486,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
     def from_component(
         cls,
         component: Component,
-    ) -> Dict[str, "ComponentObjectInstance"]:
+    ) -> dict[str, "ComponentObjectInstance"]:
         return {
             ct.name: cls.from_custom_type(ct, component.id)
             for ct in component.custom_types
@@ -565,13 +564,13 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return model_class
 
     @classmethod
-    def _create_config_model(cls, parameters: List[Parameter]) -> Type:
+    def _create_config_model(cls, parameters: list[Parameter]) -> Type:
         fields = {}
         for field in parameters:
             field_type = DB_MODEL_TYPE_MAPPING.get(
                 field.type, ComponentObjectInstance
             )
-            field_type = List[field_type] if field.multiple else field_type
+            field_type = list[field_type] if field.multiple else field_type
             field_type = field_type if field.required else Optional[field_type]
             field_value = ... if field.required else None
             fields.update({field.name: (field_type, field_value)})
@@ -579,11 +578,11 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return create_model("Config", **fields)
 
     @classmethod
-    def _create_input_model(cls, parameters: List[DataAddress]) -> Type:
+    def _create_input_model(cls, parameters: list[DataAddress]) -> Type:
         fields = {}
         for field in parameters:
             field_type = (
-                List[DLDataAddress] if field.multiple else DLDataAddress
+                list[DLDataAddress] if field.multiple else DLDataAddress
             )
             field_type = field_type if field.required else Optional[field_type]
             field_value = ... if field.required else None
@@ -591,11 +590,11 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return create_model("Input", **fields)
 
     @classmethod
-    def _create_output_model(cls, parameters: List[DataAddress]) -> Type:
+    def _create_output_model(cls, parameters: list[DataAddress]) -> Type:
         fields = {}
         for field in parameters:
             field_type = (
-                List[DLDataAddress] if field.multiple else DLDataAddress
+                list[DLDataAddress] if field.multiple else DLDataAddress
             )
             field_type = field_type if field.required else Optional[field_type]
             field_value = ... if field.required else None
@@ -632,7 +631,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
         return cls.model_validate(params_dict)
 
     def report_status(
-        self, status: RoutineStatus, status_text: Optional[str] = None
+        self, status: RoutineStatus, status_text: str | None = None
     ):
         routine_object = self.to_object()
         routine_object.report_status(status=status, status_text=status_text)
