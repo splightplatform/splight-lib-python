@@ -86,12 +86,12 @@ class SplightHubClient(AbstractHubClient):
         instance = response.json()
         return instance
 
-    def build(self, id: str):
+    def build(self, id: str) -> None:
         url = self._hub_url / f"versions/{id}/build/"
         response = self._session.post(url)
         response.raise_for_status()
 
-    def upload(self, id: str, file_path: str, type_: str):
+    def upload(self, id: str, file_path: str, type_: str) -> None:
         url = self._hub_url / f"versions/{id}/upload_url/"
         params = {"type": type_}
         response = self._session.get(url, params=params)
