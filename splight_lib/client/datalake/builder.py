@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from splight_lib.client.datalake.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.remote_client import (
@@ -19,6 +19,6 @@ class DatalakeClientBuilder:
     @staticmethod
     def build(
         dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
-        parameters: Dict[str, Any] = {},
+        parameters: dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
         return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)

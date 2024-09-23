@@ -5,7 +5,7 @@ from collections import namedtuple
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import sleep
-from typing import Callable, Dict, Optional, Type
+from typing import Callable, Type
 
 from pydantic import BaseModel
 from pydantic_core import ValidationError
@@ -70,7 +70,7 @@ class HealthCheckProcessor:
 class SplightBaseComponent(ABC):
     def __init__(
         self,
-        component_id: Optional[str] = None,
+        component_id: str | None = None,
     ):
         self._component_id = component_id
         self._execution_engine = ExecutionEngine()
@@ -185,7 +185,7 @@ class SplightBaseComponent(ABC):
         return wrapper
 
     def _get_custom_type_model(
-        self, component_object: Dict[str, Type[ComponentObjectInstance]]
+        self, component_object: dict[str, Type[ComponentObjectInstance]]
     ) -> BaseModel:
         custom_type_model = namedtuple(
             "CustomTypes", [k for k in component_object.keys()]
@@ -193,7 +193,7 @@ class SplightBaseComponent(ABC):
         return custom_type_model(**component_object)
 
     def _get_routine_model(
-        self, routine_objects: Dict[str, Type[RoutineObjectInstance]]
+        self, routine_objects: dict[str, Type[RoutineObjectInstance]]
     ) -> namedtuple:
         routine_model = namedtuple(
             "ComponentRoutine", [k for k in routine_objects.keys()]
@@ -209,9 +209,9 @@ class SplightBaseComponent(ABC):
         return spec
 
     @abstractmethod
-    def start(self):
+    def start(self) -> None:
         raise NotImplementedError()
 
-    def stop(self):
+    def stop(self) -> None:
         self._execution_engine.stop()
         sys.exit(1)

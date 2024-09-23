@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from typing import Dict, List, Tuple
 
 from pydantic import BaseModel
 
@@ -17,7 +16,7 @@ class AbstractHubClient(AbstractClient):
         limit_: int = -1,
         skip_: int = 0,
         **kwargs,
-    ) -> List[BaseModel]:
+    ) -> list[BaseModel]:
         pass
 
     @abstractmethod
@@ -25,7 +24,7 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def download(self, data: Dict) -> Tuple:
+    def download(self, data: dict) -> tuple:
         pass
 
     @abstractmethod
@@ -33,5 +32,5 @@ class AbstractHubClient(AbstractClient):
         pass
 
     @abstractmethod
-    def save(self, instance: Dict) -> Dict:
+    def save(self, instance: dict) -> dict:
         pass

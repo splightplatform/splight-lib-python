@@ -29,7 +29,7 @@ DB_MODEL_TYPE_MAPPING = {
 }
 
 
-def get_field_value(field: dict):
+def get_field_value(field: dict) -> Any:
     field_multiple = field.get("multiple", False)
     field_type = field.get("type")
     field_value = field.get("value")

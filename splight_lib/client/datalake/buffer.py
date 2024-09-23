@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from typing import Dict, List
 
 
 class DatalakeDocumentBuffer:
@@ -8,13 +7,13 @@ class DatalakeDocumentBuffer:
     def __init__(self, buffer_size: int, buffer_timeout: float):
         self._size = buffer_size
         self._timeout = buffer_timeout
-        self._buffer: List[Dict] = []
+        self._buffer: list[dict] = []
         self._last_flush = datetime.now(timezone.utc)
 
         self.reset()
 
     @property
-    def data(self) -> List[Dict]:
+    def data(self) -> list[dict]:
         """Retrieves the buffer data
 
         Returns
@@ -45,7 +44,7 @@ class DatalakeDocumentBuffer:
         self._last_flush = datetime.now(timezone.utc)
         self._buffer = []
 
-    def add_documents(self, documents: List[Dict]):
+    def add_documents(self, documents: list[dict]):
         """Adds new documents to the buffer.
 
         Parameters

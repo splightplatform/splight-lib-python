@@ -494,7 +494,7 @@ class ComponentObjectInstance(AbstractObjectInstance):
 
 
 class RoutineObjectInstance(AbstractObjectInstance):
-    _schema: ClassVar[Optional[Routine]] = None
+    _schema: ClassVar[Routine | None] = None
     _database_class: ClassVar[Type[SplightDatabaseBaseModel]] = RoutineObject
 
     def to_object(self) -> RoutineObject:
@@ -538,7 +538,7 @@ class RoutineObjectInstance(AbstractObjectInstance):
     def from_routine(
         cls,
         routine: Routine,
-        component_id: Optional[str] = None,
+        component_id: str | None = None,
     ) -> Type["ComponentObjectInstance"]:
         Config = cls._create_config_model(routine.config)
         Input = cls._create_input_model(routine.input)

@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from typing import Optional, Union
 
 from pydantic import (
     BaseModel,
@@ -22,7 +21,7 @@ FIELD_RANGE = {
 
 
 def validate_value_in_range(
-    value: Union[int, str], min_value: int, max_value: int, name: str
+    value: int | str, min_value: int, max_value: int, name: str
 ):
     if isinstance(value, str):
         if "*" in value:
@@ -48,18 +47,18 @@ class TaskPeriod(BaseModel):
     minutes: int = 0
     seconds: int = 0
     start_date: datetime = datetime.now(timezone.utc)
-    end_date: Optional[datetime] = None
+    end_date: datetime | None = None
 
 
 class Crontab(BaseModel):
-    year: Optional[Union[str, int]] = None
-    month: Optional[Union[str, int]] = None
-    day: Optional[Union[str, int]] = None
-    week: Optional[Union[str, int]] = None
-    day_of_week: Optional[Union[str, int]] = None
-    hour: Optional[Union[str, int]] = None
-    minute: Optional[Union[str, int]] = None
-    second: Optional[Union[str, int]] = None
+    year: str | int | None = None
+    month: str | int | None = None
+    day: str | int | None = None
+    week: str | int | None = None
+    day_of_week: str | int | None = None
+    hour: str | int | None = None
+    minute: str | int | None = None
+    second: str | int | None = None
 
     @field_validator(
         "month", "day", "week", "day_of_week", "hour", "minute", "second"

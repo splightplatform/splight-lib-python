@@ -1,5 +1,4 @@
 from enum import auto
-from typing import Optional
 
 from strenum import PascalCaseStrEnum
 
@@ -13,8 +12,8 @@ class AttributeType(PascalCaseStrEnum):
 
 
 class Attribute(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    asset: Optional[str] = None
+    asset: str | None = None
     type: AttributeType = AttributeType.NUMBER
-    unit: Optional[str] = None
+    unit: str | None = None

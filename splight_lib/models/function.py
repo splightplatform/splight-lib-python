@@ -1,7 +1,7 @@
 import json
 import re
 from enum import auto
-from typing import List, Literal, Optional
+from typing import Annotated, Literal
 
 from pydantic import (
     BaseModel,
@@ -60,22 +60,22 @@ class FunctionItem(BaseModel):
     # NOTE: the defaults are inconsistent because
     # we never made a clear contract between the lib, api and frontend
 
-    id: Optional[str] = Field(None, max_length=100)
+    id: Annotated[str | None, Field(None, max_length=100)]
 
-    ref_id: str = Field(max_length=5)
+    ref_id: Annotated[str, Field(max_length=5)]
     type: FunctionItemType = FunctionItemType.QUERY
 
     expression: str = ""
     expression_plain: str = ""
 
-    query_filter_asset: Optional[QueryFilter] = None
-    query_filter_attribute: Optional[TypedQueryFilter] = None
+    query_filter_asset: QueryFilter | None = None
+    query_filter_attribute: TypedQueryFilter | None = None
 
     query_group_function: GroupCriteria = GroupCriteria.EMPTY
     query_group_unit: GroupUnit = GroupUnit.EMPTY
 
     query_sort_field: str = ""
-    query_sort_direction: int = Field(-1, ge=-1, le=1)
+    query_sort_direction: Annotated[int, Field(-1, ge=-1, le=1)]
 
     query_plain: str = ""
 
@@ -164,30 +164,30 @@ class FunctionItem(BaseModel):
 
 
 class Function(SplightDatabaseBaseModel):
-    id: Optional[str] = Field(None, max_length=100)
+    id: Annotated[str | None, Field(None, max_length=100)]
     name: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: Annotated[
+        str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
+    ]
 
     active: bool = True
     time_window: int = 5 * 60
-    function_items: List[FunctionItem] = []
+    function_items: list[FunctionItem] = []
 
     type: Literal["cron", "rate"]
     target_variable: str
     target_asset: QueryFilter  # NOTE: optional in API
     target_attribute: TypedQueryFilter  # NOTE: optional in API
 
-    cron_minutes: Optional[str] = None
-    cron_hours: Optional[str] = None
-    cron_dom: Optional[str] = None
-    cron_month: Optional[str] = None
-    cron_dow: Optional[str] = None
-    cron_year: Optional[str] = None
+    cron_minutes: str | None = None
+    cron_hours: str | None = None
+    cron_dom: str | None = None
+    cron_month: str | None = None
+    cron_dow: str | None = None
+    cron_year: str | None = None
 
-    rate_value: Optional[PositiveInt] = None
-    rate_unit: Optional[Literal["day", "hour", "minute"]] = None
+    rate_value: PositiveInt | None = None
+    rate_unit: Literal["day", "hour", "minute"] | None = None
 
     @model_validator(mode="after")
     def validate_type(self):
