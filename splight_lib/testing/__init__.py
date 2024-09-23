@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -32,7 +32,7 @@ FAKE_DATABASE_VALUES = {
 }
 
 
-def get_test_value(type_: str, custom_types: Dict[str, CustomType]) -> Any:
+def get_test_value(type_: str, custom_types: dict[str, CustomType]) -> Any:
     if type_ in FAKE_NATIVE_VALUES:
         value = FAKE_NATIVE_VALUES.get(type_)
     elif type_ in FAKE_DATABASE_VALUES:
@@ -48,8 +48,8 @@ def get_test_value(type_: str, custom_types: Dict[str, CustomType]) -> Any:
 
 
 def component_object_attributes(
-    parameters: List[Parameter], custom_types: Dict[str, CustomType]
-) -> Dict[str, Any]:
+    parameters: list[Parameter], custom_types: dict[str, CustomType]
+) -> dict[str, Any]:
     values_dict = {
         param.name: get_test_value(param.type, custom_types)
         for param in parameters

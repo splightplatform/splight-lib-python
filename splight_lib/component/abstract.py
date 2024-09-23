@@ -209,9 +209,9 @@ class SplightBaseComponent(ABC):
         return spec
 
     @abstractmethod
-    def start(self):
+    def start(self) -> None:
         raise NotImplementedError()
 
-    def stop(self):
+    def stop(self) -> None:
         self._execution_engine.stop()
         sys.exit(1)
