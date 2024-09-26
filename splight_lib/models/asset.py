@@ -43,7 +43,7 @@ class Asset(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-    tags: list[Tag] = []
+    tags: list[Tag] | None = None
     attributes: list[Attribute] = []
     metadata: list[Metadata] = []
     geometry: GeometryCollection | None = None

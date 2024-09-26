@@ -9,6 +9,7 @@ from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
+from splight_lib.models.tag import Tag
 
 
 class ChartItemType(UppercaseStrEnum):
@@ -124,3 +125,4 @@ class Dashboard(SplightDatabaseBaseModel):
     description: str | None = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
+    tags: list[Tag] | None = None

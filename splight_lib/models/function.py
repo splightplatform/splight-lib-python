@@ -20,6 +20,7 @@ from splight_lib.models.exceptions import (
     MissingFunctionItemExpression,
 )
 from splight_lib.models.generic import ValueTypeEnum
+from splight_lib.models.tag import Tag
 
 
 class FunctionItemType(UppercaseStrEnum):
@@ -169,7 +170,7 @@ class Function(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-
+    tags: list[Tag] | None = None
     active: bool = True
     time_window: int = 5 * 60
     function_items: list[FunctionItem] = []
