@@ -21,6 +21,7 @@ from splight_lib.models.exceptions import (
 )
 from splight_lib.models.tag import Tag
 
+
 class AlertItemType(UppercaseStrEnum):
     EXPRESSION = auto()
     QUERY = auto()

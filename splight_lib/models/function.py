@@ -26,6 +26,7 @@ from splight_lib.models.tag import Tag
 class FunctionItemType(UppercaseStrEnum):
     EXPRESSION = auto()
     QUERY = auto()
+    METADATA = auto()
 
 
 class QueryFilter(TypedDict):
