@@ -12,7 +12,6 @@ from splight_lib.models.database_base import (
 )
 from splight_lib.models.exceptions import MethodNotAllowed
 from splight_lib.models.metadata import Metadata
-from splight_lib.models.tag import Tag
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -43,7 +42,7 @@ class Asset(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-    tags: list[Tag] | None = None
+    tags: list[ResourceSummary] | None = None
     attributes: list[Attribute] = []
     metadata: list[Metadata] = []
     geometry: GeometryCollection | None = None

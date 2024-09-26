@@ -14,12 +14,14 @@ from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    SplightDatabaseBaseModel,
+    ResourceSummary,
+)
 from splight_lib.models.exceptions import (
     InvalidAlertConfiguration,
     MissingAlertItemExpression,
 )
-from splight_lib.models.tag import Tag
 
 
 class AlertItemType(UppercaseStrEnum):
@@ -213,7 +215,7 @@ class Alert(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-    tags: list[Tag] | None = None
+    tags: list[ResourceSummary] | None = None
     assets: list[QueryFilter] = []
     alert_items: list[AlertItem] = []
     destinations_list: list[str] = []
