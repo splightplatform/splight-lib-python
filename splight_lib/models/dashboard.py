@@ -1,13 +1,17 @@
+# TODO: set types fixed values
+import json
+import re
 from enum import auto
-from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
 
+from splight_lib.models.alert import AlertItemType
 from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
+from splight_lib.models.exceptions import MissingAlertItemExpression
 
 
 class ChartItemType(UppercaseStrEnum):
@@ -58,25 +62,20 @@ class AdvancedFilter(SplightDatabaseBaseModel):
 
 
 class ChartItem(BaseModel):
-    id: str | None = None
-    type: ChartItemType = ChartItemType.QUERY
-    ref_id: str
-    label: str
-    order: int | None = None
     color: str | None = None
+    ref_id: str
+    type: ChartItemType = ChartItemType.QUERY
+    label: str
     hidden: bool = False
-    query_filter_asset: ResourceSummary | None = None
-    query_filter_attribute: ResourceSummary | None = None
-    query_group_unit: str | None = None
-    query_group_function: str | None = None
-    query_sort_field: str | None = None
-    query_sort_direction: int | None = -1
-    query_limit: int = 10000
-    query_plain: str = ""
-    position_x: int | None = None
-    position_y: int | None = None
     expression: str | None = None
     expression_plain: str | None = None
+    query_filter_asset: ResourceSummary | None = None
+    query_filter_attribute: ResourceSummary | None = None
+    query_plain: str = ""
+    query_group_unit: str | None = None
+    query_group_function: str | None = None
+    query_sort_direction: int | None = -1
+    query_limit: int = 10000
 
     @model_validator(mode="after")
     def validate_expression(self):
@@ -160,43 +159,149 @@ class ChartItem(BaseModel):
         return json.dumps(query_plain)
 
 
+class Dashboard(SplightDatabaseBaseModel):
+    id: str | None
+    name: str
+    description: str | None
+    related_assets: list(ResourceSummary)
+    tags: list(ResourceSummary)
+
+
+class Tab(SplightDatabaseBaseModel):
+    id: str | None
+    name: str
+    order: int | None
+    dashboard: str
+
+
 class Chart(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
-    description: str | None = None
-    items: list[ChartItem] | None = None
     tab: str
-    position_x: int | None = None
-    position_y: int | None = None
-    height: int | None = 28
-    width: int | None = 80
-    min_height: int | None = 14
-    min_width: int | None = 14
-    type: str | None = None
-    timestamp_gte: str | None = None
-    timestamp_lte: str | None = None
-    refresh_interval: str | None = None
-    relative_window_time: str | None = None
-    y_axis_max_limit: int | None = None
-    y_axis_min_limit: int | None = None
-    config: dict[str, Any] | None = None
-    chart_items: list[ChartItem] = []
-    thresholds: list[Threshold] = []
+    description: str | None
+    position_x: int | None
+    position_y: int | None
+    min_height: int | None
+    min_width: int | None
+    display_time_range: bool
+    labels_display: bool
+    labels_aggregation: str
+    labels_placement: str
+    refresh_interval: str
+    relative_window_time: str
+    show_beyond_data: bool
+    timezone: str
+    timestamp_gte: str
+    timestamp_lte: str
+    height: int
+    width: int
+    collection: str
+    chart_items: list[ChartItem]
+    thresholds: list[Threshold]
     value_mappings: list[
         ExactMatchValueMapping | RangeValueMapping | RegexMatchValueMapping
     ] = []
 
 
-class Tab(SplightDatabaseBaseModel):
-    id: str | None = None
-    name: str
-    charts: list[Chart] | None = None
-    order: int | None = None
-    dashboard: str
+class DashboardActionListChart(Chart):
+    type: str = "actionlist"
+    action_list_type: str
+    filter_name: str
+    filter_asset_name: str | None
 
 
-class Dashboard(SplightDatabaseBaseModel):
-    id: str | None = None
-    name: str
-    description: str | None = None
-    related_assets: list(ResourceSummary) = None
+class DashboardAlertEventsChart(Chart):
+    type: str = "alertevents"
+    filter_name: str
+    filter_old_status: str
+    filter_new_status: str
+
+
+class DashboardAlertListChart(Chart):
+    type: str = "alertlist"
+    filter_name: str
+    filter_status: list(str)
+    alert_list_type: str | None
+
+
+class DashboardAssetListChart(Chart):
+    type: str = "assetlist"
+    filter_name: str
+    filter_status: list(str)
+    asset_list_type: str | None
+
+
+class DashboardBarChart(Chart):
+    type: str = "bar"
+    y_axis_unit: str | None
+    number_of_decimals: int | None
+    orientation: int | None
+
+
+class DashboardBarGaugeChart(Chart):
+    type: str = "bargauge"
+    max_limit: int | None
+    number_of_decimals: int | None
+    orientation: str | None
+
+
+class DashboardCommandListChart(Chart):
+    type: str = "commandlist"
+    command_list_type: str
+    filter_name: str
+
+
+class DashboardGaugeChart(Chart):
+    type: str = "gauge"
+    max_limit: int | None
+    number_of_decimals: int | None
+
+
+class DashboardHistogramChart(Chart):
+    type: str = "histogram"
+    number_of_decimals: int | None
+    bucket_count: int
+    bucket_size: int
+    histogram_type: str
+    sorting: str
+    stacked: bool
+    categories_top_max_limit: int | None
+
+
+class DashboardImageChart(Chart):
+    type: str = "image"
+    image_url: str | None
+    image_file: str | None
+
+
+class DashboardStatChart(Chart):
+    type: str = "stat"
+    y_axis_unit: str
+    border: bool
+    number_of_decimals: int | None
+
+
+class DashboardTableChart(Chart):
+    type: str = "table"
+    y_axis_unit: str
+    number_of_decimals: int
+
+
+class DashboardTextChart(Chart):
+    type: str = "text"
+    text: str | None
+
+
+class DashboardTimeseriesChart(Chart):
+    type: str = "timeseries"
+    y_axis_max_limit: int | None
+    y_axis_min_limit: int | None
+    y_axis_unit: str | None
+    number_of_decimals: int | None
+    x_axis_format: str
+    x_axis_auto_skip: bool
+    x_axis_max_ticks_limit: int | None
+    line_interpolation_style: str | None
+    timeseries_type: str | None
+    fill: bool
+    show_line: bool
