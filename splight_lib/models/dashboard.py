@@ -160,17 +160,17 @@ class ChartItem(BaseModel):
 
 
 class Dashboard(SplightDatabaseBaseModel):
-    id: str | None
+    id: str | None = None
     name: str
-    description: str | None
+    description: str | None = None
     related_assets: list(ResourceSummary)
     tags: list(ResourceSummary)
 
 
 class Tab(SplightDatabaseBaseModel):
-    id: str | None
+    id: str | None = None
     name: str
-    order: int | None
+    order: int | None = None
     dashboard: str
 
 
@@ -178,11 +178,11 @@ class Chart(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     tab: str
-    description: str | None
-    position_x: int | None
-    position_y: int | None
-    min_height: int | None
-    min_width: int | None
+    description: str | None = None
+    position_x: int | None = None
+    position_y: int | None = None
+    min_height: int | None = None
+    min_width: int | None = None
     display_time_range: bool
     labels_display: bool
     labels_aggregation: str
@@ -207,7 +207,7 @@ class DashboardActionListChart(Chart):
     type: str = "actionlist"
     action_list_type: str
     filter_name: str
-    filter_asset_name: str | None
+    filter_asset_name: str | None = None
 
 
 class DashboardAlertEventsChart(Chart):
@@ -221,28 +221,28 @@ class DashboardAlertListChart(Chart):
     type: str = "alertlist"
     filter_name: str
     filter_status: list(str)
-    alert_list_type: str | None
+    alert_list_type: str | None = None
 
 
 class DashboardAssetListChart(Chart):
     type: str = "assetlist"
     filter_name: str
     filter_status: list(str)
-    asset_list_type: str | None
+    asset_list_type: str | None = None
 
 
 class DashboardBarChart(Chart):
     type: str = "bar"
-    y_axis_unit: str | None
-    number_of_decimals: int | None
-    orientation: int | None
+    y_axis_unit: str | None = None
+    number_of_decimals: int | None = None
+    orientation: int | None = None
 
 
 class DashboardBarGaugeChart(Chart):
     type: str = "bargauge"
-    max_limit: int | None
-    number_of_decimals: int | None
-    orientation: str | None
+    max_limit: int | None = None
+    number_of_decimals: int | None = None
+    orientation: str | None = None
 
 
 class DashboardCommandListChart(Chart):
@@ -253,32 +253,32 @@ class DashboardCommandListChart(Chart):
 
 class DashboardGaugeChart(Chart):
     type: str = "gauge"
-    max_limit: int | None
-    number_of_decimals: int | None
+    max_limit: int | None = None
+    number_of_decimals: int | None = None
 
 
 class DashboardHistogramChart(Chart):
     type: str = "histogram"
-    number_of_decimals: int | None
+    number_of_decimals: int | None = None
     bucket_count: int
     bucket_size: int
     histogram_type: str
     sorting: str
     stacked: bool
-    categories_top_max_limit: int | None
+    categories_top_max_limit: int | None = None
 
 
 class DashboardImageChart(Chart):
     type: str = "image"
-    image_url: str | None
-    image_file: str | None
+    image_url: str | None = None
+    image_file: str | None = None
 
 
 class DashboardStatChart(Chart):
     type: str = "stat"
     y_axis_unit: str
     border: bool
-    number_of_decimals: int | None
+    number_of_decimals: int | None = None
 
 
 class DashboardTableChart(Chart):
@@ -289,19 +289,19 @@ class DashboardTableChart(Chart):
 
 class DashboardTextChart(Chart):
     type: str = "text"
-    text: str | None
+    text: str | None = None
 
 
 class DashboardTimeseriesChart(Chart):
     type: str = "timeseries"
-    y_axis_max_limit: int | None
-    y_axis_min_limit: int | None
-    y_axis_unit: str | None
-    number_of_decimals: int | None
+    y_axis_max_limit: int | None = None
+    y_axis_min_limit: int | None = None
+    y_axis_unit: str | None = None
+    number_of_decimals: int | None = None
     x_axis_format: str
     x_axis_auto_skip: bool
-    x_axis_max_ticks_limit: int | None
-    line_interpolation_style: str | None
-    timeseries_type: str | None
+    x_axis_max_ticks_limit: int | None = None
+    line_interpolation_style: str | None = None
+    timeseries_type: str | None = None
     fill: bool
     show_line: bool
