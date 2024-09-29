@@ -1,10 +1,9 @@
 from enum import auto
-from typing import Annotated, Any
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from strenum import UppercaseStrEnum
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
@@ -79,13 +78,92 @@ class ChartItem(BaseModel):
     expression: str | None = None
     expression_plain: str | None = None
 
+    @model_validator(mode="after")
+    def validate_expression(self):
+        if self.type == AlertItemType.EXPRESSION:
+            if self.expression is None:
+                raise MissingAlertItemExpression(
+                    "Parameter 'expression' is required for expression type alert items"
+                )
+            self.expression_plain = (
+                self._get_expression_plain()
+                if self.expression_plain is None
+                else self.expression_plain
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_query(self):
+        if self.type == AlertItemType.QUERY:
+            for attr in [
+                ("query_filter_asset", self.query_filter_asset),
+                ("query_filter_attribute", self.query_filter_attribute),
+            ]:
+                if attr is None:
+                    raise ValidationError(
+                        (
+                            f"Parameter '{attr}' is required for query type "
+                            "alert items"
+                        )
+                    )
+            self.query_plain = (
+                self._get_query_plain()
+                if self.query_plain is None
+                else self.query_plain
+            )
+        return self
+
+    def _get_expression_plain(self):
+        pattern = r"\$\w+"
+        args = re.findall(pattern, self.expression)
+        str_args = ", ".join(args)
+        body = f"function ({str_args}) {{ return {self.expression} }}"
+        expression_plain = {
+            "$function": {"body": body, "args": args, "lang": "js"}
+        }
+        return json.dumps(expression_plain)
+
+    def _get_query_plain(self):
+        query_plain = [
+            {
+                "$match": {
+                    "asset": self.query_filter_asset["id"],
+                    "attribute": self.query_filter_attribute["id"],
+                }
+            },
+        ]
+        if self.query_group_unit and self.query_group_function:
+            query_plain.extend(
+                [
+                    {
+                        "$addFields": {
+                            "timestamp": {
+                                "$dateTrunc": {
+                                    "date": "$timestamp",
+                                    "unit": self.query_group_unit,
+                                    "binSize": 1,
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "$group": {
+                            "_id": "$timestamp",
+                            "value": {
+                                f"${self.query_group_function}": "$value"
+                            },
+                            "timestamp": {"$last": "$timestamp"},
+                        }
+                    },
+                ]
+            )
+        return json.dumps(query_plain)
+
 
 class Chart(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
-    description: Annotated[
-        str | None, Field(max_length=DESCRIPTION_MAX_LENGTH)
-    ] = None
+    description: str | None = None
     items: list[ChartItem] | None = None
     tab: str
     position_x: int | None = None
@@ -120,6 +198,5 @@ class Tab(SplightDatabaseBaseModel):
 class Dashboard(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
-    description: str | None = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str | None = None
+    related_assets: list(ResourceSummary) = None

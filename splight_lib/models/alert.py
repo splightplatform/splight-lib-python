@@ -13,7 +13,6 @@ from pydantic import (
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import (
     InvalidAlertConfiguration,
@@ -209,9 +208,7 @@ class StatementAggregation(LowercaseStrEnum):
 class Alert(SplightDatabaseBaseModel):
     id: Optional[str] = Field(None, max_length=100)
     name: str
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str | None = None
 
     assets: List[QueryFilter] = []
     alert_items: List[AlertItem] = []

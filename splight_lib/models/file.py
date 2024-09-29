@@ -3,7 +3,6 @@ from typing import Dict, List, Optional
 
 from pydantic import Field, field_validator
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.asset import Asset
 from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import ForbiddenOperation
@@ -14,9 +13,7 @@ class File(SplightDatabaseBaseModel):
     assets: List[Asset] = []
     file: Optional[str] = None
     name: Optional[str] = None
-    description: Optional[str] = Field(
-        default=None, max_length=DESCRIPTION_MAX_LENGTH
-    )
+    description: str | None = None
     metadata: Dict = {}
     content_type: Optional[str] = None
     parent: Optional[str] = None
