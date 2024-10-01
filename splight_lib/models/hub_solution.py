@@ -11,8 +11,8 @@ from splight_lib.models.component import InputParameter
 from splight_lib.models.database_base import (
     FilePath,
     PrivacyPolicy,
-    SplightDatabaseBaseModel,
     ResourceSummary,
+    SplightDatabaseBaseModel,
 )
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
