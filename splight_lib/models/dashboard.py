@@ -124,3 +124,4 @@ class Dashboard(SplightDatabaseBaseModel):
     description: str | None = Field(
         default=None, max_length=DESCRIPTION_MAX_LENGTH
     )
+    tags: list[ResourceSummary] | None = None

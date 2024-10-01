@@ -11,9 +11,9 @@ from splight_lib.models.component import InputParameter
 from splight_lib.models.database_base import (
     FilePath,
     PrivacyPolicy,
+    ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models.tag import Tag
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
     README_FILE_1,
@@ -34,7 +34,7 @@ class HubSolution(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-    tags: list[Tag] | None = []
+    tags: list[ResourceSummary] | None = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
     config: list[InputParameter] = []

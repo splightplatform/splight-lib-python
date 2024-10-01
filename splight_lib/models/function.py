@@ -14,7 +14,10 @@ from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
 from splight_lib.constants import DESCRIPTION_MAX_LENGTH
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
 from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,
@@ -25,6 +28,7 @@ from splight_lib.models.generic import ValueTypeEnum
 class FunctionItemType(UppercaseStrEnum):
     EXPRESSION = auto()
     QUERY = auto()
+    METADATA = auto()
 
 
 class QueryFilter(TypedDict):
@@ -169,7 +173,7 @@ class Function(SplightDatabaseBaseModel):
     description: Annotated[
         str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
     ]
-
+    tags: list[ResourceSummary] | None = None
     active: bool = True
     time_window: int = 5 * 60
     function_items: list[FunctionItem] = []
