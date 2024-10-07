@@ -2,6 +2,7 @@
 import json
 import re
 from enum import auto
+from typing import List
 
 from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
@@ -81,6 +82,7 @@ class ChartItem(BaseModel):
     def validate_expression(self):
         if self.type == AlertItemType.EXPRESSION:
             if self.expression is None:
+                __import__("ipdb").set_trace()
                 raise MissingAlertItemExpression(
                     "Parameter 'expression' is required for expression type alert items"
                 )
@@ -163,8 +165,8 @@ class Dashboard(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     description: str | None = None
-    related_assets: list(ResourceSummary)
-    tags: list(ResourceSummary)
+    related_assets: List[ResourceSummary] | None = None
+    tags: List[ResourceSummary]
 
 
 class Tab(SplightDatabaseBaseModel):
@@ -185,14 +187,14 @@ class Chart(SplightDatabaseBaseModel):
     min_width: int | None = None
     display_time_range: bool
     labels_display: bool
-    labels_aggregation: str
+    labels_aggregation: str | None = None
     labels_placement: str
-    refresh_interval: str
-    relative_window_time: str
+    refresh_interval: str | None = None
+    relative_window_time: str | None = None
     show_beyond_data: bool
-    timezone: str
-    timestamp_gte: str
-    timestamp_lte: str
+    timezone: str | None = None
+    timestamp_gte: str | None = None
+    timestamp_lte: str | None = None
     height: int
     width: int
     collection: str
@@ -220,14 +222,14 @@ class DashboardAlertEventsChart(Chart):
 class DashboardAlertListChart(Chart):
     type: str = "alertlist"
     filter_name: str
-    filter_status: list(str)
+    filter_status: List[str]
     alert_list_type: str | None = None
 
 
 class DashboardAssetListChart(Chart):
     type: str = "assetlist"
     filter_name: str
-    filter_status: list(str)
+    filter_status: List[str]
     asset_list_type: str | None = None
 
 
