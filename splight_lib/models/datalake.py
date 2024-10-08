@@ -46,7 +46,7 @@ class TraceType(str, Enum):
 
 class PipelineStep(BaseModel):
     name: StepName
-    operation: str | dict[str, Any]
+    operation: str | int | dict[str, Any]
 
     @classmethod
     def from_dict(cls, step_dict: dict[str, Any]) -> Self:
