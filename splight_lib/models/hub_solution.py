@@ -1,12 +1,10 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Annotated, Literal
+from typing import Literal
 
 import py7zr
-from pydantic import Field
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.component import InputParameter
 from splight_lib.models.database_base import (
     FilePath,
@@ -31,9 +29,7 @@ class HubSolution(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     version: str
-    description: Annotated[
-        str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
-    ]
+    description: str | None = None
     tags: list[Tag] | None = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 

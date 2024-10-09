@@ -4,21 +4,14 @@ import warnings
 from enum import auto
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Annotated, Any, Self
+from typing import Any, Self
 
 import py7zr
-from pydantic import (
-    BaseModel,
-    Field,
-    PrivateAttr,
-    ValidationInfo,
-    model_validator,
-)
+from pydantic import BaseModel, PrivateAttr, ValidationInfo, model_validator
 from strenum import LowercaseStrEnum
 
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.component import (
     ComponentType,
     CustomType,
@@ -62,9 +55,7 @@ class HubComponent(BaseModel):
     splight_lib_version: str | None = None
     splight_cli_version: str | None = None
     build_status: str | None = None
-    description: Annotated[
-        str | None, Field(None, max_length=DESCRIPTION_MAX_LENGTH)
-    ]
+    description: str | None = None
     privacy_policy: str | None = None
     component_type: ComponentType = ComponentType.CONNECTOR
     readme: str | None = None

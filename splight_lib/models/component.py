@@ -2,11 +2,10 @@ import re
 import warnings
 from abc import ABC, abstractmethod
 from enum import auto
-from typing import Annotated, Any, ClassVar, Literal, Optional, Type
+from typing import Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
-    Field,
     PrivateAttr,
     create_model,
     field_validator,
@@ -14,7 +13,6 @@ from pydantic import (
 )
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.data_address import DataAddresses as DLDataAddress
@@ -291,7 +289,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: str | None = None
     name: str = ""
-    description: Annotated[str, Field("", max_length=DESCRIPTION_MAX_LENGTH)]
+    description: str = ""
 
     _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]

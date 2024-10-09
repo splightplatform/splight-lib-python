@@ -1,9 +1,7 @@
 import json
-from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.asset import Asset
 from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.models.exceptions import ForbiddenOperation
@@ -14,9 +12,7 @@ class File(SplightDatabaseBaseModel):
     assets: list[Asset] = []
     file: str | None = None
     name: str | None = None
-    description: Annotated[
-        str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
-    ]
+    description: str | None = None
     metadata: dict = {}
     content_type: str | None = None
     parent: str | None = None

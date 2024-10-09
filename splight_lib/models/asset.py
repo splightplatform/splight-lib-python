@@ -1,10 +1,8 @@
 import warnings
-from typing import Annotated, Any
+from typing import Any
 
 from geojson_pydantic import GeometryCollection
-from pydantic import Field
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.database_base import (
     ResourceSummary,
@@ -40,9 +38,7 @@ class AssetRelationship(SplightDatabaseBaseModel):
 class Asset(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
-    description: Annotated[
-        str | None, Field(default=None, max_length=DESCRIPTION_MAX_LENGTH)
-    ]
+    description: str | None = None
     tags: list[Tag] = []
     attributes: list[Attribute] = []
     metadata: list[Metadata] = []

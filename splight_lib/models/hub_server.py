@@ -6,7 +6,6 @@ from typing import Annotated, Self
 import py7zr
 from pydantic import BaseModel, Field
 
-from splight_lib.constants import DESCRIPTION_MAX_LENGTH
 from splight_lib.models.component import InputParameter
 from splight_lib.models.database_base import (
     FilePath,
@@ -34,9 +33,7 @@ class HubServer(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     version: str
-    description: Annotated[
-        str | None, Field(max_length=DESCRIPTION_MAX_LENGTH)
-    ] = None
+    description: str | None = None
     tags: Annotated[list[str] | None, Field()] = []
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
 
