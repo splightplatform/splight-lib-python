@@ -2,7 +2,7 @@
 import json
 import re
 from enum import auto
-from typing import List
+from typing import Dict, List
 
 from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
@@ -80,38 +80,47 @@ class ChartItem(BaseModel):
 
     @model_validator(mode="after")
     def validate_expression(self):
-        if self.type == AlertItemType.EXPRESSION:
-            if self.expression is None:
-                __import__("ipdb").set_trace()
-                raise MissingAlertItemExpression(
-                    "Parameter 'expression' is required for expression type alert items"
+        try:
+            if self.type == AlertItemType.EXPRESSION:
+                if self.expression is None:
+                    return
+                    # __import__("ipdb").set_trace()
+                    # raise MissingAlertItemExpression(
+                    #     "Parameter 'expression' is required for expression type alert items"
+                    # )
+                self.expression_plain = (
+                    self._get_expression_plain()
+                    if self.expression_plain is None
+                    else self.expression_plain
                 )
-            self.expression_plain = (
-                self._get_expression_plain()
-                if self.expression_plain is None
-                else self.expression_plain
-            )
+        except Exception as exce:
+            __import__("ipdb").set_trace()
+            print(1)
         return self
 
     @model_validator(mode="after")
     def validate_query(self):
-        if self.type == AlertItemType.QUERY:
-            for attr in [
-                ("query_filter_asset", self.query_filter_asset),
-                ("query_filter_attribute", self.query_filter_attribute),
-            ]:
-                if attr is None:
-                    raise ValidationError(
-                        (
-                            f"Parameter '{attr}' is required for query type "
-                            "alert items"
+        try:
+            if self.type == AlertItemType.QUERY:
+                for attr in [
+                    ("query_filter_asset", self.query_filter_asset),
+                    ("query_filter_attribute", self.query_filter_attribute),
+                ]:
+                    if attr is None:
+                        raise ValidationError(
+                            (
+                                f"Parameter '{attr}' is required for query type "
+                                "alert items"
+                            )
                         )
-                    )
-            self.query_plain = (
-                self._get_query_plain()
-                if self.query_plain is None
-                else self.query_plain
-            )
+                self.query_plain = (
+                    self._get_query_plain()
+                    if self.query_plain is None
+                    else self.query_plain
+                )
+        except Exception as exce:
+            __import__("ipdb").set_trace()
+            print(1)
         return self
 
     def _get_expression_plain(self):
@@ -198,25 +207,51 @@ class Chart(SplightDatabaseBaseModel):
     height: int
     width: int
     collection: str
-    chart_items: list[ChartItem]
-    thresholds: list[Threshold]
-    value_mappings: list[
+    chart_items: List[ChartItem] | None = None
+    thresholds: List[Threshold] | None = None
+    value_mappings: List[
         ExactMatchValueMapping | RangeValueMapping | RegexMatchValueMapping
     ] = []
+
+    @classmethod
+    def list(cls, **params: Dict):
+        db_client = cls._SplightDatabaseBaseModel__get_database_client()
+
+        data = db_client.get(resource_name="chart", **params)
+
+        if cls != Chart:
+            data = [
+                chart
+                for chart in data
+                if chart["type"] == cls.model_fields["type"].default
+            ]
+
+        instances = []
+        for item in data:
+            try:
+                instance = class_map[item["type"]].model_validate(item)
+            except Exception as exce:
+                __import__("ipdb").set_trace()
+                print(item)
+                return
+
+            instances.append(instance)
+
+        return instances
 
 
 class DashboardActionListChart(Chart):
     type: str = "actionlist"
     action_list_type: str
-    filter_name: str
+    filter_name: str | None = None
     filter_asset_name: str | None = None
 
 
 class DashboardAlertEventsChart(Chart):
     type: str = "alertevents"
-    filter_name: str
-    filter_old_status: str
-    filter_new_status: str
+    filter_name: str | None = None
+    filter_old_status: List[str] | None = None
+    filter_new_status: List[str] | None = None
 
 
 class DashboardAlertListChart(Chart):
@@ -228,7 +263,7 @@ class DashboardAlertListChart(Chart):
 
 class DashboardAssetListChart(Chart):
     type: str = "assetlist"
-    filter_name: str
+    filter_name: str | None = None
     filter_status: List[str]
     asset_list_type: str | None = None
 
@@ -237,7 +272,7 @@ class DashboardBarChart(Chart):
     type: str = "bar"
     y_axis_unit: str | None = None
     number_of_decimals: int | None = None
-    orientation: int | None = None
+    orientation: str | None = None
 
 
 class DashboardBarGaugeChart(Chart):
@@ -263,7 +298,7 @@ class DashboardHistogramChart(Chart):
     type: str = "histogram"
     number_of_decimals: int | None = None
     bucket_count: int
-    bucket_size: int
+    bucket_size: int | None = None
     histogram_type: str
     sorting: str
     stacked: bool
@@ -278,15 +313,15 @@ class DashboardImageChart(Chart):
 
 class DashboardStatChart(Chart):
     type: str = "stat"
-    y_axis_unit: str
+    y_axis_unit: str | None = None
     border: bool
     number_of_decimals: int | None = None
 
 
 class DashboardTableChart(Chart):
     type: str = "table"
-    y_axis_unit: str
-    number_of_decimals: int
+    y_axis_unit: str | None = None
+    number_of_decimals: int | None = None
 
 
 class DashboardTextChart(Chart):
@@ -307,3 +342,21 @@ class DashboardTimeseriesChart(Chart):
     timeseries_type: str | None = None
     fill: bool
     show_line: bool
+
+
+class_map = {
+    "actionlist": DashboardActionListChart,
+    "alertevents": DashboardAlertEventsChart,
+    "alertlist": DashboardAlertListChart,
+    "assetlist": DashboardAssetListChart,
+    "bar": DashboardBarChart,
+    "bargauge": DashboardBarGaugeChart,
+    "commandlist": DashboardCommandListChart,
+    "gauge": DashboardGaugeChart,
+    "histogram": DashboardHistogramChart,
+    "image": DashboardImageChart,
+    "stat": DashboardStatChart,
+    "table": DashboardTableChart,
+    "text": DashboardTextChart,
+    "timeseries": DashboardTimeseriesChart,
+}
