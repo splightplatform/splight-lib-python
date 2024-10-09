@@ -1,8 +1,7 @@
-# TODO: set types fixed values
 import json
 import re
 from enum import auto
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
@@ -225,61 +224,61 @@ class Chart(SplightDatabaseBaseModel):
 
 
 class DashboardActionListChart(Chart):
-    type: str = "actionlist"
+    type: str = Literal["actionlist"]
     action_list_type: str
     filter_name: str | None = None
     filter_asset_name: str | None = None
 
 
 class DashboardAlertEventsChart(Chart):
-    type: str = "alertevents"
+    type: str = Literal["alertevents"]
     filter_name: str | None = None
     filter_old_status: List[str] | None = None
     filter_new_status: List[str] | None = None
 
 
 class DashboardAlertListChart(Chart):
-    type: str = "alertlist"
+    type: str = Literal["alertlist"]
     filter_name: str
     filter_status: List[str]
     alert_list_type: str | None = None
 
 
 class DashboardAssetListChart(Chart):
-    type: str = "assetlist"
+    type: str = Literal["assetlist"]
     filter_name: str | None = None
     filter_status: List[str]
     asset_list_type: str | None = None
 
 
 class DashboardBarChart(Chart):
-    type: str = "bar"
+    type: str = Literal["bar"]
     y_axis_unit: str | None = None
     number_of_decimals: int | None = None
     orientation: str | None = None
 
 
 class DashboardBarGaugeChart(Chart):
-    type: str = "bargauge"
+    type: str = Literal["bargauge"]
     max_limit: int | None = None
     number_of_decimals: int | None = None
     orientation: str | None = None
 
 
 class DashboardCommandListChart(Chart):
-    type: str = "commandlist"
+    type: str = Literal["commandlist"]
     command_list_type: str
     filter_name: str
 
 
 class DashboardGaugeChart(Chart):
-    type: str = "gauge"
+    type: str = Literal["gauge"]
     max_limit: int | None = None
     number_of_decimals: int | None = None
 
 
 class DashboardHistogramChart(Chart):
-    type: str = "histogram"
+    type: str = Literal["histogram"]
     number_of_decimals: int | None = None
     bucket_count: int
     bucket_size: int | None = None
@@ -290,31 +289,31 @@ class DashboardHistogramChart(Chart):
 
 
 class DashboardImageChart(Chart):
-    type: str = "image"
+    type: str = Literal["image"]
     image_url: str | None = None
     image_file: str | None = None
 
 
 class DashboardStatChart(Chart):
-    type: str = "stat"
+    type: str = Literal["stat"]
     y_axis_unit: str | None = None
     border: bool
     number_of_decimals: int | None = None
 
 
 class DashboardTableChart(Chart):
-    type: str = "table"
+    type: str = Literal["table"]
     y_axis_unit: str | None = None
     number_of_decimals: int | None = None
 
 
 class DashboardTextChart(Chart):
-    type: str = "text"
+    type: str = Literal["text"]
     text: str | None = None
 
 
 class DashboardTimeseriesChart(Chart):
-    type: str = "timeseries"
+    type: str = Literal["timeseries"]
     y_axis_max_limit: int | None = None
     y_axis_min_limit: int | None = None
     y_axis_unit: str | None = None
