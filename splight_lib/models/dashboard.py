@@ -80,47 +80,37 @@ class ChartItem(BaseModel):
 
     @model_validator(mode="after")
     def validate_expression(self):
-        try:
-            if self.type == AlertItemType.EXPRESSION:
-                if self.expression is None:
-                    return
-                    # __import__("ipdb").set_trace()
-                    # raise MissingAlertItemExpression(
-                    #     "Parameter 'expression' is required for expression type alert items"
-                    # )
-                self.expression_plain = (
-                    self._get_expression_plain()
-                    if self.expression_plain is None
-                    else self.expression_plain
+        if self.type == AlertItemType.EXPRESSION:
+            if self.expression is None:
+                raise MissingAlertItemExpression(
+                    "Parameter 'expression' is required for expression type alert items"
                 )
-        except Exception as exce:
-            __import__("ipdb").set_trace()
-            print(1)
+            self.expression_plain = (
+                self._get_expression_plain()
+                if self.expression_plain is None
+                else self.expression_plain
+            )
         return self
 
     @model_validator(mode="after")
     def validate_query(self):
-        try:
-            if self.type == AlertItemType.QUERY:
-                for attr in [
-                    ("query_filter_asset", self.query_filter_asset),
-                    ("query_filter_attribute", self.query_filter_attribute),
-                ]:
-                    if attr is None:
-                        raise ValidationError(
-                            (
-                                f"Parameter '{attr}' is required for query type "
-                                "alert items"
-                            )
+        if self.type == AlertItemType.QUERY:
+            for attr in [
+                ("query_filter_asset", self.query_filter_asset),
+                ("query_filter_attribute", self.query_filter_attribute),
+            ]:
+                if attr is None:
+                    raise ValidationError(
+                        (
+                            f"Parameter '{attr}' is required for query type "
+                            "alert items"
                         )
-                self.query_plain = (
-                    self._get_query_plain()
-                    if self.query_plain is None
-                    else self.query_plain
-                )
-        except Exception as exce:
-            __import__("ipdb").set_trace()
-            print(1)
+                    )
+            self.query_plain = (
+                self._get_query_plain()
+                if self.query_plain is None
+                else self.query_plain
+            )
         return self
 
     def _get_expression_plain(self):
@@ -228,13 +218,7 @@ class Chart(SplightDatabaseBaseModel):
 
         instances = []
         for item in data:
-            try:
-                instance = class_map[item["type"]].model_validate(item)
-            except Exception as exce:
-                __import__("ipdb").set_trace()
-                print(item)
-                return
-
+            instance = class_map[item["type"]].model_validate(item)
             instances.append(instance)
 
         return instances
