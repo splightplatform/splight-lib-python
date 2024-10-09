@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Generator, List, Optional, Union
+from typing import Any, Generator
 
 import progressbar
 import requests
@@ -31,9 +31,9 @@ logger = get_splight_logger()
 
 class PaginatedResponse(TypedDict):
     count: int
-    next: Optional[str]
-    previous: Optional[str]
-    results: List[Any]
+    next: str | None
+    previous: str | None
+    results: list[Any]
 
 
 class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
@@ -66,9 +66,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def save(
         self,
         resource_name: str,
-        instance: Dict,
-        files: Optional[Dict[str, str]] = None,
-    ) -> Dict:
+        instance: dict,
+        files: dict[str, str] | None = None,
+    ) -> dict:
         """Creates or updates a resource depending on the name if
         it contains the id or not.
 
@@ -126,7 +126,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         resource_name: str,
         first: bool = False,
         **kwargs,
-    ) -> Union[Dict, List[Dict]]:
+    ) -> dict | list[dict]:
         """Retrieves one or multiple resources. If the parameter id is passed
         as a kwarg, the instance with that id will be retrieved.
 
@@ -149,7 +149,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             )
         return instances
 
-    def operate(self, resource_name: str, instance: Dict) -> Dict:
+    def operate(self, resource_name: str, instance: dict) -> dict:
         model_name = resource_name.lower()
         api_path = CUSTOM_PATHS_MAP.get(model_name)
         if not api_path:
@@ -163,7 +163,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
 
     def _retrieve_multiple(
         self, resource_name: str, first: bool = False, **kwargs
-    ) -> List[Dict]:
+    ) -> list[dict]:
         logger.debug(f"Retrieving objects {resource_name}")
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path
@@ -176,7 +176,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         return instances
 
     @retry(SPLIGHT_REQUEST_EXCEPTIONS, tries=3, delay=1)
-    def _retrieve_single(self, resource_name: str, id: str) -> Dict:
+    def _retrieve_single(self, resource_name: str, id: str) -> dict:
         logger.debug(f"Retrieving object {resource_name} with id {id}")
         api_path = self._get_api_path(resource_name)
         url = self._base_url / api_path / f"{id}/"
@@ -191,8 +191,8 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def download(
         self,
         resource_name: str,
-        instance: Dict,
-        type_: Optional[str] = None,
+        instance: dict,
+        type_: str | None = None,
         **kwargs,
     ) -> NamedTemporaryFile:
         """Returns the number of resources in the database for a given model
@@ -271,9 +271,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def _create(
         self,
         resource_name: str,
-        instance: Dict,
-        files: Optional[Dict[str, str]] = None,
-    ) -> Dict:
+        instance: dict,
+        files: dict[str, str] | None = None,
+    ) -> dict:
         logger.debug("Saving new instance", tags=LogTags.DATABASE)
         model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
@@ -305,9 +305,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         self,
         resource_name: str,
         resource_id: str,
-        instance: Dict,
-        files: Optional[Dict[str, str]] = None,
-    ) -> Dict:
+        instance: dict,
+        files: dict[str, str] | None = None,
+    ) -> dict:
         logger.debug("Saving instance %s", resource_id, tags=LogTags.DATABASE)
         model_name = resource_name.lower()
         api_path = self._get_api_path(resource_name)
@@ -323,7 +323,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
             raise RequestError(response.status_code, response.text)
         return response.json()
 
-    def _create_file(self, instance: Dict, url: furl):
+    def _create_file(self, instance: dict, url: furl):
         response = self._restclient.post(url, data=instance)
         if response.is_error:
             raise RequestError(response.status_code, response.text)
@@ -333,7 +333,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         self._upload_file(created_instance, file_path=file_path)
         return created_instance
 
-    def _upload_file(self, instance: Dict, file_path: str):
+    def _upload_file(self, instance: dict, file_path: str):
         api_path = self._get_api_path("file")
         resource_id = instance.get("id")
         url = self._base_url / api_path / f"{resource_id}/upload_url/"
@@ -358,9 +358,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def upload(
         self,
         resource_name: str,
-        instance: Dict,
+        instance: dict,
         file_path: str,
-        type_: Optional[str] = None,
+        type_: str | None = None,
     ):
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")

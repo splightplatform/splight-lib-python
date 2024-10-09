@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pathspec
 
@@ -12,12 +12,12 @@ README_FILE_1 = "README.md"
 README_FILE_2 = "README"
 
 
-def get_spec(path: str) -> Dict[str, Any]:
+def get_spec(path: str) -> dict[str, Any]:
     with open(os.path.join(path, SPEC_FILE)) as fid:
         return json.load(fid)
 
 
-def get_ignore_pathspec(path: str) -> Optional[pathspec.PathSpec]:
+def get_ignore_pathspec(path: str) -> pathspec.PathSpec | None:
     try:
         with open(os.path.join(path, SPLIGHT_IGNORE), "r") as splightignore:
             return pathspec.PathSpec.from_lines("gitwildmatch", splightignore)

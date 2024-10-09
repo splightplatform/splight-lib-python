@@ -1,5 +1,4 @@
 from datetime import datetime, tzinfo
-from typing import Optional, Union
 
 from apscheduler.triggers.interval import (
     IntervalTrigger as BaseIntervalTrigger,
@@ -17,9 +16,9 @@ class IntervalTrigger(BaseIntervalTrigger):
         hours: int = 0,
         minutes: int = 0,
         seconds: int = 0,
-        start_date: Optional[Union[datetime, str]] = None,
-        end_date: Optional[Union[datetime, str]] = None,
-        timezone: Optional[Union[tzinfo, str]] = None,
+        start_date: datetime | str | None = None,
+        end_date: datetime | str | None = None,
+        timezone: tzinfo | str | None = None,
         jitter: int = None,
         run_on_start: bool = True,
     ):

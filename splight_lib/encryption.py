@@ -1,5 +1,4 @@
 from functools import cached_property
-from typing import Optional
 
 from cryptography.fernet import Fernet as Branca
 from pydantic_settings import BaseSettings
@@ -10,7 +9,7 @@ logger = get_splight_logger()
 
 
 class EncryptionSettings(BaseSettings):
-    SPLIGHT_ENCRYPTION_KEY: Optional[str] = None
+    SPLIGHT_ENCRYPTION_KEY: str | None = None
 
 
 class EncryptionClient:

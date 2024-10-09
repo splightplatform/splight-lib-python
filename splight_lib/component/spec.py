@@ -1,6 +1,6 @@
 import json
 from collections import namedtuple
-from typing import Dict, List, Optional, Set, Type
+from typing import Annotated, Type
 
 from pydantic import AnyUrl, BaseModel, Field, ValidationInfo, field_validator
 
@@ -43,7 +43,7 @@ VALID_DEPENDS_ON = [
 ]
 
 
-def check_unique_values(values: List[str]):
+def check_unique_values(values: list[str]):
     """Checks if there are repeated values in a list of strings.
 
     Raises
@@ -54,14 +54,14 @@ def check_unique_values(values: List[str]):
         raise DuplicatedValuesError("The list contains duplicated values")
 
 
-def check_parameter_dependency(parameters: List[InputParameter]):
+def check_parameter_dependency(parameters: list[InputParameter]):
     """Checks dependency between parameters.
 
     Raises
     ------
     ParameterDependencyError thrown for an error in the dependency.
     """
-    parameter_map: Dict[str, InputParameter] = {p.name: p for p in parameters}
+    parameter_map: dict[str, InputParameter] = {p.name: p for p in parameters}
     for parameter in parameters:
         if not parameter.depends_on:
             continue
@@ -75,35 +75,35 @@ def check_parameter_dependency(parameters: List[InputParameter]):
 
 
 class Spec(BaseModel):
-    name: str = Field(pattern=r"^[a-zA-Z0-9\s]+$")
-    version: str = Field(pattern=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")
-    splight_lib_version: Optional[str] = Field(
-        None, pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
-    )
-    splight_cli_version: Optional[str] = Field(
-        None, pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$"
-    )
+    name: Annotated[str, Field(pattern=r"^[a-zA-Z0-9\s]+$")]
+    version: Annotated[str, Field(pattern=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")]
+    splight_lib_version: Annotated[
+        str | None, Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$")
+    ] = None
+    splight_cli_version: Annotated[
+        str | None, Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$")
+    ] = None
     description: str | None = None
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC
-    tags: Set[str] = set()
+    tags: set[str] = set()
     component_type: ComponentType = ComponentType.CONNECTOR
-    custom_types: List[CustomType] = []
-    input: List[InputParameter] = []
-    output: List[Output] = []
-    routines: List[Routine] = []
-    endpoints: List[Endpoint] = []
+    custom_types: list[CustomType] = []
+    input: list[InputParameter] = []
+    output: list[Output] = []
+    routines: list[Routine] = []
+    endpoints: list[Endpoint] = []
 
     @field_validator("custom_types", mode="after")
     def validate_custom_types(
-        cls, custom_types: List[CustomType], info: ValidationInfo
-    ) -> List[CustomType]:
+        cls, custom_types: list[CustomType], info: ValidationInfo
+    ) -> list[CustomType]:
         try:
             check_unique_values([item.name for item in custom_types])
         except DuplicatedValuesError as exc:
             raise ValueError("Repeated Custom Types in spec") from exc
 
-        valid_types: List[str] = VALID_PARAMETER_VALUES.keys()
-        custom_type_names: List[str] = []
+        valid_types: list[str] = VALID_PARAMETER_VALUES.keys()
+        custom_type_names: list[str] = []
 
         for custom_type in custom_types:
             for field in custom_type.fields:
@@ -125,16 +125,16 @@ class Spec(BaseModel):
 
     @field_validator("input", mode="after")
     def validate_parameters(
-        cls, input: List[InputParameter], info: ValidationInfo
-    ) -> List[InputParameter]:
+        cls, input: list[InputParameter], info: ValidationInfo
+    ) -> list[InputParameter]:
         values = info.data
         try:
             check_unique_values([item.name for item in input])
         except DuplicatedValuesError as exc:
             raise ValueError("Repeated Input parameters in spec") from exc
 
-        custom_type_names: List[str] = [c.name for c in values["custom_types"]]
-        valid_types_names: List[str] = (
+        custom_type_names: list[str] = [c.name for c in values["custom_types"]]
+        valid_types_names: list[str] = (
             list(VALID_PARAMETER_VALUES.keys()) + custom_type_names
         )
 
@@ -149,7 +149,7 @@ class Spec(BaseModel):
         return input
 
     @field_validator("output", mode="after")
-    def validate_output(cls, output: List[Output]) -> List[Output]:
+    def validate_output(cls, output: list[Output]) -> list[Output]:
         try:
             check_unique_values([item.name for item in output])
         except DuplicatedValuesError as exc:

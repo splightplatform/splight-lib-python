@@ -1,5 +1,5 @@
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Generator, List, Optional, TypedDict
+from typing import Any, Generator, TypedDict
 
 import progressbar
 import requests
@@ -13,9 +13,9 @@ from splight_lib.client.hub.abstract import AbstractHubClient
 
 class PaginatedResponse(TypedDict):
     count: int
-    next: Optional[str]
-    previous: Optional[str]
-    results: List[Any]
+    next: str | None
+    previous: str | None
+    results: list[Any]
 
 
 class SplightHubClient(AbstractHubClient):
@@ -58,7 +58,7 @@ class SplightHubClient(AbstractHubClient):
         limit_: int = -1,
         skip_: int = 0,
         **kwargs,
-    ) -> List[BaseModel]:
+    ) -> list[BaseModel]:
         url = self._hub_url / "versions/"
         params = self._get_params(limit_, skip_, **kwargs)
         instances = []
@@ -71,14 +71,14 @@ class SplightHubClient(AbstractHubClient):
     def get_org_id(self):
         return self._org_id
 
-    def _create(self, instance: Dict) -> Dict:
+    def _create(self, instance: dict) -> dict:
         url = self._hub_url / "components/"
         response = self._session.post(url, json=instance)
         response.raise_for_status()
         instance = response.json()
         return instance
 
-    def _update(self, instance: Dict) -> Dict:
+    def _update(self, instance: dict) -> dict:
         instance_id = instance.get("id")
         url = self._hub_url / "versions" / f"{instance_id}/"
         response = self._session.put(url, json=instance)
@@ -86,12 +86,12 @@ class SplightHubClient(AbstractHubClient):
         instance = response.json()
         return instance
 
-    def build(self, id: str):
+    def build(self, id: str) -> None:
         url = self._hub_url / f"versions/{id}/build/"
         response = self._session.post(url)
         response.raise_for_status()
 
-    def upload(self, id: str, file_path: str, type_: str):
+    def upload(self, id: str, file_path: str, type_: str) -> None:
         url = self._hub_url / f"versions/{id}/upload_url/"
         params = {"type": type_}
         response = self._session.get(url, params=params)
@@ -135,7 +135,7 @@ class SplightHubClient(AbstractHubClient):
             response.status_code == 204
         ), f"Failed to delete component: {response.json()}"
 
-    def save(self, instance: Dict) -> Dict:
+    def save(self, instance: dict) -> dict:
         if instance.get("id"):
             return self._update(instance)
         else:

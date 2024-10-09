@@ -1,14 +1,15 @@
-def camelcase(string):
+def camelcase(string: str) -> str:
     """Convert string into camel case.
 
-    Args:
-        string: String to convert.
+    Parameters
+    ----------
+    string: str
+        String to convert.
 
-    Returns:
-        string: Camel case string.
-
+    Returns
+    -------
+    str Camel case string.
     """
-
     if string == "":
         return string
 

@@ -201,6 +201,7 @@ class Chart(SplightDatabaseBaseModel):
     value_mappings: List[
         ExactMatchValueMapping | RangeValueMapping | RegexMatchValueMapping
     ] = []
+    timezone: str | None = None
 
     @classmethod
     def list(cls, **params: Dict):

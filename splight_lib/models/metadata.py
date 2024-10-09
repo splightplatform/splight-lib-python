@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import model_validator
 
@@ -7,12 +7,12 @@ from splight_lib.models.generic import ValueTypeEnum, cast_value
 
 
 class Metadata(SplightDatabaseBaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
-    asset: Optional[str] = None
+    asset: str | None = None
     type: ValueTypeEnum = ValueTypeEnum.NUMBER
-    value: Optional[Any] = None
-    unit: Optional[str] = None
+    value: Any | None = None
+    unit: str | None = None
 
     @model_validator(mode="after")
     def check_value_type(cls, model):

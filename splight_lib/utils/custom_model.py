@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, ClassVar, Dict, List, Optional, Type
+from typing import Any, ClassVar, Optional, Type
 
 from pydantic import BaseModel, create_model
 from typing_extensions import TypedDict
@@ -15,11 +15,11 @@ class ClassVarDict(TypedDict):
 
 def create_custom_model(
     model_name: str,
-    parameters: List[Parameter],
-    custom_types: Optional[Dict] = None,
-    base_class: Optional[Type[BaseModel]] = None,
-    config_dict: Optional[Dict[str, Any]] = None,
-    class_vars: Optional[List[ClassVarDict]] = None,
+    parameters: list[Parameter],
+    custom_types: dict | None = None,
+    base_class: Type[BaseModel] | None = None,
+    config_dict: dict[str, Any] | None = None,
+    class_vars: list[ClassVarDict] | None = None,
 ) -> Type[BaseModel]:
     """
     Function to create custom pydantic model specific for components.
@@ -58,7 +58,7 @@ def create_custom_model(
             )
             single_param_type = valid_choices
 
-        param_type = List[single_param_type] if multiple else single_param_type
+        param_type = list[single_param_type] if multiple else single_param_type
         param_type = param_type if required else Optional[param_type]
 
         value = Ellipsis if required else None

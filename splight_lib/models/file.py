@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Optional
+from typing import Annotated
 
 from pydantic import Field, field_validator
 
@@ -9,14 +9,14 @@ from splight_lib.models.exceptions import ForbiddenOperation
 
 
 class File(SplightDatabaseBaseModel):
-    id: Optional[str] = None
-    assets: List[Asset] = []
-    file: Optional[str] = None
-    name: Optional[str] = None
+    id: str | None = None
+    assets: list[Asset] = []
+    file: str | None = None
+    name: str | None = None
     description: str | None = None
-    metadata: Dict = {}
-    content_type: Optional[str] = None
-    parent: Optional[str] = None
+    metadata: dict = {}
+    content_type: str | None = None
+    parent: str | None = None
 
     @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
