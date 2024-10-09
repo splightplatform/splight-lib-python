@@ -1,8 +1,7 @@
 import warnings
-from typing import Annotated, Any
+from typing import Any
 
 from geojson_pydantic import GeometryCollection
-from pydantic import Field
 
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.database_base import (

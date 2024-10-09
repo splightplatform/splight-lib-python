@@ -1,7 +1,6 @@
 import json
-from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import field_validator
 
 from splight_lib.models.asset import Asset
 from splight_lib.models.database_base import SplightDatabaseBaseModel

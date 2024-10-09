@@ -1,10 +1,9 @@
 import os
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Annotated, Literal
+from typing import Literal
 
 import py7zr
-from pydantic import Field
 
 from splight_lib.models.component import InputParameter
 from splight_lib.models.database_base import (

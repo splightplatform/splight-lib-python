@@ -2,11 +2,10 @@ import re
 import warnings
 from abc import ABC, abstractmethod
 from enum import auto
-from typing import Annotated, Any, ClassVar, Literal, Optional, Type
+from typing import Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
-    Field,
     PrivateAttr,
     create_model,
     field_validator,

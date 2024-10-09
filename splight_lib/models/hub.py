@@ -4,7 +4,7 @@ import warnings
 from enum import auto
 from glob import glob
 from tempfile import NamedTemporaryFile
-from typing import Annotated, Any, Self
+from typing import Any, Self
 
 import py7zr
 from pydantic import BaseModel, PrivateAttr, ValidationInfo, model_validator
