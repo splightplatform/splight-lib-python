@@ -13,7 +13,10 @@ from pydantic import (
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
 from splight_lib.models.exceptions import (
     InvalidAlertConfiguration,
     MissingAlertItemExpression,
@@ -210,6 +213,7 @@ class Alert(SplightDatabaseBaseModel):
     name: str
     description: str | None = None
 
+    tags: list[ResourceSummary] | None = None
     assets: list[QueryFilter] = []
     alert_items: list[AlertItem] = []
     destinations_list: list[str] = []

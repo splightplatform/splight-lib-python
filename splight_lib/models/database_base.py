@@ -18,7 +18,7 @@ class PrivacyPolicy(LowercaseStrEnum):
 
 
 class ResourceSummary(BaseModel):
-    id: str | None = None
+    id: str
     name: str
 
 
