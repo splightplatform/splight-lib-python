@@ -1,7 +1,7 @@
 import json
 import re
 from enum import auto
-from typing import Dict, List, Literal
+from typing import Dict, List, Literal, get_args
 
 from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
@@ -213,7 +213,8 @@ class Chart(SplightDatabaseBaseModel):
             data = [
                 chart
                 for chart in data
-                if chart["type"] == cls.model_fields["type"].default
+                if chart["type"]
+                == get_args(cls.model_fields["type"].default)[0]
             ]
 
         instances = []

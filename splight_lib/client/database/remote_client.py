@@ -90,6 +90,7 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         ------
         InvalidModelName thrown when the model name is not correct.
         """
+        __import__('ipdb').set_trace()
         if instance.get("id"):
             output = self._update(
                 resource_name, instance["id"], instance, files
