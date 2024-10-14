@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Isort
     steps:
+      # TODO: https://github.com/isort/isort-action/issues/95
       - uses: actions/checkout@v3
       - uses: isort/isort-action@master
         with:
