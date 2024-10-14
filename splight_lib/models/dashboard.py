@@ -163,8 +163,8 @@ class Dashboard(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     description: str | None = None
+    tags: list[ResourceSummary] | None = None
     related_assets: List[ResourceSummary] | None = None
-    tags: List[ResourceSummary]
 
 
 class Tab(SplightDatabaseBaseModel):

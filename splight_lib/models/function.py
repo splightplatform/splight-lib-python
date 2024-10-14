@@ -13,7 +13,10 @@ from pydantic import (
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
 from splight_lib.models.exceptions import (
     InvalidFunctionConfiguration,
     MissingFunctionItemExpression,
@@ -167,6 +170,7 @@ class Function(SplightDatabaseBaseModel):
     name: str
     description: str | None = None
 
+    tags: list[ResourceSummary] | None = None
     active: bool = True
     time_window: int = 5 * 60
     function_items: list[FunctionItem] = []
