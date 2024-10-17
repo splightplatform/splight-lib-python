@@ -44,6 +44,8 @@ MODEL_NAME_MAP = {
     "hubsolutionversion": f"{HUB_PREFIX}/solution/versions/",
     "hubserver": f"{HUB_PREFIX}/server/servers/",
     "hubserverversion": f"{HUB_PREFIX}/server/versions/",
+    # Asset with kind
+    "line": f"{ENGINE_PREFIX}/asset/lines/",
 }
 
 CUSTOM_PATHS_MAP = {
