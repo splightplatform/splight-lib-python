@@ -33,7 +33,7 @@ def test_cast_value(value_type, value, expected):
     "value,expected",
     [
         (0, False),
-        ("", False),
+        ("", None),
         (1, True),
         (0.5, True),
         ("asdf", True),
