@@ -43,8 +43,8 @@ def get_field_value(field: dict) -> Any:
             if not isinstance(field_value, str)
             else parse_variable_string(field_value)
         )
-    elif field.type in CUSTOM_TYPES:
-        value = CUSTOM_TYPES.get(field.type).from_string(field.value)
+    elif field_type in CUSTOM_TYPES:
+        value = CUSTOM_TYPES.get(field_type).from_string(field_value)
     elif field_type in DATABASE_TYPES:
         model_class = DATABASE_TYPES[field_type]
         value = (
@@ -163,7 +163,7 @@ class Server(SplightDatabaseBaseModel):
             if key not in valid_params:
                 raise InvalidArgument(
                     (
-                        f"Got invalid parameter {key}. Valid config parameters "
+                        f"Got invalid parameter {key}. Valid config parameters"
                         f"are {valid_params}"
                     )
                 )
