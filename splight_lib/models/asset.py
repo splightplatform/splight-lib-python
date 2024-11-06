@@ -3,7 +3,7 @@ from typing import Any
 from zoneinfo import available_timezones
 
 from geojson_pydantic import GeometryCollection
-from pydantic import validator
+from pydantic import field_validator
 
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.database_base import (
@@ -74,7 +74,7 @@ class Asset(SplightDatabaseBaseModel):
         )
         return new_value
 
-    @validator("custom_timezone")
+    @field_validator("custom_timezone")
     def validate_timezone(cls, v):
         if v and v not in available_timezones():
             raise ValueError("Invalid timezone")
