@@ -82,6 +82,7 @@ class AssetFactory(ModelFactory[Asset]):
     attributes = AttributeFactory.batch(random.randint(1, 10))
     geometry = Use(lambda: GEOMETRIES[random.randint(0, len(GEOMETRIES) - 1)])
     related_assets = []
+    custom_timezone = "America/Los_Angeles"
 
 
 class FunctionItemFactory(ModelFactory[FunctionItem]):
