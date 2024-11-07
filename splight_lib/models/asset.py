@@ -49,7 +49,7 @@ class Asset(SplightDatabaseBaseModel):
     actions: list[ResourceSummary] | None = None
     related_to: list[AssetRelationship] = []
     related_from: list[AssetRelationship] = []
-    timezone: str | None = None
+    timezone: str = "UTC"
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
