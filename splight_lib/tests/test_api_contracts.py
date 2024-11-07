@@ -156,9 +156,7 @@ def test_api_contract():
         "SPLIGHT_PLATFORM_API_HOST", "https://integrationapi.splight-ai.com"
     )
     url = f"{api_url}/schema/"
-    print("\n\n\n\n hola")
     data = read_swagger(url)
-    print("\n\n\n\n hola 2")
 
     # Replace all reference defined by $ref
     data = jsonref.loads(json.dumps(data))
