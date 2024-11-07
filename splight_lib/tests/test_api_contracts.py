@@ -82,7 +82,7 @@ class AssetFactory(ModelFactory[Asset]):
     attributes = AttributeFactory.batch(random.randint(1, 10))
     geometry = Use(lambda: GEOMETRIES[random.randint(0, len(GEOMETRIES) - 1)])
     related_assets = []
-    custom_timezone = "America/Los_Angeles"
+    timezone = "America/Los_Angeles"
 
 
 class FunctionItemFactory(ModelFactory[FunctionItem]):
@@ -156,7 +156,9 @@ def test_api_contract():
         "SPLIGHT_PLATFORM_API_HOST", "https://integrationapi.splight-ai.com"
     )
     url = f"{api_url}/schema/"
+    print("\n\n\n\n hola")
     data = read_swagger(url)
+    print("\n\n\n\n hola 2")
 
     # Replace all reference defined by $ref
     data = jsonref.loads(json.dumps(data))
