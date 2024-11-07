@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import tzinfo
 from typing import Callable
 
 import pytz
@@ -50,10 +51,11 @@ class CronnedTask(BaseTask):
         self,
         target: Callable,
         crontab: Crontab,
+        timezone: tzinfo | str = pytz.UTC,
         target_args: tuple | None = None,
     ):
         self._target = target
-        self._trigger = CronTrigger(**dict(crontab), timezone=pytz.UTC)
+        self._trigger = CronTrigger(**dict(crontab), timezone=timezone)
         self._args = target_args
 
     @classmethod
@@ -61,10 +63,11 @@ class CronnedTask(BaseTask):
         cls,
         target: Callable,
         cron_str: str,
+        timezone: tzinfo | str = pytz.UTC,
         target_args: tuple | None = None,
     ):
         crontab = Crontab.from_string(cron_str)
-        return cls(target, crontab, target_args)
+        return cls(target, crontab, timezone, target_args)
 
     def as_job(self) -> dict:
         job_dict = {
