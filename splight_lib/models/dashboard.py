@@ -66,7 +66,7 @@ class ChartItem(BaseModel):
     ref_id: str
     type: ChartItemType = ChartItemType.QUERY
     label: str
-    hidden: bool = False
+    hidden: bool | None = None
     expression: str | None = None
     expression_plain: str | None = None
     query_filter_asset: ResourceSummary | None = None
@@ -183,19 +183,19 @@ class Chart(SplightDatabaseBaseModel):
     position_y: int | None = None
     min_height: int | None = None
     min_width: int | None = None
-    display_time_range: bool
-    labels_display: bool
+    display_time_range: bool | None = None
+    labels_display: bool | None = None
     labels_aggregation: str | None = None
-    labels_placement: str
+    labels_placement: str | None = None
     refresh_interval: str | None = None
     relative_window_time: str | None = None
-    show_beyond_data: bool
+    show_beyond_data: bool | None = None
     timezone: str | None = None
     timestamp_gte: str | None = None
     timestamp_lte: str | None = None
-    height: int
-    width: int
-    collection: str
+    height: int | None = None
+    width: int | None = None
+    collection: str | None = None
     chart_items: List[ChartItem] | None = None
     thresholds: List[Threshold] | None = None
     value_mappings: List[

@@ -27,6 +27,7 @@ from splight_lib.models.generic import ValueTypeEnum
 class FunctionItemType(UppercaseStrEnum):
     EXPRESSION = auto()
     QUERY = auto()
+    METADATA = auto()
 
 
 class QueryFilter(TypedDict):
