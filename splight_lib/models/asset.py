@@ -3,7 +3,7 @@ from typing import Any
 from zoneinfo import available_timezones
 
 from geojson_pydantic import GeometryCollection
-from pydantic import field_validator
+from pydantic import BaseModel, field_validator
 
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.database_base import (
@@ -36,20 +36,23 @@ class AssetRelationship(SplightDatabaseBaseModel):
     related_asset: ResourceSummary | None = None
 
 
-class Asset(SplightDatabaseBaseModel):
+class AssetParams(BaseModel):
     id: str | None = None
     name: str
     description: str | None = None
     tags: list[ResourceSummary] | None = None
-    attributes: list[Attribute] = []
-    metadata: list[Metadata] = []
     geometry: GeometryCollection | None = None
     centroid_coordinates: tuple[float, float] | None = None
     kind: AssetKind | None = None
+    timezone: str | None = "UTC"
+
+
+class Asset(AssetParams, SplightDatabaseBaseModel):
+    attributes: list[Attribute] = []
+    metadata: list[Metadata] = []
     actions: list[ResourceSummary] | None = None
     related_to: list[AssetRelationship] = []
     related_from: list[AssetRelationship] = []
-    timezone: str | None = "UTC"
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(

@@ -1,6 +1,11 @@
 from splight_lib.models.actions import Action, SetPoint
 from splight_lib.models.alert import Alert, AlertItem
-from splight_lib.models.asset import Asset, AssetKind, AssetRelationship
+from splight_lib.models.asset import (
+    Asset,
+    AssetKind,
+    AssetParams,
+    AssetRelationship,
+)
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.component import (
     Component,
@@ -51,6 +56,7 @@ __all__ = [
     Alert,
     AlertItem,
     Asset,
+    AssetParams,
     AssetRelationship,
     Tag,
     AssetKind,

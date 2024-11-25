@@ -17,7 +17,7 @@ class Metadata(SplightDatabaseBaseModel):
     @model_validator(mode="after")
     def check_value_type(cls, model):
         model.value = (
-            None
+            model.value
             if model.value is None or model.value == ""
             else cast_value(model.value, model.type)
         )
