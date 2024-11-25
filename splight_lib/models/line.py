@@ -42,6 +42,3 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     bus_from: None | Asset
     bus_to: None | Asset
     grid: None | Asset
-
-
-

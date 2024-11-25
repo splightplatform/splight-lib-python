@@ -14,5 +14,3 @@ class Segment(AssetParams, SplightDatabaseBaseModel):
     span_length: Metadata
     line: None | Asset
     grid: None | Asset
-
-
