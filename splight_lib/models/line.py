@@ -1,44 +1,49 @@
-from splight_lib.models import Asset, AssetParams, Attribute, Metadata
+from splight_lib.models import (
+    AssetParams,
+    AssetRelationship,
+    Attribute,
+    Metadata,
+)
 from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class Line(AssetParams, SplightDatabaseBaseModel):
-    active_power: Attribute
-    reactive_power: Attribute
-    ampacity: Attribute
-    max_temperature: Attribute
-    energy: Attribute
-    current_r: Attribute
-    current_s: Attribute
-    current_t: Attribute
-    current: Attribute
-    voltage_rs: Attribute
-    voltage_st: Attribute
-    voltage_tr: Attribute
-    active_power_end: Attribute
-    contingency: Attribute
-    absorptivity: Metadata
-    atmosphere: Metadata
-    diameter: Metadata
-    emissivity: Metadata
-    maximum_allowed_temperature: Metadata
-    number_of_conductors: Metadata
-    reactance: Metadata
-    reference_resistance: Metadata
-    resistance: Metadata
-    susceptance: Metadata
-    temperature_coeff_resistance: Metadata
-    maximum_allowed_temperature_lte: Metadata
-    maximum_allowed_temperature_ste: Metadata
-    length: Metadata
-    conductance: Metadata
-    capacitance: Metadata
-    maximum_allowed_current: Metadata
-    maximum_allowed_power: Metadata
-    safety_margin_for_power: Metadata
-    specific_heat: Metadata
-    conductor_mass: Metadata
-    thermal_elongation_coef: Metadata
-    bus_from: None | Asset
-    bus_to: None | Asset
-    grid: None | Asset
+    active_power: None | Attribute = None
+    reactive_power: None | Attribute = None
+    ampacity: None | Attribute = None
+    max_temperature: None | Attribute = None
+    energy: None | Attribute = None
+    current_r: None | Attribute = None
+    current_s: None | Attribute = None
+    current_t: None | Attribute = None
+    current: None | Attribute = None
+    voltage_rs: None | Attribute = None
+    voltage_st: None | Attribute = None
+    voltage_tr: None | Attribute = None
+    active_power_end: None | Attribute = None
+    contingency: None | Attribute = None
+    absorptivity: None | Metadata = None
+    atmosphere: None | Metadata = None
+    diameter: None | Metadata = None
+    emissivity: None | Metadata = None
+    maximum_allowed_temperature: None | Metadata = None
+    number_of_conductors: None | Metadata = None
+    reactance: None | Metadata = None
+    reference_resistance: None | Metadata = None
+    resistance: None | Metadata = None
+    susceptance: None | Metadata = None
+    temperature_coeff_resistance: None | Metadata = None
+    maximum_allowed_temperature_lte: None | Metadata = None
+    maximum_allowed_temperature_ste: None | Metadata = None
+    length: None | Metadata = None
+    conductance: None | Metadata = None
+    capacitance: None | Metadata = None
+    maximum_allowed_current: None | Metadata = None
+    maximum_allowed_power: None | Metadata = None
+    safety_margin_for_power: None | Metadata = None
+    specific_heat: None | Metadata = None
+    conductor_mass: None | Metadata = None
+    thermal_elongation_coef: None | Metadata = None
+    bus_from: None | AssetRelationship = None
+    bus_to: None | AssetRelationship = None
+    grid: None | AssetRelationship = None
