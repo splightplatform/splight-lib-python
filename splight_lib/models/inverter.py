@@ -18,6 +18,7 @@ class Inverter(AssetParams, SplightDatabaseBaseModel):
     raw_daily_energy: Attribute | None = None
     status_text: Attribute | None = None
     temperature: Attribute | None = None
+    switch_status: Attribute | None = None
     energy_measurement_type: Metadata | None = None
     make: Metadata | None = None
     model: Metadata | None = None

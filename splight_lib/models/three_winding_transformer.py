@@ -22,6 +22,9 @@ class ThreeWindingTransformer(AssetParams, SplightDatabaseBaseModel):
     voltage_hv: Attribute | None = None
     voltage_lv: Attribute | None = None
     voltage_mv: Attribute | None = None
+    switch_status_lv: Attribute | None = None
+    switch_status_mv: Attribute | None = None
+    switch_status_hv: Attribute | None = None
     tap_pos: Metadata | None = None
     xn_ohm: Metadata | None = None
     standard_type: Metadata | None = None

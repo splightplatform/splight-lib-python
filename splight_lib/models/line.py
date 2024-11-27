@@ -22,6 +22,8 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     voltage_tr: Attribute | None = None
     active_power_end: Attribute | None = None
     contingency: Attribute | None = None
+    switch_status_start: Attribute | None = None
+    switch_status_end: Attribute | None = None
     absorptivity: Metadata | None = None
     atmosphere: Metadata | None = None
     diameter: Metadata | None = None
