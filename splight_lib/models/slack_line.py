@@ -3,6 +3,6 @@ from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class SlackLine(AssetParams, SplightDatabaseBaseModel):
-    bus_from: None | AssetRelationship = None
-    bus_to: None | AssetRelationship = None
-    grid: None | AssetRelationship = None
+    bus_from: AssetRelationship | None = None
+    bus_to: AssetRelationship | None = None
+    grid: AssetRelationship | None = None

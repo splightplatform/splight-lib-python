@@ -8,11 +8,11 @@ from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class Generator(AssetParams, SplightDatabaseBaseModel):
-    active_power: None | Attribute = None
-    daily_emission_avoided: None | Attribute = None
-    daily_energy: None | Attribute = None
-    monthly_energy: None | Attribute = None
-    reactive_power: None | Attribute = None
-    co2_coefficient: None | Metadata = None
-    bus: None | AssetRelationship = None
-    grid: None | AssetRelationship = None
+    active_power: Attribute | None = None
+    daily_emission_avoided: Attribute | None = None
+    daily_energy: Attribute | None = None
+    monthly_energy: Attribute | None = None
+    reactive_power: Attribute | None = None
+    co2_coefficient: Metadata | None = None
+    bus: AssetRelationship | None = None
+    grid: AssetRelationship | None = None

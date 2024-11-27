@@ -3,5 +3,5 @@ from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class ExternalGrid(AssetParams, SplightDatabaseBaseModel):
-    bus: None | AssetRelationship = None
-    grid: None | AssetRelationship = None
+    bus: AssetRelationship | None = None
+    grid: AssetRelationship | None = None
