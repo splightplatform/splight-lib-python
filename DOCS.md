@@ -41,7 +41,7 @@ To set up using environment variables, you need to create the variables
 ```sh
 export SPLIGHT_ACCESS_ID=<your_access_id>
 export SPLIGHT_SECRET_KEY=<your_secret_key>
-````
+```
 
 Then, from python interpreter you can use
 ```python
