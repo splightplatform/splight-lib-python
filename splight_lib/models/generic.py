@@ -30,5 +30,14 @@ CAST_FUNCTIONS = {
 }
 
 
+def is_empty_str_and_num(
+    value: VariableType, value_type: ValueTypeEnum
+) -> bool:
+    return (
+        value_type in [ValueTypeEnum.NUMBER, ValueTypeEnum.BOOLEAN]
+        and value == ""
+    )
+
+
 def cast_value(value: VariableType, value_type: ValueTypeEnum) -> VariableType:
     return CAST_FUNCTIONS[value_type](value)
