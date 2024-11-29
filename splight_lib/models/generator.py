@@ -13,6 +13,7 @@ class Generator(AssetParams, SplightDatabaseBaseModel):
     daily_energy: Attribute | None = None
     monthly_energy: Attribute | None = None
     reactive_power: Attribute | None = None
+    switch_status: Attribute | None = None
     co2_coefficient: Metadata | None = None
     bus: AssetRelationship | None = None
     grid: AssetRelationship | None = None
