@@ -42,12 +42,10 @@ from splight_lib.models.file import File
 from splight_lib.models.function import Function, FunctionItem, QueryFilter
 from splight_lib.models.hub import HubComponent
 from splight_lib.models.hub_server import HubServer
-from splight_lib.models.hub_solution import HubSolution
 from splight_lib.models.metadata import Metadata
 from splight_lib.models.native import Boolean, Number, String
 from splight_lib.models.secret import Secret
 from splight_lib.models.server import Server
-from splight_lib.models.solution import Solution
 from splight_lib.models.tag import Tag
 
 __all__ = [
@@ -87,7 +85,6 @@ __all__ = [
     Filter,
     Function,
     FunctionItem,
-    HubSolution,
     HubComponent,
     HubServer,
     QueryFilter,
@@ -98,7 +95,6 @@ __all__ = [
     Secret,
     Server,
     SetPoint,
-    Solution,
     String,
     RoutineObject,
     RoutineObjectInstance,

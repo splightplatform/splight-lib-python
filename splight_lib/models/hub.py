@@ -46,8 +46,7 @@ def get_hub_client() -> AbstractHubClient:
     )
 
 
-# TODO: Unify HubComponent model to be a SplightDatabaseBaseModel an use
-# SplightDatabaseClient. The same as HubSolution
+# TODO: Unify HubComponent model to be a SplightDatabaseBaseModel
 class HubComponent(BaseModel):
     id: str | None = None
     name: str

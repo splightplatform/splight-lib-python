@@ -213,12 +213,9 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         """
         if resource_name.lower() not in [
             "file",
-            "hubsolutionversion",
             "hubserverversion",
         ]:
-            raise InvalidModel(
-                "Only files, hub solution and hub servers can be downloaded."
-            )
+            raise InvalidModel("Only files and hub servers can be downloaded.")
         api_path = self._get_api_path(resource_name)
         resource_id = instance.get("id")
         url = self._base_url / api_path / f"{resource_id}/download_url/"
