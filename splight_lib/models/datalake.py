@@ -127,8 +127,9 @@ class DataRequest(Generic[T], BaseModel):
     async def async_apply(self) -> list[T]:
         dl_client = get_datalake_client()
         request = self.model_dump(mode="json")
+        traces = request.pop("traces")
         data = []
-        for batch in chunk_list(self.traces, MAX_NUM_TRACES):
+        for batch in chunk_list(traces, MAX_NUM_TRACES):
             request["traces"] = batch
             response = await dl_client.async_get(request)
             data.extend(self._parse_respose(response))
