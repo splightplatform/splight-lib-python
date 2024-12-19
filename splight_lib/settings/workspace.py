@@ -9,13 +9,16 @@ CONFIG_FILE = Path.home() / ".splight" / "config"
 
 
 class Workspace(BaseModel):
-    SPLIGHT_ACCESS_ID: str | None = None
-    SPLIGHT_SECRET_KEY: str | None = None
+    SPLIGHT_ACCESS_ID: str = ""
+    SPLIGHT_SECRET_KEY: str = ""
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     @property
     def configured(self) -> bool:
-        return self.SPLIGHT_ACCESS_ID and self.SPLIGHT_SECRET_KEY
+        return bool(self.SPLIGHT_ACCESS_ID and self.SPLIGHT_SECRET_KEY)
+
+    def to_dict(self) -> dict:
+        return self.model_dump()
 
 
 class SplightConfig(BaseModel):
@@ -42,48 +45,22 @@ class WorkspaceExistsError(WorkspaceError):
         super().__init__(f"Workspace '{workspace}' already exists")
 
 
-class WorkspaceManager:
+class SplightConfigManager:
     def __init__(self, config_path: Path | str = CONFIG_FILE):
         self._config_path = Path(config_path)
 
-        if not self._config_path.exists():
-            self._config_path.parent.mkdir(parents=True, exist_ok=True)
-            self._save(SplightConfig())
+        try:
+            if not self._config_path.exists():
+                self._config_path.parent.mkdir(parents=True, exist_ok=True)
+                self._save(SplightConfig())
 
-        self._config = SplightConfig.model_validate(
-            yaml.safe_load(self._config_path.read_text()) or {}
-        )
-
-    def __repr__(self) -> str:
-        lines = [f"WorkspaceManager(config_path='{self._config_path}')"]
-        lines.append("Workspaces:")
-
-        if not self._config.workspaces:
-            lines.append("  No workspaces configured")
-        else:
-            for name, workspace in self._config.workspaces.items():
-                current = (
-                    " (current)"
-                    if name == self._config.current_workspace
-                    else ""
-                )
-                configured = (
-                    " [configured]"
-                    if workspace.configured
-                    else " [not configured]"
-                )
-                lines.append(f"  - {name}{current}{configured}")
-                lines.append(
-                    f"      SPLIGHT_ACCESS_ID: {workspace.SPLIGHT_ACCESS_ID or 'None'}"
-                )
-                lines.append(
-                    f"      SPLIGHT_SECRET_KEY: {workspace.SPLIGHT_SECRET_KEY or 'None'}"
-                )
-                lines.append(
-                    f"      SPLIGHT_PLATFORM_API_HOST: {workspace.SPLIGHT_PLATFORM_API_HOST}"
-                )
-
-        return "\n".join(lines)
+            self._config = SplightConfig.model_validate(
+                yaml.safe_load(self._config_path.read_text()) or {}
+            )
+        except Exception as exce:
+            raise WorkspaceError(
+                f"Error when loading workspace at '{config_path}'."
+            ) from exce
 
     def _save(self, config: SplightConfig):
         self._config_path.write_text(
