@@ -14,7 +14,6 @@ from splight_lib.client.datalake.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
-from splight_lib.settings import datalake_settings
 
 logger = get_splight_logger()
 
@@ -84,8 +83,8 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
-        buffer_size: int = datalake_settings.DL_BUFFER_SIZE,
-        buffer_timeout: float = datalake_settings.DL_BUFFER_TIMEOUT,
+        buffer_size: int = 500,
+        buffer_timeout: float = 60,
         *args,
         **kwargs,
     ):
@@ -183,8 +182,8 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
-        buffer_size: int = datalake_settings.DL_BUFFER_SIZE,
-        buffer_timeout: float = datalake_settings.DL_BUFFER_TIMEOUT,
+        buffer_size: int = 500,
+        buffer_timeout: float = 60,
         *args,
         **kwargs,
     ):
