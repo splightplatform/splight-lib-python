@@ -3,7 +3,12 @@ from typing import Any
 
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from .config import SplightConfigError, SplightConfigManager, Workspace
+from .config import (
+    SplightConfigError,
+    SplightConfigManager,
+    Workspace,
+    WorkspaceNotFoundError,
+)
 
 
 class Singleton:
@@ -26,29 +31,10 @@ class WorkspaceConfigSource(PydanticBaseSettingsSource):
     def get_field_value(
         self, field: str, field_data: Any
     ) -> tuple[Any, str, bool]:
-        value = None
         try:
-            if not hasattr(self, "wm"):
-                self.wm = SplightConfigManager()
-
-            config = self.wm.get(self.wm.current)
-
-            field_parts = field.split(".")
-            current = config.to_dict()
-
-            for part in field_parts:
-                if isinstance(current, dict) and part in current:
-                    current = current[part]
-                else:
-                    return None, "workspace-config", False
-
-            value = current
-
-        except (SplightConfigError, AttributeError, KeyError, Exception):
-            # Return None if any error occurs during value retrieval
-            pass
-
-        return value, "workspace-config", False
+            return self.wm.get(field), field, False
+        except WorkspaceNotFoundError:
+            return None, field, True
 
 
 class SplightSettings(Workspace, BaseSettings, Singleton):
