@@ -26,21 +26,21 @@ class SplightConfig(BaseModel):
     workspaces: Dict[str, Workspace] = {"default": Workspace()}
 
 
-class WorkspaceError(Exception):
+class SplightConfigError(Exception):
     pass
 
 
-class WorkspaceNotFoundError(WorkspaceError):
+class WorkspaceNotFoundError(SplightConfigError):
     def __init__(self, workspace: str):
         super().__init__(f"Workspace '{workspace}' does not exist")
 
 
-class ActiveWorkspaceError(WorkspaceError):
+class ActiveWorkspaceError(SplightConfigError):
     def __init__(self, workspace: str):
         super().__init__(f"Cannot delete active workspace '{workspace}'")
 
 
-class WorkspaceExistsError(WorkspaceError):
+class WorkspaceExistsError(SplightConfigError):
     def __init__(self, workspace: str):
         super().__init__(f"Workspace '{workspace}' already exists")
 
@@ -58,8 +58,8 @@ class SplightConfigManager:
                 yaml.safe_load(self._config_path.read_text()) or {}
             )
         except Exception as exce:
-            raise WorkspaceError(
-                f"Error when loading workspace at '{config_path}'."
+            raise SplightConfigError(
+                f"Error when loading config file: '{config_path}'."
             ) from exce
 
     def _save(self, config: SplightConfig):

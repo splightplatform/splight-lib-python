@@ -1,9 +1,9 @@
+from enum import Enum
 from typing import Any
 
-from pydantic import ConfigDict
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from .workspace import SplightConfigManager, Workspace, WorkspaceError
+from .config import SplightConfigError, SplightConfigManager, Workspace
 
 
 class Singleton:
@@ -20,7 +20,7 @@ class WorkspaceConfigSource(PydanticBaseSettingsSource):
         try:
             cw = self.wm.get(self.wm.current)
             return cw.to_dict()
-        except WorkspaceError:
+        except SplightConfigError:
             return {}
 
     def get_field_value(
@@ -28,10 +28,26 @@ class WorkspaceConfigSource(PydanticBaseSettingsSource):
     ) -> tuple[Any, str, bool]:
         value = None
         try:
-            ...
+            if not hasattr(self, "wm"):
+                self.wm = SplightConfigManager()
 
-        except Exception:
+            config = self.wm.get(self.wm.current)
+
+            field_parts = field.split(".")
+            current = config.to_dict()
+
+            for part in field_parts:
+                if isinstance(current, dict) and part in current:
+                    current = current[part]
+                else:
+                    return None, "workspace-config", False
+
+            value = current
+
+        except (SplightConfigError, AttributeError, KeyError, Exception):
+            # Return None if any error occurs during value retrieval
             pass
+
         return value, "workspace-config", False
 
 
@@ -54,10 +70,17 @@ class SplightSettings(Workspace, BaseSettings, Singleton):
         )
 
 
+class DatalakeClientType(str, Enum):
+    LOCAL = "local"
+    SYNC = "sync"
+    BUFFERED_SYNC = "buffered_sync"
+    BUFFERED_ASYNC = "buffered_async"
+
+
 class DatalakeSettings(BaseSettings, Singleton):
     DL_CLIENT_TYPE: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC
-    DL_BUFFER_SIZE: int = DL_BUFFER_SIZE
-    DL_BUFFER_TIMEOUT: float = DL_BUFFER_TIMEOUT  # seconds
+    DL_BUFFER_SIZE: int = 500
+    DL_BUFFER_TIMEOUT: float = 60  # seconds
 
 
 # Create singletons
