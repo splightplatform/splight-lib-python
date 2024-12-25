@@ -9,8 +9,8 @@ CONFIG_FILE = Path.home() / ".splight" / "config"
 
 
 class Workspace(BaseModel):
-    SPLIGHT_ACCESS_ID: str = ""
-    SPLIGHT_SECRET_KEY: str = ""
+    SPLIGHT_ACCESS_ID: str | None = ""
+    SPLIGHT_SECRET_KEY: str | None = ""
     SPLIGHT_PLATFORM_API_HOST: str = "https://api.splight-ai.com"
 
     @property

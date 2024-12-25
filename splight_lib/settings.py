@@ -37,7 +37,7 @@ class WorkspaceConfigSource(PydanticBaseSettingsSource):
             return None, field, True
 
 
-class SplightSettings(Workspace, BaseSettings, Singleton):
+class WorkspaceSettings(Workspace, BaseSettings, Singleton):
     @classmethod
     def settings_customise_sources(
         cls,
@@ -70,5 +70,5 @@ class DatalakeSettings(BaseSettings, Singleton):
 
 
 # Create singletons
-settings = SplightSettings()
+workspace_settings = WorkspaceSettings()
 datalake_settings = DatalakeSettings()
