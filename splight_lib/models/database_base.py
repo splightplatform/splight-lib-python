@@ -7,7 +7,7 @@ from strenum import LowercaseStrEnum
 
 from splight_lib.client.database import DatabaseClientBuilder
 from splight_lib.client.database.abstract import AbstractDatabaseClient
-from splight_lib.settings import settings
+from splight_lib.settings import workspace_settings
 
 FilePath = TypeVar("FilePath", str, Path)
 
@@ -68,9 +68,9 @@ class SplightDatabaseBaseModel(BaseModel):
     def __get_database_client() -> AbstractDatabaseClient:
         db_client = DatabaseClientBuilder.build(
             parameters={
-                "base_url": settings.SPLIGHT_PLATFORM_API_HOST,
-                "access_id": settings.SPLIGHT_ACCESS_ID,
-                "secret_key": settings.SPLIGHT_SECRET_KEY,
+                "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
+                "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
+                "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
             },
         )
         return db_client

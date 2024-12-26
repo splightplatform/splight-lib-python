@@ -20,7 +20,7 @@ from splight_lib.models.component import (
     Output,
     Routine,
 )
-from splight_lib.settings import settings
+from splight_lib.settings import workspace_settings
 from splight_lib.utils.hub import (
     COMPRESSION_TYPE,
     README_FILE_1,
@@ -40,9 +40,9 @@ class HubComponentVerificationEnum(LowercaseStrEnum):
 
 def get_hub_client() -> AbstractHubClient:
     return SplightHubClient(
-        access_key=settings.SPLIGHT_ACCESS_ID,
-        secret_key=settings.SPLIGHT_SECRET_KEY,
-        api_host=settings.SPLIGHT_PLATFORM_API_HOST,
+        access_key=workspace_settings.SPLIGHT_ACCESS_ID,
+        secret_key=workspace_settings.SPLIGHT_SECRET_KEY,
+        api_host=workspace_settings.SPLIGHT_PLATFORM_API_HOST,
     )
 
 
