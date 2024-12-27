@@ -1,10 +1,6 @@
-from splight_lib.models import (
-    AssetParams,
-    AssetRelationship,
-    Attribute,
-    Metadata,
-)
+from splight_lib.models import AssetParams, AssetRelationship, Attribute
 from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.metadata import Metadata
 
 
 class Inverter(AssetParams, SplightDatabaseBaseModel):
