@@ -152,9 +152,7 @@ def read_swagger(url: str) -> Dict[str, Any]:
 
 
 def test_api_contract():
-    api_url = os.getenv(
-        "SPLIGHT_PLATFORM_API_HOST", "https://integrationapi.splight-ai.com"
-    )
+    api_url = os.getenv("SPLIGHT_PLATFORM_API_HOST", "https://api.splight.com")
     url = f"{api_url}/schema/"
     data = read_swagger(url)
 
