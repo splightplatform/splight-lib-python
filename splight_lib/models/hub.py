@@ -1,6 +1,5 @@
 import warnings
 from enum import auto
-from tempfile import NamedTemporaryFile
 from typing import Any, Self
 
 from pydantic import BaseModel, PrivateAttr, ValidationInfo, model_validator
