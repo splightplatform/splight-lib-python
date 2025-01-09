@@ -18,19 +18,3 @@ class AbstractHubClient(AbstractClient):
         **kwargs,
     ) -> list[BaseModel]:
         pass
-
-    @abstractmethod
-    def upload(self, id: str, file_path: str, type: str):
-        pass
-
-    @abstractmethod
-    def download(self, data: dict) -> tuple:
-        pass
-
-    @abstractmethod
-    def delete(self, id: str) -> None:
-        pass
-
-    @abstractmethod
-    def save(self, instance: dict) -> dict:
-        pass
