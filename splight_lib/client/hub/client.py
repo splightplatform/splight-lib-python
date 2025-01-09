@@ -1,7 +1,5 @@
-from tempfile import NamedTemporaryFile
 from typing import Any, Generator, TypedDict
 
-import progressbar
 import requests
 from furl import furl
 from pydantic import BaseModel
