@@ -3,4 +3,4 @@ from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class Grid(AssetParams, SplightDatabaseBaseModel):
-    ...
+    pass
