@@ -1,27 +1,14 @@
 name: Code Quality
-on: pull_request
+
+on: 
+  pull_request:
+    branches:
+      - master
+
 jobs:
-  black:
+  format:
     runs-on: ubuntu-latest
-    name: Black
-    steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
-        with:
-          options: "--check --diff"
-          version: "23.1.0"
-  isort:
-    runs-on: ubuntu-latest
-    name: Isort
-    steps:
-      # TODO: https://github.com/isort/isort-action/issues/95
-      - uses: actions/checkout@v3
-      - uses: isort/isort-action@master
-        with:
-          configuration: "--check-only --diff"
-          isortVersion: "5.12.0"
-  ruff:
-    runs-on: ubuntu-latest
+    name: Check Code Quality and Format
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
@@ -31,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff
+          pip install ruff==0.9.1 isort==5.13.2
         # Update output format to enable automatic inline annotations.
-      - name: Run Ruff
-        run: ruff check --output-format=github .
+      - name: Check Format
+        run: make check_format
