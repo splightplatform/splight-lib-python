@@ -61,7 +61,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str = ""
+    description: str | None = None
     type: str = "str"
     required: bool = False
     multiple: bool = False
@@ -103,7 +103,7 @@ class InputDataAddress(DataAddress):
 
 class OutputParameter(BaseModel):
     name: str
-    description: str = ""
+    description: str | None = None
     type: str
     choices: list[Any] | None = None
     depends_on: str | None = None
@@ -142,7 +142,7 @@ class SplightObject(SplightDatabaseBaseModel):
     id: str | None = None
     name: str
     component_id: str | None = None
-    description: str = ""
+    description: str | None = None
     type: str
 
     def save(self):
@@ -289,7 +289,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
 class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
     id: str | None = None
     name: str = ""
-    description: str = ""
+    description: str | None = None
 
     _default_attrs: list[str] = PrivateAttr(
         ["id", "name", "component_id", "description"]
