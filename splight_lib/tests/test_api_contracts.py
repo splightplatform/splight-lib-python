@@ -7,9 +7,9 @@ from typing import Any, Dict
 
 import jsonref
 import requests
-import yaml
+# import yaml
 from geojson_pydantic import GeometryCollection
-from openapi_schema_validator import validate
+from openapi_schema_validator import OAS30ReadValidator, validate
 from polyfactory import Use
 from polyfactory.factories.pydantic_factory import ModelFactory
 
@@ -148,12 +148,14 @@ MODEL_MAPPING = {
 
 def read_swagger(url: str) -> Dict[str, Any]:
     response = requests.get(url)
-    return yaml.safe_load(response.text)
+    return response.json()
+    # __import__('ipdb').set_trace()
+    # return yaml.safe_load(response.text)
 
 
 def test_api_contract():
     api_url = os.getenv("SPLIGHT_PLATFORM_API_HOST", "https://api.splight.com")
-    url = f"{api_url}/schema/"
+    url = f"{api_url}/docs/schema"
     data = read_swagger(url)
 
     # Replace all reference defined by $ref
@@ -171,10 +173,17 @@ def test_api_contract():
         # TODO: Key config should not be excluded, this is because
         # for RoutineObject, the config is a JSON field and the
         # validation fails
+        # print(model_name)
+        # for item in instances:
+        #     instance = item.model_dump(exclude={"config"})
+        #     validate(
+        #         instance=instance, schema=model_schema, cls=OAS30ReadValidator
+        #     )
         _ = [
             validate(
                 instance=item.model_dump(exclude={"config"}),
                 schema=model_schema,
+                cls=OAS30ReadValidator,
             )
             for item in instances
         ]
