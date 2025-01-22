@@ -43,7 +43,7 @@ jobs:
           python-version: "3.11"
 
       - name: Setup poetry
-        run: pip install poetry==2.0.1
+        run: pip install poetry==2.0.1 virtualenv==20.28.1
 
       - name: Install dependencies
         run: |
