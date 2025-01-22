@@ -68,19 +68,19 @@ class FunctionItem(BaseModel):
     ref_id: Annotated[str, Field(max_length=5)]
     type: FunctionItemType = FunctionItemType.QUERY
 
-    expression: str = ""
-    expression_plain: str = ""
+    expression: str | None = ""
+    expression_plain: str | None = ""
 
     query_filter_asset: QueryFilter | None = None
     query_filter_attribute: TypedQueryFilter | None = None
 
-    query_group_function: GroupCriteria = GroupCriteria.EMPTY
-    query_group_unit: GroupUnit = GroupUnit.EMPTY
+    query_group_function: GroupCriteria | None = GroupCriteria.EMPTY
+    query_group_unit: GroupUnit | None = GroupUnit.EMPTY
 
-    query_sort_field: str = ""
+    query_sort_field: str | None = ""
     query_sort_direction: Annotated[int, Field(-1, ge=-1, le=1)]
 
-    query_plain: str = ""
+    query_plain: str | None = ""
 
     @model_validator(mode="after")
     def validate_expression(self):
