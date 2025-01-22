@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import jsonref
 import requests
-# import yaml
+
 from geojson_pydantic import GeometryCollection
 from openapi_schema_validator import OAS30ReadValidator, validate
 from polyfactory import Use
@@ -149,8 +149,6 @@ MODEL_MAPPING = {
 def read_swagger(url: str) -> Dict[str, Any]:
     response = requests.get(url)
     return response.json()
-    # __import__('ipdb').set_trace()
-    # return yaml.safe_load(response.text)
 
 
 def test_api_contract():
