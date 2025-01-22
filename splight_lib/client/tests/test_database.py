@@ -100,7 +100,7 @@ def test_save_with_id(mocker: MockerFixture):
     mock_instance = {"id": "instance_id", "name": "instance_name"}
     result = client.save("alert", mock_instance)
     mock_put.assert_called_once_with(
-        furl(f"{base_url}/v2/engine/alert/alerts/instance_id/"),
+        furl(f"{base_url}/v3/engine/alert/alerts/instance_id/"),
         json=mock_instance,
     )
     assert result == mock_instance
