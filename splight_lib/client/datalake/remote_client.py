@@ -21,7 +21,7 @@ EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
 
 
 class SyncRemoteDatalakeClient(AbstractDatalakeClient):
-    _PREFIX = "/data"
+    _PREFIX = "/v3/data"
 
     def __init__(
         self, base_url: str, access_id: str, secret_key: str, *args, **kwargs

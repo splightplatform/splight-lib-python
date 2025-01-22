@@ -6,10 +6,9 @@ MODEL_NAME_MAP = {
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/asset/assets/",
     "assetrelationship": f"{ENGINE_PREFIX}/asset/relations/",
-    "tag": "v2/account/tags/",
+    "tag": f"{ENGINE_PREFIX}/tag/tags/",
     "assetkind": f"{ENGINE_PREFIX}/asset/kinds/",
-    # TODO: update to new endpoint for attributes
-    "attribute": f"{ENGINE_PREFIX}/attributes/",
+    "attribute": f"{ENGINE_PREFIX}/asset/attributes/",
     "bus": f"{ENGINE_PREFIX}/asset/buses/",
     "metadata": f"{ENGINE_PREFIX}/metadata/",
     "chart": f"{ENGINE_PREFIX}/dashboard/charts/",
