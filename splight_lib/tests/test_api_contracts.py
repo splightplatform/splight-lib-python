@@ -7,7 +7,6 @@ from typing import Any, Dict
 
 import jsonref
 import requests
-
 from geojson_pydantic import GeometryCollection
 from openapi_schema_validator import OAS30ReadValidator, validate
 from polyfactory import Use
