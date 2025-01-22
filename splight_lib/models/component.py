@@ -61,7 +61,7 @@ class ValueType(PascalCaseStrEnum):
 
 class Parameter(BaseModel):
     name: str
-    description: str | None = None
+    description: str = ""
     type: str = "str"
     required: bool = False
     multiple: bool = False
