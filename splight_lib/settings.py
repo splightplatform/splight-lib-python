@@ -11,6 +11,14 @@ from .config import (
 )
 
 
+class SplightAPIVersion(str, Enum):
+    V3 = "v3"
+    V4 = "v4"
+
+    def __str__(self) -> str:
+        return self.value
+
+
 class Singleton:
     def __new__(cls, *args, **kw):
         if not hasattr(cls, "_instance"):
@@ -69,6 +77,11 @@ class DatalakeSettings(BaseSettings, Singleton):
     DL_BUFFER_TIMEOUT: float = 60  # seconds
 
 
+class SplightAPIVersionSettings(BaseSettings, Singleton):
+    API_VERSION: SplightAPIVersion = SplightAPIVersion.V3
+
+
 # Create singletons
 workspace_settings = WorkspaceSettings()
 datalake_settings = DatalakeSettings()
+api_settings = SplightAPIVersionSettings()
