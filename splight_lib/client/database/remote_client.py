@@ -45,13 +45,14 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
     def __init__(
         self,
         base_url: str,
+        api_version: str,
         access_id: str,
         secret_key: str,
         *args,
         **kwargs,
     ):
         super().__init__()
-        self._base_url = furl(base_url)
+        self._base_url = furl(f"{base_url}/{api_version}")
         token = SplightAuthToken(
             access_key=access_id,
             secret_key=secret_key,
