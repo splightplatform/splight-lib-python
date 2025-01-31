@@ -14,6 +14,7 @@ from splight_lib.client.datalake.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
+from splight_lib.settings import SplightAPIVersion
 
 logger = get_splight_logger()
 
@@ -21,10 +22,16 @@ EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
 
 
 class SyncRemoteDatalakeClient(AbstractDatalakeClient):
-    _PREFIX = "/v3/data"
+    _PREFIX = "/data"
 
     def __init__(
-        self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
+        self,
+        base_url: str,
+        access_id: str,
+        secret_key: str,
+        api_version: SplightAPIVersion,
+        *args,
+        **kwargs,
     ):
         super().__init__()
         self._base_url = furl(base_url)
@@ -32,6 +39,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             access_key=access_id,
             secret_key=secret_key,
         )
+        self._prefix = f"{api_version}/data"
         self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
         logger.debug(
@@ -40,7 +48,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def save(self, records: Records) -> list[dict]:
-        url = self._base_url / f"{self._PREFIX}/write"
+        url = self._base_url / f"{self._prefix}/write"
         response = self._restclient.post(url, json=records)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
@@ -52,7 +60,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         records: Records,
     ) -> list[dict]:
         # POST /data/write
-        url = self._base_url / f"{self._PREFIX}/write"
+        url = self._base_url / f"{self._prefix}/write"
         response = await self._restclient.async_post(url, json=records)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
@@ -60,7 +68,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _get(self, request: dict) -> list[dict]:
-        url = self._base_url / f"{self._PREFIX}/read"
+        url = self._base_url / f"{self._prefix}/read"
         response = self._restclient.post(url, json=request)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
@@ -68,7 +76,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     async def _async_get(self, request: dict) -> list[dict]:
-        url = self._base_url / f"{self._PREFIX}/read"
+        url = self._base_url / f"{self._prefix}/read"
         response = await self._restclient.async_post(url, json=request)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
@@ -83,6 +91,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
+        api_version: SplightAPIVersion,
         buffer_size: int = 500,
         buffer_timeout: float = 60,
         *args,
@@ -163,7 +172,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
-        url = self._base_url / f"{self._PREFIX}/write"
+        url = self._base_url / f"{self._prefix}/write"
         data = {
             "collection": collection,
             "records": docs,
@@ -182,6 +191,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
+        api_version: SplightAPIVersion,
         buffer_size: int = 500,
         buffer_timeout: float = 60,
         *args,
@@ -240,7 +250,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
-        url = self._base_url / f"{self._PREFIX}/write"
+        url = self._base_url / f"{self._prefix}/write"
         data = {
             "collection": collection,
             "records": docs,
