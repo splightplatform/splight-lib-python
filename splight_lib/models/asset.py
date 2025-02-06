@@ -12,6 +12,7 @@ from splight_lib.models.database_base import (
 )
 from splight_lib.models.exceptions import MethodNotAllowed
 from splight_lib.models.metadata import Metadata
+from splight_lib.settings import SplightAPIVersion, api_settings
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -35,6 +36,29 @@ class AssetRelationship(SplightDatabaseBaseModel):
     asset: ResourceSummary | None = None
     related_asset: ResourceSummary | None = None
 
+    def save(self) -> None:
+        if (
+            self.id is not None
+            and api_settings.API_VERSION == SplightAPIVersion.V4
+        ):
+            raise NotImplementedError(
+                "Asset Relationship save operation is not supported in API v4"
+            )
+        super().save()
+
+    def set(self, asset_id: str) -> None:
+        if api_settings.API_VERSION == SplightAPIVersion.V3:
+            raise NotImplementedError(
+                "Asset Relationsip set operation is not supported in API v3"
+            )
+        self._db_client.operate(
+            "set-asset-relationship",
+            instance={
+                "relationship": self.id,
+                "related_asset": asset_id,
+            },
+        )
+
 
 class AssetParams(BaseModel):
     id: str | None = None
@@ -48,11 +72,10 @@ class AssetParams(BaseModel):
 
 
 class Asset(AssetParams, SplightDatabaseBaseModel):
-    attributes: list[Attribute] = []
-    metadata: list[Metadata] = []
-    actions: list[ResourceSummary] | None = None
-    related_to: list[AssetRelationship] = []
-    related_from: list[AssetRelationship] = []
+    attributes: list[Attribute] | None = None
+    metadata: list[Metadata] | None = None
+    related_to: list[AssetRelationship] | None = None
+    related_from: list[AssetRelationship] | None = None
 
     def set_attribute(self, attribute: Attribute, value: Any, value_type: str):
         new_value = self._db_client.operate(
