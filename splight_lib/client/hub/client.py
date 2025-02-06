@@ -41,9 +41,9 @@ class SplightHubClient(AbstractHubClient):
     def _org_id(self):
         response = self._session.get(self._org_url)
         org_id = response.json()["id"]
-        assert (
-            response.status_code == 200
-        ), f"Failed to get organization id: {response.json()}"
+        assert response.status_code == 200, (
+            f"Failed to get organization id: {response.json()}"
+        )
         return org_id
 
     def _get_params(self, limit_: int, skip_: int, **kwargs):
@@ -127,9 +127,9 @@ class SplightHubClient(AbstractHubClient):
     def delete(self, id: str) -> None:
         url = self._hub_url / f"hubcomponents/{id}/"
         response = self._session.delete(url)
-        assert (
-            response.status_code == 204
-        ), f"Failed to delete component: {response.json()}"
+        assert response.status_code == 204, (
+            f"Failed to delete component: {response.json()}"
+        )
 
     def save(self, instance: dict) -> dict:
         if instance.get("id"):
