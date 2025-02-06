@@ -22,8 +22,11 @@ pip install splight-lib==x.y.z
 
 To install the library in development mode you need to have `poetry` installed
 ```bash
-pip install poetry==1.7.0
+pip install poetry==2.0.1
 ```
+
+Make sure to have installed `poetry` in the version specified or newer since 
+version older has a different interface.
 
 Then to insall the library you can use the command
 

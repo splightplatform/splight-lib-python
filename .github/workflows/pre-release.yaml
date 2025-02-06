@@ -26,7 +26,7 @@ jobs:
           python-version: "3.11"
 
       - name: Setup poetry
-        run: pip install poetry==1.7.0
+        run: pip install poetry==2.0.1 virtualenv==20.28.1
 
       - name: Install dependencies
         run: |
@@ -35,16 +35,6 @@ jobs:
 
       - name: Run tests
         run: make test
-
-      # TODO: discuss about following steps
-      # - name: Run flake8
-      #   run: make flake8
-
-      # - name: Run isort
-      #   run: make isort
-
-      # - name: Run black
-      #   run: make black
 
   verify_version:
     runs-on: ubuntu-latest
