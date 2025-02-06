@@ -27,7 +27,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         base_url: str,
         access_id: str,
         secret_key: str,
-        api_version: SplightAPIVersion,
+        api_version: SplightAPIVersion = SplightAPIVersion.V3,
         *args,
         **kwargs,
     ):
