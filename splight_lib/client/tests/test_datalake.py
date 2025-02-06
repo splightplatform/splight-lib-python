@@ -42,6 +42,7 @@ def test_initialization(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     mock.assert_called_once_with(
@@ -57,6 +58,7 @@ def test_save(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
     mock_post = mocker.patch.object(
         SplightRestClient,

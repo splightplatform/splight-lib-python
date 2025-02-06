@@ -25,6 +25,7 @@ from splight_lib.client.exceptions import (
 from splight_lib.constants import ENGINE_PREFIX
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
+from splight_lib.settings import SplightAPIVersion
 
 logger = get_splight_logger()
 
@@ -47,11 +48,12 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         base_url: str,
         access_id: str,
         secret_key: str,
+        api_version: SplightAPIVersion = SplightAPIVersion.V3,
         *args,
         **kwargs,
     ):
         super().__init__()
-        self._base_url = furl(base_url)
+        self._base_url = furl(f"{base_url}/{api_version}")
         token = SplightAuthToken(
             access_key=access_id,
             secret_key=secret_key,

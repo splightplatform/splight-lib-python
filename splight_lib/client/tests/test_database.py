@@ -47,6 +47,7 @@ def test_initialization(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     mock.assert_called_once_with(
@@ -62,6 +63,7 @@ def test_save_without_id(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
     mock = mocker.patch.object(
         SplightRestClient,
@@ -87,6 +89,7 @@ def test_save_with_id(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     mock_put = mocker.patch.object(
@@ -114,6 +117,7 @@ def test_delete(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     mock_delete = mocker.patch.object(
@@ -133,6 +137,7 @@ def test_delete_invalid_model_name():
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     with pytest.raises(InvalidModelName):
@@ -148,6 +153,7 @@ def test_get_with_id(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     mock_get = mocker.patch.object(
@@ -177,6 +183,7 @@ def test_get_without_id(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     _ = mocker.patch.object(
@@ -202,6 +209,7 @@ def test_get_without_id_and_set_first(mocker: MockerFixture):
         base_url=base_url,
         access_id=access_id,
         secret_key=secret_key,
+        api_version="v3",
     )
 
     _ = mocker.patch.object(

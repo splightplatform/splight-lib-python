@@ -11,7 +11,11 @@ from splight_lib.client.datalake.constants import StepName
 from splight_lib.models.asset import Asset
 from splight_lib.models.attribute import Attribute
 from splight_lib.models.exceptions import TraceAlreadyExistsError
-from splight_lib.settings import datalake_settings, workspace_settings
+from splight_lib.settings import (
+    api_settings,
+    datalake_settings,
+    workspace_settings,
+)
 
 MAX_NUM_TRACES = 500
 T = TypeVar("T")
@@ -28,6 +32,7 @@ def get_datalake_client() -> AbstractDatalakeClient:
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
             "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
+            "api_version": api_settings.API_VERSION,
             "buffer_size": datalake_settings.DL_BUFFER_SIZE,
             "buffer_timeout": datalake_settings.DL_BUFFER_TIMEOUT,
         },

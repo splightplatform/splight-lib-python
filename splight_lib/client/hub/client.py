@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from splight_lib.auth import SplightAuthToken
 from splight_lib.client.exceptions import RequestError
 from splight_lib.client.hub.abstract import AbstractHubClient
+from splight_lib.settings import api_settings
 
 
 class PaginatedResponse(TypedDict):
@@ -19,8 +20,8 @@ class PaginatedResponse(TypedDict):
 
 
 class SplightHubClient(AbstractHubClient):
-    _PREFIX: str = "v2/hub/component"
-    _ORG_PREFIX = "v2/account/user/organizations"
+    _PREFIX: str = f"{api_settings.API_VERSION}/engine/hubcomponent"
+    _ORG_PREFIX = "auth/account/user/organizations"
 
     def __init__(
         self, api_host: str, access_key: str, secret_key: str
@@ -68,11 +69,11 @@ class SplightHubClient(AbstractHubClient):
             return instances[0] if instances else None
         return instances
 
-    def get_org_id(self):
+    def get_org_id(self) -> str:
         return self._org_id
 
     def _create(self, instance: dict) -> dict:
-        url = self._hub_url / "components/"
+        url = self._hub_url / "hubcomponents/"
         response = self._session.post(url, json=instance)
         response.raise_for_status()
         instance = response.json()
@@ -85,11 +86,6 @@ class SplightHubClient(AbstractHubClient):
         response.raise_for_status()
         instance = response.json()
         return instance
-
-    def build(self, id: str) -> None:
-        url = self._hub_url / f"versions/{id}/build/"
-        response = self._session.post(url)
-        response.raise_for_status()
 
     def upload(self, id: str, file_path: str, type_: str) -> None:
         url = self._hub_url / f"versions/{id}/upload_url/"
@@ -129,7 +125,7 @@ class SplightHubClient(AbstractHubClient):
         return file
 
     def delete(self, id: str) -> None:
-        url = self._hub_url / f"components/{id}/"
+        url = self._hub_url / f"hubcomponents/{id}/"
         response = self._session.delete(url)
         assert response.status_code == 204, (
             f"Failed to delete component: {response.json()}"
