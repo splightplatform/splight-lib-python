@@ -22,7 +22,6 @@ EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
 
 
 class SyncRemoteDatalakeClient(AbstractDatalakeClient):
-
     def __init__(
         self,
         base_url: str,
@@ -85,7 +84,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
-
     def __init__(
         self,
         base_url: str,
@@ -184,7 +182,6 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
 
 class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
-
     def __init__(
         self,
         base_url: str,
