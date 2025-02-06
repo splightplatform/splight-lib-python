@@ -21,7 +21,7 @@ EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
 
 
 class SyncRemoteDatalakeClient(AbstractDatalakeClient):
-    _PREFIX = "/data"
+    _PREFIX = "v3/data"
 
     def __init__(
         self, base_url: str, access_id: str, secret_key: str, *args, **kwargs
@@ -51,7 +51,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         self,
         records: Records,
     ) -> list[dict]:
-        # POST /data/write
+        # POST v3/data/write
         url = self._base_url / f"{self._PREFIX}/write"
         response = await self._restclient.async_post(url, json=records)
         if response.is_error:
@@ -76,7 +76,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
-    _PREFIX = "data"
+    _PREFIX = "v3/data"
 
     def __init__(
         self,
@@ -175,7 +175,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
 
 class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
-    _PREFIX = "data"
+    _PREFIX = "v3/data"
 
     def __init__(
         self,
