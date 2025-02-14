@@ -126,7 +126,7 @@ class DataRequest(Generic[T], BaseModel):
         for batch in chunk_list(traces, MAX_NUM_TRACES):
             request["traces"] = batch
             response = dl_client.get(request)
-            data.extend(self._parse_respose(response))
+            data.extend(self._parse_respose(response["results"]))
         return data
 
     async def async_apply(self) -> list[T]:
@@ -137,7 +137,7 @@ class DataRequest(Generic[T], BaseModel):
         for batch in chunk_list(traces, MAX_NUM_TRACES):
             request["traces"] = batch
             response = await dl_client.async_get(request)
-            data.extend(self._parse_respose(response))
+            data.extend(self._parse_respose(response["results"]))
         return data
 
     def _parse_respose(self, response: dict) -> list[T]:
