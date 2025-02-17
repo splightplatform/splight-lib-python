@@ -6,7 +6,7 @@ MODEL_NAME_MAP = {
     "alert": f"{ENGINE_PREFIX}/alert/alerts/",
     "asset": f"{ENGINE_PREFIX}/asset/assets/",
     "assetrelationship": f"{ENGINE_PREFIX}/asset/relations/",
-    "tag": f"{ENGINE_PREFIX}/tag/tags/",
+    "tag": f"{ENGINE_PREFIX}/tags/",
     "assetkind": f"{ENGINE_PREFIX}/asset/kinds/",
     "attribute": f"{ENGINE_PREFIX}/asset/attributes/",
     "bus": f"{ENGINE_PREFIX}/asset/buses/",
