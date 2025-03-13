@@ -30,6 +30,11 @@ class PeriodicTask(BaseTask):
             )
         elif isinstance(period, int):
             self._trigger = IntervalTrigger(seconds=period, timezone=pytz.UTC)
+        else:
+            raise ValueError(
+                "Period must be of type TaskPeriod or int. "
+                f"Got {type(period)} instead."
+            )
 
     def as_job(self) -> dict:
         job_dict = {
