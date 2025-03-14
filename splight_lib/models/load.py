@@ -1,8 +1,10 @@
+from typing import Any
+
+from pydantic import model_validator
+
 from splight_lib.models import AssetParams, AssetRelationship, Attribute
 from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.settings import SplightAPIVersion, api_settings
-from pydantic import model_validator
-from typing import Any
 
 
 class Load(AssetParams, SplightDatabaseBaseModel):
