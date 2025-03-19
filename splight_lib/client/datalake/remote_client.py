@@ -1,8 +1,8 @@
 from threading import Lock, Thread
 from time import sleep
 
-from httpx import HTTPTransport
 from furl import furl
+from httpx import HTTPTransport
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
