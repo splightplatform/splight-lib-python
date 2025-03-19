@@ -38,6 +38,7 @@ MODEL_NAME_MAP = {
     "grid": f"{ENGINE_PREFIX}/asset/grids/",
     "inverter": f"{ENGINE_PREFIX}/asset/inverters/",
     "line": f"{ENGINE_PREFIX}/asset/lines/",
+    "load": f"{ENGINE_PREFIX}/asset/loads/",
     "query": f"{ENGINE_PREFIX}/queries/",
     "routineobject": f"{ENGINE_PREFIX}/component/routines/",
     "secret": f"{ENGINE_PREFIX}/secrets/",
