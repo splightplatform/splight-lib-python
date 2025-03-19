@@ -1,6 +1,7 @@
 from threading import Lock, Thread
 from time import sleep
 
+from httpx import HTTPTransport
 from furl import furl
 from retry import retry
 
@@ -40,7 +41,10 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         # TODO: In the future we should use the API_VERSION parameter
         # self._prefix = f"{api_version}/data"
         self._prefix = "v3/data"
-        self._restclient = SplightRestClient()
+
+        self._restclient = SplightRestClient(
+            transport=HTTPTransport(retries=3)
+        )
         self._restclient.update_headers(token.header)
         logger.debug(
             "Remote datalake client initialized.", tags=LogTags.DATALAKE
