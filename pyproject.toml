@@ -1,6 +1,6 @@
 [project]
 name = "splight-lib"
-version = "5.17.5dev0"
+version = "5.17.5dev1"
 description = "Splight Library"
 authors = [
     {name = "Splight Dev",email = "dev@splight-ae.com"}
