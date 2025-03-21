@@ -143,10 +143,8 @@ class SplightBaseComponent(ABC):
     def _register_exit(self):
         if self._execution_engine.state == EngineStatus.FAILED:
             os._exit(1)
-            # sys.exit(1)
         else:
             os._exit(0)
-            # sys.exit(0)
 
     def _wrap_start(self, original_start: Callable) -> Callable:
         """Wraps the start method to wait for all threads to finish.
@@ -178,7 +176,6 @@ class SplightBaseComponent(ABC):
                 self._health_check_thread.join()
                 self._execution_engine.stop()
                 os._exit(1)
-                # sys.exit(1)
 
             # Wait for healthcheck to update before stopping everything
             sleep(HealthCheckProcessor.HEALTHCHECK_INTERVAL)
