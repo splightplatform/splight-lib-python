@@ -78,10 +78,12 @@ class Spec(BaseModel):
     name: Annotated[str, Field(pattern=r"^[a-zA-Z0-9\s]+$")]
     version: Annotated[str, Field(pattern=r"^(\d+\.)?(\d+\.)?(\*|\d+)$")]
     splight_lib_version: Annotated[
-        str | None, Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$")
+        str | None,
+        Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(?:\.?(dev|rc)(\d+))?$"),
     ] = None
     splight_cli_version: Annotated[
-        str | None, Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(\.dev[0-9]+)?$")
+        str | None,
+        Field(pattern=r"^(\d+)\.(\d+)\.(\d+)(?:\.?(dev|rc)(\d+))?$"),
     ] = None
     description: str | None = None
     privacy_policy: PrivacyPolicy = PrivacyPolicy.PUBLIC

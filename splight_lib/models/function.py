@@ -85,10 +85,6 @@ class FunctionItem(BaseModel):
     @model_validator(mode="after")
     def validate_expression(self):
         if self.type == FunctionItemType.EXPRESSION:
-            if self.expression is None:
-                raise MissingFunctionItemExpression(
-                    "Parameter 'expression' is required for expression type function items"
-                )
             self.expression_plain = (
                 self._get_expression_plain()
                 if self.expression_plain is None
