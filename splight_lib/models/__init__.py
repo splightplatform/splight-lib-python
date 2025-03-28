@@ -6,7 +6,7 @@ from splight_lib.settings import api_settings
 api_version = api_settings.API_VERSION
 
 # Import the version module
-models_module = import_module(f"splight_lib.models.{api_version}")
+models_module = import_module(f"splight_lib.models._{api_version}")
 
 # Select the exposed models only
 model_names = getattr(models_module, "__all__", [])
