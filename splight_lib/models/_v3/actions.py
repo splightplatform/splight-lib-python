@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from splight_lib.models._v3.database_base import (
+from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )

@@ -3,7 +3,7 @@ from splight_lib.models._v3.asset import (
     AssetRelationship,
     Attribute,
 )
-from splight_lib.models._v3.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 
 class SlackGenerator(AssetParams, SplightDatabaseBaseModel):

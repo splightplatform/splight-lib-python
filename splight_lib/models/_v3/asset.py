@@ -6,13 +6,12 @@ from geojson_pydantic import GeometryCollection
 from pydantic import BaseModel, field_validator
 
 from splight_lib.models._v3.attribute import Attribute
-from splight_lib.models._v3.database_base import (
+from splight_lib.models._v3.exceptions import MethodNotAllowed
+from splight_lib.models._v3.metadata import Metadata
+from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models._v3.exceptions import MethodNotAllowed
-from splight_lib.models._v3.metadata import Metadata
-from splight_lib.settings import SplightAPIVersion, api_settings
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -36,21 +35,7 @@ class AssetRelationship(SplightDatabaseBaseModel):
     asset: ResourceSummary | None = None
     related_asset: ResourceSummary | None = None
 
-    def save(self) -> None:
-        if (
-            self.id is not None
-            and api_settings.API_VERSION == SplightAPIVersion.V4
-        ):
-            raise NotImplementedError(
-                "Asset Relationship save operation is not supported in API v4"
-            )
-        super().save()
-
     def set(self, asset_id: str) -> None:
-        if api_settings.API_VERSION == SplightAPIVersion.V3:
-            raise NotImplementedError(
-                "Asset Relationsip set operation is not supported in API v3"
-            )
         self._db_client.operate(
             "set-asset-relationship",
             instance={

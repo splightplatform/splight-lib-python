@@ -13,12 +13,12 @@ from pydantic import (
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
-from splight_lib.models._v3.database_base import (
+from splight_lib.models._v3.exceptions import InvalidFunctionConfiguration
+from splight_lib.models._v3.generic import ValueTypeEnum
+from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models._v3.exceptions import InvalidFunctionConfiguration
-from splight_lib.models._v3.generic import ValueTypeEnum
 
 
 class FunctionItemType(UppercaseStrEnum):

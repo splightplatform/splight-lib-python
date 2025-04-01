@@ -2,6 +2,10 @@ from importlib import import_module
 
 from splight_lib.settings import api_settings
 
+# TODO: hacer mas explicito sin magia de imports
+# NOTE: dejar dl en paz
+# NOTE: compatir db client
+
 # Get API version
 api_version = api_settings.API_VERSION
 

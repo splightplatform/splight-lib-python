@@ -7,11 +7,11 @@ from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
 
 from splight_lib.models._v3.alert import AlertItemType
-from splight_lib.models._v3.database_base import (
+from splight_lib.models._v3.exceptions import MissingAlertItemExpression
+from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models._v3.exceptions import MissingAlertItemExpression
 
 
 class ChartItemType(UppercaseStrEnum):

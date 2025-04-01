@@ -7,7 +7,7 @@ import py7zr
 from pydantic import BaseModel, Field
 
 from splight_lib.models._v3.component import InputParameter
-from splight_lib.models._v3.database_base import (
+from splight_lib.models.database_base import (
     FilePath,
     PrivacyPolicy,
     SplightDatabaseBaseModel,

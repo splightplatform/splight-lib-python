@@ -2,12 +2,12 @@ from typing import Any
 
 from pydantic import model_validator
 
-from splight_lib.models._v3.database_base import SplightDatabaseBaseModel
 from splight_lib.models._v3.generic import (
     ValueTypeEnum,
     cast_value,
     is_empty_str_and_num,
 )
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 from splight_lib.settings import SplightAPIVersion, api_settings
 
 

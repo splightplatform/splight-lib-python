@@ -16,12 +16,12 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.data_address import DataAddresses as DLDataAddress
-from splight_lib.models._v3.database_base import SplightDatabaseBaseModel
 from splight_lib.models._v3.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v3.exceptions import InvalidObjectInstance
 from splight_lib.models._v3.file import File
 from splight_lib.models._v3.secret import Secret
 from splight_lib.models._v3.variable_types import CUSTOM_TYPES, NATIVE_TYPES
+from splight_lib.models.database_base import SplightDatabaseBaseModel
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
