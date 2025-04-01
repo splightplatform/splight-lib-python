@@ -8,7 +8,6 @@ from splight_lib.models._v3.generic import (
     is_empty_str_and_num,
 )
 from splight_lib.models.database_base import SplightDatabaseBaseModel
-from splight_lib.settings import SplightAPIVersion, api_settings
 
 
 class Metadata(SplightDatabaseBaseModel):
@@ -29,21 +28,7 @@ class Metadata(SplightDatabaseBaseModel):
         )
         return model
 
-    def save(self) -> None:
-        if (
-            self.id is not None
-            and api_settings.API_VERSION == SplightAPIVersion.V4
-        ):
-            raise NotImplementedError(
-                "Metadata save operation is not supported in API v4"
-            )
-        super().save()
-
     def set(self, value: float | str | bool) -> None:
-        if api_settings.API_VERSION == SplightAPIVersion.V3:
-            raise NotImplementedError(
-                "Metadata set operation is not supported in API v3"
-            )
         self._db_client.operate(
             "set-asset-metadata",
             instance={
