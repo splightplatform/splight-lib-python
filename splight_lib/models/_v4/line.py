@@ -13,6 +13,12 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     active_power_end: Attribute | None = None
     reactive_power_start: Attribute | None = None
     reactive_power_end: Attribute | None = None
+    current_r_start: Attribute | None = None
+    current_r_end: Attribute | None = None
+    current_s_start: Attribute | None = None
+    current_s_end: Attribute | None = None
+    current_t_start: Attribute | None = None
+    current_t_end: Attribute | None = None
     contingency: Attribute | None = None
     switch_status_start: Attribute | None = None
     switch_status_end: Attribute | None = None
@@ -25,12 +31,6 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     # Computed attributes
     contingency_solving_time: Attribute | None = None
     objective_power: Attribute | None = None
-    current_r_start: Attribute | None = None
-    current_r_end: Attribute | None = None
-    current_s_start: Attribute | None = None
-    current_s_end: Attribute | None = None
-    current_t_start: Attribute | None = None
-    current_t_end: Attribute | None = None
     ampacity_aar: Attribute | None = None
     ampacity_aar_lte: Attribute | None = None
     ampacity_aar_ste: Attribute | None = None
