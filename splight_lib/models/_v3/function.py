@@ -112,14 +112,15 @@ class FunctionItem(BaseModel):
         return self
 
     def _get_expression_plain(self):
-        pattern = r"\$\w+"
-        args = re.findall(pattern, self.expression)
-        str_args = ", ".join(args)
-        body = f"function ({str_args}) {{ return {self.expression} }}"
-        expression_plain = {
-            "$function": {"body": body, "args": args, "lang": "js"}
-        }
-        return json.dumps(expression_plain)
+        if self.expression is not None:
+            pattern = r"\$\w+"
+            args = re.findall(pattern, self.expression)
+            str_args = ", ".join(args)
+            body = f"function ({str_args}) {{ return {self.expression} }}"
+            expression_plain = {
+                "$function": {"body": body, "args": args, "lang": "js"}
+            }
+            return json.dumps(expression_plain)
 
     def _get_query_plain(self):
         query_plain = [
