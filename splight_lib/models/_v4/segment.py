@@ -32,3 +32,4 @@ class Segment(AssetParams, SplightDatabaseBaseModel):
 
     # Relationships
     line: AssetRelationship | None = None
+    grid: AssetRelationship | None = None
