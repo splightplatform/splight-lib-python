@@ -3,8 +3,8 @@ from splight_lib.settings import SplightAPIVersion, api_settings
 # Get API version
 api_version = api_settings.API_VERSION
 
+# Import only the models for the current version
 if api_version == SplightAPIVersion.V3:
-    # Fetch all modules
     from splight_lib.models._v3 import (
         Action,
         AdvancedFilter,
