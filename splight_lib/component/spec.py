@@ -8,7 +8,7 @@ from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
 )
-from splight_lib.models.component import (
+from splight_lib.models._v3.component import (
     Component,
     ComponentObjectInstance,
     ComponentType,

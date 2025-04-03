@@ -13,7 +13,7 @@ from splight_lib.models import (
     ComponentObjectInstance,
     File,
 )
-from splight_lib.models.component import CustomType, Parameter
+from splight_lib.models._v3.component import CustomType, Parameter
 
 FAKE_NATIVE_VALUES = {
     "int": 1,
