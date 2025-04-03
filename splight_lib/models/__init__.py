@@ -174,3 +174,5 @@ elif api_version == SplightAPIVersion.V4:
         "SlackLine",
         "Transformer",
     ]
+else:
+    raise ImportError(f"No models available for API version: '{api_version}'.")
