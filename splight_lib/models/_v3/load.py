@@ -3,7 +3,7 @@ from splight_lib.models._v3.asset import (
     AssetRelationship,
     Attribute,
 )
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 
 class Load(AssetParams, SplightDatabaseBaseModel):

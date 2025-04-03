@@ -9,7 +9,7 @@ from uuid import uuid4  # noqa: E402
 
 import pytest  # noqa: E402
 
-from splight_lib.models.component import (  # noqa: E402
+from splight_lib.models._v3.component import (  # noqa: E402
     ComponentObject,
     ComponentObjectInstance,
     CustomType,

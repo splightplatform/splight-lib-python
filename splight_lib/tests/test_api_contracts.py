@@ -20,9 +20,9 @@ from splight_lib.models import (
     RoutineObject,
     Secret,
 )
-from splight_lib.models.component import InputDataAddress, InputParameter
-from splight_lib.models.data_address import DataAddresses
-from splight_lib.models.function import FunctionItem
+from splight_lib.models._v3.component import InputDataAddress, InputParameter
+from splight_lib.models._v3.data_address import DataAddresses
+from splight_lib.models._v3.function import FunctionItem
 
 ASSET_METADATA_SET = [
     Metadata(

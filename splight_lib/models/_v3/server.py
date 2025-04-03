@@ -14,7 +14,7 @@ from splight_lib.models._v3.file import File
 from splight_lib.models._v3.hub_server import HubServer
 from splight_lib.models._v3.secret import Secret
 from splight_lib.models._v3.variable_types import CUSTOM_TYPES, NATIVE_TYPES
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 # warnings.filterwarnings("ignore", category=RuntimeWarning)
 

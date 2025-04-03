@@ -4,7 +4,7 @@ from splight_lib.models._v4.base import (
     Attribute,
     Metadata,
 )
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 
 class Generator(AssetParams, SplightDatabaseBaseModel):

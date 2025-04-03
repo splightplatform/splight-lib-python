@@ -8,7 +8,7 @@ from pydantic import BaseModel, field_validator
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.exceptions import MethodNotAllowed
 from splight_lib.models._v3.metadata import Metadata
-from splight_lib.models.database_base import (
+from splight_lib.models.database import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )

@@ -2,7 +2,7 @@ from enum import auto
 
 from strenum import PascalCaseStrEnum
 
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 
 class AttributeType(PascalCaseStrEnum):

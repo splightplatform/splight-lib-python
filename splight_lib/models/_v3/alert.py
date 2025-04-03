@@ -17,7 +17,7 @@ from splight_lib.models._v3.exceptions import (
     InvalidAlertConfiguration,
     MissingAlertItemExpression,
 )
-from splight_lib.models.database_base import (
+from splight_lib.models.database import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )

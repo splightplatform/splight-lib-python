@@ -10,12 +10,13 @@ from pydantic import (
     ValidationError,
     model_validator,
 )
+from rich import print
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
 from splight_lib.models._v3.exceptions import InvalidFunctionConfiguration
 from splight_lib.models._v3.generic import ValueTypeEnum
-from splight_lib.models.database_base import (
+from splight_lib.models.database import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
@@ -111,14 +112,18 @@ class FunctionItem(BaseModel):
         return self
 
     def _get_expression_plain(self):
-        pattern = r"\$\w+"
-        args = re.findall(pattern, self.expression)
-        str_args = ", ".join(args)
-        body = f"function ({str_args}) {{ return {self.expression} }}"
-        expression_plain = {
-            "$function": {"body": body, "args": args, "lang": "js"}
-        }
-        return json.dumps(expression_plain)
+        try:
+            pattern = r"\$\w+"
+            args = re.findall(pattern, self.expression)
+            str_args = ", ".join(args)
+            body = f"function ({str_args}) {{ return {self.expression} }}"
+            expression_plain = {
+                "$function": {"body": body, "args": args, "lang": "js"}
+            }
+            return json.dumps(expression_plain)
+        except:
+            print("FUNCTION", self)
+            __import__("ipdb").set_trace()
 
     def _get_query_plain(self):
         query_plain = [

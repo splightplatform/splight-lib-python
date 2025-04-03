@@ -4,7 +4,7 @@ from pydantic import field_validator
 
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.exceptions import ForbiddenOperation
-from splight_lib.models.database_base import SplightDatabaseBaseModel
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 
 class File(SplightDatabaseBaseModel):
