@@ -17,9 +17,7 @@ from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models.exceptions import (
-    InvalidFunctionConfiguration,
-)
+from splight_lib.models.exceptions import InvalidFunctionConfiguration
 from splight_lib.models.generic import ValueTypeEnum
 
 
