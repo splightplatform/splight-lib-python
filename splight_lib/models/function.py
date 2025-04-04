@@ -17,10 +17,7 @@ from splight_lib.models.database_base import (
     ResourceSummary,
     SplightDatabaseBaseModel,
 )
-from splight_lib.models.exceptions import (
-    InvalidFunctionConfiguration,
-    MissingFunctionItemExpression,
-)
+from splight_lib.models.exceptions import InvalidFunctionConfiguration
 from splight_lib.models.generic import ValueTypeEnum
 
 
@@ -113,9 +110,12 @@ class FunctionItem(BaseModel):
             )
         return self
 
-    def _get_expression_plain(self):
+    def _get_expression_plain(self) -> str | None:
+        if self.expression is None:
+            return None
         pattern = r"\$\w+"
         args = re.findall(pattern, self.expression)
+
         str_args = ", ".join(args)
         body = f"function ({str_args}) {{ return {self.expression} }}"
         expression_plain = {
