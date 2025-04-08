@@ -317,13 +317,11 @@ class DashboardTimeseriesChart(Chart):
 
 
 class_map = {
-    "actionlist": DashboardActionListChart,
     "alertevents": DashboardAlertEventsChart,
     "alertlist": DashboardAlertListChart,
     "assetlist": DashboardAssetListChart,
     "bar": DashboardBarChart,
     "bargauge": DashboardBarGaugeChart,
-    "commandlist": DashboardCommandListChart,
     "gauge": DashboardGaugeChart,
     "histogram": DashboardHistogramChart,
     "image": DashboardImageChart,
