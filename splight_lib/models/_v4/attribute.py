@@ -1,4 +1,4 @@
-from splight_lib.models._v4.base import ValueType, AttributeType
+from splight_lib.models._v4.base import AttributeType, ValueType
 from splight_lib.models._v4.exceptions import InvalidOperation
 from splight_lib.models.database import SplightDatabaseBaseModel
 
