@@ -1,10 +1,9 @@
 from splight_lib.models._v4.asset import Asset
+from splight_lib.models._v4.attribute import Attribute
 from splight_lib.models._v4.base import (
     AssetKind,
     AssetRelationship,
-    Attribute,
     AttributeType,
-    Metadata,
     ResourceSummary,
     ValueType,
 )
@@ -14,6 +13,7 @@ from splight_lib.models._v4.generator import Generator
 from splight_lib.models._v4.grid import Grid
 from splight_lib.models._v4.line import Line
 from splight_lib.models._v4.load import Load
+from splight_lib.models._v4.metadata import Metadata
 from splight_lib.models._v4.segment import Segment
 from splight_lib.models._v4.slack_line import SlackLine
 from splight_lib.models._v4.transformer import Transformer
