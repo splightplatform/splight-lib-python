@@ -33,7 +33,7 @@ class SplightDatabaseBaseModel(BaseModel):
     def get_event_name(type_: str, action: str) -> str:
         return f"{type_.lower()}-{action.lower()}"
 
-    def save(self):
+    def save(self) -> None:
         files_dict = self._get_model_files_dict()
         saved = self._db_client.save(
             self.__class__.__name__,
@@ -44,7 +44,7 @@ class SplightDatabaseBaseModel(BaseModel):
         for key, field in self.model_fields.items():
             setattr(self, key, getattr(instance, key))
 
-    def delete(self):
+    def delete(self) -> None:
         self._db_client.delete(
             resource_name=self.__class__.__name__, id=self.id
         )
