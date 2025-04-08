@@ -10,7 +10,6 @@ from splight_lib.models._v4.base import (
 )
 from splight_lib.models._v4.bus import Bus
 from splight_lib.models._v4.component import (
-    Parameter,
     DB_MODEL_TYPE_MAPPING,
     Component,
     ComponentObject,
@@ -18,9 +17,10 @@ from splight_lib.models._v4.component import (
     ComponentType,
     CustomType,
     Endpoint,
-    Output,
-    PrivacyPolicy,
     InputParameter,
+    Output,
+    Parameter,
+    PrivacyPolicy,
     Routine,
     RoutineEvaluation,
     RoutineObject,
@@ -47,8 +47,8 @@ from splight_lib.models._v4.dashboard import (
     Filter,
     Tab,
 )
-from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.datalake import DataRequest, PipelineStep, Trace
+from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
 from splight_lib.models._v4.file import File
 from splight_lib.models._v4.generator import Generator
