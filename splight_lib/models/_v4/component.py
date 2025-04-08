@@ -38,11 +38,7 @@ class PrivacyPolicy(LowercaseStrEnum):
 
 
 class ComponentType(LowercaseStrEnum):
-    ALGORITHM = auto()
-    NETWORK = auto()
     CONNECTOR = auto()
-    SIMULATOR = auto()
-    OTHER = auto()
 
 
 class RoutineStatus(LowercaseStrEnum):

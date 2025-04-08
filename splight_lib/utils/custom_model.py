@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Optional, Type
 from pydantic import BaseModel, create_model
 from typing_extensions import TypedDict
 
-from splight_lib.models._v3.component import DB_MODEL_TYPE_MAPPING, Parameter
+from splight_lib.models import DB_MODEL_TYPE_MAPPING, Parameter
 
 
 class ClassVarDict(TypedDict):

@@ -13,7 +13,7 @@ from pydantic_core import ValidationError
 from splight_lib.component.spec import Spec
 from splight_lib.execution.engine import EngineStatus, ExecutionEngine
 from splight_lib.logging._internal import LogTags, get_splight_logger
-from splight_lib.models.component import (
+from splight_lib.models import (
     ComponentObjectInstance,
     RoutineObjectInstance,
 )

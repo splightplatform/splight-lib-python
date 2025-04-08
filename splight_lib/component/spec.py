@@ -8,7 +8,7 @@ from splight_lib.component.exceptions import (
     DuplicatedValuesError,
     ParameterDependencyError,
 )
-from splight_lib.models._v3.component import (
+from splight_lib.models import (
     Component,
     ComponentObjectInstance,
     ComponentType,
@@ -18,9 +18,9 @@ from splight_lib.models._v3.component import (
     Output,
     PrivacyPolicy,
     Routine,
+    SplightDatalakeBaseModel,
     get_field_value,
 )
-from splight_lib.models.datalake_base import SplightDatalakeBaseModel
 from splight_lib.utils.custom_model import create_custom_model
 
 VALID_PARAMETER_VALUES = {

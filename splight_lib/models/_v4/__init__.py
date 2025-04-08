@@ -10,12 +10,22 @@ from splight_lib.models._v4.base import (
 )
 from splight_lib.models._v4.bus import Bus
 from splight_lib.models._v4.component import (
+    Parameter,
+    DB_MODEL_TYPE_MAPPING,
     Component,
     ComponentObject,
     ComponentObjectInstance,
+    ComponentType,
+    CustomType,
+    Endpoint,
+    Output,
+    PrivacyPolicy,
+    InputParameter,
+    Routine,
     RoutineEvaluation,
     RoutineObject,
     RoutineObjectInstance,
+    get_field_value,
 )
 from splight_lib.models._v4.dashboard import (
     AdvancedFilter,
@@ -37,6 +47,7 @@ from splight_lib.models._v4.dashboard import (
     Filter,
     Tab,
 )
+from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.datalake import DataRequest, PipelineStep, Trace
 from splight_lib.models._v4.external_grid import ExternalGrid
 from splight_lib.models._v4.file import File
@@ -73,6 +84,17 @@ __all__ = [
     "RoutineEvaluation",
     "ComponentObject",
     "ComponentObjectInstance",
+    "ComponentType",
+    "CustomType",
+    "Endpoint",
+    "InputParameter",
+    "Output",
+    "PrivacyPolicy",
+    "Routine",
+    "SplightDatalakeBaseModel",
+    "get_field_value",
+    "Parameter",
+    "DB_MODEL_TYPE_MAPPING",
     "AdvancedFilter",
     "Chart",
     "ChartItem",
