@@ -10,7 +10,6 @@ from pydantic import (
     ValidationError,
     model_validator,
 )
-from rich import print
 from strenum import LowercaseStrEnum, UppercaseStrEnum
 from typing_extensions import TypedDict
 
