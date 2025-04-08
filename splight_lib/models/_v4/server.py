@@ -6,7 +6,7 @@ from typing import Any, NamedTuple
 from pydantic import BaseModel, Field, computed_field
 from strenum import LowercaseStrEnum, PascalCaseStrEnum
 
-from splight_lib.models._v3.exceptions import (
+from splight_lib.models._v4.exceptions import (
     InvalidArgument,
     InvalidServerConfigType,
 )
