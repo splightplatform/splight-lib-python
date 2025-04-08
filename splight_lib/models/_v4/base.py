@@ -34,7 +34,7 @@ class AssetParams(BaseModel):
     id: str | None = None
     name: str
     description: str | None = None
-    tags: list[ResourceSummary] | None = None
+    tags: list[str] | None = None
     geometry: GeometryCollection | None = None
     centroid_coordinates: tuple[float, float] | None = None
     kind: AssetKind | None = None
@@ -55,7 +55,7 @@ class Metadata(BaseModel):
     name: str
     description: str | None = None
     value: float | int | str | bool | None = None
-    type: str
+    type: ValueType
     unit: str | None = None
 
 

@@ -1,3 +1,4 @@
+from splight_lib.models._v4.asset import Asset
 from splight_lib.models._v4.base import (
     AssetKind,
     AssetRelationship,
@@ -25,6 +26,7 @@ if api_settings.API_VERSION != SplightAPIVersion.V4:
 
 
 __all__ = [
+    "Asset",
     "AssetRelationship",
     "Metadata",
     "Attribute",

@@ -138,6 +138,7 @@ if api_version == SplightAPIVersion.V3:
     ]
 elif api_version == SplightAPIVersion.V4:
     from splight_lib.models._v4 import (
+        Asset,
         AssetKind,
         AssetRelationship,
         Attribute,
@@ -157,6 +158,7 @@ elif api_version == SplightAPIVersion.V4:
     )
 
     __all__ = [
+        "Asset",
         "AssetRelationship",
         "Metadata",
         "Attribute",
