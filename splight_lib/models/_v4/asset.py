@@ -1,11 +1,6 @@
-from splight_lib.models._v4.base import (
-    AssetParams,
-    AssetKind,
-    ResourceSummary,
-)
-
-from splight_lib.models._v4.exceptions import InvalidOperation
 from splight_lib.models._v4.attribute import Attribute
+from splight_lib.models._v4.base import AssetKind, AssetParams, ResourceSummary
+from splight_lib.models._v4.exceptions import InvalidOperation
 from splight_lib.models._v4.metadata import Metadata
 from splight_lib.models.database import SplightDatabaseBaseModel
 
