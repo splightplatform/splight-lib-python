@@ -10,10 +10,10 @@ class Transformer(AssetParams, SplightDatabaseBaseModel):
     active_power_hv: Attribute | None = None
     active_power_loss: Attribute | None = None
     active_power_lv: Attribute | None = None
+    contingency: Attribute | None = None
     reactive_power_hv: Attribute | None = None
     reactive_power_loss: Attribute | None = None
     reactive_power_lv: Attribute | None = None
-    contingency: Attribute | None = None
     switch_status_hv: Attribute | None = None
     switch_status_lv: Attribute | None = None
     voltage_hv: Attribute | None = None
@@ -21,11 +21,11 @@ class Transformer(AssetParams, SplightDatabaseBaseModel):
 
     # Computed attributes
     contingency_solving_time: Attribute | None = None
-    objective_power: Attribute | None = None
-    output_vector: Attribute | None = None
-    output_vector_ordering: Attribute | None = None
     current_hv: Attribute | None = None
     current_lv: Attribute | None = None
+    objective_power: Attribute | None = None
+    generators_output_vector: Attribute | None = None
+    historical_generators_output_vector: Attribute | None = None
 
     # Metadata
     capacitance: Metadata | None = None

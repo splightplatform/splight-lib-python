@@ -14,20 +14,19 @@ class Segment(AssetParams, SplightDatabaseBaseModel):
     ampacity_dlr_lte: Attribute | None = None
     ampacity_dlr_ste: Attribute | None = None
     conductor_temperature: Attribute | None = None
+    irradiance: Attribute | None = None
     temperature: Attribute | None = None
     wind_direction: Attribute | None = None
     wind_speed: Attribute | None = None
-    irradiance: Attribute | None = None
 
     # Metadata
     altitude: Metadata | None = None
     azimuth: Metadata | None = None
     cumulative_distance: Metadata | None = None
+    line_altitude: Metadata | None = None
     reference_sag: Metadata | None = None
     reference_temperature: Metadata | None = None
     span_length: Metadata | None = None
-    line_altitude: Metadata | None = None
 
     # Relationships
     line: AssetRelationship | None = None
-    grid: AssetRelationship | None = None
