@@ -66,7 +66,6 @@ from splight_lib.models._v3.hub import HubComponent
 from splight_lib.models._v3.hub_server import HubServer
 from splight_lib.models._v3.inverter import Inverter
 from splight_lib.models._v3.line import Line
-from splight_lib.models._v3.load import Load
 from splight_lib.models._v3.metadata import Metadata
 from splight_lib.models._v3.native import Boolean, Number, String
 from splight_lib.models._v3.secret import Secret
@@ -139,7 +138,6 @@ __all__ = [
     "Generator",
     "Grid",
     "Line",
-    "Load",
     "Inverter",
     "SlackGenerator",
     "SlackLine",
