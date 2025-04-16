@@ -19,8 +19,6 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     frequency: Attribute | None = None
     reactive_power_start: Attribute | None = None
     reactive_power_end: Attribute | None = None
-    historical_generators_output_vector: Attribute | None = None
-    historical_loads_output_vector: Attribute | None = None
     switch_status_start: Attribute | None = None
     switch_status_end: Attribute | None = None
     voltage_start: Attribute | None = None
