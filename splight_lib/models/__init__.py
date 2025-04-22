@@ -78,6 +78,7 @@ if api_version == SplightAPIVersion.V3:
         ThreeWindingTransformer,
         Trace,
         Transformer,
+        get_field_value,
     )
 
     __all__ = [
