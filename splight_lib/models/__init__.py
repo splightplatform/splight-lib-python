@@ -49,6 +49,7 @@ if api_version == SplightAPIVersion.V3:
         FunctionItem,
         Generator,
         Grid,
+        get_field_value,
         HubComponent,
         HubServer,
         InputParameter,
