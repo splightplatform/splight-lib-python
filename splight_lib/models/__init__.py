@@ -49,7 +49,6 @@ if api_version == SplightAPIVersion.V3:
         FunctionItem,
         Generator,
         Grid,
-        get_field_value,
         HubComponent,
         HubServer,
         InputParameter,
@@ -79,6 +78,7 @@ if api_version == SplightAPIVersion.V3:
         ThreeWindingTransformer,
         Trace,
         Transformer,
+        get_field_value,
     )
 
     __all__ = [
