@@ -1,17 +1,10 @@
-import os
-from glob import glob
-from tempfile import NamedTemporaryFile
-from typing import Annotated, Self
+from typing import Annotated
 
-import py7zr
 from pydantic import BaseModel, Field
 
 from splight_lib.models._v3.component import InputParameter
-from splight_lib.models.database import (
-    FilePath,
-    PrivacyPolicy,
-    SplightDatabaseBaseModel,
-)
+from splight_lib.models.database import PrivacyPolicy, SplightDatabaseBaseModel
+
 
 class Port(BaseModel):
     name: str | None = None
