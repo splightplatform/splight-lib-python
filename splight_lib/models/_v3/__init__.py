@@ -24,6 +24,7 @@ from splight_lib.models._v3.component import (
     CustomType,
     Endpoint,
     InputParameter,
+    InputDataAddress,
     Output,
     Parameter,
     PrivacyPolicy,
@@ -55,6 +56,7 @@ from splight_lib.models._v3.dashboard import (
     Filter,
     Tab,
 )
+from splight_lib.models._v3.data_address import DataAddresses as DataAddress
 from splight_lib.models._v3.datalake import DataRequest, PipelineStep, Trace
 from splight_lib.models._v3.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v3.external_grid import ExternalGrid
@@ -106,6 +108,7 @@ __all__ = [
     "DashboardTableChart",
     "DashboardTextChart",
     "DashboardTimeseriesChart",
+    "DataAddress",
     "ChartItem",
     "Component",
     "ComponentObject",
@@ -115,6 +118,7 @@ __all__ = [
     "Endpoint",
     "Output",
     "InputParameter",
+    "InputDataAddress",
     "PrivacyPolicy",
     "Routine",
     "get_field_value",

@@ -1,4 +1,5 @@
 from splight_lib.settings import SplightAPIVersion, api_settings
+from splight_lib.models.database import SplightDatabaseBaseModel
 
 # Get API version
 api_version = api_settings.API_VERSION
@@ -41,6 +42,7 @@ if api_version == SplightAPIVersion.V3:
         DashboardTextChart,
         DashboardTimeseriesChart,
         DataRequest,
+        DataAddress,
         Endpoint,
         ExternalGrid,
         File,
@@ -52,6 +54,7 @@ if api_version == SplightAPIVersion.V3:
         HubComponent,
         HubServer,
         InputParameter,
+        InputDataAddress,
         Inverter,
         Line,
         Metadata,
@@ -114,9 +117,11 @@ if api_version == SplightAPIVersion.V3:
         "ComponentObjectInstance",
         "ComponentType",
         "CustomType",
+        "DataAddress",
         "Endpoint",
         "Output",
         "InputParameter",
+        "InputDataAddress",
         "PrivacyPolicy",
         "Routine",
         "get_field_value",
@@ -190,6 +195,7 @@ elif api_version == SplightAPIVersion.V4:
         DashboardTextChart,
         DashboardTimeseriesChart,
         DataRequest,
+        DataAddress,
         Endpoint,
         ExternalGrid,
         File,
@@ -199,6 +205,7 @@ elif api_version == SplightAPIVersion.V4:
         HubComponent,
         HubServer,
         InputParameter,
+        InputDataAddress,
         Line,
         Load,
         Metadata,
@@ -270,6 +277,8 @@ elif api_version == SplightAPIVersion.V4:
         "PipelineStep",
         "Trace",
         "File",
+        "DataAddress",
+        "InputDataAddress",
         "HubComponent",
         "HubServer",
         "Boolean",
@@ -296,3 +305,5 @@ elif api_version == SplightAPIVersion.V4:
     ]
 else:
     raise ImportError(f"No models available for API version: '{api_version}'.")
+
+__all__.append("SplightDatabaseBaseModel")
