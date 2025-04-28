@@ -1,5 +1,5 @@
-from splight_lib.settings import SplightAPIVersion, api_settings
 from splight_lib.models.database import SplightDatabaseBaseModel
+from splight_lib.settings import SplightAPIVersion, api_settings
 
 # Get API version
 api_version = api_settings.API_VERSION
@@ -41,8 +41,8 @@ if api_version == SplightAPIVersion.V3:
         DashboardTableChart,
         DashboardTextChart,
         DashboardTimeseriesChart,
-        DataRequest,
         DataAddress,
+        DataRequest,
         Endpoint,
         ExternalGrid,
         File,
@@ -53,8 +53,8 @@ if api_version == SplightAPIVersion.V3:
         Grid,
         HubComponent,
         HubServer,
-        InputParameter,
         InputDataAddress,
+        InputParameter,
         Inverter,
         Line,
         Metadata,
@@ -194,8 +194,8 @@ elif api_version == SplightAPIVersion.V4:
         DashboardTableChart,
         DashboardTextChart,
         DashboardTimeseriesChart,
-        DataRequest,
         DataAddress,
+        DataRequest,
         Endpoint,
         ExternalGrid,
         File,
@@ -204,8 +204,8 @@ elif api_version == SplightAPIVersion.V4:
         Grid,
         HubComponent,
         HubServer,
-        InputParameter,
         InputDataAddress,
+        InputParameter,
         Line,
         Load,
         Metadata,
