@@ -15,6 +15,7 @@ from splight_lib.models._v4.component import (
     Output,
     Routine,
 )
+from splight_lib.models._v4.exceptions import CommandDisable
 from splight_lib.settings import workspace_settings
 
 warnings.simplefilter("always", DeprecationWarning)
@@ -117,11 +118,4 @@ class HubComponent(BaseModel):
         return hub_client.delete(self.id)
 
     def save(self) -> None:
-        hub_client = get_hub_client()
-        saved = hub_client.save(instance=self.model_dump())
-        if not self.id:
-            self.id = saved["id"]
-
-    def build(self) -> None:
-        hub_client = get_hub_client()
-        return hub_client.build(id=self.id)
+        raise CommandDisable("save method is not allowed")

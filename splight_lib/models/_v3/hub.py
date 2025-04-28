@@ -17,6 +17,7 @@ from splight_lib.models._v3.component import (
     Output,
     Routine,
 )
+from splight_lib.models._v3.exceptions import CommandDisable
 from splight_lib.settings import workspace_settings
 
 warnings.simplefilter("always", DeprecationWarning)
