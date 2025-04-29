@@ -16,6 +16,7 @@ from splight_lib.models._v4.component import (
     ComponentType,
     CustomType,
     Endpoint,
+    InputDataAddress,
     InputParameter,
     Output,
     Parameter,
@@ -46,6 +47,7 @@ from splight_lib.models._v4.dashboard import (
     Filter,
     Tab,
 )
+from splight_lib.models._v4.data_address import DataAddresses as DataAddress
 from splight_lib.models._v4.datalake import DataRequest, PipelineStep, Trace
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
@@ -113,6 +115,8 @@ __all__ = [
     "Filter",
     "Tab",
     "DataRequest",
+    "DataAddress",
+    "InputDataAddress",
     "PipelineStep",
     "Trace",
     "File",
