@@ -10,6 +10,14 @@ class Bus(AssetParams, SplightDatabaseBaseModel):
     active_power: Attribute | None = None
     reactive_power: Attribute | None = None
 
+    # Computed attributes
+    temperature: Attribute | None = None
+    wind_speed: Attribute | None = None
+    wind_direction: Attribute | None = None
+    irradiance: Attribute | None = None
+    forecasted_temperature_48H: Attribute | None = None
+    forecasted_wind_speed_48H: Attribute | None = None
+
     # Metadata
     nominal_voltage: Metadata | None = None
 
