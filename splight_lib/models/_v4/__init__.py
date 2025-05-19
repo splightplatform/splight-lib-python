@@ -1,8 +1,7 @@
 from splight_lib.models._v4.alert import Alert, AlertItem
-from splight_lib.models._v4.asset import Asset, AssetRelationship
+from splight_lib.models._v4.asset import Asset, AssetRelationship, AssetKind
 from splight_lib.models._v4.attribute import Attribute
 from splight_lib.models._v4.base import (
-    AssetKind,
     AttributeType,
     ResourceSummary,
     ValueType,
