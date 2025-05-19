@@ -242,7 +242,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
     multiple = field.multiple
 
     value = field.value
-    if not value:
+    if value is None:
         return [] if multiple else None
 
     if field.type in NATIVE_TYPES:
