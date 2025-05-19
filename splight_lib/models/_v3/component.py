@@ -242,7 +242,7 @@ def get_field_value(field: InputParameter | list[InputParameter]):
     multiple = field.multiple
 
     value = field.value
-    if not value:
+    if value is None:
         return [] if multiple else None
 
     if field.type in NATIVE_TYPES:
@@ -321,6 +321,12 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
             {"type": cls.__name__, "component_id": cls._component_id}
         )
         instances = cls._database_class.list(**params)
+        for item in instances:
+            print(item.config[1])
+            try:
+                algo = cls.parse_object(item)
+            except Exception as exc:
+                print(exc)
         return [cls.parse_object(instance) for instance in instances]
 
     @classmethod
