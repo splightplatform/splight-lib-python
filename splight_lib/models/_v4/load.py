@@ -1,6 +1,5 @@
-from splight_lib.models._v4.asset import AssetRelationship
+from splight_lib.models._v4.asset import AssetParams, AssetRelationship
 from splight_lib.models._v4.attribute import Attribute
-from splight_lib.models._v4.asset import AssetParams
 from splight_lib.models.database import SplightDatabaseBaseModel
 
 
