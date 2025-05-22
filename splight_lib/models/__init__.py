@@ -68,6 +68,7 @@ if api_version == SplightAPIVersion.V3:
         RoutineEvaluation,
         RoutineObject,
         RoutineObjectInstance,
+        RoutineStatus,
         Secret,
         Segment,
         Server,
@@ -158,6 +159,7 @@ if api_version == SplightAPIVersion.V3:
         "String",
         "RoutineObject",
         "RoutineObjectInstance",
+        "RoutineStatus",
         "Tab",
         "Trace",
     ]
@@ -219,6 +221,7 @@ elif api_version == SplightAPIVersion.V4:
         RoutineEvaluation,
         RoutineObject,
         RoutineObjectInstance,
+        RoutineStatus,
         Secret,
         Segment,
         Server,
@@ -302,6 +305,7 @@ elif api_version == SplightAPIVersion.V4:
         "Segment",
         "SlackLine",
         "Transformer",
+        "RoutineStatus",
     ]
 else:
     raise ImportError(f"No models available for API version: '{api_version}'.")

@@ -61,5 +61,6 @@ CUSTOM_PATHS_MAP = {
     "routine-status": "{prefix}/component/routines/{routine}/update_status/",
     "server-status": "{prefix}/server/servers/{server}/update-status/",
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
+    "routine-status": "telemetry/write/",
     "set-asset-relationship": "{prefix}/asset/relations/{relationship}/set/",
 }

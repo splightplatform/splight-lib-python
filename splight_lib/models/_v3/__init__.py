@@ -32,6 +32,7 @@ from splight_lib.models._v3.component import (
     RoutineEvaluation,
     RoutineObject,
     RoutineObjectInstance,
+    RoutineStatus,
     get_field_value,
 )
 from splight_lib.models._v3.dashboard import (
@@ -155,6 +156,7 @@ __all__ = [
     "String",
     "RoutineObject",
     "RoutineObjectInstance",
+    "RoutineStatus",
     "Tab",
     "Trace",
 ]
