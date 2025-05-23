@@ -1,6 +1,7 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from enum import auto
 from typing import Any, ClassVar, Literal, Optional, Type
 
@@ -188,8 +189,14 @@ class RoutineObject(SplightObject):
         _ = self._db_client.operate(
             resource_name="routine-status",
             instance={
-                "routine": self.id,
-                "status": self.status,
+                "collection": "routineEvaluations",
+                "records": [
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "routine": self.id,
+                        "status": self.status,
+                    }
+                ],
             },
         )
 
