@@ -58,9 +58,9 @@ CUSTOM_PATHS_MAP = {
     "set-asset-attribute": "{prefix}/assets/{asset}/set-attribute/",
     "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
     "decrypt-secret": "{prefix}/secrets/decrypt/",
-    "routine-status": "{prefix}/component/routines/{routine}/update_status/",
+    "routine-status": "telemetry/write/",
     "server-status": "{prefix}/server/servers/{server}/update-status/",
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
-    "routine-status": "telemetry/write/",
+    "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
     "set-asset-relationship": "{prefix}/asset/relations/{relationship}/set/",
 }
