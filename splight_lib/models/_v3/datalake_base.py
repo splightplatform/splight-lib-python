@@ -4,7 +4,6 @@ from typing import Any, ClassVar, Dict, Self, TypeVar
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
-from splight_lib.constants import COLLECTION_NAME_MAP
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.datalake import (
