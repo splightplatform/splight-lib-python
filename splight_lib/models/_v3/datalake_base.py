@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Dict, Self, TypeVar
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
+from splight_lib.constants import COLLECTION_NAME_MAP
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.datalake import (
@@ -12,7 +13,6 @@ from splight_lib.models._v3.datalake import (
     PipelineStep,
     Trace,
 )
-from splight_lib.constants import COLLECTION_NAME_MAP
 
 
 class SplightDatalakeBaseModel(BaseModel):
@@ -25,7 +25,9 @@ class SplightDatalakeBaseModel(BaseModel):
 
     @property
     def collection_name(self) -> str:
-        return COLLECTION_NAME_MAP.get(self._collection_name, self._collection_name)
+        return COLLECTION_NAME_MAP.get(
+            self._collection_name, self._collection_name
+        )
 
     @classmethod
     def get(

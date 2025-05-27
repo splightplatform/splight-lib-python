@@ -58,12 +58,8 @@ CUSTOM_PATHS_MAP = {
     "set-asset-attribute": "{prefix}/assets/{asset}/set-attribute/",
     "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
     "decrypt-secret": "{prefix}/secrets/decrypt/",
-    "routine-status": "telemetry/write/",
+    "routine-status": "{prefix}/component/routines/{routine}/update_status/",
     "server-status": "{prefix}/server/servers/{server}/update-status/",
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
-<<<<<<< HEAD
-    "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
-=======
->>>>>>> parent of 7b4ba7bd (Change endpoint and payload of routine status)
     "set-asset-relationship": "{prefix}/asset/relations/{relationship}/set/",
 }

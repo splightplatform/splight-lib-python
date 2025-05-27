@@ -11,13 +11,13 @@ from splight_lib.client.datalake.abstract import (
     Records,
 )
 from splight_lib.client.datalake.buffer import DatalakeDocumentBuffer
+from splight_lib.client.datalake.classmap import COLLECTION_PREFIXS_MAP
 from splight_lib.client.datalake.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
 from splight_lib.settings import SplightAPIVersion
 
-from splight_lib.client.datalake.classmap import COLLECTION_PREFIXS_MAP
 logger = get_splight_logger()
 
 EXCEPTIONS = (*SPLIGHT_REQUEST_EXCEPTIONS, DatalakeRequestError)
@@ -88,12 +88,11 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
         return response.json()
-    
+
     def _get_prefix(self, collection: str) -> str:
         # TODO: In the future we should use the API_VERSION parameter
         # return f"{api_version}/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
         return f"v3/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
-
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
