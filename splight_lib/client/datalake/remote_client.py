@@ -128,7 +128,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         )
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
-            "routine_evaluations": DatalakeDocumentBuffer(
+            "routineEvaluations": DatalakeDocumentBuffer(
                 buffer_size, buffer_timeout
             ),
         }
