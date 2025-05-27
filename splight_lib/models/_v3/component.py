@@ -156,7 +156,7 @@ class ComponentObject(SplightObject):
 
 
 class RoutineEvaluation(SplightDatalakeBaseModel):
-    _collection_name = "routine_evaluations"
+    _collection_name = "routineEvaluations"
 
     routine: str
     status: RoutineStatus
