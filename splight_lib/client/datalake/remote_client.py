@@ -74,7 +74,9 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _get(self, request: dict) -> list[dict]:
-        url = self._base_url / f"{self._api_version}/{self._default_path}/read/"
+        url = (
+            self._base_url / f"{self._api_version}/{self._default_path}/read/"
+        )
         response = self._restclient.post(url, json=request)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
@@ -82,7 +84,9 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     async def _async_get(self, request: dict) -> list[dict]:
-        url = self._base_url / f"{self._api_version}/{self._default_path}/read/"
+        url = (
+            self._base_url / f"{self._api_version}/{self._default_path}/read/"
+        )
         response = await self._restclient.async_post(url, json=request)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
