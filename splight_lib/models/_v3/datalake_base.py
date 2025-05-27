@@ -12,6 +12,7 @@ from splight_lib.models._v3.datalake import (
     PipelineStep,
     Trace,
 )
+from splight_lib.constants import COLLECTION_NAME_MAP
 
 
 class SplightDatalakeBaseModel(BaseModel):
@@ -21,6 +22,10 @@ class SplightDatalakeBaseModel(BaseModel):
     _collection_name: ClassVar[str] = "DatalakeModel"
 
     model_config = ConfigDict(extra="ignore")
+
+    @property
+    def collection_name(self) -> str:
+        return COLLECTION_NAME_MAP.get(self._collection_name, self._collection_name)
 
     @classmethod
     def get(
@@ -80,7 +85,7 @@ class SplightDatalakeBaseModel(BaseModel):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
         records = DataRecords(
-            collection=cls._collection_name,
+            collection=cls.collection_name,
             records=instances,
         )
         records.apply()
@@ -94,7 +99,7 @@ class SplightDatalakeBaseModel(BaseModel):
 
     def _to_record(self) -> DataRecords:
         return DataRecords(
-            collection=self._collection_name,
+            collection=self.collection_name,
             records=[self.model_dump(mode="json")],
         )
 
