@@ -1,1 +1,1 @@
-COLLECTION_PREFIXS_MAP = {"routine_evaluations": "telemetry",}
+COLLECTION_PREFIXS_MAP = {"routineEvaluations": "telemetry",}

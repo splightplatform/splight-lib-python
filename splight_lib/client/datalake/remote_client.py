@@ -90,7 +90,9 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return response.json()
     
     def _get_prefix(self, collection: str) -> str:
-        return COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)
+        # TODO: In the future we should use the API_VERSION parameter
+        # return f"{api_version}/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
+        return f"v3/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
 
 
 
