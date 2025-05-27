@@ -28,7 +28,7 @@ class SplightDatalakeBaseModel(BaseModel):
         return COLLECTION_NAME_MAP.get(
             self._collection_name, self._collection_name
         )
-    
+
     @classmethod
     def get(
         cls,
