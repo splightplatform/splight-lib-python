@@ -39,9 +39,8 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             access_key=access_id,
             secret_key=secret_key,
         )
-        # TODO: In the future we should use the API_VERSION parameter
-        # self._prefix = f"{api_version}/data"
-        self._default_prefix = "v3/data"
+        self._api_version = "v3"
+        self._default_path = "data"
 
         self._restclient = SplightRestClient(
             transport=HTTPTransport(retries=3)
@@ -90,9 +89,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return response.json()
 
     def _get_prefix(self, collection: str) -> str:
-        # TODO: In the future we should use the API_VERSION parameter
-        # return f"{api_version}/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
-        return f"v3/{COLLECTION_PREFIXS_MAP.get(collection, self._default_prefix)}"
+        return f"{self._api_version}/{COLLECTION_PREFIXS_MAP.get(collection, self._default_path)}"
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
