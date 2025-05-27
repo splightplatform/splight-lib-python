@@ -61,6 +61,9 @@ CUSTOM_PATHS_MAP = {
     "routine-status": "telemetry/write/",
     "server-status": "{prefix}/server/servers/{server}/update-status/",
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
+<<<<<<< HEAD
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
+=======
+>>>>>>> parent of 7b4ba7bd (Change endpoint and payload of routine status)
     "set-asset-relationship": "{prefix}/asset/relations/{relationship}/set/",
 }
