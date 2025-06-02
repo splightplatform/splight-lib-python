@@ -35,6 +35,7 @@ class QueryFilter(TypedDict):
 
 class GroupUnit(LowercaseStrEnum):
     EMPTY = ""
+    SECOND = auto()
     MINUTE = auto()
     HOUR = auto()
     DAY = auto()
@@ -160,6 +161,7 @@ class AlertStatus(LowercaseStrEnum):
     NO_DATA = auto()
     TIMEOUT = auto()
     DISABLED = auto()
+    MISCONFIGURED = auto()
     ERROR = auto()
     WARNING = auto()
 
