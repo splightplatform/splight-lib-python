@@ -22,11 +22,16 @@ class AssetKind(SplightDatabaseBaseModel):
         raise MethodNotAllowed("AssetKind objects are read-only")
 
 
+class Tag(BaseModel):
+    id: str
+    name: str
+
+
 class AssetParams(BaseModel):
     id: str | None = None
     name: str
     description: str | None = None
-    tags: list[str] | None = None
+    tags: list[str] | list[Tag] | None = None
     geometry: GeometryCollection | None = None
     centroid_coordinates: tuple[float, float] | None = None
     kind: AssetKind | None = None
