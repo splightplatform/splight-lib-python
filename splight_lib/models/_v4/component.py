@@ -336,7 +336,10 @@ class AbstractObjectInstance(ABC, SplightDatabaseBaseModel):
         field: Parameter, field_value: Any
     ) -> InputParameter:
         value = field_value
-        if field.type not in (NATIVE_TYPES | CUSTOM_TYPES):
+        if (
+            field.type not in (NATIVE_TYPES | CUSTOM_TYPES)
+            and value is not None
+        ):
             value = (
                 [item.id for item in field_value]
                 if field.multiple
