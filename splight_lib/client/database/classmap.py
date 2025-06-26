@@ -9,6 +9,7 @@ MODEL_NAME_MAP = {
     "tag": f"{ENGINE_PREFIX}/tags/",
     "assetkind": f"{ENGINE_PREFIX}/asset/kinds/",
     "attribute": f"{ENGINE_PREFIX}/asset/attributes/",
+    "battery": f"{ENGINE_PREFIX}/asset/batteries/",
     "bus": f"{ENGINE_PREFIX}/asset/buses/",
     "metadata": f"{ENGINE_PREFIX}/metadata/",
     "chart": f"{ENGINE_PREFIX}/dashboard/charts/",

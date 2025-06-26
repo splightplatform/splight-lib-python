@@ -6,6 +6,7 @@ from splight_lib.models._v4.base import (
     ResourceSummary,
     ValueType,
 )
+from splight_lib.models._v4.battery import Battery
 from splight_lib.models._v4.bus import Bus
 from splight_lib.models._v4.component import (
     DB_MODEL_TYPE_MAPPING,
@@ -133,6 +134,7 @@ __all__ = [
     "AssetKind",
     "ValueType",
     "AttributeType",
+    "Battery",
     "Bus",
     "ExternalGrid",
     "Generator",
