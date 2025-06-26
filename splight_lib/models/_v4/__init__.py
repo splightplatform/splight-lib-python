@@ -1,4 +1,3 @@
-from splight_lib.models._v4.alert import Alert, AlertItem
 from splight_lib.models._v4.asset import Asset, AssetKind, AssetRelationship
 from splight_lib.models._v4.attribute import Attribute
 from splight_lib.models._v4.base import (
@@ -75,8 +74,6 @@ if api_settings.API_VERSION != SplightAPIVersion.V4:
 
 
 __all__ = [
-    "Alert",
-    "AlertItem",
     "Asset",
     "AssetRelationship",
     "Component",

@@ -165,8 +165,6 @@ elif api_version == SplightAPIVersion.V4:
     from splight_lib.models._v4 import (
         DB_MODEL_TYPE_MAPPING,
         AdvancedFilter,
-        Alert,
-        AlertItem,
         Asset,
         AssetKind,
         AssetRelationship,
@@ -235,8 +233,6 @@ elif api_version == SplightAPIVersion.V4:
     )
 
     __all__ = [
-        "Alert",
-        "AlertItem",
         "Asset",
         "AssetRelationship",
         "Component",

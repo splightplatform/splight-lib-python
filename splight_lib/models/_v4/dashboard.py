@@ -6,7 +6,6 @@ from typing import Dict, List, Literal, get_args
 from pydantic import BaseModel, ValidationError, model_validator
 from strenum import UppercaseStrEnum
 
-from splight_lib.models._v4.alert import AlertItemType
 from splight_lib.models._v4.exceptions import MissingAlertItemExpression
 from splight_lib.models.database import (
     ResourceSummary,
