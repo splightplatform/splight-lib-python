@@ -6,22 +6,22 @@ from splight_lib.models.database import SplightDatabaseBaseModel
 
 class Line(AssetParams, SplightDatabaseBaseModel):
     # Input attributes
-    active_power_start: Attribute | None = None
     active_power_end: Attribute | None = None
+    active_power_start: Attribute | None = None
     contingency: Attribute | None = None
-    current_r_start: Attribute | None = None
     current_r_end: Attribute | None = None
-    current_s_start: Attribute | None = None
+    current_r_start: Attribute | None = None
     current_s_end: Attribute | None = None
-    current_t_start: Attribute | None = None
+    current_s_start: Attribute | None = None
     current_t_end: Attribute | None = None
+    current_t_start: Attribute | None = None
     frequency: Attribute | None = None
-    reactive_power_start: Attribute | None = None
     reactive_power_end: Attribute | None = None
-    switch_status_start: Attribute | None = None
+    reactive_power_start: Attribute | None = None
     switch_status_end: Attribute | None = None
-    voltage_start: Attribute | None = None
+    switch_status_start: Attribute | None = None
     voltage_end: Attribute | None = None
+    voltage_start: Attribute | None = None
 
     # Computed attributes
     ampacity_aar: Attribute | None = None
@@ -31,14 +31,22 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     ampacity_dlr_lte: Attribute | None = None
     ampacity_dlr_ste: Attribute | None = None
     contingency_solving_time: Attribute | None = None
+    dlr_irradiance: Attribute | None = None
+    dlr_temperature: Attribute | None = None
+    dlr_wind_direction: Attribute | None = None
+    dlr_wind_speed: Attribute | None = None
     forecasted_ampacity_aar: Attribute | None = None
+    forecasted_ampacity_aar_lte: Attribute | None = None
+    forecasted_ampacity_aar_ste: Attribute | None = None
     forecasted_ampacity_dlr: Attribute | None = None
-    generators_output_vector: Attribute | None = None
-    historical_generators_output_vector: Attribute | None = None
-    loads_output_vector: Attribute | None = None
-    historical_loads_output_vector: Attribute | None = None
+    forecasted_ampacity_dlr_lte: Attribute | None = None
+    forecasted_ampacity_dlr_ste: Attribute | None = None
+    generators_vector: Attribute | None = None
     historical_segment_aar_vector: Attribute | None = None
     historical_segment_dlr_vector: Attribute | None = None
+    historical_generators_vector: Attribute | None = None
+    loads_vector: Attribute | None = None
+    historical_loads_vector: Attribute | None = None
     max_conductor_temp: Attribute | None = None
     max_temperature_segment_dlr: Attribute | None = None
     min_amp_segment_aar: Attribute | None = None

@@ -22,9 +22,9 @@ class Transformer(AssetParams, SplightDatabaseBaseModel):
     contingency_solving_time: Attribute | None = None
     current_hv: Attribute | None = None
     current_lv: Attribute | None = None
-    objective_power: Attribute | None = None
     generators_output_vector: Attribute | None = None
     historical_generators_output_vector: Attribute | None = None
+    objective_power: Attribute | None = None
 
     # Metadata
     capacitance: Metadata | None = None
@@ -39,6 +39,6 @@ class Transformer(AssetParams, SplightDatabaseBaseModel):
     xn: Metadata | None = None
 
     # Relationships
+    grid: AssetRelationship | None = None
     hv_bus: AssetRelationship | None = None
     lv_bus: AssetRelationship | None = None
-    grid: AssetRelationship | None = None
