@@ -19,20 +19,24 @@ class Generator(AssetParams, SplightDatabaseBaseModel):
     daily_curtail_power: Attribute | None = None
     daily_emissions_avoided: Attribute | None = None
     daily_energy: Attribute | None = None
+    daily_revenue_loss: Attribute | None = None
     forecasted_active_power: Attribute | None = None
     forecasted_available_active_power: Attribute | None = None
     forecasted_curtailment: Attribute | None = None
     forecasted_energy: Attribute | None = None
+    forecasted_hourly_revenue_loss_48H: Attribute | None = None
+    hourly_revenue_loss: Attribute | None = None
     injection_price: Attribute | None = None
+    market_induced_curtailment: Attribute | None = None
     monthly_curtail_energy: Attribute | None = None
     monthly_curtail_power: Attribute | None = None
     monthly_energy: Attribute | None = None
     regulation_setpoint: Attribute | None = None
 
     # Metadata
-    max_active_power: Metadata | None = None
     co2_intensity_per_kwh: Metadata | None = None
     installed_power: Metadata | None = None
+    max_active_power: Metadata | None = None
 
     # Relationships
     bus: AssetRelationship | None = None

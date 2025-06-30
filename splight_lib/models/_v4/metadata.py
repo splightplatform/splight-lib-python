@@ -10,6 +10,7 @@ from splight_lib.models.database import SplightDatabaseBaseModel
 
 class Metadata(SplightDatabaseBaseModel):
     id: str | None = None
+    asset: str | None = None
     name: str
     description: str | None = None
     type: ValueType

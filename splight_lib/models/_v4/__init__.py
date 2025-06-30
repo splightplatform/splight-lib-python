@@ -1,4 +1,3 @@
-from splight_lib.models._v4.alert import Alert, AlertItem
 from splight_lib.models._v4.asset import Asset, AssetKind, AssetRelationship
 from splight_lib.models._v4.attribute import Attribute
 from splight_lib.models._v4.base import (
@@ -6,6 +5,7 @@ from splight_lib.models._v4.base import (
     ResourceSummary,
     ValueType,
 )
+from splight_lib.models._v4.battery import Battery
 from splight_lib.models._v4.bus import Bus
 from splight_lib.models._v4.component import (
     DB_MODEL_TYPE_MAPPING,
@@ -25,26 +25,6 @@ from splight_lib.models._v4.component import (
     RoutineObject,
     RoutineObjectInstance,
     get_field_value,
-)
-from splight_lib.models._v4.dashboard import (
-    AdvancedFilter,
-    Chart,
-    ChartItem,
-    Dashboard,
-    DashboardAlertEventsChart,
-    DashboardAlertListChart,
-    DashboardAssetListChart,
-    DashboardBarChart,
-    DashboardBarGaugeChart,
-    DashboardGaugeChart,
-    DashboardHistogramChart,
-    DashboardImageChart,
-    DashboardStatChart,
-    DashboardTableChart,
-    DashboardTextChart,
-    DashboardTimeseriesChart,
-    Filter,
-    Tab,
 )
 from splight_lib.models._v4.data_address import DataAddresses as DataAddress
 from splight_lib.models._v4.datalake import DataRequest, PipelineStep, Trace
@@ -74,8 +54,6 @@ if api_settings.API_VERSION != SplightAPIVersion.V4:
 
 
 __all__ = [
-    "Alert",
-    "AlertItem",
     "Asset",
     "AssetRelationship",
     "Component",
@@ -95,24 +73,6 @@ __all__ = [
     "get_field_value",
     "Parameter",
     "DB_MODEL_TYPE_MAPPING",
-    "AdvancedFilter",
-    "Chart",
-    "ChartItem",
-    "Dashboard",
-    "DashboardAlertEventsChart",
-    "DashboardAlertListChart",
-    "DashboardAssetListChart",
-    "DashboardBarChart",
-    "DashboardBarGaugeChart",
-    "DashboardGaugeChart",
-    "DashboardHistogramChart",
-    "DashboardImageChart",
-    "DashboardStatChart",
-    "DashboardTableChart",
-    "DashboardTextChart",
-    "DashboardTimeseriesChart",
-    "Filter",
-    "Tab",
     "DataRequest",
     "DataAddress",
     "InputDataAddress",
@@ -133,6 +93,7 @@ __all__ = [
     "AssetKind",
     "ValueType",
     "AttributeType",
+    "Battery",
     "Bus",
     "ExternalGrid",
     "Generator",
