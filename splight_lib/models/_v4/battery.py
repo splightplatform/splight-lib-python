@@ -11,12 +11,14 @@ class Battery(AssetParams, SplightDatabaseBaseModel):
     state_of_charge: Attribute | None = None
 
     # Computed Attributes
-    completed_cycles: Attribute | None = None
     daily_ideal_revenue: Attribute | None = None
     daily_revenue: Attribute | None = None
     forecasted_charge_48H: Attribute | None = None
     forecasted_daily_revenue_48H: Attribute | None = None
+    forecasted_hourly_revenue_48H: Attribute | None = None
     hourly_revenue: Attribute | None = None
+    ideal_state_of_charge: Attribute | None = None
+    monthly_cycle_count: Attribute | None = None
     trade_action: Attribute | None = None
 
     # Metadata
@@ -24,7 +26,7 @@ class Battery(AssetParams, SplightDatabaseBaseModel):
     charge_speed: Metadata | None = None
     cycles_per_market: Metadata | None = None
     discharge_speed: Metadata | None = None
-    market_init: Metadata | None = None
+    market_opening_time : Metadata | None = None
 
     # Relationships
     bus: AssetRelationship | None = None
