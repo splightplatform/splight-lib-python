@@ -26,7 +26,7 @@ class Battery(AssetParams, SplightDatabaseBaseModel):
     charge_speed: Metadata | None = None
     cycles_per_market: Metadata | None = None
     discharge_speed: Metadata | None = None
-    market_opening_time : Metadata | None = None
+    market_opening_time: Metadata | None = None
 
     # Relationships
     bus: AssetRelationship | None = None
