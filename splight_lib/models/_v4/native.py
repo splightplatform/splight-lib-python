@@ -13,7 +13,6 @@ class NativeOutput(SplightDatalakeBaseModel):
     asset: str | Asset
     attribute: str | Attribute
     output_format: str | None = None
-    _collection_name: ClassVar[str] = "default"
     _output_format: ClassVar[str] = "default"
 
     @field_validator("output_format", mode="before")

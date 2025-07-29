@@ -78,7 +78,7 @@ class DatalakeSettings(BaseSettings, Singleton):
 
 
 class SplightAPIVersionSettings(BaseSettings, Singleton):
-    API_VERSION: SplightAPIVersion = SplightAPIVersion.V3
+    API_VERSION: SplightAPIVersion = SplightAPIVersion.V4
 
 
 # Create singletons

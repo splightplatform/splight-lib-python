@@ -2,10 +2,10 @@ import os
 
 from pytest_mock import MockerFixture
 
-from splight_lib.client.datalake import SyncRemoteDatalakeClient  # noqa E402
-from splight_lib.client.datalake.remote_client import (  # noqa E402
-    SplightRestClient,
+from splight_lib.client.datalake.v3 import (  # noqa E402
+    SyncRemoteDatalakeClient,
 )
+from splight_lib.restclient import SplightRestClient
 
 base_url = "http://test.com"
 os.environ["ACCESS_ID"] = "access_id"

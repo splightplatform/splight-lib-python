@@ -1,34 +1,32 @@
-from datetime import datetime
-from enum import Enum
-from hashlib import sha256
-from typing import Annotated, Any, Generator, Generic, Literal, Self, TypeVar
+from datetime import datetime, timezone
+from enum import auto
+from itertools import islice
+from typing import Any, ClassVar, Generic, Iterable, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, field_validator
+from strenum import PascalCaseStrEnum, StrEnum
 
 from splight_lib.client.datalake import DatalakeClientBuilder
-from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.client.datalake.constants import StepName
-from splight_lib.models._v4.asset import Asset
-from splight_lib.models._v4.attribute import Attribute
-from splight_lib.models._v4.exceptions import TraceAlreadyExistsError
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.settings import (
+    SplightAPIVersion,
     api_settings,
     datalake_settings,
     workspace_settings,
 )
 
-MAX_NUM_TRACES = 500
 T = TypeVar("T")
+DataModel = TypeVar("DataModel", bound=BaseModel)
+MAX_NUM_RECORDS = 500
+MAX_NUM_TRACES = 500
 
 
-def hash(string: str) -> str:
-    return sha256(string.encode("utf-8")).hexdigest()
-
-
-def get_datalake_client() -> AbstractDatalakeClient:
+def get_datalake_client(resource: str) -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
+        version=SplightAPIVersion.V4,
         dl_client_type=datalake_settings.DL_CLIENT_TYPE,
         parameters={
+            "resource": resource,
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
             "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
@@ -39,151 +37,132 @@ def get_datalake_client() -> AbstractDatalakeClient:
     )
 
 
-class TraceType(str, Enum):
-    QUERY = "QUERY"
-    EXPRESSION = "EXPRESSION"
-    METADATA = "METADATA"
-
-    @classmethod
-    def choices(cls):
-        return tuple((i.name, i.value) for i in cls)
-
-
-class PipelineStep(BaseModel):
-    name: StepName
-    operation: str | int | dict[str, Any]
-
-    @classmethod
-    def from_dict(cls, step_dict: dict[str, Any]) -> Self:
-        (name, operation), *aux = step_dict.items()
-        return cls(name=name.lstrip("$"), operation=operation)
-
-    def to_step(self) -> dict[str, dict[str, Any]]:
-        return {f"${self.name.value}": self.operation}
+def batched(iterable: Iterable, n: int, *, strict: bool = False):
+    if n < 1:
+        raise ValueError("n must be at least one")
+    iterator = iter(iterable)
+    while batch := list(islice(iterator, n)):
+        if strict and len(batch) != n:
+            raise ValueError("batched(): incomplete batch")
+        yield batch
 
 
-class Trace(BaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-    ref_id: str
-    type: TraceType = TraceType.QUERY
-    expression: dict | None = None
-    # TODO: Review if it should be list[PipelineStep]
-    pipeline: list[dict] = []
-    address: Annotated[dict, Field(exclude=True)]
-
-    @classmethod
-    def from_address(
-        cls, asset: str | Asset, attribute: str | Attribute
-    ) -> Self:
-        asset_id = asset.id if isinstance(asset, Asset) else asset
-        attribute_id = (
-            attribute.id if isinstance(attribute, Attribute) else attribute
-        )
-        return cls(
-            ref_id=hash(f"{asset_id}_{attribute_id}"),
-            type=TraceType.QUERY,
-            pipeline=[
-                PipelineStep(
-                    name=StepName.MATCH,
-                    operation={"asset": asset_id, "attribute": attribute_id},
-                ).to_step()
-            ],
-            address={"asset": asset_id, "attribute": attribute_id},
-        )
-
-    def add_step(self, step: PipelineStep) -> None:
-        self.pipeline.append(step.to_step())
+class DataValueType(PascalCaseStrEnum):
+    NUMBER = auto()
+    STRING = auto()
+    BOOLEAN = auto()
 
 
-class DataRequest(Generic[T], BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    collection: str = "default"
-    sort_field: str = "timestamp"
-    sort_direction: Literal[-1, 1] = -1
-    limit: Annotated[int, Field(ge=1, le=10000)] = 10000
-    max_time_ms: Annotated[int, Field(ge=1, le=10000)] = 10000
-    from_timestamp: datetime | None = None
-    to_timestamp: datetime | None = None
-    traces: list[Trace] = []
-
-    _dl_client: AbstractDatalakeClient = PrivateAttr()
-    _traces_ref: dict[str, dict] = {}
-
-    def add_trace(self, trace: Trace) -> None:
-        if trace.ref_id in self._traces_ref:
-            raise TraceAlreadyExistsError(trace.ref_id)
-        self.traces.append(trace)
-        self._traces_ref.update({trace.ref_id: trace.address})
-
-    def as_pipeline(self) -> list[dict[str, Any]]:
-        return [step.to_step() for step in self.pipeline]
-
-    def apply(self) -> list[T]:
-        dl_client = get_datalake_client()
-        request = self.model_dump(mode="json")
-        traces = request.pop("traces")
-        data = []
-        for batch in chunk_list(traces, MAX_NUM_TRACES):
-            request["traces"] = batch
-            response = dl_client.get(request)
-            data.extend(self._parse_respose(response["results"]))
-        return data
-
-    async def async_apply(self) -> list[T]:
-        dl_client = get_datalake_client()
-        request = self.model_dump(mode="json")
-        traces = request.pop("traces")
-        data = []
-        for batch in chunk_list(traces, MAX_NUM_TRACES):
-            request["traces"] = batch
-            response = await dl_client.async_get(request)
-            data.extend(self._parse_respose(response["results"]))
-        return data
-
-    def _parse_respose(self, response: dict) -> list[T]:
-        model_class = self.__orig_class__.__args__[0]
-        data = []
-        for item in response:
-            timestamp = item.pop("timestamp")
-            values = [
-                model_class(
-                    timestamp=timestamp, value=value, **self._traces_ref[key]
-                )
-                for key, value in item.items()
-                if value is not None
-            ]
-            data.extend(values)
-        return data
+class Aggregation(StrEnum):
+    AVG = "mean"
+    SUM = "sum"
+    MAX = "max"
+    MIN = "min"
+    COUNT = "count"
+    LAST = "last_value"
 
 
-class DataRecords(BaseModel):
-    collection: str = "default"
-    records: list[dict[str, Any]] = []
+class GroupByTime(StrEnum):
+    MINUTE = "minute"
+    HOUR = "hour"
+    DAY = "day"
+    WEEK = "week"
+    MONTH = "month"
+    YEAR = "year"
+
+
+class Sort(StrEnum):
+    ASC = "ASC"
+    DESC = "DESC"
+
+
+class AttributeDocument(BaseModel):
+    timestamp: datetime = datetime.now(timezone.utc)
+    asset: str
+    attribute: str
+    value: str | int | float | bool
+
+    resource_name: ClassVar[str] = "attributes"
+
+
+class SolutionOutputDocument(BaseModel):
+    timestamp: datetime = datetime.now(timezone.utc)
+    asset: str
+    solution: str
+    output: str
+    value: str | int | float | bool
+
+    resource_name: ClassVar[str] = "solutions"
+
+
+T = TypeVar("T", AttributeDocument, SolutionOutputDocument)
+
+
+class Records(Generic[T], BaseModel):
+    records: list[T] = []
 
     def apply(self) -> None:
-        dl_client = get_datalake_client()
-        dl_client.save(self.model_dump(mode="json"))
+        model_class = self.__orig_class__.__args__[0]
+        dl_client = get_datalake_client(model_class.resource_name)
+        request = self.model_dump(
+            mode="json", exclude={"namespace", "collection"}
+        )
+        dl_client.save(request)
 
-    async def async_apply(self) -> None:
-        dl_client = get_datalake_client()
-        await dl_client.async_save(self.model_dump(mode="json"))
+
+class Query(Generic[T], BaseModel):
+    type: DataValueType = DataValueType.NUMBER
+    attributes: str | list[str] | None = None
+    outputs: str | list[str] | None = None
+    assets: str | list[str] | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    group_by_time: GroupByTime | None = GroupByTime.MINUTE
+    aggregation: Aggregation | None = Aggregation.AVG
+    sort: Sort | None = Sort.ASC
+    limit: int = 10000
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    @field_validator("attributes", "outputs", "assets", mode="before")
+    def validate_ids(cls, value: Any) -> list[str]:
+        return [value] if isinstance(value, str) else value
+
+    def apply(self) -> list[T]:
+        model_class = self.__orig_class__.__args__[0]
+        self._validate_model(model_class)
+        dl_client = get_datalake_client(model_class.resource_name)
+        query = self.model_dump(
+            mode="json", exclude_none=True, exclude={"namespace"}
+        )
+        response = dl_client.get(request=query)["results"]
+        return [model_class(**item) for item in response]
+
+    def _validate_model(self, model_class: T):
+        if model_class == AttributeDocument:
+            if self.outputs or self.assets:
+                raise ValueError(
+                    (
+                        "Outputs and assets cannot be specified for "
+                        "AttributeDocument queries."
+                    )
+                )
+        elif model_class == SolutionOutputDocument:
+            if self.assets:
+                raise ValueError(
+                    (
+                        "Assets cannot be specified for "
+                        "SolutionOutputDocument queries."
+                    )
+                )
+        else:
+            raise ValueError(
+                f"Unsupported model class: {model_class.__name__}"
+            )
 
 
-def chunk_list(
-    datas: list[Any], chunksize: int
-) -> Generator[list[Any], None, None]:
-    """Split list into chunks
-
-    Parameters
-    ----------
-    datas : list[Any]
-        the list of data
-    chunksize : int
-        the size of chunk
-
-    Returns
-    -------
-    Generator with the chunks
-    """
-    for i in range(0, len(datas), chunksize):
-        yield datas[i : i + chunksize]
+class DataClient(BaseModel):
+    attribute_document: DataModel = AttributeDocument
+    solution_output_document: DataModel = SolutionOutputDocument
+    records: DataModel = Records
+    query: DataModel = Query

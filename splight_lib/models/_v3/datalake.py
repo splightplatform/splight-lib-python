@@ -6,8 +6,8 @@ from typing import Annotated, Any, Generator, Generic, Literal, Self, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from splight_lib.client.datalake import DatalakeClientBuilder
-from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.client.datalake.constants import StepName
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
+from splight_lib.client.datalake.v3.constants import StepName
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.exceptions import TraceAlreadyExistsError
@@ -27,8 +27,9 @@ def hash(string: str) -> str:
 
 def get_datalake_client() -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
-        dl_client_type=datalake_settings.DL_CLIENT_TYPE,
+        dl_client_type="sync",
         parameters={
+            "resource": "attributes",
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
             "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
