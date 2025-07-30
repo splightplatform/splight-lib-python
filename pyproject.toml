@@ -47,7 +47,7 @@ dev = [
     "jsonref==1.1.0",
     "openapi-schema-validator==0.6.2",
     "polyfactory==2.13.0",
-    "pre-commit==3.2.2",
+    "pre-commit>=4.0.0",
     "pytest>=8.3.0",
     "pytest-mock>=3.12.0",
     "ruff==0.9.1",

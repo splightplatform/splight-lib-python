@@ -995,7 +995,7 @@ wheels = [
 
 [[package]]
 name = "pre-commit"
-version = "3.2.2"
+version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cfgv" },
@@ -1004,9 +1004,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "virtualenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/89/40/0f5b8d53178545f736172c8c2fc4f5eb68fffa828dba5ddad3cc43af878e/pre_commit-3.2.2.tar.gz", hash = "sha256:5b808fcbda4afbccf6d6633a56663fed35b6c2bc08096fd3d47ce197ac351d9d", size = 176703, upload-time = "2023-04-03T20:31:32.187Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/08/39/679ca9b26c7bb2999ff122d50faa301e49af82ca9c066ec061cfbc0c6784/pre_commit-4.2.0.tar.gz", hash = "sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146", size = 193424, upload-time = "2025-03-18T21:35:20.987Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/41/52/3886066f73cd0d52a86558fa27cc754c2b4a108e389b5624a75537212d4e/pre_commit-3.2.2-py2.py3-none-any.whl", hash = "sha256:0b4210aea813fe81144e87c5a291f09ea66f199f367fa1df41b55e1d26e1e2b4", size = 202692, upload-time = "2023-04-03T20:31:30.382Z" },
+    { url = "https://files.pythonhosted.org/packages/88/74/a88bf1b1efeae488a0c0b7bdf71429c313722d1fc0f377537fbe554e6180/pre_commit-4.2.0-py2.py3-none-any.whl", hash = "sha256:a009ca7205f1eb497d10b845e52c838a98b6cdd2102a6c8e4540e94ee75c58bd", size = 220707, upload-time = "2025-03-18T21:35:19.343Z" },
 ]
 
 [[package]]
@@ -1796,7 +1796,7 @@ dev = [
     { name = "jsonref", specifier = "==1.1.0" },
     { name = "openapi-schema-validator", specifier = "==0.6.2" },
     { name = "polyfactory", specifier = "==2.13.0" },
-    { name = "pre-commit", specifier = "==3.2.2" },
+    { name = "pre-commit", specifier = ">=4.0.0" },
     { name = "pytest", specifier = ">=8.3.0" },
     { name = "pytest-mock", specifier = ">=3.12.0" },
     { name = "ruff", specifier = "==0.9.1" },
