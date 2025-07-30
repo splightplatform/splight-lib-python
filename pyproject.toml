@@ -68,7 +68,6 @@ profile = "black"
 line_length = 79
 
 [tool.pytest.ini_options]
-# testpaths = ["splight_lib/component/tests/"]
 filterwarnings = [
     "error",
     "ignore::RuntimeWarning",

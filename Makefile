@@ -48,17 +48,3 @@ format: install-dev
 
 check-format: install-dev
 	uv run pre-commit run --all-files
-	# --show-diff-on-failure
-
-# format: 
-# 	uv run isort splight_lib/
-# 	uv run ruff format splight_lib/
-#
-# check_isort:
-# 	uv run isort --check-only --diff splight_lib/
-#
-# check_ruff:
-# 	uv run ruff format --check --diff splight_lib/
-#
-# check_format: check_ruff check_isort 
-#
