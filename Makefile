@@ -42,15 +42,23 @@ install-dev:
 isort: ## run isort formatter
 	uv run isort .
 
-format: 
-	uv run isort splight_lib/
-	uv run ruff format splight_lib/
 
-check_isort:
-	uv run isort --check-only --diff splight_lib/
+format: install-dev
+	uv run pre-commit run --all-files
 
-check_ruff:
-	uv run ruff format --check --diff splight_lib/
+check-format: install-dev
+	uv run pre-commit run --all-files
+	# --show-diff-on-failure
 
-check_format: check_ruff check_isort 
-
+# format: 
+# 	uv run isort splight_lib/
+# 	uv run ruff format splight_lib/
+#
+# check_isort:
+# 	uv run isort --check-only --diff splight_lib/
+#
+# check_ruff:
+# 	uv run ruff format --check --diff splight_lib/
+#
+# check_format: check_ruff check_isort 
+#
