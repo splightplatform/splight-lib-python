@@ -20,19 +20,25 @@ pip install splight-lib==x.y.z
 
 ### For Development
 
-To install the library in development mode you need to have `poetry` installed
+This library uses `uv` as package manager. In order to install `uv` you can 
+use the command
 ```bash
-pip install poetry==2.0.1
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Make sure to have installed `poetry` in the version specified or newer since 
-version older has a different interface.
-
-Then to insall the library you can use the command
+Then to insall the library you can use the command in development mode you 
+can use
 
 ```bash
-poetry install
+uv sync
 ```
+
+and for running a python interpreter within the environment you can use
+
+```bash
+uv run python
+```
+
 
 #### Managing versions
 
@@ -44,7 +50,7 @@ the version you should use the command
 ```bash
 make update-version scope=<scope>
 ```
-where scope can be `mayor`, `minor` or `patch`.
+where scope can be `mahor`, `minor` or `patch`.
 
 ## Tests
 
