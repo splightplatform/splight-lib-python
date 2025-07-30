@@ -31,7 +31,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -f .coverage
 
 test: ## run tests with pytest
-	pytest splight_lib/
+	uv run pytest splight_lib/
 
 flake8:  ## run flake8 linter
 	flake8 .
