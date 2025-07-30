@@ -14,7 +14,9 @@ from splight_lib.models._v3.component import (  # noqa: E402
     ComponentObjectInstance,
     CustomType,
 )
-from splight_lib.models._v3.exceptions import InvalidObjectInstance  # noqa: E402
+from splight_lib.models._v3.exceptions import (  # noqa: E402
+    InvalidObjectInstance,
+)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
