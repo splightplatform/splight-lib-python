@@ -114,6 +114,10 @@ indent-width = 4
 
 target-version = "py311"
 
+# TODO: activate "E" in the near future
+# select = ["E", "F", "I"]
+select = ["F", "I"]
+
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"

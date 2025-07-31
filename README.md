@@ -50,7 +50,7 @@ the version you should use the command
 ```bash
 make update-version scope=<scope>
 ```
-where scope can be `mahor`, `minor` or `patch`.
+where scope can be `major`, `minor` or `patch`.
 
 ## Tests
 
