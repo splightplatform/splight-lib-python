@@ -66,7 +66,7 @@ class SplightDatalakeBaseModel(BaseModel):
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = Records(
+        records = Records[AttributeDocument](
             records=instances,
         )
         records.apply()
@@ -79,7 +79,7 @@ class SplightDatalakeBaseModel(BaseModel):
         }
 
     def _to_record(self) -> Records:
-        return Records(
+        return Records[AttributeDocument](
             records=[self.model_dump(mode="json")],
         )
 
