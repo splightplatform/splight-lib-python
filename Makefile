@@ -18,7 +18,7 @@ help:
 clean: clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 update-version:
-	poetry version $(scope)
+	uv version --bump=$(scope)
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -31,32 +31,20 @@ clean-test: ## remove test and coverage artifacts
 	rm -f .coverage
 
 test: ## run tests with pytest
-	pytest splight_lib/
+	uv run pytest splight_lib/
 
-flake8:  ## run flake8 linter
-	flake8 .
+install:
+	uv sync --all-extras
 
-coverage: ## run coverage
-	coverage run --source=. -m pytest; coverage report -m
-
-install: clean ## install the package to the active Python's site-packages
-	pip install -e ".[dev]"
-	pre-commit install
-
-black: ## run black formatter
-	black .
+install-dev:
+	uv sync --all-extras --dev
 
 isort: ## run isort formatter
-	isort .
+	uv run isort .
 
-format: 
-	isort splight_lib/
-	ruff format splight_lib/
 
-check_isort:
-	isort --check-only --diff splight_lib/
+format: install-dev
+	uv run pre-commit run --all-files
 
-check_ruff:
-	ruff format --check --diff splight_lib/
-
-check_format: check_ruff check_isort 
+check-format: install-dev
+	uv run pre-commit run --all-files

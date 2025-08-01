@@ -170,12 +170,6 @@ def test_api_contract():
         # TODO: Key config should not be excluded, this is because
         # for RoutineObject, the config is a JSON field and the
         # validation fails
-        # print(model_name)
-        # for item in instances:
-        #     instance = item.model_dump(exclude={"config"})
-        #     validate(
-        #         instance=instance, schema=model_schema, cls=OAS30ReadValidator
-        #     )
         _ = [
             validate(
                 instance=item.model_dump(exclude={"config"}),

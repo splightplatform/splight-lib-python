@@ -160,6 +160,7 @@ if api_version == SplightAPIVersion.V3:
         "RoutineObjectInstance",
         "Tab",
         "Trace",
+        "SplightDatabaseBaseModel",
     ]
 elif api_version == SplightAPIVersion.V4:
     from splight_lib.models._v4 import (
@@ -264,8 +265,7 @@ elif api_version == SplightAPIVersion.V4:
         "Segment",
         "SlackLine",
         "Transformer",
+        "SplightDatabaseBaseModel",
     ]
 else:
     raise ImportError(f"No models available for API version: '{api_version}'.")
-
-__all__.append("SplightDatabaseBaseModel")

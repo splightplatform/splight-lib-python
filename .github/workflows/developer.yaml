@@ -62,16 +62,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Setup poetry
-        run: pip install poetry==2.0.1 virtualenv==20.28.1
-
-      - name: Install dependencies
-        run: |
-          poetry config virtualenvs.create true
-          poetry install
+      - name: Install latest uv and set Python version
+        uses: astral-sh/setup-uv@v6
 
       - name: Build package
-        run: poetry build
+        run: uv build
 
       - name: Load variable to decide whether to publish package
         run: |
