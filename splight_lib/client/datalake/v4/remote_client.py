@@ -1,6 +1,5 @@
 from threading import Lock, Thread
 from time import sleep
-from typing import Literal
 
 from furl import furl
 from httpx import HTTPTransport
