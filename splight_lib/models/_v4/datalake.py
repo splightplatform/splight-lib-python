@@ -148,10 +148,10 @@ class Query(Generic[T], BaseModel):
                     )
                 )
         elif model_class == SolutionOutputDocument:
-            if self.assets:
+            if self.attributes:
                 raise ValueError(
                     (
-                        "Assets cannot be specified for "
+                        "Attributes cannot be specified for "
                         "SolutionOutputDocument queries."
                     )
                 )
