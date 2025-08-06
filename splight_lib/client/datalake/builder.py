@@ -1,24 +1,27 @@
 from typing import Any
 
-from splight_lib.client.datalake.abstract import AbstractDatalakeClient
-from splight_lib.client.datalake.remote_client import (
-    BufferedAsyncRemoteDatalakeClient,
-    BufferedSyncRemoteDataClient,
-    SyncRemoteDatalakeClient,
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
+from splight_lib.client.datalake.v3.builder import (
+    DatalakeClientBuilder as V3DatalakeClientBuilder,
 )
-from splight_lib.settings import DatalakeClientType
-
-DL_CLIENT_TYPE_MAP = {
-    DatalakeClientType.BUFFERED_ASYNC: BufferedAsyncRemoteDatalakeClient,
-    DatalakeClientType.BUFFERED_SYNC: BufferedSyncRemoteDataClient,
-    DatalakeClientType.SYNC: SyncRemoteDatalakeClient,
-}
+from splight_lib.client.datalake.v4.builder import (
+    DatalakeClientBuilder as V4DatalakeClientBuilder,
+)
+from splight_lib.settings import DatalakeClientType, SplightAPIVersion
 
 
 class DatalakeClientBuilder:
     @staticmethod
     def build(
+        version: SplightAPIVersion = SplightAPIVersion.V4,
         dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
         parameters: dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
-        return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)
+        if version == SplightAPIVersion.V3:
+            Builder = V3DatalakeClientBuilder
+        elif version == SplightAPIVersion.V4:
+            Builder = V4DatalakeClientBuilder
+        else:
+            raise ValueError(f"Unsupported API version: {version}")
+
+        return Builder.build(dl_client_type, parameters)

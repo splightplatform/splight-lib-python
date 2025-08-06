@@ -27,7 +27,12 @@ from splight_lib.models._v4.component import (
     get_field_value,
 )
 from splight_lib.models._v4.data_address import DataAddresses as DataAddress
-from splight_lib.models._v4.datalake import DataRequest, PipelineStep, Trace
+from splight_lib.models._v4.datalake import (
+    AttributeDocument,
+    Query,
+    Records,
+    SolutionOutputDocument,
+)
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
 from splight_lib.models._v4.file import File
@@ -73,7 +78,10 @@ __all__ = [
     "get_field_value",
     "Parameter",
     "DB_MODEL_TYPE_MAPPING",
-    "DataRequest",
+    "Query",
+    "Records",
+    "AttributeDocument",
+    "SolutionOutputDocument",
     "DataAddress",
     "InputDataAddress",
     "PipelineStep",

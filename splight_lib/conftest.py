@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from splight_lib.client.database.abstract import AbstractDatabaseClient
-from splight_lib.client.datalake.abstract import AbstractDatalakeClient
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.settings import SplightAPIVersion, api_settings
 
 # Only load these tests when API_VERSION is v4
