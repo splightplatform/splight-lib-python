@@ -13,7 +13,7 @@ from splight_lib.settings import DatalakeClientType, SplightAPIVersion
 class DatalakeClientBuilder:
     @staticmethod
     def build(
-        version: SplightAPIVersion = SplightAPIVersion.V4,
+        version: SplightAPIVersion = SplightAPIVersion.V3,
         dl_client_type: DatalakeClientType = DatalakeClientType.BUFFERED_ASYNC,
         parameters: dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
