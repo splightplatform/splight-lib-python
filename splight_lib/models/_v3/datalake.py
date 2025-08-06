@@ -27,6 +27,7 @@ def hash(string: str) -> str:
 
 def get_datalake_client() -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
+        version=api_settings.API_VERSION,
         dl_client_type="sync",
         parameters={
             "resource": "attributes",
