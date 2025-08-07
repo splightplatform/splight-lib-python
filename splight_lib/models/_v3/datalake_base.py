@@ -61,7 +61,7 @@ class SplightDatalakeBaseModel(BaseModel):
             cls, asset, attribute, extra_pipeline, **params
         )
         instances = request.apply()
-        df = pd.DataFrame([instance.dict() for instance in instances])
+        df = pd.DataFrame([instance.model_dump() for instance in instances])
         if not df.empty:
             df.index = df["timestamp"]
             df.drop(columns="timestamp", inplace=True)

@@ -48,7 +48,7 @@ class SplightDatalakeBaseModel(BaseModel):
     ) -> pd.DataFrame:
         request = _to_query(AttributeDocument, asset, attribute, **params)
         instances = request.apply()
-        df = pd.DataFrame([instance.dict() for instance in instances])
+        df = pd.DataFrame([instance.model_dump() for instance in instances])
         if not df.empty:
             df.index = df["timestamp"]
             df.drop(columns="timestamp", inplace=True)
