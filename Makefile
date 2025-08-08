@@ -47,5 +47,4 @@ format: install-dev
 	uv run pre-commit run --all-files
 
 check-format: install-dev
-	# uv run ruff check .
 	uv run pre-commit run --all-files
