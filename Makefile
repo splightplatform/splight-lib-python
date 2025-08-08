@@ -34,14 +34,14 @@ test: ## run tests with pytest
 	uv run pytest splight_lib/
 
 install:
-	uv sync --all-extras
+	uv sync
 
 install-dev:
-	uv sync --all-extras --dev
+	uv sync --group dev
+	uv run pre-commit install
 
 isort: ## run isort formatter
 	uv run isort .
-
 
 format: install-dev
 	uv run pre-commit run --all-files

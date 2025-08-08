@@ -1,12 +1,12 @@
 [project]
 name = "splight-lib"
-version = "5.22.2"
+version = "5.22.3"
 description = "Splight Python Library"
 authors = [
     {name = "Splight Dev",email = "dev@splight.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.11,<4.0.0"
+requires-python = ">=3.11,<=3.12"
 dependencies = [
     "apscheduler==3.10.4",
     "concurrent-log-handler==0.9.21",
@@ -60,13 +60,6 @@ build-backend = "hatchling.build"
 [tool.uv.build-backend]
 module-name = "splight_lib"
 
-[tool.black]
-line-length = 79
-
-[tool.isort]
-profile = "black"
-line_length = 79
-
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
@@ -76,6 +69,13 @@ filterwarnings = [
     "ignore::pytest.PytestUnhandledThreadExceptionWarning",
     "ignore::pytest.PytestAssertRewriteWarning",
 ]
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -106,6 +106,7 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
+    "trash",
 ]
 
 # Same as Black.
@@ -114,6 +115,7 @@ indent-width = 4
 
 target-version = "py311"
 
+[tool.ruff.lint]
 extend-select = ["F", "I"]
 
 [tool.ruff.format]

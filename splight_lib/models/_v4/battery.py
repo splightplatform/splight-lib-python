@@ -13,7 +13,7 @@ class Battery(AssetParams, SplightDatabaseBaseModel):
     # Computed Attributes
     daily_ideal_revenue: Attribute | None = None
     daily_revenue: Attribute | None = None
-    forecasted_charge_48H: Attribute | None = None
+    forecasted_state_of_charge_48H: Attribute | None = None
     forecasted_daily_revenue_48H: Attribute | None = None
     forecasted_hourly_revenue_48H: Attribute | None = None
     hourly_revenue: Attribute | None = None
