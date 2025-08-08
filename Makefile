@@ -18,7 +18,7 @@ help:
 clean: clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 update-version:
-	uv version --bump=$(scope)
+	uv version --bump $(scope)
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -34,17 +34,14 @@ test: ## run tests with pytest
 	uv run pytest splight_lib/
 
 install:
-	uv sync --all-extras
+	uv sync
 
 install-dev:
-	uv sync --all-extras --dev
-
-isort: ## run isort formatter
-	uv run isort .
-
+	uv sync --group dev
+	uv run pre-commit install
 
 format: install-dev
 	uv run pre-commit run --all-files
 
 check-format: install-dev
-	uv run pre-commit run --all-files
+	uv run ruff check .
