@@ -18,7 +18,7 @@ help:
 clean: clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 update-version:
-	uv version --bump $(scope)
+	uv version --bump=$(scope)
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -40,8 +40,12 @@ install-dev:
 	uv sync --group dev
 	uv run pre-commit install
 
+isort: ## run isort formatter
+	uv run isort .
+
 format: install-dev
 	uv run pre-commit run --all-files
 
 check-format: install-dev
-	uv run ruff check .
+	# uv run ruff check .
+	uv run pre-commit run --all-files
