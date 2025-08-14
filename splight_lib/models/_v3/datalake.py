@@ -1,9 +1,10 @@
 from datetime import datetime
 from enum import Enum
 from hashlib import sha256
-from typing import Annotated, Any, Generator, Generic, Literal, Self, TypeVar
+from typing import Annotated, Any, Generator, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from typing_extensions import Self
 
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
