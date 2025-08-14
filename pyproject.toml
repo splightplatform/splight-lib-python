@@ -1,6 +1,6 @@
 [project]
 name = "splight-lib"
-version = "5.22.4.dev0"
+version = "5.22.4.dev1"
 description = "Splight Python Library"
 authors = [
     {name = "Splight Dev",email = "dev@splight.com"}
@@ -23,7 +23,6 @@ dependencies = [
     "parameterized==0.8.1",
     "pathspec==0.11.1",
     "progressbar2==4.4.1",
-    "protobuf==4.25.8",
     "py7zr==0.20.8",
     "pydantic==2.4.2",
     "pydantic-settings==2.0.3",
