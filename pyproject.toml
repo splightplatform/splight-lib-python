@@ -1,12 +1,12 @@
 [project]
 name = "splight-lib"
-version = "5.22.3"
+version = "5.22.4.dev0"
 description = "Splight Python Library"
 authors = [
     {name = "Splight Dev",email = "dev@splight.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.11,<=3.12"
+requires-python = ">=3.9,<=3.12"
 dependencies = [
     "apscheduler==3.10.4",
     "concurrent-log-handler==0.9.21",
