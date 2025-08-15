@@ -13,7 +13,6 @@ from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.exceptions import TraceAlreadyExistsError
 from splight_lib.settings import (
-    api_settings,
     datalake_settings,
     workspace_settings,
 )
@@ -28,14 +27,14 @@ def hash(string: str) -> str:
 
 def get_datalake_client() -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
-        version=api_settings.API_VERSION,
+        version="v3",  # api_settings.API_VERSION,
         dl_client_type="sync",
         parameters={
             "resource": "attributes",
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
             "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
-            "api_version": api_settings.API_VERSION,
+            "api_version": "v3",
             "buffer_size": datalake_settings.DL_BUFFER_SIZE,
             "buffer_timeout": datalake_settings.DL_BUFFER_TIMEOUT,
         },

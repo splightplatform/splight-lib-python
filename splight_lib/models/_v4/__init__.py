@@ -50,12 +50,14 @@ from splight_lib.models._v4.server import Server
 from splight_lib.models._v4.slack_line import SlackLine
 from splight_lib.models._v4.tag import Tag
 from splight_lib.models._v4.transformer import Transformer
-from splight_lib.settings import SplightAPIVersion, api_settings
 
-if api_settings.API_VERSION != SplightAPIVersion.V4:
-    raise ImportError(
-        f"Unable to import models from this module when API_VERSION is not set to '{SplightAPIVersion.V4}'."
-    )
+# from splight_lib.settings import SplightAPIVersion, api_settings
+
+# TODO: Revert this change when possible
+# if api_settings.API_VERSION != SplightAPIVersion.V4:
+#     raise ImportError(
+#         f"Unable to import models from this module when API_VERSION is not set to '{SplightAPIVersion.V4}'."
+#     )
 
 
 __all__ = [
