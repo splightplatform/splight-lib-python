@@ -37,6 +37,7 @@ class Generator(AssetParams, SplightDatabaseBaseModel):
     co2_intensity_per_kwh: Metadata | None = None
     installed_power: Metadata | None = None
     max_active_power: Metadata | None = None
+    ramp_down_rate: Metadata | None = None
 
     # Relationships
     bus: AssetRelationship | None = None

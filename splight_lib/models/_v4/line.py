@@ -84,6 +84,7 @@ class Line(AssetParams, SplightDatabaseBaseModel):
     static_ampacity: Metadata | None = None
     static_ampacity_lte: Metadata | None = None
     static_ampacity_ste: Metadata | None = None
+    static_power_ste: Metadata | None = None
     susceptance: Metadata | None = None
     temperature_coeff_resistance: Metadata | None = None
     thermal_elongation_coeff: Metadata | None = None
