@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
-from typing import ClassVar, Literal, Self
+from typing import ClassVar, Literal
 
 import pandas as pd
 from pydantic import field_validator
+from typing_extensions import Self
 
 from splight_lib.models._v4.asset import Asset
 from splight_lib.models._v4.attribute import Attribute

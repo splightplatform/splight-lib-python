@@ -1,9 +1,10 @@
-from splight_lib.settings import SplightAPIVersion, api_settings
+# from splight_lib.settings import SplightAPIVersion, api_settings
 
-if api_settings.API_VERSION != SplightAPIVersion.V3:
-    raise ImportError(
-        f"Unable to import models from this module when API_VERSION is not set to '{SplightAPIVersion.V3}'."
-    )
+# TODO: Revert this change when possible
+# if api_settings.API_VERSION != SplightAPIVersion.V3:
+#     raise ImportError(
+#         f"Unable to import models from this module when API_VERSION is not set to '{SplightAPIVersion.V3}'."
+#     )
 
 from splight_lib.models._v3.actions import Action, SetPoint
 from splight_lib.models._v3.alert import Alert, AlertItem

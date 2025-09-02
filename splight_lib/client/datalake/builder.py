@@ -18,10 +18,10 @@ class DatalakeClientBuilder:
         parameters: dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
         if version == SplightAPIVersion.V3:
-            Builder = V3DatalakeClientBuilder
+            builder = V3DatalakeClientBuilder
         elif version == SplightAPIVersion.V4:
-            Builder = V4DatalakeClientBuilder
+            builder = V4DatalakeClientBuilder
         else:
             raise ValueError(f"Unsupported API version: {version}")
 
-        return Builder.build(dl_client_type, parameters)
+        return builder.build(dl_client_type, parameters)

@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
-from typing import Any, ClassVar, Dict, Self, TypeVar
+from typing import Any, ClassVar, Dict, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
+from typing_extensions import Self
 
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute

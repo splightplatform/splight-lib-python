@@ -1,9 +1,10 @@
 import warnings
 from enum import auto
-from typing import Any, Self
+from typing import Any
 
 from pydantic import BaseModel, PrivateAttr, ValidationInfo, model_validator
 from strenum import LowercaseStrEnum
+from typing_extensions import Self
 
 from splight_lib.client.hub.abstract import AbstractHubClient
 from splight_lib.client.hub.client import SplightHubClient
