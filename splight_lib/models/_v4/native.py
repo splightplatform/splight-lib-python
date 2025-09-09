@@ -15,6 +15,7 @@ class NativeOutput(SplightDatalakeBaseModel):
     attribute: str | Attribute
     output_format: str | None = None
     _output_format: ClassVar[str] = "default"
+    _model_type: ClassVar[str] = "attribute_document"
 
     @field_validator("output_format", mode="before")
     def set_output_format(cls, v) -> str:
@@ -24,19 +25,23 @@ class NativeOutput(SplightDatalakeBaseModel):
     def get(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
-        return super().get(asset, attribute, **params)
+        return super()._get({"asset": asset, "attribute": attribute}, **params)
 
     @classmethod
     async def async_get(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
-        return await super().async_get(asset, attribute, **params)
+        return await super()._async_get(
+            {"asset": asset, "attribute": attribute}, **params
+        )
 
     @classmethod
     def get_dataframe(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> pd.DataFrame:
-        df = super().get_dataframe(asset, attribute, **params)
+        df = super()._get_dataframe(
+            {"asset": asset, "attribute": attribute}, **params
+        )
         df["output_format"] = cls._output_format
         return df
 
@@ -77,3 +82,33 @@ class Boolean(NativeOutput):
     value: bool
     output_format: Literal["Boolean"] = "Boolean"
     _output_format: ClassVar[str] = "Boolean"
+
+
+class SolutionOutputDocument(SplightDatalakeBaseModel):
+    asset: str | Asset
+    solution: str
+    output: str
+    value: bool | int | float | str
+
+    _model_type: ClassVar[str] = "solution_output_document"
+
+    @classmethod
+    def get(
+        cls, solution: str, output: str, asset: str, **params: dict
+    ) -> list[Self]:
+        filters = {"solution": solution, "output": output, "asset": asset}
+        return super()._get(filters, **params)
+
+    @classmethod
+    async def async_get(
+        cls, solution: str, output: str, asset: str, **params: dict
+    ) -> list[Self]:
+        filters = {"solution": solution, "output": output, "asset": asset}
+        return await super()._async_get(filters, **params)
+
+    @classmethod
+    async def get_dataframe(
+        cls, solution: str, output: str, asset: str, **params: dict
+    ) -> list[Self]:
+        filters = {"solution": solution, "output": output, "asset": asset}
+        return await super()._get_dataframe(filters, **params)
