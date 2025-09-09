@@ -28,14 +28,13 @@ def hash(string: str) -> str:
 
 def get_datalake_client() -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
-        version=SplightAPIVersion.V3,
-        dl_client_type="sync",
+        version=SplightAPIVersion.V4,
+        dl_client_type=datalake_settings.DL_CLIENT_TYPE,
         parameters={
-            "resource": "attributes",
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
             "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
             "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
-            "api_version": SplightAPIVersion.V3,
+            "api_version": SplightAPIVersion.V4,
             "buffer_size": datalake_settings.DL_BUFFER_SIZE,
             "buffer_timeout": datalake_settings.DL_BUFFER_TIMEOUT,
         },
@@ -92,6 +91,24 @@ class Trace(BaseModel):
                 ).to_step()
             ],
             address={"asset": asset_id, "attribute": attribute_id},
+        )
+
+    @classmethod
+    def from_so_filter(cls, asset: str, solution: str, output: str) -> Self:
+        return cls(
+            ref_id=hash(f"{asset}_{solution}_{output}"),
+            type=TraceType.QUERY,
+            pipeline=[
+                PipelineStep(
+                    name=StepName.MATCH,
+                    operation={
+                        "asset": asset,
+                        "solution": solution,
+                        "output": output,
+                    },
+                ).to_step()
+            ],
+            address={"asset": asset, "solution": solution, "output": output},
         )
 
     def add_step(self, step: PipelineStep) -> None:
