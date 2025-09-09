@@ -1,21 +1,25 @@
 from datetime import datetime, timezone
-from typing import Dict, TypeVar
+from typing import Any, ClassVar, Dict, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Self
 
-from splight_lib.models._v4.asset import Asset
-from splight_lib.models._v4.attribute import Attribute
-from splight_lib.models._v4.datalake import AttributeDocument, Query, Records
-
-T = TypeVar("T")
+from splight_lib.models._v3.asset import Asset
+from splight_lib.models._v3.attribute import Attribute
+from splight_lib.models._v3.datalake import (
+    DataRecords,
+    DataRequest,
+    PipelineStep,
+    Trace,
+)
 
 
 class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
+    _collection_name: ClassVar[str] = "DatalakeModel"
 
     model_config = ConfigDict(extra="ignore")
 
@@ -24,9 +28,12 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> list[Self]:
-        request = _to_query(AttributeDocument, asset, attribute, **params)
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
+        )
         return request.apply()
 
     @classmethod
@@ -34,9 +41,12 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> list[Self]:
-        request = _to_query(AttributeDocument, asset, attribute, **params)
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
+        )
         instances = await request.async_apply()
         return instances
 
@@ -45,9 +55,12 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
+        extra_pipeline: list[dict[str, Any]] = [],
         **params: Dict,
     ) -> pd.DataFrame:
-        request = _to_query(AttributeDocument, asset, attribute, **params)
+        request = _to_data_request(
+            cls, asset, attribute, extra_pipeline, **params
+        )
         instances = request.apply()
         df = pd.DataFrame([instance.model_dump() for instance in instances])
         if not df.empty:
@@ -67,7 +80,8 @@ class SplightDatalakeBaseModel(BaseModel):
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = Records[AttributeDocument](
+        records = DataRecords(
+            collection=cls._collection_name,
             records=instances,
         )
         records.apply()
@@ -79,27 +93,31 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    def _to_record(self) -> Records:
-        return Records[AttributeDocument](
+    def _to_record(self) -> DataRecords:
+        return DataRecords(
+            collection=self._collection_name,
             records=[self.model_dump(mode="json")],
         )
 
 
-def _to_query(
-    model_class: T,
+def _to_data_request(
+    model_class: TypeVar("T"),
     asset: str | Asset,
     attribute: str | Attribute,
+    extra_pipeline: list[dict[str, Any]] = [],
     **params: Dict,
-) -> Query:
-    attribute_id = (
-        attribute if isinstance(attribute, str) else str(attribute.id)
+) -> DataRequest:
+    if not isinstance(extra_pipeline, list):
+        raise ValueError("extra_pipeline must be a list of dicts")
+    request = DataRequest[model_class](
+        from_timestamp=params.get("from_timestamp"),
+        to_timestamp=params.get("to_timestamp"),
     )
-    query = Query[model_class](
-        start_date=params.get("from_timestamp"),
-        end_date=params.get("to_timestamp"),
-        attributes=[attribute_id],
-    )
-    return query
+    trace = Trace.from_address(asset, attribute)
+    for step in extra_pipeline:
+        trace.add_step(PipelineStep.from_dict(step))
+    request.add_trace(trace)
+    return request
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:
