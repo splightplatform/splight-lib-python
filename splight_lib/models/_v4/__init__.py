@@ -28,10 +28,15 @@ from splight_lib.models._v4.component import (
 )
 from splight_lib.models._v4.data_address import DataAddresses as DataAddress
 from splight_lib.models._v4.datalake import (
-    AttributeDocument,
-    Query,
-    Records,
-    SolutionOutputDocument,
+    DataRecords,
+    DataRequest,
+    PipelineStep,
+    Trace,
+    TraceType,
+    # AttributeDocument,
+    # Query,
+    # Records,
+    # SolutionOutputDocument,
 )
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
@@ -43,7 +48,12 @@ from splight_lib.models._v4.hub_server import HubServer
 from splight_lib.models._v4.line import Line
 from splight_lib.models._v4.load import Load
 from splight_lib.models._v4.metadata import Metadata
-from splight_lib.models._v4.native import Boolean, Number, String
+from splight_lib.models._v4.native import (
+    Boolean,
+    Number,
+    SolutionOutputDocument,
+    String,
+)
 from splight_lib.models._v4.secret import Secret
 from splight_lib.models._v4.segment import Segment
 from splight_lib.models._v4.server import Server
@@ -113,4 +123,8 @@ __all__ = [
     "Segment",
     "SlackLine",
     "Transformer",
+    "SolutionOutputDocument",
+    "DataRequest",
+    "DataRecords",
+    "TraceType",
 ]

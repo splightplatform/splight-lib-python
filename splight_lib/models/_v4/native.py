@@ -107,8 +107,8 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
         return await super()._async_get(filters, **params)
 
     @classmethod
-    async def get_dataframe(
+    def get_dataframe(
         cls, solution: str, output: str, asset: str, **params: dict
-    ) -> list[Self]:
+    ) -> pd.DataFrame:
         filters = {"solution": solution, "output": output, "asset": asset}
-        return await super()._get_dataframe(filters, **params)
+        return super()._get_dataframe(filters, **params)

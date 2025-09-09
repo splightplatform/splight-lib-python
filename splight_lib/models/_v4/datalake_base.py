@@ -5,9 +5,7 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Self
 
-from splight_lib.models._v3.asset import Asset
-from splight_lib.models._v3.attribute import Attribute
-from splight_lib.models._v3.datalake import (
+from splight_lib.models._v4.datalake import (
     DataRecords,
     DataRequest,
     PipelineStep,
@@ -20,46 +18,48 @@ class SplightDatalakeBaseModel(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc)
     )
     _collection_name: ClassVar[str] = "DatalakeModel"
+    _model_type: ClassVar[str] = ...
 
     model_config = ConfigDict(extra="ignore")
 
     @classmethod
-    def get(
+    def _get(
         cls,
-        asset: str | Asset,
-        attribute: str | Attribute,
+        filters: dict[str, str],
         extra_pipeline: list[dict[str, Any]] = [],
-        **params: Dict,
+        **params: dict,
     ) -> list[Self]:
         request = _to_data_request(
-            cls, asset, attribute, extra_pipeline, **params
+            cls,
+            filters,
+            extra_pipeline,
+            **params,
         )
         return request.apply()
 
     @classmethod
-    async def async_get(
+    async def _async_get(
         cls,
-        asset: str | Asset,
-        attribute: str | Attribute,
+        filters: dict[str, str],
         extra_pipeline: list[dict[str, Any]] = [],
-        **params: Dict,
+        **params: dict,
     ) -> list[Self]:
-        request = _to_data_request(
-            cls, asset, attribute, extra_pipeline, **params
-        )
+        request = _to_data_request(cls, filters, extra_pipeline, **params)
         instances = await request.async_apply()
         return instances
 
     @classmethod
-    def get_dataframe(
+    def _get_dataframe(
         cls,
-        asset: str | Asset,
-        attribute: str | Attribute,
+        filters: dict[str, str],
         extra_pipeline: list[dict[str, Any]] = [],
-        **params: Dict,
+        **params: dict,
     ) -> pd.DataFrame:
         request = _to_data_request(
-            cls, asset, attribute, extra_pipeline, **params
+            cls,
+            filters,
+            extra_pipeline,
+            **params,
         )
         instances = request.apply()
         df = pd.DataFrame([instance.model_dump() for instance in instances])
@@ -102,20 +102,31 @@ class SplightDatalakeBaseModel(BaseModel):
 
 def _to_data_request(
     model_class: TypeVar("T"),
-    asset: str | Asset,
-    attribute: str | Attribute,
+    filters: dict[str, str],
+    # asset: str | Asset,
+    # attribute: str | Attribute,
     extra_pipeline: list[dict[str, Any]] = [],
     **params: Dict,
 ) -> DataRequest:
     if not isinstance(extra_pipeline, list):
         raise ValueError("extra_pipeline must be a list of dicts")
+    model_type = model_class._model_type
+    collection = (
+        "default" if model_type == "attribute_document" else "solutions"
+    )
     request = DataRequest[model_class](
+        collection=collection,
         from_timestamp=params.get("from_timestamp"),
         to_timestamp=params.get("to_timestamp"),
     )
-    trace = Trace.from_address(asset, attribute)
+
+    if model_type == "attribute_document":
+        trace = Trace.from_address(**filters)
+    elif model_type == "solution_output_document":
+        trace = Trace.from_so_filter(**filters)
     for step in extra_pipeline:
         trace.add_step(PipelineStep.from_dict(step))
+
     request.add_trace(trace)
     return request
 
