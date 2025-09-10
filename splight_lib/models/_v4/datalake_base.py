@@ -103,8 +103,6 @@ class SplightDatalakeBaseModel(BaseModel):
 def _to_data_request(
     model_class: TypeVar("T"),
     filters: dict[str, str],
-    # asset: str | Asset,
-    # attribute: str | Attribute,
     extra_pipeline: list[dict[str, Any]] = [],
     **params: Dict,
 ) -> DataRequest:
