@@ -33,10 +33,6 @@ from splight_lib.models._v4.datalake import (
     PipelineStep,
     Trace,
     TraceType,
-    # AttributeDocument,
-    # Query,
-    # Records,
-    # SolutionOutputDocument,
 )
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
@@ -58,6 +54,11 @@ from splight_lib.models._v4.secret import Secret
 from splight_lib.models._v4.segment import Segment
 from splight_lib.models._v4.server import Server
 from splight_lib.models._v4.slack_line import SlackLine
+from splight_lib.models._v4.solution import (
+    Solution,
+    SolutionConfiguration,
+    SolutionOutput,
+)
 from splight_lib.models._v4.tag import Tag
 from splight_lib.models._v4.transformer import Transformer
 
@@ -124,6 +125,9 @@ __all__ = [
     "SlackLine",
     "Transformer",
     "SolutionOutputDocument",
+    "SolutionOutput",
+    "Solution",
+    "SolutionConfiguration",
     "DataRequest",
     "DataRecords",
     "TraceType",

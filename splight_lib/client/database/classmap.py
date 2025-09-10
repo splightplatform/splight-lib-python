@@ -48,6 +48,7 @@ MODEL_NAME_MAP = {
     "server": f"{ENGINE_PREFIX}/server/servers/",
     "slackgenerator": f"{ENGINE_PREFIX}/asset/slack-generators/",
     "slackline": f"{ENGINE_PREFIX}/asset/slack-lines/",
+    "solution": f"{ENGINE_PREFIX}/solution/solutions/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "threewindingtransformer": f"{ENGINE_PREFIX}/asset/three-winding-transformers/",
     "transformer": f"{ENGINE_PREFIX}/asset/transformers/",
