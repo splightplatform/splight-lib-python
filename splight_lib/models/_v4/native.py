@@ -112,3 +112,25 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
     ) -> pd.DataFrame:
         filters = {"solution": solution, "output": output, "asset": asset}
         return super()._get_dataframe(filters, **params)
+
+    @classmethod
+    def latest(
+        cls,
+        solution: str,
+        output: str,
+        asset: str,
+        expiration: timedelta | None = None,
+    ) -> Self:
+        from_timestamp = None
+        if expiration:
+            from_timestamp = datetime.now(timezone.utc) - expiration
+        result = cls.get(
+            solution=solution,
+            output=output,
+            asset=asset,
+            from_timestamp=from_timestamp,
+            limit=1,
+        )
+        if result:
+            return result[0]
+        return None
