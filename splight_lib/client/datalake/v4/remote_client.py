@@ -26,7 +26,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     def __init__(
         self,
         base_url: str,
-        resource: str,
         access_id: str,
         secret_key: str,
         api_version: SplightAPIVersion = SplightAPIVersion.V4,
@@ -35,7 +34,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     ):
         super().__init__()
         self._base_url = furl(base_url)
-        self.resource = resource
         token = SplightAuthToken(
             access_key=access_id,
             secret_key=secret_key,
@@ -86,7 +84,8 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @property
     def prefix(self) -> str:
-        return f"v4/data/{self.resource}"
+        return "v4/data"
+        # return f"v4/data/{self.resource}"
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
