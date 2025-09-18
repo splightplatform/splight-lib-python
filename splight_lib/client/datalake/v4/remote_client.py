@@ -84,7 +84,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @property
     def prefix(self) -> str:
-        return "v3/data/"
+        return "v4/data/"
         # return f"v4/data/{self.resource}"
 
 
