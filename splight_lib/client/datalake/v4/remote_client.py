@@ -50,7 +50,6 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def save(self, records: dict) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
-        __import__("ipdb").set_trace()
         response = self._restclient.post(url, json=records)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
