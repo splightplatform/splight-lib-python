@@ -125,6 +125,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         )
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
+            "solutions": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
             "routineEvaluations": DatalakeDocumentBuffer(
                 buffer_size, buffer_timeout
             ),
@@ -140,25 +141,28 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
         instances = records["records"]
-        buffer = self._data_buffers["default"]
+        collection = records["collection"]
+        buffer = self._data_buffers[collection]
         with self._lock:
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                 )
-                self._send_documents(buffer.data)
+                self._send_documents(collection, buffer.data)
                 buffer.reset()
             buffer.add_documents(instances)
         return instances
 
     def _flusher(self):
         while True:
-            for _, buffer in self._data_buffers.items():
-                self._flush_buffer(buffer)
+            for collection, buffer in self._data_buffers.items():
+                self._flush_buffer(collection, buffer)
             sleep(0.5)
 
-    def _flush_buffer(self, buffer: DatalakeDocumentBuffer) -> None:
+    def _flush_buffer(
+        self, collection: str, buffer: DatalakeDocumentBuffer
+    ) -> None:
         with self._lock:
             if buffer.should_flush():
                 try:
@@ -166,15 +170,16 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                         "Flushing datalake buffer with %s elements",
                         len(buffer.data),
                     )
-                    self._send_documents(buffer.data)
+                    self._send_documents(collection, buffer.data)
                     buffer.reset()
                 except Exception:
                     logger.error("Unable to save documents", exc_info=True)
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, docs: list[dict]) -> list[dict]:
+    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
+            "collection": collection,
             "records": docs,
         }
         response = self._restclient.post(url, json=data)
@@ -220,6 +225,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         )
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
+            "solutions": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
             "routine_evaluations": DatalakeDocumentBuffer(
                 buffer_size, buffer_timeout
             ),
@@ -232,23 +238,26 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
 
     def save(self, records: Records) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        buffer = self._data_buffers["default"]
+        collection = records["collection"]
+        records = records["records"]
+        buffer = self._data_buffers[collection]
         with self._lock:
-            buffer.add_documents(records["records"])
+            buffer.add_documents(records)
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                     tags=LogTags.DATALAKE,
                 )
-                self._send_documents(buffer.data)
+                self._send_documents(collection, buffer.data)
                 buffer.reset()
-        return records["records"]
+        return records
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, docs: list[dict]) -> list[dict]:
+    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
+            "collection": collection,
             "records": docs,
         }
         response = self._restclient.post(url, json=data)
