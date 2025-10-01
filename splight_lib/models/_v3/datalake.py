@@ -29,7 +29,7 @@ def hash(string: str) -> str:
 def get_datalake_client() -> AbstractDatalakeClient:
     return DatalakeClientBuilder.build(
         version=SplightAPIVersion.V3,
-        dl_client_type=datalake_settings.BUFFERED_ASYNC,
+        dl_client_type=datalake_settings.DL_CLIENT_TYPE,
         parameters={
             "resource": "attributes",
             "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
