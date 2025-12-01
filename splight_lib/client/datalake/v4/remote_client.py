@@ -84,8 +84,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @property
     def prefix(self) -> str:
-        return "v4/data"
-        # return f"v4/data/{self.resource}"
+        return "v4/data/transition"
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
@@ -141,27 +140,27 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
         instances = records["records"]
-        collection = records["collection"]
-        buffer = self._data_buffers[collection]
+        schema_name = records["schema_name"]
+        buffer = self._data_buffers[schema_name]
         with self._lock:
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                 )
-                self._send_documents(collection, buffer.data)
+                self._send_documents(schema_name, buffer.data)
                 buffer.reset()
             buffer.add_documents(instances)
         return instances
 
     def _flusher(self):
         while True:
-            for collection, buffer in self._data_buffers.items():
-                self._flush_buffer(collection, buffer)
+            for schema_name, buffer in self._data_buffers.items():
+                self._flush_buffer(schema_name, buffer)
             sleep(0.5)
 
     def _flush_buffer(
-        self, collection: str, buffer: DatalakeDocumentBuffer
+        self, schema_name: str, buffer: DatalakeDocumentBuffer
     ) -> None:
         with self._lock:
             if buffer.should_flush():
@@ -170,16 +169,16 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                         "Flushing datalake buffer with %s elements",
                         len(buffer.data),
                     )
-                    self._send_documents(collection, buffer.data)
+                    self._send_documents(schema_name, buffer.data)
                     buffer.reset()
                 except Exception:
                     logger.error("Unable to save documents", exc_info=True)
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(self, schema_name: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "collection": collection,
+            "schema_name": schema_name,
             "records": docs,
         }
         response = self._restclient.post(url, json=data)
@@ -238,9 +237,9 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
 
     def save(self, records: Records) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        collection = records["collection"]
+        schema_name = records["schema_name"]
         records = records["records"]
-        buffer = self._data_buffers[collection]
+        buffer = self._data_buffers[schema_name]
         with self._lock:
             buffer.add_documents(records)
             if buffer.should_flush():
@@ -249,15 +248,15 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
                     len(buffer.data),
                     tags=LogTags.DATALAKE,
                 )
-                self._send_documents(collection, buffer.data)
+                self._send_documents(schema_name, buffer.data)
                 buffer.reset()
         return records
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(self, schema_name: str, docs: list[dict]) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "collection": collection,
+            "schema_name": schema_name,
             "records": docs,
         }
         response = self._restclient.post(url, json=data)
