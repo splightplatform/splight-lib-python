@@ -5,7 +5,7 @@ from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
 
 
 class Records(TypedDict):
-    collection: str
+    schema_name: str
     records: list[dict[str, Any]]
 
 

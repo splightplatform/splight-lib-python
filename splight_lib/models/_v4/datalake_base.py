@@ -10,9 +10,7 @@ from splight_lib.client.datalake.v4.models import (
     DefaultKeys,
     SolutionKeys,
     TransitionReadSerializer,
-)
-from splight_lib.models._v4.datalake import (
-    DataRecords,
+    TransitionWriteSerializer,
 )
 
 
@@ -90,22 +88,25 @@ class SplightDatalakeBaseModel(BaseModel):
         )
 
     def save(self) -> None:
-        records = self._to_record()
-        records.apply()
+        dl_client = get_datalake_client()
+        record = self._to_record()
+        dl_client.save(record.model_dump(mode="json"))
 
     async def async_save(self) -> None:
-        records = self._to_record()
-        await records.async_apply()
+        dl_client = get_datalake_client()
+        record = self._to_record()
+        await dl_client.async_save(record.model_dump(mode="json"))
 
     @classmethod
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = DataRecords(
-            collection=cls._collection_name,
+        records = TransitionWriteSerializer(
+            schema_name=cls._collection_name,
             records=instances,
         )
-        records.apply()
+        dl_client = get_datalake_client()
+        dl_client.save(records.model_dump(mode="json"))
 
     def dict(self, *args, **kwargs) -> Dict:
         d = super().model_dump(*args, **kwargs)
@@ -114,9 +115,9 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    def _to_record(self) -> DataRecords:
-        return DataRecords(
-            collection=self._collection_name,
+    def _to_record(self) -> TransitionWriteSerializer:
+        return TransitionWriteSerializer(
+            schema_name=self._collection_name,
             records=[self.model_dump(mode="json")],
         )
 

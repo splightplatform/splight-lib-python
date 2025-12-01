@@ -60,3 +60,18 @@ class TransitionReadSerializer(BaseModel):
     aggregation: AggregationFunction = AggregationFunction.MAX
     sort: TransitionSort = TransitionSort.DESC
     limit: int = 1000
+
+
+class DefaultRecord(DefaultEntryKey):
+    value: float | int | str | bool
+    timestamp: datetime
+
+
+class SolutionRecord(SolutionEntryKey):
+    value: float | int | str | bool
+    timestamp: datetime
+
+
+class TransitionWriteSerializer(BaseModel):
+    schema_name: TransitionSchemaName
+    records: list[SolutionRecord] | list[DefaultRecord]
