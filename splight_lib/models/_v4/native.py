@@ -35,7 +35,7 @@ class NativeOutput(SplightDatalakeBaseModel):
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
         return await super()._async_get(
-            {"asset": asset, "attribute": attribute}, **params
+            [{"asset": asset, "attribute": attribute}], **params
         )
 
     @classmethod
@@ -43,7 +43,7 @@ class NativeOutput(SplightDatalakeBaseModel):
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> pd.DataFrame:
         df = super()._get_dataframe(
-            {"asset": asset, "attribute": attribute}, **params
+            [{"asset": asset, "attribute": attribute}], **params
         )
         df["output_format"] = cls._output_format
         return df

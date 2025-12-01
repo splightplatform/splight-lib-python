@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any, ClassVar, Dict
+from typing import ClassVar, Dict
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
@@ -43,28 +43,32 @@ class SplightDatalakeBaseModel(BaseModel):
     @classmethod
     async def _async_get(
         cls,
-        filters: dict[str, str],
-        extra_pipeline: list[dict[str, Any]] = [],
+        key_entries: list[dict[str, str]],
         **params: dict,
     ) -> list[Self]:
-        request = cls.__to_data_request(filters, extra_pipeline, **params)
-        instances = await request.async_apply()
-        return instances
+        request = cls.__to_data_request(
+            key_entries,
+            **params,
+        )
+        dl_client = get_datalake_client()
+        request = request.model_dump(mode="json")
+        response = await dl_client.async_get(request)
+        return response["results"]
 
     @classmethod
     def _get_dataframe(
         cls,
-        filters: dict[str, str],
-        extra_pipeline: list[dict[str, Any]] = [],
+        key_entries: list[dict[str, str]],
         **params: dict,
     ) -> pd.DataFrame:
         request = cls.__to_data_request(
-            filters,
-            extra_pipeline,
+            key_entries,
             **params,
         )
-        instances = request.apply()
-        df = pd.DataFrame([instance.model_dump() for instance in instances])
+        dl_client = get_datalake_client()
+        request = request.model_dump(mode="json")
+        response = dl_client.get(request)
+        df = pd.DataFrame(response["results"])
         if not df.empty:
             df.index = df["timestamp"]
             df.drop(columns="timestamp", inplace=True)
