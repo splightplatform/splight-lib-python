@@ -61,7 +61,7 @@ class NativeOutput(SplightDatalakeBaseModel):
         result = cls.get(
             asset=asset,
             attribute=attribute,
-            from_timestamp=from_timestamp,
+            start=from_timestamp,
             limit=1,
         )
         if result:
