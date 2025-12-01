@@ -12,6 +12,9 @@ from splight_lib.client.datalake.common.abstract import (
 )
 from splight_lib.client.datalake.common.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.v4.exceptions import DatalakeRequestError
+from splight_lib.client.datalake.v4.models import (
+    TransitionReadSerializer,
+)
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
 from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.restclient import SplightRestClient
@@ -67,7 +70,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return records["records"]
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _get(self, request: dict) -> list[dict]:
+    def _get(self, request: TransitionReadSerializer) -> list[dict]:
         url = self._base_url / f"{self.prefix}/read/"
         response = self._restclient.post(url, json=request)
         if response.is_error:
@@ -75,7 +78,9 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         return response.json()
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    async def _async_get(self, request: dict) -> list[dict]:
+    async def _async_get(
+        self, request: TransitionReadSerializer
+    ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/read/"
         response = await self._restclient.async_post(url, json=request)
         if response.is_error:
@@ -175,7 +180,9 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                     logger.error("Unable to save documents", exc_info=True)
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, schema_name: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(
+        self, schema_name: str, docs: list[dict]
+    ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
             "schema_name": schema_name,
@@ -253,7 +260,9 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         return records
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, schema_name: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(
+        self, schema_name: str, docs: list[dict]
+    ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
             "schema_name": schema_name,

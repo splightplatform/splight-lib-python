@@ -26,7 +26,9 @@ class NativeOutput(SplightDatalakeBaseModel):
     def get(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
-        return super()._get({"asset": asset, "attribute": attribute}, **params)
+        return super()._get(
+            [{"asset": asset, "attribute": attribute}], **params
+        )
 
     @classmethod
     async def async_get(

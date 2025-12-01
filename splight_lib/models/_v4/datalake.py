@@ -6,17 +6,10 @@ from typing import Annotated, Any, Generator, Generic, Literal, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 from typing_extensions import Self
 
-from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.v3.constants import StepName
-from splight_lib.models._v3.asset import Asset
-from splight_lib.models._v3.attribute import Attribute
+from splight_lib.client.datalake.v4.builder import get_datalake_client
 from splight_lib.models._v3.exceptions import TraceAlreadyExistsError
-from splight_lib.settings import (
-    SplightAPIVersion,
-    datalake_settings,
-    workspace_settings,
-)
 
 MAX_NUM_TRACES = 500
 T = TypeVar("T")
@@ -24,21 +17,6 @@ T = TypeVar("T")
 
 def hash(string: str) -> str:
     return sha256(string.encode("utf-8")).hexdigest()
-
-
-def get_datalake_client() -> AbstractDatalakeClient:
-    return DatalakeClientBuilder.build(
-        version=SplightAPIVersion.V4,
-        dl_client_type=datalake_settings.DL_CLIENT_TYPE,
-        parameters={
-            "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
-            "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
-            "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
-            "api_version": SplightAPIVersion.V4,
-            "buffer_size": datalake_settings.DL_BUFFER_SIZE,
-            "buffer_timeout": datalake_settings.DL_BUFFER_TIMEOUT,
-        },
-    )
 
 
 class TraceType(str, Enum):
@@ -72,44 +50,6 @@ class Trace(BaseModel):
     # TODO: Review if it should be list[PipelineStep]
     pipeline: list[dict] = []
     address: Annotated[dict, Field(exclude=True)]
-
-    @classmethod
-    def from_address(
-        cls, asset: str | Asset, attribute: str | Attribute
-    ) -> Self:
-        asset_id = asset.id if isinstance(asset, Asset) else asset
-        attribute_id = (
-            attribute.id if isinstance(attribute, Attribute) else attribute
-        )
-        return cls(
-            ref_id=hash(f"{asset_id}_{attribute_id}"),
-            type=TraceType.QUERY,
-            pipeline=[
-                PipelineStep(
-                    name=StepName.MATCH,
-                    operation={"asset": asset_id, "attribute": attribute_id},
-                ).to_step()
-            ],
-            address={"asset": asset_id, "attribute": attribute_id},
-        )
-
-    @classmethod
-    def from_so_filter(cls, asset: str, solution: str, output: str) -> Self:
-        return cls(
-            ref_id=hash(f"{asset}_{solution}_{output}"),
-            type=TraceType.QUERY,
-            pipeline=[
-                PipelineStep(
-                    name=StepName.MATCH,
-                    operation={
-                        "asset": asset,
-                        "solution": solution,
-                        "output": output,
-                    },
-                ).to_step()
-            ],
-            address={"asset": asset, "solution": solution, "output": output},
-        )
 
     def add_step(self, step: PipelineStep) -> None:
         self.pipeline.append(step.to_step())
