@@ -18,8 +18,7 @@ class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    _collection_name: ClassVar[str] = "DatalakeModel"
-    _model_type: ClassVar[str] = ...
+    _schema_name: ClassVar[str] = "DatalakeModel"
 
     model_config = ConfigDict(extra="ignore")
 
@@ -29,7 +28,7 @@ class SplightDatalakeBaseModel(BaseModel):
         key_entries: list[dict[str, str]],
         **params: dict,
     ) -> list[Self]:
-        request = cls.__to_data_request(
+        request = cls.__to_read_request(
             key_entries,
             **params,
         )
@@ -44,7 +43,7 @@ class SplightDatalakeBaseModel(BaseModel):
         key_entries: list[dict[str, str]],
         **params: dict,
     ) -> list[Self]:
-        request = cls.__to_data_request(
+        request = cls.__to_read_request(
             key_entries,
             **params,
         )
@@ -59,7 +58,7 @@ class SplightDatalakeBaseModel(BaseModel):
         key_entries: list[dict[str, str]],
         **params: dict,
     ) -> pd.DataFrame:
-        request = cls.__to_data_request(
+        request = cls.__to_read_request(
             key_entries,
             **params,
         )
@@ -73,15 +72,13 @@ class SplightDatalakeBaseModel(BaseModel):
         return df
 
     @classmethod
-    def __to_data_request(
+    def __to_read_request(
         cls,
         key_entries: list[dict[str, str]],
         **params: dict,
     ) -> TransitionReadSerializer:
-        model_type = cls._model_type
-        schema = (
-            DefaultKeys if model_type == "attribute_document" else SolutionKeys
-        )
+        _schema_name = cls._schema_name
+        schema = DefaultKeys if _schema_name == "default" else SolutionKeys
         return TransitionReadSerializer(
             keys=schema.load(entries=key_entries),
             **params,
@@ -89,12 +86,12 @@ class SplightDatalakeBaseModel(BaseModel):
 
     def save(self) -> None:
         dl_client = get_datalake_client()
-        record = self._to_record()
+        record = self.__to_write_request()
         dl_client.save(record.model_dump(mode="json"))
 
     async def async_save(self) -> None:
         dl_client = get_datalake_client()
-        record = self._to_record()
+        record = self.__to_write_request()
         await dl_client.async_save(record.model_dump(mode="json"))
 
     @classmethod
@@ -102,7 +99,7 @@ class SplightDatalakeBaseModel(BaseModel):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
         records = TransitionWriteSerializer(
-            schema_name=cls._collection_name,
+            schema_name=cls._schema_name,
             records=instances,
         )
         dl_client = get_datalake_client()
@@ -115,9 +112,9 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    def _to_record(self) -> TransitionWriteSerializer:
+    def __to_write_request(self) -> TransitionWriteSerializer:
         return TransitionWriteSerializer(
-            schema_name=self._collection_name,
+            schema_name=self._schema_name,
             records=[self.model_dump(mode="json")],
         )
 

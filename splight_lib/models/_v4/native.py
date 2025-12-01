@@ -14,9 +14,8 @@ class NativeOutput(SplightDatalakeBaseModel):
     asset: str | Asset
     attribute: str | Attribute
     output_format: str | None = None
-    _collection_name: ClassVar[Literal["default"]] = "default"
+    _schema_name: ClassVar[Literal["default"]] = "default"
     _output_format: ClassVar[str] = "default"
-    _model_type: ClassVar[str] = "attribute_document"
 
     @field_validator("output_format", mode="before")
     def set_output_format(cls, v) -> str:
@@ -93,8 +92,7 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
     output: str
     value: bool | int | float | str
 
-    _collection_name: ClassVar[Literal["solutions"]] = "solutions"
-    _model_type: ClassVar[str] = "solution_output_document"
+    _schema_name: ClassVar[Literal["solutions"]] = "solutions"
 
     @classmethod
     def get(
