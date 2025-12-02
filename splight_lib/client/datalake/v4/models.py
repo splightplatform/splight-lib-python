@@ -1,13 +1,14 @@
-from datetime import datetime
 from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from splight_lib.client.datalake.v4.generic import (
     AggregationFunction,
+    Timestamp,
     TimeUnit,
     TransitionSchemaName,
     TransitionSort,
+    Value,
 )
 
 
@@ -51,10 +52,10 @@ QueryKeys = Annotated[
 ]
 
 
-class TransitionReadSerializer(BaseModel):
+class DataReadRequest(BaseModel):
     keys: QueryKeys
-    start: Optional[datetime]
-    end: Optional[datetime] = None
+    start: Optional[Timestamp]
+    end: Optional[Timestamp] = None
     time_window_unit: TimeUnit = TimeUnit.SECOND
     time_window_size: int = 1
     aggregation: AggregationFunction = AggregationFunction.MAX
@@ -63,15 +64,15 @@ class TransitionReadSerializer(BaseModel):
 
 
 class DefaultRecord(DefaultEntryKey):
-    value: float | int | str | bool
-    timestamp: datetime
+    value: Value
+    timestamp: Timestamp
 
 
 class SolutionRecord(SolutionEntryKey):
-    value: float | int | str | bool
-    timestamp: datetime
+    value: Value
+    timestamp: Timestamp
 
 
-class TransitionWriteSerializer(BaseModel):
+class DataWriteRequest(BaseModel):
     schema_name: TransitionSchemaName
     records: list[SolutionRecord] | list[DefaultRecord]

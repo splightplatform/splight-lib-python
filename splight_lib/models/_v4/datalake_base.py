@@ -7,10 +7,10 @@ from typing_extensions import Self
 
 from splight_lib.client.datalake.v4.builder import get_datalake_client
 from splight_lib.client.datalake.v4.models import (
+    DataReadRequest,
+    DataWriteRequest,
     DefaultKeys,
     SolutionKeys,
-    TransitionReadSerializer,
-    TransitionWriteSerializer,
 )
 
 
@@ -76,10 +76,10 @@ class SplightDatalakeBaseModel(BaseModel):
         cls,
         key_entries: list[dict[str, str]],
         **params: dict,
-    ) -> TransitionReadSerializer:
+    ) -> DataReadRequest:
         _schema_name = cls._schema_name
         schema = DefaultKeys if _schema_name == "default" else SolutionKeys
-        return TransitionReadSerializer(
+        return DataReadRequest(
             keys=schema.load(entries=key_entries),
             **params,
         )
@@ -98,7 +98,7 @@ class SplightDatalakeBaseModel(BaseModel):
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = TransitionWriteSerializer(
+        records = DataWriteRequest(
             schema_name=cls._schema_name,
             records=instances,
         )
@@ -112,8 +112,8 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    def __to_write_request(self) -> TransitionWriteSerializer:
-        return TransitionWriteSerializer(
+    def __to_write_request(self) -> DataWriteRequest:
+        return DataWriteRequest(
             schema_name=self._schema_name,
             records=[self.model_dump(mode="json")],
         )
