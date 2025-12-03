@@ -52,11 +52,9 @@ class NativeOutput(SplightDatalakeBaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
-        expiration: timedelta | None = None,
+        expiration: timedelta = timedelta(hours=1),
     ) -> Self:
-        from_timestamp = None
-        if expiration:
-            from_timestamp = datetime.now(timezone.utc) - expiration
+        from_timestamp = datetime.now(timezone.utc) - expiration
         result = cls.get(
             asset=asset,
             attribute=attribute,
@@ -121,16 +119,14 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
         solution: str,
         output: str,
         asset: str,
-        expiration: timedelta | None = None,
+        expiration: timedelta = timedelta(hours=1),
     ) -> Self:
-        from_timestamp = None
-        if expiration:
-            from_timestamp = datetime.now(timezone.utc) - expiration
+        from_timestamp = datetime.now(timezone.utc) - expiration
         result = cls.get(
             solution=solution,
             output=output,
             asset=asset,
-            from_timestamp=from_timestamp,
+            start=from_timestamp,
             limit=1,
         )
         if result:
