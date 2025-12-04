@@ -2,10 +2,11 @@ from abc import abstractmethod
 from typing import Any, TypedDict
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
+from splight_lib.client.datalake.v4.generic import TransitionSchemaName
 
 
 class Records(TypedDict):
-    schema_name: str
+    schema_name: TransitionSchemaName
     records: list[dict[str, Any]]
 
 
