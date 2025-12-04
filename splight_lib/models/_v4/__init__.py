@@ -26,6 +26,18 @@ from splight_lib.models._v4.component import (
     get_field_value,
 )
 from splight_lib.models._v4.data_address import DataAddresses as DataAddress
+from splight_lib.models._v4.datalake import (
+    DataReadRequest,
+    DataWriteRequest,
+    DefaultEntryKey,
+    DefaultKeys,
+    DefaultRecord,
+    SolutionEntryKey,
+    SolutionKeys,
+    SolutionRecord,
+    TransitionSchemaName,
+    TransitionSort,
+)
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
 from splight_lib.models._v4.file import File
@@ -117,4 +129,14 @@ __all__ = [
     "SolutionOutput",
     "Solution",
     "SolutionConfiguration",
+    "DefaultEntryKey",
+    "DefaultKeys",
+    "DefaultRecord",
+    "SolutionEntryKey",
+    "SolutionKeys",
+    "SolutionRecord",
+    "DataReadRequest",
+    "TransitionSchemaName",
+    "TransitionSort",
+    "DataWriteRequest",
 ]

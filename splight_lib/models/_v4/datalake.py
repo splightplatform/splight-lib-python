@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
@@ -54,8 +54,8 @@ QueryKeys = Annotated[
 
 class DataReadRequest(BaseModel):
     keys: QueryKeys
-    start: Optional[Timestamp]
-    end: Optional[Timestamp] = None
+    start: Timestamp | None = None
+    end: Timestamp | None = None
     time_window_unit: TimeUnit = TimeUnit.SECOND
     time_window_size: int = 1
     aggregation: AggregationFunction = AggregationFunction.MAX
