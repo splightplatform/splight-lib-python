@@ -35,8 +35,6 @@ from splight_lib.models._v4.datalake import (
     SolutionEntryKey,
     SolutionKeys,
     SolutionRecord,
-    TransitionSchemaName,
-    TransitionSort,
 )
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
@@ -136,7 +134,5 @@ __all__ = [
     "SolutionKeys",
     "SolutionRecord",
     "DataReadRequest",
-    "TransitionSchemaName",
-    "TransitionSort",
     "DataWriteRequest",
 ]
