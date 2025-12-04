@@ -5,8 +5,7 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Self
 
-from splight_lib.client.datalake.v4.builder import get_datalake_client
-from splight_lib.client.datalake.v4.models import (
+from splight_lib.models._v4 import (
     DataReadRequest,
     DataWriteRequest,
     DefaultKeys,
@@ -32,10 +31,7 @@ class SplightDatalakeBaseModel(BaseModel):
             key_entries,
             **params,
         )
-        dl_client = get_datalake_client()
-        request = request.model_dump(mode="json")
-        response = dl_client.get(request)
-        return response["results"]
+        return request.apply()
 
     @classmethod
     async def _async_get(
@@ -47,10 +43,7 @@ class SplightDatalakeBaseModel(BaseModel):
             key_entries,
             **params,
         )
-        dl_client = get_datalake_client()
-        request = request.model_dump(mode="json")
-        response = await dl_client.async_get(request)
-        return response["results"]
+        return await request.async_apply()
 
     @classmethod
     def _get_dataframe(
@@ -62,10 +55,8 @@ class SplightDatalakeBaseModel(BaseModel):
             key_entries,
             **params,
         )
-        dl_client = get_datalake_client()
-        request = request.model_dump(mode="json")
-        response = dl_client.get(request)
-        df = pd.DataFrame(response["results"])
+        results = request.apply()
+        df = pd.DataFrame(results)
         if not df.empty:
             df.index = df["timestamp"]
             df.drop(columns="timestamp", inplace=True)
@@ -85,25 +76,22 @@ class SplightDatalakeBaseModel(BaseModel):
         )
 
     def save(self) -> None:
-        dl_client = get_datalake_client()
-        record = self.__to_write_request()
-        dl_client.save(record.model_dump(mode="json"))
+        request = self.__to_write_request()
+        request.apply()
 
     async def async_save(self) -> None:
-        dl_client = get_datalake_client()
-        record = self.__to_write_request()
-        await dl_client.async_save(record.model_dump(mode="json"))
+        request = self.__to_write_request()
+        await request.async_apply()
 
     @classmethod
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = DataWriteRequest(
+        request = DataWriteRequest(
             schema_name=cls._schema_name,
             records=instances,
         )
-        dl_client = get_datalake_client()
-        dl_client.save(records.model_dump(mode="json"))
+        request.apply()
 
     def dict(self, *args, **kwargs) -> Dict:
         d = super().model_dump(*args, **kwargs)

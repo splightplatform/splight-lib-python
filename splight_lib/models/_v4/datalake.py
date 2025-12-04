@@ -2,6 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
+from splight_lib.client.datalake.v4.builder import get_datalake_client
 from splight_lib.client.datalake.v4.generic import (
     AggregationFunction,
     Timestamp,
@@ -62,6 +63,18 @@ class DataReadRequest(BaseModel):
     sort: TransitionSort = TransitionSort.DESC
     limit: int = 1000
 
+    def apply(self) -> dict:
+        dl_client = get_datalake_client()
+        request = self.model_dump(mode="json")
+        response = dl_client.get(request)
+        return response["results"]
+
+    async def async_apply(self) -> dict:
+        dl_client = get_datalake_client()
+        request = self.model_dump(mode="json")
+        response = await dl_client.async_get(request)
+        return response["results"]
+
 
 class DefaultRecord(DefaultEntryKey):
     value: Value
@@ -76,3 +89,13 @@ class SolutionRecord(SolutionEntryKey):
 class DataWriteRequest(BaseModel):
     schema_name: TransitionSchemaName
     records: list[SolutionRecord] | list[DefaultRecord]
+
+    def apply(self) -> None:
+        dl_client = get_datalake_client()
+        request = self.model_dump(mode="json")
+        dl_client.save(request)
+
+    async def async_apply(self) -> None:
+        dl_client = get_datalake_client()
+        request = self.model_dump(mode="json")
+        await dl_client.async_save(request)
