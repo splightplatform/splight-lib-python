@@ -76,19 +76,51 @@ class DataReadRequest(BaseModel):
         return response["results"]
 
 
-class DefaultRecord(DefaultEntryKey):
+class DefaultDataPoint(DefaultEntryKey):
     value: Value
     timestamp: Timestamp
 
 
-class SolutionRecord(SolutionEntryKey):
+class DefaultRecords(BaseModel):
+    schema_name: Literal[TransitionSchemaName.DEFAULT] = (
+        TransitionSchemaName.DEFAULT
+    )
+    data_points: list[DefaultDataPoint]
+
+    @classmethod
+    def load(cls, data_points: list[DefaultDataPoint]) -> "DefaultRecords":
+        return cls(
+            schema_name=TransitionSchemaName.DEFAULT,
+            data_points=data_points,
+        )
+
+
+class SolutionDataPoint(SolutionEntryKey):
     value: Value
     timestamp: Timestamp
+
+
+class SolutionRecords(BaseModel):
+    schema_name: Literal[TransitionSchemaName.SOLUTIONS] = (
+        TransitionSchemaName.SOLUTIONS
+    )
+    data_points: list[SolutionDataPoint]
+
+    @classmethod
+    def load(cls, data_points: list[SolutionDataPoint]) -> "SolutionRecords":
+        return cls(
+            schema_name=TransitionSchemaName.SOLUTIONS,
+            data_points=data_points,
+        )
+
+
+WriteRecords = Annotated[
+    DefaultRecords | SolutionRecords, Field(discriminator="schema_name")
+]
 
 
 class DataWriteRequest(BaseModel):
-    schema_name: TransitionSchemaName
-    records: list[SolutionRecord] | list[DefaultRecord]
+    records: WriteRecords
 
     def apply(self) -> None:
         dl_client = get_datalake_client()

@@ -29,12 +29,14 @@ from splight_lib.models._v4.data_address import DataAddresses as DataAddress
 from splight_lib.models._v4.datalake import (
     DataReadRequest,
     DataWriteRequest,
+    DefaultDataPoint,
     DefaultEntryKey,
     DefaultKeys,
-    DefaultRecord,
+    DefaultRecords,
+    SolutionDataPoint,
     SolutionEntryKey,
     SolutionKeys,
-    SolutionRecord,
+    SolutionRecords,
 )
 from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.external_grid import ExternalGrid
@@ -129,10 +131,12 @@ __all__ = [
     "SolutionConfiguration",
     "DefaultEntryKey",
     "DefaultKeys",
-    "DefaultRecord",
+    "DefaultRecords",
+    "DefaultDataPoint",
     "SolutionEntryKey",
     "SolutionKeys",
-    "SolutionRecord",
+    "SolutionRecords",
+    "SolutionDataPoint",
     "DataReadRequest",
     "DataWriteRequest",
 ]
