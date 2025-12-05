@@ -9,7 +9,9 @@ from splight_lib.models._v4 import (
     DataReadRequest,
     DataWriteRequest,
     DefaultKeys,
+    DefaultRecords,
     SolutionKeys,
+    SolutionRecords,
 )
 
 
@@ -87,10 +89,7 @@ class SplightDatalakeBaseModel(BaseModel):
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        request = DataWriteRequest(
-            schema_name=cls._schema_name,
-            records=instances,
-        )
+        request = cls.__to_write_request(data_points=instances)
         request.apply()
 
     def dict(self, *args, **kwargs) -> Dict:
@@ -100,10 +99,16 @@ class SplightDatalakeBaseModel(BaseModel):
             for k, v in d.items()
         }
 
-    def __to_write_request(self) -> DataWriteRequest:
+    @classmethod
+    def __to_write_request(
+        cls, data_points: list[dict[str, str]]
+    ) -> DataWriteRequest:
+        _schema_name = cls._schema_name
+        schema = (
+            DefaultRecords if _schema_name == "default" else SolutionRecords
+        )
         return DataWriteRequest(
-            schema_name=self._schema_name,
-            records=[self.model_dump(mode="json")],
+            records=schema.load(data_points=data_points),
         )
 
 
