@@ -3,7 +3,9 @@ from enum import Enum
 from typing import TypeAlias
 
 Timestamp: TypeAlias = datetime
-Value: TypeAlias = float | bool | str | int
+# Order in types is important. When parsing if float is first,
+# bools will be interpreted as floats (1.0, 0.0) instead of bools.
+Value: TypeAlias = bool | str | float
 
 
 class AggregationFunction(str, Enum):
