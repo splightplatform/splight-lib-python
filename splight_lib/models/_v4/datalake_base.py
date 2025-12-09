@@ -5,7 +5,7 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Self
 
-from splight_lib.models._v4 import (
+from splight_lib.models._v4.datalake import (
     DataReadRequest,
     DataWriteRequest,
     DefaultKeys,
@@ -77,12 +77,29 @@ class SplightDatalakeBaseModel(BaseModel):
             **params,
         )
 
+    @classmethod
+    def __to_write_request(
+        cls,
+        data_points: list[dict[str, str]],
+    ) -> DataWriteRequest:
+        _schema_name = cls._schema_name
+        schema = (
+            DefaultRecords if _schema_name == "default" else SolutionRecords
+        )
+        return DataWriteRequest(
+            records=schema.load(data_points=data_points),
+        )
+
     def save(self) -> None:
-        request = self.__to_write_request()
+        request = self.__to_write_request(
+            data_points=[self.model_dump(mode="json")]
+        )
         request.apply()
 
     async def async_save(self) -> None:
-        request = self.__to_write_request()
+        request = self.__to_write_request(
+            data_points=[self.model_dump(mode="json")]
+        )
         await request.async_apply()
 
     @classmethod
@@ -98,18 +115,6 @@ class SplightDatalakeBaseModel(BaseModel):
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()
         }
-
-    @classmethod
-    def __to_write_request(
-        cls, data_points: list[dict[str, str]]
-    ) -> DataWriteRequest:
-        _schema_name = cls._schema_name
-        schema = (
-            DefaultRecords if _schema_name == "default" else SolutionRecords
-        )
-        return DataWriteRequest(
-            records=schema.load(data_points=data_points),
-        )
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:

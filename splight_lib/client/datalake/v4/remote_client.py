@@ -139,8 +139,9 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
     def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        instances = records["records"]
-        schema_name = records["schema_name"]
+        instance = records["records"]
+        data_points = instance["data_points"]
+        schema_name = instance["schema_name"]
         buffer = self._data_buffers[schema_name]
         with self._lock:
             if buffer.should_flush():
@@ -150,8 +151,8 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                 )
                 self._send_documents(schema_name, buffer.data)
                 buffer.reset()
-            buffer.add_documents(instances)
-        return instances
+            buffer.add_documents(data_points)
+        return data_points
 
     def _flusher(self):
         while True:

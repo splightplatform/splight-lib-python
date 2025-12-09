@@ -124,10 +124,10 @@ class DataWriteRequest(BaseModel):
 
     def apply(self) -> None:
         dl_client = get_datalake_client()
-        request = self.model_dump(mode="json")
+        request = self.model_dump()
         dl_client.save(request)
 
     async def async_apply(self) -> None:
         dl_client = get_datalake_client()
-        request = self.model_dump(mode="json")
+        request = self.model_dump()
         await dl_client.async_save(request)
