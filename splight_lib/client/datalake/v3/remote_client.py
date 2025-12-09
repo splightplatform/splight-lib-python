@@ -6,10 +6,7 @@ from httpx import HTTPTransport
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.datalake.common.abstract import (
-    AbstractDatalakeClient,
-    Records,
-)
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.common.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.v3.classmap import COLLECTION_PREFIXS_MAP
 from splight_lib.client.datalake.v3.exceptions import DatalakeRequestError
@@ -51,7 +48,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
         )
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         prefix = self._get_prefix(records["collection"])
         url = self._base_url / f"{prefix}/write/"
         response = self._restclient.post(url, json=records)
@@ -62,7 +59,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     async def async_save(
         self,
-        records: Records,
+        records: dict,
     ) -> list[dict]:
         # POST /data/write
         prefix = self._get_prefix(records["collection"])
@@ -144,7 +141,7 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
         collection = records["collection"]
         instances = records["records"]
@@ -243,7 +240,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
         collection = records["collection"]
         buffer = self._data_buffers[collection]

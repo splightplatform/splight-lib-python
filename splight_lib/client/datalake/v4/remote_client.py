@@ -6,10 +6,7 @@ from httpx import HTTPTransport
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.datalake.common.abstract import (
-    AbstractDatalakeClient,
-    Records,
-)
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.common.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.v4.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
@@ -181,8 +178,10 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
     ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "schema_name": schema_name,
-            "records": docs,
+            "records": {
+                "schema_name": schema_name,
+                "data_points": docs,
+            },
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
@@ -238,13 +237,14 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        schema_name = records["schema_name"]
-        records = records["records"]
+        instance = records["records"]
+        schema_name = instance["schema_name"]
+        data_points = instance["data_points"]
         buffer = self._data_buffers[schema_name]
         with self._lock:
-            buffer.add_documents(records)
+            buffer.add_documents(data_points)
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
@@ -253,7 +253,7 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
                 )
                 self._send_documents(schema_name, buffer.data)
                 buffer.reset()
-        return records
+        return data_points
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(
@@ -261,8 +261,10 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
     ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "schema_name": schema_name,
-            "records": docs,
+            "records": {
+                "schema_name": schema_name,
+                "data_points": docs,
+            }
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
