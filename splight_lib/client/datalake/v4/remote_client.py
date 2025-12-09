@@ -174,19 +174,19 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(
-        self, schema_name: str, docs: list[dict]
+        self, schema_name: str, data_points: list[dict]
     ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
             "records": {
                 "schema_name": schema_name,
-                "data_points": docs,
+                "data_points": data_points,
             },
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
-        return docs
+        return data_points
 
 
 class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
@@ -257,16 +257,16 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
     def _send_documents(
-        self, schema_name: str, docs: list[dict]
+        self, schema_name: str, data_points: list[dict]
     ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
             "records": {
                 "schema_name": schema_name,
-                "data_points": docs,
+                "data_points": data_points,
             }
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
-        return docs
+        return data_points
