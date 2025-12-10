@@ -289,7 +289,6 @@ elif api_version == SplightAPIVersion.V4:
         "Solution",
         "SolutionOutput",
         "SolutionConfiguration",
-        "SolutionOutputDocument",
     ]
 else:
     raise ImportError(f"No models available for API version: '{api_version}'.")
