@@ -14,6 +14,7 @@ class AggregationFunction(str, Enum):
     MIN = "min"
     MAX = "max"
     COUNT = "count"
+    LAST = "last"
 
 
 class TimeUnit(str, Enum):
