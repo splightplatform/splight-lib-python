@@ -96,21 +96,21 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
     def get(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> list[Self]:
-        filters = {"solution": solution, "output": output, "asset": asset}
+        solution_keys = [{"solution": solution, "output": output, "asset": asset}]
         return super()._get(filters, **params)
 
     @classmethod
     async def async_get(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> list[Self]:
-        filters = {"solution": solution, "output": output, "asset": asset}
+        solution_keys = [{"solution": solution, "output": output, "asset": asset}]
         return await super()._async_get(filters, **params)
 
     @classmethod
     def get_dataframe(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> pd.DataFrame:
-        filters = {"solution": solution, "output": output, "asset": asset}
+        solution_keys = [{"solution": solution, "output": output, "asset": asset}]
         return super()._get_dataframe(filters, **params)
 
     @classmethod
