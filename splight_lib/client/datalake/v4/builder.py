@@ -6,7 +6,12 @@ from splight_lib.client.datalake.v4.remote_client import (
     BufferedSyncRemoteDataClient,
     SyncRemoteDatalakeClient,
 )
-from splight_lib.settings import DatalakeClientType
+from splight_lib.settings import (
+    DatalakeClientType,
+    SplightAPIVersion,
+    datalake_settings,
+    workspace_settings,
+)
 
 DL_CLIENT_TYPE_MAP = {
     DatalakeClientType.BUFFERED_ASYNC: BufferedAsyncRemoteDatalakeClient,
@@ -22,3 +27,17 @@ class DatalakeClientBuilder:
         parameters: dict[str, Any] = {},
     ) -> AbstractDatalakeClient:
         return DL_CLIENT_TYPE_MAP[dl_client_type](**parameters)
+
+
+def get_datalake_client() -> AbstractDatalakeClient:
+    return DatalakeClientBuilder.build(
+        dl_client_type=datalake_settings.DL_CLIENT_TYPE,
+        parameters={
+            "base_url": workspace_settings.SPLIGHT_PLATFORM_API_HOST,
+            "access_id": workspace_settings.SPLIGHT_ACCESS_ID,
+            "secret_key": workspace_settings.SPLIGHT_SECRET_KEY,
+            "api_version": SplightAPIVersion.V4,
+            "buffer_size": datalake_settings.DL_BUFFER_SIZE,
+            "buffer_timeout": datalake_settings.DL_BUFFER_TIMEOUT,
+        },
+    )

@@ -1,7 +1,7 @@
 from typing import Any, Callable, Mapping
 
 import httpx
-from httpx._transports.base import BaseTransport
+from httpx import AsyncHTTPTransport, HTTPTransport
 
 from splight_lib.restclient.types import (
     DEFAULT_LIMITS,
@@ -150,7 +150,6 @@ class SplightRestClient:
         base_url: str = "",
         limits: Limits = DEFAULT_LIMITS,
         max_redirects: int = DEFAULT_MAX_REDIRECTS,
-        transport: BaseTransport | None = None,
         trust_env: bool = True,
         default_encoding: str | Callable[[bytes], str] = "utf-8",
         event_hooks: Mapping[str, list[EventHook]] | None = None,
@@ -176,7 +175,7 @@ class SplightRestClient:
             base_url=base_url,
             limits=limits,
             max_redirects=max_redirects,
-            transport=transport,
+            transport=HTTPTransport(retries=3),
             trust_env=trust_env,
             default_encoding=default_encoding,
             event_hooks=event_hooks,
@@ -196,7 +195,7 @@ class SplightRestClient:
             base_url=base_url,
             limits=limits,
             max_redirects=max_redirects,
-            transport=transport,
+            transport=AsyncHTTPTransport(retries=3),
             trust_env=trust_env,
             default_encoding=default_encoding,
             event_hooks=event_hooks,

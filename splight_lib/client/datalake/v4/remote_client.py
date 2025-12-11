@@ -2,14 +2,10 @@ from threading import Lock, Thread
 from time import sleep
 
 from furl import furl
-from httpx import HTTPTransport
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
-from splight_lib.client.datalake.common.abstract import (
-    AbstractDatalakeClient,
-    Records,
-)
+from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.common.buffer import DatalakeDocumentBuffer
 from splight_lib.client.datalake.v4.exceptions import DatalakeRequestError
 from splight_lib.client.exceptions import SPLIGHT_REQUEST_EXCEPTIONS
@@ -39,9 +35,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             secret_key=secret_key,
         )
 
-        self._restclient = SplightRestClient(
-            transport=HTTPTransport(retries=3)
-        )
+        self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
         logger.debug(
             "Remote datalake client initialized.", tags=LogTags.DATALAKE
@@ -84,8 +78,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
 
     @property
     def prefix(self) -> str:
-        return "v4/data"
-        # return f"v4/data/{self.resource}"
+        return "v4/data/transition"
 
 
 class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
@@ -140,28 +133,29 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
 
     def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        instances = records["records"]
-        collection = records["collection"]
-        buffer = self._data_buffers[collection]
+        instance = records["records"]
+        data_points = instance["data_points"]
+        schema_name = instance["schema_name"]
+        buffer = self._data_buffers[schema_name]
         with self._lock:
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                 )
-                self._send_documents(collection, buffer.data)
+                self._send_documents(schema_name, buffer.data)
                 buffer.reset()
-            buffer.add_documents(instances)
-        return instances
+            buffer.add_documents(data_points)
+        return data_points
 
     def _flusher(self):
         while True:
-            for collection, buffer in self._data_buffers.items():
-                self._flush_buffer(collection, buffer)
+            for schema_name, buffer in self._data_buffers.items():
+                self._flush_buffer(schema_name, buffer)
             sleep(0.5)
 
     def _flush_buffer(
-        self, collection: str, buffer: DatalakeDocumentBuffer
+        self, schema_name: str, buffer: DatalakeDocumentBuffer
     ) -> None:
         with self._lock:
             if buffer.should_flush():
@@ -170,22 +164,26 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
                         "Flushing datalake buffer with %s elements",
                         len(buffer.data),
                     )
-                    self._send_documents(collection, buffer.data)
+                    self._send_documents(schema_name, buffer.data)
                     buffer.reset()
                 except Exception:
                     logger.error("Unable to save documents", exc_info=True)
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(
+        self, schema_name: str, data_points: list[dict]
+    ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "collection": collection,
-            "records": docs,
+            "records": {
+                "schema_name": schema_name,
+                "data_points": data_points,
+            },
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
-        return docs
+        return data_points
 
 
 class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
@@ -236,31 +234,36 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
             tags=LogTags.DATALAKE,
         )
 
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         logger.debug("Saving documents in datalake", tags=LogTags.DATALAKE)
-        collection = records["collection"]
-        records = records["records"]
-        buffer = self._data_buffers[collection]
+        instance = records["records"]
+        schema_name = instance["schema_name"]
+        data_points = instance["data_points"]
+        buffer = self._data_buffers[schema_name]
         with self._lock:
-            buffer.add_documents(records)
+            buffer.add_documents(data_points)
             if buffer.should_flush():
                 logger.debug(
                     "Flushing datalake buffer with %s elements",
                     len(buffer.data),
                     tags=LogTags.DATALAKE,
                 )
-                self._send_documents(collection, buffer.data)
+                self._send_documents(schema_name, buffer.data)
                 buffer.reset()
-        return records
+        return data_points
 
     @retry(EXCEPTIONS, tries=3, delay=2, jitter=1)
-    def _send_documents(self, collection: str, docs: list[dict]) -> list[dict]:
+    def _send_documents(
+        self, schema_name: str, data_points: list[dict]
+    ) -> list[dict]:
         url = self._base_url / f"{self.prefix}/write/"
         data = {
-            "collection": collection,
-            "records": docs,
+            "records": {
+                "schema_name": schema_name,
+                "data_points": data_points,
+            }
         }
         response = self._restclient.post(url, json=data)
         if response.is_error:
             raise DatalakeRequestError(response.status_code, response.text)
-        return docs
+        return data_points

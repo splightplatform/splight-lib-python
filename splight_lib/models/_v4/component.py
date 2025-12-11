@@ -16,7 +16,6 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 from splight_lib.models._v4.asset import Asset
 from splight_lib.models._v4.attribute import Attribute
 from splight_lib.models._v4.data_address import DataAddresses as DLDataAddress
-from splight_lib.models._v4.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v4.exceptions import InvalidObjectInstance
 from splight_lib.models._v4.file import File
 from splight_lib.models._v4.secret import Secret
@@ -151,43 +150,12 @@ class ComponentObject(SplightObject):
     data: list[InputParameter] = []
 
 
-class RoutineEvaluation(SplightDatalakeBaseModel):
-    _collection_name = "routineEvaluations"
-
-    routine: str
-    status: RoutineStatus
-    status_text: str | None
-
-
 class RoutineObject(SplightObject):
     status: RoutineStatus = RoutineStatus.RUNNING
 
     config: list[InputParameter] | None = []
     input: list[InputDataAddress] = []
     output: list[InputDataAddress] = []
-
-    def report_status(
-        self, status: RoutineStatus, status_text: str | None = None
-    ):
-        evaluation_status = RoutineEvaluation(
-            routine=str(self.id),
-            status=status,
-            status_text=status_text,
-        )
-        evaluation_status.save()
-
-        if self.status != status:
-            self.status = status
-            self._update_status()
-
-    def _update_status(self):
-        _ = self._db_client.operate(
-            resource_name="routine-status",
-            instance={
-                "routine": self.id,
-                "status": self.status,
-            },
-        )
 
 
 class Component(SplightDatabaseBaseModel):

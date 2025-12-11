@@ -1,15 +1,17 @@
 from datetime import datetime, timezone
-from typing import Any, ClassVar, Dict, TypeVar
+from typing import ClassVar, Dict
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Self
 
 from splight_lib.models._v4.datalake import (
-    DataRecords,
-    DataRequest,
-    PipelineStep,
-    Trace,
+    DataReadRequest,
+    DataWriteRequest,
+    DefaultKeys,
+    DefaultRecords,
+    SolutionKeys,
+    SolutionRecords,
 )
 
 
@@ -17,22 +19,18 @@ class SplightDatalakeBaseModel(BaseModel):
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    _collection_name: ClassVar[str] = "DatalakeModel"
-    _model_type: ClassVar[str] = ...
+    _schema_name: ClassVar[str] = "DatalakeModel"
 
     model_config = ConfigDict(extra="ignore")
 
     @classmethod
     def _get(
         cls,
-        filters: dict[str, str],
-        extra_pipeline: list[dict[str, Any]] = [],
+        key_entries: list[dict[str, str]],
         **params: dict,
     ) -> list[Self]:
-        request = _to_data_request(
-            cls,
-            filters,
-            extra_pipeline,
+        request = cls.__to_read_request(
+            key_entries,
             **params,
         )
         return request.apply()
@@ -40,51 +38,76 @@ class SplightDatalakeBaseModel(BaseModel):
     @classmethod
     async def _async_get(
         cls,
-        filters: dict[str, str],
-        extra_pipeline: list[dict[str, Any]] = [],
+        key_entries: list[dict[str, str]],
         **params: dict,
     ) -> list[Self]:
-        request = _to_data_request(cls, filters, extra_pipeline, **params)
-        instances = await request.async_apply()
-        return instances
+        request = cls.__to_read_request(
+            key_entries,
+            **params,
+        )
+        return await request.async_apply()
 
     @classmethod
     def _get_dataframe(
         cls,
-        filters: dict[str, str],
-        extra_pipeline: list[dict[str, Any]] = [],
+        key_entries: list[dict[str, str]],
         **params: dict,
     ) -> pd.DataFrame:
-        request = _to_data_request(
-            cls,
-            filters,
-            extra_pipeline,
+        request = cls.__to_read_request(
+            key_entries,
             **params,
         )
-        instances = request.apply()
-        df = pd.DataFrame([instance.model_dump() for instance in instances])
+        results = request.apply()
+        df = pd.DataFrame(results)
         if not df.empty:
             df.index = df["timestamp"]
             df.drop(columns="timestamp", inplace=True)
         return df
 
+    @classmethod
+    def __to_read_request(
+        cls,
+        key_entries: list[dict[str, str]],
+        **params: dict,
+    ) -> DataReadRequest:
+        _schema_name = cls._schema_name
+        schema = DefaultKeys if _schema_name == "default" else SolutionKeys
+        return DataReadRequest(
+            keys=schema.load(entries=key_entries),
+            **params,
+        )
+
+    @classmethod
+    def __to_write_request(
+        cls,
+        data_points: list[dict[str, str]],
+    ) -> DataWriteRequest:
+        _schema_name = cls._schema_name
+        schema = (
+            DefaultRecords if _schema_name == "default" else SolutionRecords
+        )
+        return DataWriteRequest(
+            records=schema.load(data_points=data_points),
+        )
+
     def save(self) -> None:
-        records = self._to_record()
-        records.apply()
+        request = self.__to_write_request(
+            data_points=[self.model_dump(mode="json")]
+        )
+        request.apply()
 
     async def async_save(self) -> None:
-        records = self._to_record()
-        await records.async_apply()
+        request = self.__to_write_request(
+            data_points=[self.model_dump(mode="json")]
+        )
+        await request.async_apply()
 
     @classmethod
     def save_dataframe(cls, df: pd.DataFrame):
         df = _fix_dataframe_timestamp(df)
         instances = df.to_dict("records")
-        records = DataRecords(
-            collection=cls._collection_name,
-            records=instances,
-        )
-        records.apply()
+        request = cls.__to_write_request(data_points=instances)
+        request.apply()
 
     def dict(self, *args, **kwargs) -> Dict:
         d = super().model_dump(*args, **kwargs)
@@ -92,41 +115,6 @@ class SplightDatalakeBaseModel(BaseModel):
             k: v["id"] if isinstance(v, dict) and "id" in v.keys() else v
             for k, v in d.items()
         }
-
-    def _to_record(self) -> DataRecords:
-        return DataRecords(
-            collection=self._collection_name,
-            records=[self.model_dump(mode="json")],
-        )
-
-
-def _to_data_request(
-    model_class: TypeVar("T"),
-    filters: dict[str, str],
-    extra_pipeline: list[dict[str, Any]] = [],
-    **params: Dict,
-) -> DataRequest:
-    if not isinstance(extra_pipeline, list):
-        raise ValueError("extra_pipeline must be a list of dicts")
-    model_type = model_class._model_type
-    collection = (
-        "default" if model_type == "attribute_document" else "solutions"
-    )
-    request = DataRequest[model_class](
-        collection=collection,
-        from_timestamp=params.get("from_timestamp"),
-        to_timestamp=params.get("to_timestamp"),
-    )
-
-    if model_type == "attribute_document":
-        trace = Trace.from_address(**filters)
-    elif model_type == "solution_output_document":
-        trace = Trace.from_so_filter(**filters)
-    for step in extra_pipeline:
-        trace.add_step(PipelineStep.from_dict(step))
-
-    request.add_trace(trace)
-    return request
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:

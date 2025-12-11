@@ -1,12 +1,6 @@
 from abc import abstractmethod
-from typing import Any, TypedDict
 
 from splight_lib.abstract.client import AbstractRemoteClient, QuerySet
-
-
-class Records(TypedDict):
-    collection: str
-    records: list[dict[str, Any]]
 
 
 # TODO: Fix this class after delete QuerySet
@@ -22,11 +16,11 @@ class AbstractDatalakeClient(AbstractRemoteClient):
         return await self._async_get(*args, **kwargs)
 
     @abstractmethod
-    def save(self, records: Records) -> list[dict]:
+    def save(self, records: dict) -> list[dict]:
         pass
 
     @abstractmethod
-    async def async_save(self, records: Records) -> list[dict]:
+    async def async_save(self, records: dict) -> list[dict]:
         pass
 
     @abstractmethod

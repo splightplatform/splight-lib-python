@@ -14,9 +14,8 @@ class NativeOutput(SplightDatalakeBaseModel):
     asset: str | Asset
     attribute: str | Attribute
     output_format: str | None = None
-    _collection_name: ClassVar[Literal["default"]] = "default"
+    _schema_name: ClassVar[Literal["default"]] = "default"
     _output_format: ClassVar[str] = "default"
-    _model_type: ClassVar[str] = "attribute_document"
 
     @field_validator("output_format", mode="before")
     def set_output_format(cls, v) -> str:
@@ -26,14 +25,16 @@ class NativeOutput(SplightDatalakeBaseModel):
     def get(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
-        return super()._get({"asset": asset, "attribute": attribute}, **params)
+        return super()._get(
+            [{"asset": asset, "attribute": attribute}], **params
+        )
 
     @classmethod
     async def async_get(
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> list[Self]:
         return await super()._async_get(
-            {"asset": asset, "attribute": attribute}, **params
+            [{"asset": asset, "attribute": attribute}], **params
         )
 
     @classmethod
@@ -41,7 +42,7 @@ class NativeOutput(SplightDatalakeBaseModel):
         cls, asset: str | Asset, attribute: str | Attribute, **params: dict
     ) -> pd.DataFrame:
         df = super()._get_dataframe(
-            {"asset": asset, "attribute": attribute}, **params
+            [{"asset": asset, "attribute": attribute}], **params
         )
         df["output_format"] = cls._output_format
         return df
@@ -51,15 +52,13 @@ class NativeOutput(SplightDatalakeBaseModel):
         cls,
         asset: str | Asset,
         attribute: str | Attribute,
-        expiration: timedelta | None = None,
+        expiration: timedelta = timedelta(hours=1),
     ) -> Self:
-        from_timestamp = None
-        if expiration:
-            from_timestamp = datetime.now(timezone.utc) - expiration
+        from_timestamp = datetime.now(timezone.utc) - expiration
         result = cls.get(
             asset=asset,
             attribute=attribute,
-            from_timestamp=from_timestamp,
+            start=from_timestamp,
             limit=1,
         )
         if result:
@@ -91,29 +90,34 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
     output: str
     value: bool | int | float | str
 
-    _collection_name: ClassVar[Literal["solutions"]] = "solutions"
-    _model_type: ClassVar[str] = "solution_output_document"
+    _schema_name: ClassVar[Literal["solutions"]] = "solutions"
 
     @classmethod
     def get(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> list[Self]:
-        filters = {"solution": solution, "output": output, "asset": asset}
-        return super()._get(filters, **params)
+        solution_keys = [
+            {"solution": solution, "output": output, "asset": asset}
+        ]
+        return super()._get(solution_keys, **params)
 
     @classmethod
     async def async_get(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> list[Self]:
-        filters = {"solution": solution, "output": output, "asset": asset}
-        return await super()._async_get(filters, **params)
+        solution_keys = [
+            {"solution": solution, "output": output, "asset": asset}
+        ]
+        return await super()._async_get(solution_keys, **params)
 
     @classmethod
     def get_dataframe(
         cls, solution: str, output: str, asset: str, **params: dict
     ) -> pd.DataFrame:
-        filters = {"solution": solution, "output": output, "asset": asset}
-        return super()._get_dataframe(filters, **params)
+        solution_keys = [
+            {"solution": solution, "output": output, "asset": asset}
+        ]
+        return super()._get_dataframe(solution_keys, **params)
 
     @classmethod
     def latest(
@@ -121,16 +125,14 @@ class SolutionOutputDocument(SplightDatalakeBaseModel):
         solution: str,
         output: str,
         asset: str,
-        expiration: timedelta | None = None,
+        expiration: timedelta = timedelta(hours=1),
     ) -> Self:
-        from_timestamp = None
-        if expiration:
-            from_timestamp = datetime.now(timezone.utc) - expiration
+        from_timestamp = datetime.now(timezone.utc) - expiration
         result = cls.get(
             solution=solution,
             output=output,
             asset=asset,
-            from_timestamp=from_timestamp,
+            start=from_timestamp,
             limit=1,
         )
         if result:
