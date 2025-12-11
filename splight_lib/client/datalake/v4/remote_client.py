@@ -2,7 +2,6 @@ from threading import Lock, Thread
 from time import sleep
 
 from furl import furl
-from httpx import HTTPTransport
 from retry import retry
 
 from splight_lib.auth import SplightAuthToken
@@ -36,9 +35,7 @@ class SyncRemoteDatalakeClient(AbstractDatalakeClient):
             secret_key=secret_key,
         )
 
-        self._restclient = SplightRestClient(
-            transport=HTTPTransport(retries=3)
-        )
+        self._restclient = SplightRestClient()
         self._restclient.update_headers(token.header)
         logger.debug(
             "Remote datalake client initialized.", tags=LogTags.DATALAKE
