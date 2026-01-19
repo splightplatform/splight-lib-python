@@ -205,6 +205,26 @@ class Component(SplightDatabaseBaseModel):
     endpoints: list[Endpoint] = []
     routines: list[Routine] = []
 
+    def _resolve_resource_name(self) -> str:
+        component_type = str(self.component_type).lower()
+        if component_type == ComponentType.ALGORITHM.value:
+            return "Algorithm"
+        if component_type == ComponentType.CONNECTOR.value:
+            return "Connector"
+        return "Component"
+
+    def save(self) -> None:
+        resource_name = self._resolve_resource_name()
+        files_dict = self._get_model_files_dict()
+        saved = self._db_client.save(
+            resource_name,
+            self.model_dump(exclude_none=True, mode="json"),
+            files=files_dict,
+        )
+        instance = self.model_validate(saved)
+        for key in self.model_fields:
+            setattr(self, key, getattr(instance, key))
+
 
 DATABASE_TYPES = {
     "Component": Component,

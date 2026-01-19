@@ -29,6 +29,8 @@ MODEL_NAME_MAP = {
     "dashboardtimeserieschart": f"{ENGINE_PREFIX}/dashboard/charts/",
     "chartitem": f"{ENGINE_PREFIX}/dashboard/items/",
     "component": f"{ENGINE_PREFIX}/component/components/",
+    "connector": f"{ENGINE_PREFIX}/component/connectors/",
+    "algorithm": f"{ENGINE_PREFIX}/component/algorithms/",
     "componentobject": f"{ENGINE_PREFIX}/component/objects/",
     "dashboard": f"{ENGINE_PREFIX}/dashboard/dashboards/",
     "externalgrid": f"{ENGINE_PREFIX}/asset/external-grids/",
