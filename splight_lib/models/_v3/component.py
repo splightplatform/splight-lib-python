@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Literal, Optional, Type
 
 from pydantic import (
     BaseModel,
+    Field,
     PrivateAttr,
     create_model,
     field_validator,
@@ -199,7 +200,9 @@ class Component(SplightDatabaseBaseModel):
     name: str | None = None
     version: str
     custom_types: list[CustomType] = []
-    component_type: ComponentType = ComponentType.CONNECTOR
+    component_type: ComponentType = Field(
+        default=ComponentType.CONNECTOR, alias="type"
+    )
     input: list[InputParameter] = []
     output: list[Output] = []
     endpoints: list[Endpoint] = []
