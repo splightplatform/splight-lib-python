@@ -109,11 +109,7 @@ def _to_data_request(
 ) -> DataRequest:
     if not isinstance(extra_pipeline, list):
         raise ValueError("extra_pipeline must be a list of dicts")
-    request = DataRequest[model_class](
-        from_timestamp=params.get("from_timestamp"),
-        to_timestamp=params.get("to_timestamp"),
-        limit=params.get("limit", 10000),
-    )
+    request = DataRequest[model_class](**params)
     trace = Trace.from_address(asset, attribute)
     for step in extra_pipeline:
         trace.add_step(PipelineStep.from_dict(step))
