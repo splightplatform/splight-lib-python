@@ -112,6 +112,7 @@ def _to_data_request(
     request = DataRequest[model_class](
         from_timestamp=params.get("from_timestamp"),
         to_timestamp=params.get("to_timestamp"),
+        limit=params.get("limit", 10000),
     )
     trace = Trace.from_address(asset, attribute)
     for step in extra_pipeline:
