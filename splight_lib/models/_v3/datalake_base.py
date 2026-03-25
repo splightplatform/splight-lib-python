@@ -110,6 +110,11 @@ def _to_data_request(
     if not isinstance(extra_pipeline, list):
         raise ValueError("extra_pipeline must be a list of dicts")
     request = DataRequest[model_class](
+        collection=params.get("collection", "default"),
+        sort_field=params.get("sort_field", "timestamp"),
+        sort_direction=params.get("sort_direction", -1),
+        limit=params.get("limit", 10000),
+        max_time_ms=params.get("max_time_ms", 10000),
         from_timestamp=params.get("from_timestamp"),
         to_timestamp=params.get("to_timestamp"),
     )
