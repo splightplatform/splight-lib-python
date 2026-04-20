@@ -119,9 +119,6 @@ class BufferedAsyncRemoteDatalakeClient(SyncRemoteDatalakeClient):
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
             "solutions": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
-            "routineEvaluations": DatalakeDocumentBuffer(
-                buffer_size, buffer_timeout
-            ),
         }
         self._lock = Lock()
         self._flush_thread = Thread(target=self._flusher, daemon=True)
@@ -224,9 +221,6 @@ class BufferedSyncRemoteDataClient(SyncRemoteDatalakeClient):
         self._data_buffers = {
             "default": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
             "solutions": DatalakeDocumentBuffer(buffer_size, buffer_timeout),
-            "routine_evaluations": DatalakeDocumentBuffer(
-                buffer_size, buffer_timeout
-            ),
         }
         self._lock = Lock()
         logger.debug(
