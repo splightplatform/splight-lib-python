@@ -63,14 +63,5 @@ class InvalidArgument(Exception):
     pass
 
 
-class InvalidServerConfigType(Exception):
-    def __init__(self, name: str, type_: str):
-        msg = (
-            f"Config parameter {name} has an invalid type {type_}. The only "
-            "valid types are native and 'File'"
-        )
-        super().__init__(msg)
-
-
 class CommandDisable(Exception):
     pass

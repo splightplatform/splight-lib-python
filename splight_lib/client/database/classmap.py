@@ -1,4 +1,4 @@
-from splight_lib.constants import ENGINE_PREFIX, HUB_PREFIX
+from splight_lib.constants import ENGINE_PREFIX
 
 MODEL_NAME_MAP = {
     "advancedfilter": f"{ENGINE_PREFIX}/alert/advancedfilters/",
@@ -45,15 +45,12 @@ MODEL_NAME_MAP = {
     "secret": f"{ENGINE_PREFIX}/secrets/",
     "segment": f"{ENGINE_PREFIX}/asset/segments/",
     "setpoint": f"{ENGINE_PREFIX}/setpoints/",
-    "server": f"{ENGINE_PREFIX}/server/servers/",
     "slackgenerator": f"{ENGINE_PREFIX}/asset/slack-generators/",
     "slackline": f"{ENGINE_PREFIX}/asset/slack-lines/",
     "solution": f"{ENGINE_PREFIX}/solution/solutions/",
     "tab": f"{ENGINE_PREFIX}/dashboard/tabs/",
     "threewindingtransformer": f"{ENGINE_PREFIX}/asset/three-winding-transformers/",
     "transformer": f"{ENGINE_PREFIX}/asset/transformers/",
-    "hubserver": f"{HUB_PREFIX}/server/servers/",
-    "hubserverversion": f"{HUB_PREFIX}/server/versions/",
 }
 
 CUSTOM_PATHS_MAP = {
@@ -61,7 +58,6 @@ CUSTOM_PATHS_MAP = {
     "get-asset-attribute": "{prefix}/assets/{asset}/get-attribute/",
     "decrypt-secret": "{prefix}/secrets/decrypt/",
     "routine-status": "{prefix}/component/routines/{routine}/update_status/",
-    "server-status": "{prefix}/server/servers/{server}/update-status/",
     "set-asset-metadata": "{prefix}/asset/metadata/{metadata}/set/",
     "set-asset-relationship": "{prefix}/asset/relations/{relationship}/set/",
 }
