@@ -66,14 +66,12 @@ from splight_lib.models._v3.function import Function, FunctionItem, QueryFilter
 from splight_lib.models._v3.generator import Generator
 from splight_lib.models._v3.grid import Grid
 from splight_lib.models._v3.hub import HubComponent
-from splight_lib.models._v3.hub_server import HubServer
 from splight_lib.models._v3.inverter import Inverter
 from splight_lib.models._v3.line import Line
 from splight_lib.models._v3.metadata import Metadata
 from splight_lib.models._v3.native import Boolean, Number, String
 from splight_lib.models._v3.secret import Secret
 from splight_lib.models._v3.segment import Segment
-from splight_lib.models._v3.server import Server
 from splight_lib.models._v3.slack_generator import SlackGenerator
 from splight_lib.models._v3.slack_line import SlackLine
 from splight_lib.models._v3.tag import Tag
@@ -133,7 +131,6 @@ __all__ = [
     "Function",
     "FunctionItem",
     "HubComponent",
-    "HubServer",
     "QueryFilter",
     "Metadata",
     "Number",
@@ -151,7 +148,6 @@ __all__ = [
     "RoutineEvaluation",
     "Secret",
     "Segment",
-    "Server",
     "SetPoint",
     "String",
     "RoutineObject",
