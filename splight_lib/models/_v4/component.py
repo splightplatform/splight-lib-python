@@ -40,12 +40,6 @@ class ComponentType(LowercaseStrEnum):
     CONNECTOR = auto()
 
 
-class RoutineStatus(LowercaseStrEnum):
-    RUNNING = auto()
-    FAILED = auto()
-    PENDING = auto()
-
-
 class ValueType(PascalCaseStrEnum):
     NUMBER = auto()
     STRING = auto()
@@ -151,8 +145,6 @@ class ComponentObject(SplightObject):
 
 
 class RoutineObject(SplightObject):
-    status: RoutineStatus = RoutineStatus.RUNNING
-
     config: list[InputParameter] | None = []
     input: list[InputDataAddress] = []
     output: list[InputDataAddress] = []
@@ -492,7 +484,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
             component_id=self._component_id,
             description=self.description,
             type=self.__class__.__name__,
-            status=self.status,
             config=config,
             input=input,
             output=output,
@@ -510,7 +501,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
         Output = cls._create_output_model(routine.output)
 
         fields = {
-            "status": (RoutineStatus, ...),
             "config": (Config, ...),
             "input": (Input, ...),
             "output": (Output, ...),
@@ -582,7 +572,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
             "id": instance.id,
             "name": instance.name,
             "description": instance.description,
-            "status": instance.status,
             "config": {
                 field.name: get_field_value(field) for field in instance.config
             },
@@ -594,9 +583,3 @@ class RoutineObjectInstance(AbstractObjectInstance):
             },
         }
         return cls.model_validate(params_dict)
-
-    def report_status(
-        self, status: RoutineStatus, status_text: str | None = None
-    ):
-        routine_object = self.to_object()
-        routine_object.report_status(status=status, status_text=status_text)

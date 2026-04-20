@@ -17,7 +17,6 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.data_address import DataAddresses as DLDataAddress
-from splight_lib.models._v3.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v3.exceptions import InvalidObjectInstance
 from splight_lib.models._v3.file import File
 from splight_lib.models._v3.secret import Secret
@@ -44,12 +43,6 @@ class ComponentType(LowercaseStrEnum):
     CONNECTOR = auto()
     SIMULATOR = auto()
     OTHER = auto()
-
-
-class RoutineStatus(LowercaseStrEnum):
-    RUNNING = auto()
-    FAILED = auto()
-    PENDING = auto()
 
 
 class ValueType(PascalCaseStrEnum):
@@ -156,43 +149,10 @@ class ComponentObject(SplightObject):
     data: list[InputParameter] = []
 
 
-class RoutineEvaluation(SplightDatalakeBaseModel):
-    _collection_name = "routineEvaluations"
-
-    routine: str
-    status: RoutineStatus
-    status_text: str | None
-
-
 class RoutineObject(SplightObject):
-    status: RoutineStatus = RoutineStatus.RUNNING
-
     config: list[InputParameter] | None = []
     input: list[InputDataAddress] = []
     output: list[InputDataAddress] = []
-
-    def report_status(
-        self, status: RoutineStatus, status_text: str | None = None
-    ):
-        evaluation_status = RoutineEvaluation(
-            routine=str(self.id),
-            status=status,
-            status_text=status_text,
-        )
-        evaluation_status.save()
-
-        if self.status != status:
-            self.status = status
-            self._update_status()
-
-    def _update_status(self):
-        _ = self._db_client.operate(
-            resource_name="routine-status",
-            instance={
-                "routine": self.id,
-                "status": self.status,
-            },
-        )
 
 
 class Component(SplightDatabaseBaseModel):
@@ -531,7 +491,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
             component_id=self._component_id,
             description=self.description,
             type=self.__class__.__name__,
-            status=self.status,
             config=config,
             input=input,
             output=output,
@@ -549,7 +508,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
         Output = cls._create_output_model(routine.output)
 
         fields = {
-            "status": (RoutineStatus, ...),
             "config": (Config, ...),
             "input": (Input, ...),
             "output": (Output, ...),
@@ -621,7 +579,6 @@ class RoutineObjectInstance(AbstractObjectInstance):
             "id": instance.id,
             "name": instance.name,
             "description": instance.description,
-            "status": instance.status,
             "config": {
                 field.name: get_field_value(field) for field in instance.config
             },
@@ -633,9 +590,3 @@ class RoutineObjectInstance(AbstractObjectInstance):
             },
         }
         return cls.model_validate(params_dict)
-
-    def report_status(
-        self, status: RoutineStatus, status_text: str | None = None
-    ):
-        routine_object = self.to_object()
-        routine_object.report_status(status=status, status_text=status_text)
