@@ -4,7 +4,10 @@ from pydantic import field_validator
 
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.exceptions import ForbiddenOperation
-from splight_lib.models.database import SplightDatabaseBaseModel
+from splight_lib.models.database import (
+    ResourceSummary,
+    SplightDatabaseBaseModel,
+)
 
 
 class File(SplightDatabaseBaseModel):
@@ -16,6 +19,7 @@ class File(SplightDatabaseBaseModel):
     metadata: dict = {}
     content_type: str | None = None
     parent: str | None = None
+    tags: list[ResourceSummary] | None = None
 
     @field_validator("metadata", mode="before")
     def validate_metadata(cls, v):
