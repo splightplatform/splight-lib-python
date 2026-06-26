@@ -32,7 +32,7 @@ MODEL_NAME_MAP = {
     "componentobject": f"{ENGINE_PREFIX}/component/objects/",
     "dashboard": f"{ENGINE_PREFIX}/dashboard/dashboards/",
     "externalgrid": f"{ENGINE_PREFIX}/asset/external-grids/",
-    "file": f"{ENGINE_PREFIX}/files/",
+    "file": f"{ENGINE_PREFIX}/file/files/",
     "filter": f"{ENGINE_PREFIX}/dashboard/filters/",
     "folder": f"{ENGINE_PREFIX}/file/folders/",
     "function": f"{ENGINE_PREFIX}/function/functions/",
