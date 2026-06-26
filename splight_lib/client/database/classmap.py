@@ -34,6 +34,7 @@ MODEL_NAME_MAP = {
     "externalgrid": f"{ENGINE_PREFIX}/asset/external-grids/",
     "file": f"{ENGINE_PREFIX}/files/",
     "filter": f"{ENGINE_PREFIX}/dashboard/filters/",
+    "folder": f"{ENGINE_PREFIX}/file/folders/",
     "function": f"{ENGINE_PREFIX}/function/functions/",
     "generator": f"{ENGINE_PREFIX}/asset/generators/",
     "grid": f"{ENGINE_PREFIX}/asset/grids/",
