@@ -1772,7 +1772,7 @@ wheels = [
 
 [[package]]
 name = "splight-lib"
-version = "5.24.8"
+version = "5.24.9"
 source = { editable = "." }
 dependencies = [
     { name = "apscheduler" },

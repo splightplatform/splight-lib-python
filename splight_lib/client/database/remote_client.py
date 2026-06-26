@@ -339,13 +339,10 @@ class RemoteDatabaseClient(AbstractDatabaseClient, AbstractRemoteClient):
         if response.is_error:
             raise RequestError(response.status_code, response.text)
         upload_url = response.json().get("url")
-        file = open(file_path, "rb")
-        file_name = instance["name"]
         with open(file_path, "rb") as fid:
-            file = {"file": (file_name, fid)}
             response = requests.put(
                 upload_url,
-                files=file,
+                data=fid,
             )
             if not response.ok:
                 raise RequestError(response.status_code, response.text)
