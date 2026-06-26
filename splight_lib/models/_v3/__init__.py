@@ -61,6 +61,7 @@ from splight_lib.models._v3.datalake import DataRequest, PipelineStep, Trace
 from splight_lib.models._v3.datalake_base import SplightDatalakeBaseModel
 from splight_lib.models._v3.external_grid import ExternalGrid
 from splight_lib.models._v3.file import File
+from splight_lib.models._v3.folder import Folder
 from splight_lib.models._v3.function import Function, FunctionItem, QueryFilter
 from splight_lib.models._v3.generator import Generator
 from splight_lib.models._v3.grid import Grid
@@ -127,6 +128,7 @@ __all__ = [
     "DataRequest",
     "File",
     "Filter",
+    "Folder",
     "Function",
     "FunctionItem",
     "HubComponent",

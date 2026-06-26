@@ -12,6 +12,7 @@ from splight_lib.models import (
     Component,
     ComponentObjectInstance,
     File,
+    Folder,
 )
 from splight_lib.models._v3.component import CustomType, Parameter
 
@@ -29,6 +30,7 @@ FAKE_DATABASE_VALUES = {
     "Asset": Asset(name="AssetTest"),
     "Attribute": Attribute(name="AttrTest"),
     "File": File(file=""),
+    "Folder": Folder(name="FolderTest"),
 }
 
 
