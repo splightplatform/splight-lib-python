@@ -92,6 +92,7 @@ the following table
 | Component       |
 | ComponentObject |
 | File            |
+| Folder          |
 | Secret          |
 | SetPoint        |
 | Query           |
