@@ -113,7 +113,10 @@ class ExecutionEngine:
     def _task_fail_callback(self, event: JobExecutionEvent):
         if event.job_id in self._critical_jobs:
             self._logger.error(
-                "An error ocurred in job execution. Stopping engine"
+                "An error occurred in job %s, stopping engine: %s",
+                event.job_id,
+                event.exception,
+                exc_info=event.exception,
             )
             self.stop()
             self._state = EngineStatus.FAILED
