@@ -9,6 +9,7 @@ from typing_extensions import Self
 from splight_lib.client.datalake import DatalakeClientBuilder
 from splight_lib.client.datalake.common.abstract import AbstractDatalakeClient
 from splight_lib.client.datalake.v3.constants import StepName
+from splight_lib.logging._internal import LogTags, get_splight_logger
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.exceptions import TraceAlreadyExistsError
@@ -20,6 +21,8 @@ from splight_lib.settings import (
 
 MAX_NUM_TRACES = 500
 T = TypeVar("T")
+
+logger = get_splight_logger()
 
 
 def hash(string: str) -> str:
@@ -166,10 +169,40 @@ class DataRecords(BaseModel):
     def apply(self) -> None:
         dl_client = get_datalake_client()
         dl_client.save(self.model_dump(mode="json"))
+        self._log_attribute_ingestion()
 
     async def async_apply(self) -> None:
         dl_client = get_datalake_client()
         await dl_client.async_save(self.model_dump(mode="json"))
+        self._log_attribute_ingestion()
+
+    def _log_attribute_ingestion(self) -> None:
+        try:
+            counters: dict[tuple[str, str], int] = {}
+            for record in self.records:
+                asset = record.get("asset")
+                attribute = record.get("attribute")
+                if asset is None or attribute is None:
+                    continue
+                if isinstance(asset, dict):
+                    asset = asset.get("id")
+                if isinstance(attribute, dict):
+                    attribute = attribute.get("id")
+                key = (asset, attribute)
+                counters[key] = counters.get(key, 0) + 1
+            for (asset, attribute), count in counters.items():
+                logger.info(
+                    "attribute_ingestion "
+                    f"asset={asset} "
+                    f"attribute={attribute} "
+                    f"count={count} "
+                    f"collection={self.collection}",
+                    tags=LogTags.DATALAKE,
+                )
+        except Exception:
+            logger.exception(
+                "Unable to log attribute ingestion", tags=LogTags.DATALAKE
+            )
 
 
 def chunk_list(
