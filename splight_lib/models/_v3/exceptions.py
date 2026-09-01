@@ -18,14 +18,6 @@ class SecretDecryptionError(Exception):
         super().__init__(msg)
 
 
-class InvalidFunctionConfiguration(Exception):
-    pass
-
-
-class MissingFunctionItemExpression(Exception):
-    pass
-
-
 class InvalidAlertConfiguration(Exception):
     pass
 
