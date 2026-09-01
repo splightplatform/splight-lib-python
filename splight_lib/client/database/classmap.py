@@ -35,7 +35,6 @@ MODEL_NAME_MAP = {
     "file": f"{ENGINE_PREFIX}/file/files/",
     "filter": f"{ENGINE_PREFIX}/dashboard/filters/",
     "folder": f"{ENGINE_PREFIX}/file/folders/",
-    "function": f"{ENGINE_PREFIX}/function/functions/",
     "generator": f"{ENGINE_PREFIX}/asset/generators/",
     "grid": f"{ENGINE_PREFIX}/asset/grids/",
     "inverter": f"{ENGINE_PREFIX}/asset/inverters/",
