@@ -17,7 +17,10 @@ from strenum import LowercaseStrEnum, PascalCaseStrEnum
 from splight_lib.models._v3.asset import Asset
 from splight_lib.models._v3.attribute import Attribute
 from splight_lib.models._v3.data_address import DataAddresses as DLDataAddress
-from splight_lib.models._v3.exceptions import InvalidObjectInstance
+from splight_lib.models._v3.exceptions import (
+    InvalidObjectInstance,
+    SecretNotFound,
+)
 from splight_lib.models._v3.file import File
 from splight_lib.models._v3.secret import Secret
 from splight_lib.models._v3.variable_types import CUSTOM_TYPES, NATIVE_TYPES
@@ -187,17 +190,28 @@ DB_MODEL_TYPE_MAPPING = {
     **DATALAKE_TYPES,
 }
 
+VALID_CONTEXTS = {"secret", "secrets"}
+
 
 def parse_variable_string(raw_value: str | None) -> Any:
     if raw_value is None:
         return ""
-    pattern = re.compile(r"^\$\{\{(\w+)\.(\w+)\}\}$")
+    # NOTE: The patter could be changed to a generalized form
+    # to accept different vars
+    pattern = re.compile(r"^\$\{\{(?P<context>\w+)\.(?P<key>\w+)\}\}$")
     match = pattern.search(raw_value)
     if not match:
         return raw_value
-    _, secret_name = match.groups()
-    # TODO: handle errors (not found or not allowed)
-    secret = Secret.decrypt(name=secret_name)
+    context = match.group("context")
+    key = match.group("key")
+    if context not in VALID_CONTEXTS:
+        raise ValueError(f"Invalid reference: {raw_value}")
+
+    try:
+        secret = Secret.decrypt(name=key)
+    except Exception:
+        raise SecretNotFound()
+
     return secret.value
 
 
