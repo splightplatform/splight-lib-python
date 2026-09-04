@@ -126,7 +126,7 @@ def _to_data_request(
 
 
 def _fix_dataframe_timestamp(df: pd.DataFrame) -> pd.DataFrame:
-    if df["timestamp"][0].tz is None:
+    if df["timestamp"].iloc[0].tz is None:
         df["timestamp"] = df["timestamp"].apply(
             lambda x: x.tz_localize(tz="UTC").strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         )
