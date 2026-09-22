@@ -7,11 +7,16 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 env:
   LIBRARY_NAME: "splight-lib"
 
 jobs:
   tag_version:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     name: Create tag version on github repository
     steps:
