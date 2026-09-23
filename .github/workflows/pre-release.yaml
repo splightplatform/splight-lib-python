@@ -9,6 +9,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 env:
   LIBRARY_NAME: "splight-lib"
 

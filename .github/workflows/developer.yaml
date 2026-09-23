@@ -4,6 +4,9 @@
 name: Developer
 on: workflow_dispatch
 
+permissions:
+  contents: read
+
 env:
   LIBRARY_NAME: "splight-lib"
 
