@@ -1,6 +1,6 @@
 [project]
 name = "splight-lib"
-version = "5.25.3"
+version = "5.25.4"
 description = "Splight Python Library"
 authors = [
     {name = "Splight Dev",email = "dev@splight.com"}
@@ -23,7 +23,7 @@ dependencies = [
     "parameterized==0.8.1",
     "pathspec==1.1.1",
     "progressbar2==4.4.1",
-    "py7zr==1.1.3", 
+    "py7zr==1.1.4", 
     "pydantic==2.4.2",
     "pydantic-settings==2.0.3",
     "pytz==2025.2",
@@ -38,27 +38,31 @@ dependencies = [
 
 [tool.uv]
 constraint-dependencies = [
-    # https://splight.atlassian.net/browse/SECUR-586
-    "urllib3>=2.7.0",
+    # https://splight.atlassian.net/browse/SECUR-793
+    "urllib3>=2.8.0",
     # https://splight.atlassian.net/browse/SECUR-458
     "filelock>=3.20.1",
     # https://github.com/splightplatform/splight-serverless/security/dependabot/262
     "Pygments>=2.20.0",
-    # https://github.com/splightplatform/splight-lib-python/security/dependabot/33
-    "brotli>=1.2.0",
+    # https://github.com/splightplatform/splight-lib-python/security/dependabot/87
+    "brotli>=1.2.1",
     # https://github.com/splightplatform/splight-lib-python/security/dependabot/48
     "python-dotenv>=1.2.2",
     # https://github.com/splightplatform/splight-lib-python/security/dependabot/53
     "idna>=3.15",
-    # https://github.com/splightplatform/splight-lib-python/security/dependabot/37
-    "virtualenv>=20.36.1",
+    # https://github.com/splightplatform/splight-lib-python/security/dependabot/80
+    "virtualenv>=21.14.9",
     # https://github.com/splightplatform/splight-lib-python/security/dependabot/69
     "anyio>=4.14.2",
+    # https://github.com/splightplatform/splight-lib-python/security/dependabot/88
+    "brotlicffi>=1.2.1.0",
+    # https://splight.atlassian.net/browse/SECUR-794
+    "certifi>=v2026.10.19",
 ]
 
 [dependency-groups]
 dev = [
-    "black==26.3.1",
+    "black>=26.10.1",
     "flake8==6.1.0",
     "ipdb>=0.13.13",
     "ipython==8.12.2",
